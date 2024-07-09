@@ -1,0 +1,3 @@
+<template>
+    {{ pageTitle }}
+</template>
