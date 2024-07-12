@@ -1,9 +1,13 @@
-<script setup>
-import TheWelcome from '../components/TheWelcome.vue'
-</script>
-
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <h1>{{ text }}</h1>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      text: "首頁",
+    };
+  },
+};
+</script>

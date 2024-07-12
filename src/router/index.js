@@ -19,9 +19,9 @@ const router = createRouter({
       children: [
         {
           path: 'customer',
-          name: '客戶資料維護',
+          name: '基本資料維護',
           component: () => import('@/views/basic-info/CustomerView.vue'),
-          meta: {title: '客戶資料'}
+          meta: {title: '基本資料維護'}
         },
         {
           path: 'contact',
@@ -58,6 +58,30 @@ const router = createRouter({
           name: '供應商資料維護',
           component: () => import('@/views/basic-info/SupplierView.vue'),
           meta: {title: '供應商資料'}
+        },
+        {
+          path: 'FinanceManagement',
+          name: '帳務管理',
+          component: () => import('@/views/basic-info/FinanceManagement.vue'),
+          meta: {title: '帳務管理'}
+        },
+        {
+          path: 'SalesControl',
+          name: '銷售管理',
+          component: () => import('@/views/basic-info/SalesControl.vue'),
+          meta: {title: '銷售管理'}
+        },
+        {
+          path: 'ReportManagement',
+          name: '報表',
+          component: () => import('@/views/basic-info/ReportManagement.vue'),
+          meta: {title: '報表'}
+        },
+        {
+          path: 'AccessControl',
+          name: '權限管理',
+          component: () => import('@/views/basic-info/AccessControl.vue'),
+          meta: {title: '供應權限管理商資料'}
         },
       ]
     }

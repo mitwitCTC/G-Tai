@@ -10,9 +10,15 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 
 import getPageTitleMixin from './mixins/getPageTitleMixin'
+import 'bootstrap/dist/css/bootstrap.css';
+import 'jquery';
+import 'popper.js';
+import 'bootstrap';
+
+
+
 
 const app = createApp(App)
-
 app.use(createPinia())
 app.use(router)
 app.use(VueAxios, axios)
