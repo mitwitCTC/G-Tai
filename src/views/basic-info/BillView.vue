@@ -7,6 +7,9 @@
       <el-input v-model="filters.salesperson" placeholder="負責業務" class="filter-input"></el-input>
       <el-input v-model="filters.customerName" placeholder="客戶名稱" class="filter-input"></el-input>
     </div>
+    <el-form-item>
+          <el-button type="success" @click="dialogVisible = true">新增帳單</el-button>
+        </el-form-item>
     <el-table :data="filteredBills" style="width: 100%">
       <el-table-column prop="billId" label="帳單編號" width="150" />
       <el-table-column prop="customerId" label="客戶編號" width="150" />

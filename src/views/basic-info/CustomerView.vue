@@ -35,8 +35,124 @@
         <el-table-column prop="phone" label="公司電話"></el-table-column>
         <el-table-column prop="fax" label="傳真號碼"></el-table-column>
       </el-table>
-    <!-- 新增商家 -->
-     <el-dialog title="新增商家" :visible.sync="dialog">
+    <!-- 新增客戶 -->
+    <el-dialog title="新增客戶" v-model="dialog" width="80%">
+      <el-form :model="form">
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="客戶名稱">
+              <el-input v-model="form.customerName" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="負責業務">
+              <el-input v-model="form.responsibleBusiness" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="虛擬帳號">
+              <el-input v-model="form.virtualAccount" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="區域">
+              <el-input v-model="form.region" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="產業類別">
+              <el-input v-model="form.industryType" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="預估加油量">
+              <el-input v-model="form.estimatedFuelAmount" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="公司電話">
+              <el-input v-model="form.companyPhone" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="傳真號碼">
+              <el-input v-model="form.faxNumber" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="公司統編">
+              <el-input v-model="form.taxId" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="公司抬頭">
+              <el-input v-model="form.companyTitle" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="前台密碼">
+              <el-input v-model="form.frontPassword" type="password" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="合約日期(起)">
+              <el-date-picker v-model="form.contractStartDate" type="date" class="small-input"></el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="合約日期(迄)">
+              <el-date-picker v-model="form.contractEndDate" type="date" class="small-input"></el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="通知方式">
+              <el-input v-model="form.notificationMethod" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="低水位值">
+              <el-input v-model="form.lowWaterValue" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="營業登記地址">
+              <el-input v-model="form.registrationAddress" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="聯絡地址">
+              <el-input v-model="form.contactAddress" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="付款方式">
+              <el-input v-model="form.paymentMethod" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="押金">
+              <el-input v-model="form.deposit" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="16">
+            <el-form-item label="合約備註">
+              <el-input v-model="form.contractRemarks" class="small-input"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialog = false">取消</el-button>
         <el-button type="primary" @click="savePass">送出</el-button>
@@ -92,7 +208,29 @@
             fax: '123-456-7893'
           }
           // 添加更多客戶
-        ]
+        ],
+        form: {
+        customerName: '',
+        responsibleBusiness: '',
+        virtualAccount: '',
+        region: '',
+        industryType: '',
+        estimatedFuelAmount: '',
+        companyPhone: '',
+        faxNumber: '',
+        taxId: '',
+        companyTitle: '',
+        frontPassword: '',
+        contractStartDate: '',
+        contractEndDate: '',
+        notificationMethod: '',
+        lowWaterValue: '',
+        registrationAddress: '',
+        contactAddress: '',
+        paymentMethod: '',
+        deposit: '',
+        contractRemarks: ''
+      }
       };
     },
     computed: {
@@ -130,5 +268,8 @@
     margin-top: 30px; 
     margin-bottom: 30px; 
     }
+.small-input {
+  width: 200px; /* 调整宽度 */
+}
   </style>
   
