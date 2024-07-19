@@ -2,6 +2,9 @@
   <div>
     <bar/>
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
+    <div>
+      <Breadcrumb :isSpecialPage="true"/>
+  </div>
     <div class="filters">
       <el-input v-model="filters.area" placeholder="區域" class="filter-input"></el-input>
       <el-input v-model="filters.salesperson" placeholder="負責業務" class="filter-input"></el-input>
@@ -26,9 +29,10 @@
 
 <script>
 import bar from '@/components/bar.vue'
-
+import Breadcrumb from '@/components/Breadcrumb.vue';
 export default {
   components: {
+    Breadcrumb,
     bar
   },
   data() {

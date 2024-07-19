@@ -1,8 +1,46 @@
+
+
+<template>
+  <!-- 側欄 -->
+  <div class="bg-light border-right" id="sidebar-wrapper">
+    <div class="sidebar-heading">
+      <img src="@/assets/logo.png" alt="Logo" class="img-fluid" @click="goTo('/')" />
+    </div>
+    <div class="list-group list-group-flush">
+      <button class="btn btn-light w-100 text-start" data-bs-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+        基本資料維護↓
+      </button>
+      <div class="collapse" id="collapseExample1">
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/customer')">客戶資料維護</button>
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/contact')">聯絡人資料維護</button>
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/bill')">帳單資料維護</button>
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/vehicle')">車籍資料維護</button>
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/communication-records')">通訊紀錄維護</button>
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">業務員資料維護</button>
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">供應商資料維護</button>
+      </div>
+      <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/FinanceManagement')">帳務管理</button>
+      <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/SalesControl')">銷售管理</button>
+      <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/ReportManagement')">報表</button>
+      <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/AccessControl')">權限管理</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="divider"></div>
+      <div class="user-info">
+        <span>{{ userName }}</span>
+      </div>
+      <button @click="logout">登出</button>
+    </div>
+  </div>
+</template>
 <script setup>
-import { RouterView, useRouter, useRoute } from 'vue-router';
+import { ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
+
+const userName = ref('登入者：測試測試'); // 替換為實際的登入者名稱
 
 const goTo = (path) => {
   if (route.path !== path) {
@@ -11,35 +49,14 @@ const goTo = (path) => {
     console.log('已在當前路徑，無須前往');
   }
 };
+
+const logout = () => {
+  // 登出邏輯，例如清除token，重定向到登入頁面等
+  console.log('登出');
+  router.push('/login'); // 假設登出後重定向到登入頁面
+};
 </script>
 
-<template>
- 
-    <!-- 側欄 -->
-    <div class="bg-light border-right" id="sidebar-wrapper">
-      <div class="sidebar-heading">
-    <img src="@/assets/logo.png" alt="Logo" class="img-fluid" @click="goTo('/')" />
-    </div>
-      <div class="list-group list-group-flush">
-        <button class="btn btn-light w-100 text-start" data-bs-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-          基本資料維護↓
-        </button>
-        <div class="collapse" id="collapseExample1">
-          <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/customer')">客戶資料維護</button>
-          <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/contact')">聯絡人資料維護</button>
-          <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/bill')">帳單資料維護</button>
-          <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/vehicle')">車籍資料維護</button>
-          <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/communication-records')">通訊紀錄維護</button>
-          <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">業務員資料維護</button>
-          <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">供應商資料維護</button>
-        </div>
-        <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/FinanceManagement')">帳務管理</button>
-        <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/SalesControl')">銷售管理</button>
-        <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/ReportManagement')">報表</button>
-        <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/AccessControl')">權限管理</button>
-      </div>
-    </div>
-</template>
 <style scoped>
 #sidebar-wrapper {
   width: 250px;
@@ -48,6 +65,8 @@ const goTo = (path) => {
   left: 0;
   height: 100%;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-heading img {
@@ -73,6 +92,25 @@ const goTo = (path) => {
 }
 .custom-color:hover {
   background-color: #be4e04; 
+}
+.sidebar-footer {
+  padding: 10px;
+  text-align: center;
+}
+
+.user-info {
+  margin-bottom: 10px;
+}
+
+.logout-btn {
+  margin-bottom: 0;
+}
+.list-group {
+  flex-grow: 1;
+}
+.sidebar-footer .divider {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px; /* 可以根据需要调整 */
 }
 
 </style>

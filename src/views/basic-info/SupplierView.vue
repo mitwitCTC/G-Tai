@@ -2,6 +2,9 @@
   <div>
     <bar/>
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
+    <div>
+      <Breadcrumb :isSpecialPage="true"/>
+  </div>
     <el-table :data="suppliers" style="width: 100%">
       <el-table-column prop="supplierName" label="供應商名稱" width="150" />
       <el-table-column prop="taxId" label="統編" width="150" />
@@ -18,10 +21,12 @@
 
 <script>
 import bar from '@/components/bar.vue'
+import Breadcrumb from '@/components/Breadcrumb.vue';
 export default {
-components: {
-  bar
-},
+  components: {
+    Breadcrumb,
+    bar
+  },
 data() {
     return {
       suppliers: [

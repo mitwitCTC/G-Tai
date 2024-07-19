@@ -16,9 +16,6 @@ import 'jquery';
 import 'popper.js';
 import 'bootstrap';
 
-
-
-
 const app = createApp(App)
 app.use(createPinia())
 app.use(router)

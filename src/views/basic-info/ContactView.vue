@@ -2,6 +2,9 @@
     <bar/>
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
     <div>
+      <Breadcrumb :isSpecialPage="true"/>
+  </div>
+    <div>
         <el-input v-model="customerName" placeholder="客戶名稱" class="custom-select" ></el-input>
         <el-form-item>
           <el-button type="success" @click="dialogM = true">發新訊息</el-button>
@@ -79,8 +82,10 @@
  
  <script>
 import bar from '@/components/bar.vue'
+import Breadcrumb from '@/components/Breadcrumb.vue';
 export default {
   components: {
+    Breadcrumb,
     bar
   },
   data() {

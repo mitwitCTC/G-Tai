@@ -1,6 +1,11 @@
 <template>
+  <div>
     <bar/>
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
+    <div>
+      <Breadcrumb :isSpecialPage="true"/>
+    </div>
+    
     <div>
       <el-form :inline="true" :model="search" class="demo-form-inline">
         <el-form-item label="區域">
@@ -20,11 +25,11 @@
           <el-button type="primary" @click="handleReset">重置</el-button>
         </el-form-item>
         <el-form-item>
-        <el-button type="success" @click="dialog = true">新增客戶</el-button>
-      </el-form-item>
+          <el-button type="success" @click="dialog = true">新增客戶</el-button>
+        </el-form-item>
       </el-form>
-  
-      <el-table :data="filteredData" style="width: 100%">
+
+      <el-table :data="paginatedData" style="width: 100%">
         <el-table-column prop="customerCode" label="客戶代號"></el-table-column>
         <el-table-column prop="customerName" label="客戶名稱"></el-table-column>
         <el-table-column prop="salesPerson" label="負責業務"></el-table-column>
@@ -35,181 +40,235 @@
         <el-table-column prop="phone" label="公司電話"></el-table-column>
         <el-table-column prop="fax" label="傳真號碼"></el-table-column>
       </el-table>
-    <!-- 新增客戶 -->
-    <el-dialog title="新增客戶" v-model="dialog" width="80%">
-      <el-form :model="form">
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="客戶名稱">
-              <el-input v-model="form.customerName" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="負責業務">
-              <el-input v-model="form.responsibleBusiness" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="虛擬帳號">
-              <el-input v-model="form.virtualAccount" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="區域">
-              <el-input v-model="form.region" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="產業類別">
-              <el-input v-model="form.industryType" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="預估加油量">
-              <el-input v-model="form.estimatedFuelAmount" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="公司電話">
-              <el-input v-model="form.companyPhone" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="傳真號碼">
-              <el-input v-model="form.faxNumber" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="公司統編">
-              <el-input v-model="form.taxId" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="公司抬頭">
-              <el-input v-model="form.companyTitle" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="前台密碼">
-              <el-input v-model="form.frontPassword" type="password" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="合約日期(起)">
-              <el-date-picker v-model="form.contractStartDate" type="date" class="small-input"></el-date-picker>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="合約日期(迄)">
-              <el-date-picker v-model="form.contractEndDate" type="date" class="small-input"></el-date-picker>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="通知方式">
-              <el-input v-model="form.notificationMethod" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="低水位值">
-              <el-input v-model="form.lowWaterValue" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="營業登記地址">
-              <el-input v-model="form.registrationAddress" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="聯絡地址">
-              <el-input v-model="form.contactAddress" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="付款方式">
-              <el-input v-model="form.paymentMethod" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="押金">
-              <el-input v-model="form.deposit" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="16">
-            <el-form-item label="合約備註">
-              <el-input v-model="form.contractRemarks" class="small-input"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialog = false">取消</el-button>
-        <el-button type="primary" @click="savePass">送出</el-button>
+
+      <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ startItem }} to {{ endItem }} of {{ filteredData.length }}
       </div>
-    </el-dialog>
+      <el-pagination
+        @current-change="handlePageChange"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        :total="filteredData.length"
+        layout="prev, pager, next, jumper"
+        class="pagination"
+      />
     </div>
-  </template>
-  <script>
-  import bar from '@/components/bar.vue'
-  export default {
-    components: {
+
+      <!-- 新增客戶 -->
+      <el-dialog title="新增客戶" v-model="dialog" width="80%">
+        <el-form :model="form">
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="客戶名稱">
+                <el-input v-model="form.customerName" class="small-input"></el-input>
+              </el-form-item>
+            </el-col>
+            <!-- 省略其他表单字段 -->
+          </el-row>
+          <!-- 省略其他表单行 -->
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialog = false">取消</el-button>
+            <el-button type="primary" @click="savePass">送出</el-button>
+          </div>
+        </el-form>
+      </el-dialog>
+    </div>
+  </div>
+</template>
+
+<script>
+import bar from '@/components/bar.vue'
+import Breadcrumb from '@/components/Breadcrumb.vue';
+export default {
+  components: {
+    Breadcrumb,
     bar
   },
-    data() {
-      return {
-        dialog: false,
-        search: {
-          region: '',
-          sales: '',
-          customerName: ''
+  data() {
+    return {
+      dialog: false,
+      search: {
+        region: '',
+        sales: '',
+        customerName: ''
+      },
+      regions: [
+        { value: 'north', label: '北部' },
+        { value: 'south', label: '南部' },
+        // 添加更多區域
+      ],
+      salesPeople: [
+        { value: 'john', label: 'John' },
+        { value: 'jane', label: 'Jane' },
+        // 添加更多業務員
+      ],
+      customers: [
+        {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
         },
-        regions: [
-          { value: 'north', label: '北部' },
-          { value: 'south', label: '南部' },
-          // 添加更多區域
-        ],
-        salesPeople: [
-          { value: 'john', label: 'John' },
-          { value: 'jane', label: 'Jane' },
-          // 添加更多業務員
-        ],
-        customers: [
-          {
-            customerCode: 'C001',
-            customerName: '客戶一',
-            salesPerson: 'John',
-            virtualAccount: '1234567890',
-            region: 'north',
-            industry: 'IT',
-            estimatedFuel: '1000L',
-            phone: '123-456-7890',
-            fax: '123-456-7891'
-          },
-          {
-            customerCode: 'C002',
-            customerName: '客戶二',
-            salesPerson: 'Jane',
-            virtualAccount: '2345678901',
-            region: 'south',
-            industry: 'Finance',
-            estimatedFuel: '2000L',
-            phone: '123-456-7892',
-            fax: '123-456-7893'
-          }
-          // 添加更多客戶
-        ],
-        form: {
+        {
+          customerCode: 'C002',
+          customerName: '客戶二',
+          salesPerson: 'Jane',
+          virtualAccount: '2345678901',
+          region: 'south',
+          industry: 'Finance',
+          estimatedFuel: '2000L',
+          phone: '123-456-7892',
+          fax: '123-456-7893'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },   {
+          customerCode: 'C001',
+          customerName: '客戶一',
+          salesPerson: 'John',
+          virtualAccount: '1234567890',
+          region: 'north',
+          industry: 'IT',
+          estimatedFuel: '1000L',
+          phone: '123-456-7890',
+          fax: '123-456-7891'
+        },
+        // 添加更多客戶
+      ],
+      form: {
         customerName: '',
         responsibleBusiness: '',
         virtualAccount: '',
@@ -230,46 +289,89 @@
         paymentMethod: '',
         deposit: '',
         contractRemarks: ''
-      }
+      },
+      currentPage: 1,
+      pageSize: 10
+    };
+  },
+  computed: {
+    breadcrumbItems() {
+      // 获取当前路由匹配的所有路由项
+      const matched = this.$route.matched;
+      // 生成面包屑项
+      return matched.map(route => ({
+        label: route.meta.breadcrumb || '',
+        path: route.path
+      }));
+    },
+    filteredData() {
+      return this.customers.filter(customer => {
+        return (
+          (this.search.region === '' || customer.region === this.search.region) &&
+          (this.search.sales === '' || customer.salesPerson === this.search.sales) &&
+          (this.search.customerName === '' || customer.customerName.includes(this.search.customerName))
+        );
+      });
+    },
+    paginatedData() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredData.slice(start, end);
+    },
+    startItem() {
+      return (this.currentPage - 1) * this.pageSize + 1;
+    },
+    endItem() {
+      return Math.min(this.currentPage * this.pageSize, this.filteredData.length);
+    }
+  },
+  methods: {
+    handleReset() {
+      this.search = {
+        region: '',
+        sales: '',
+        customerName: ''
       };
     },
-    computed: {
-      filteredData() {
-        return this.customers.filter(customer => {
-          return (
-            (this.search.region === '' || customer.region === this.search.region) &&
-            (this.search.sales === '' || customer.salesPerson === this.search.sales) &&
-            (this.search.customerName === '' || customer.customerName.includes(this.search.customerName))
-          );
-        });
-      }
+    handlePageChange(page) {
+      this.currentPage = page;
     },
-    methods: {
-      handleReset() {
-        this.search = {
-          region: '',
-          sales: '',
-          customerName: ''
-        };
-      },
+    savePass() {
+      // 处理保存逻辑
+      this.dialog = false;
     }
-  };
-  </script>
-  
-  <style scoped>
-  .demo-form-inline {
-    margin-bottom: 20px;
   }
-  .custom-select {
-  width: 200px; /* 調整寬度 */
-  height: 40px; /* 調整高度 */
-    }
+};
+</script>
+
+<style scoped>
+.demo-form-inline {
+  margin-bottom: 20px;
+}
+.custom-select {
+  width: 200px; /* 调整宽度 */
+  height: 40px; /* 调整高度 */
+}
 .page-title {
-    margin-top: 30px; 
-    margin-bottom: 30px; 
-    }
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
 .small-input {
   width: 200px; /* 调整宽度 */
 }
-  </style>
-  
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+.pagination-info {
+  margin-right: auto; /* 确保分页信息靠左 */
+  padding-right: 1200px; /* 可选: 添加右边距以与分页控件分开 */
+  white-space: nowrap;
+}
+.pagination {
+  flex: 1;
+  text-align: right;
+}
+</style>
