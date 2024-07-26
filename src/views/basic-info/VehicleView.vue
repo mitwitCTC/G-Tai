@@ -1,16 +1,16 @@
 <template>
   <div>
-    <bar/>
+    <bar />
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
     <div>
-      <Breadcrumb :isSpecialPage="true"/>
-  </div>
+      <Breadcrumb :isSpecialPage="true" />
+    </div>
     <div class="filters">
       <el-input v-model="filters.billGroup" placeholder="帳單組別" class="filter-input"></el-input>
       <el-input v-model="filters.customerName" placeholder="客戶名稱" class="filter-input"></el-input>
     </div>
-      <el-button type="success" @click="dialogVisible = true">新增車籍</el-button>
-    <el-table :data="filteredVehicles" style="width: 100%">
+    <el-button type="success" @click="dialogVisible = true">新增車籍</el-button>
+    <el-table :data="paginatedVehicles" style="width: 100%">
       <el-table-column prop="vehicleId" label="車籍編號" width="150" />
       <el-table-column prop="licensePlate" label="車牌號碼" width="150" />
       <el-table-column prop="customerName" label="客戶名稱" width="150" />
@@ -22,18 +22,28 @@
       <el-table-column prop="cardEndDate" label="停卡日期" width="150" />
       <el-table-column prop="vehicleType" label="車輛型態" />
     </el-table>
+    <TablePaginated
+      :data="filteredVehicles"
+      :filters="filters"
+      :currentPage="currentPage"
+      :pageSize="pageSize"
+      @page-change="handlePageChange"
+    />
   </div>
 </template>
 
 <script>
-import bar from '@/components/bar.vue'
+import bar from '@/components/bar.vue';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import TablePaginated from '@/components/TablePaginated.vue';
+
 export default {
   components: {
     Breadcrumb,
-    bar
+    bar,
+    TablePaginated
   },
-data() {
+  data() {
     return {
       filters: {
         billGroup: '',
@@ -64,7 +74,9 @@ data() {
           cardEndDate: '2024-02-01',
           vehicleType: '貨車'
         }
-      ]
+      ],
+      currentPage: 1,
+      pageSize: 10
     };
   },
   computed: {
@@ -75,6 +87,16 @@ data() {
           (this.filters.billGroup ? vehicle.billId.includes(this.filters.billGroup) : true)
         );
       });
+    },
+    paginatedVehicles() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredVehicles.slice(start, end);
+    }
+  },
+  methods: {
+    handlePageChange(page) {
+      this.currentPage = page;
     }
   }
 };
@@ -82,17 +104,18 @@ data() {
 
 <style scoped>
 .page-title {
-  margin-top: 30px; 
-  margin-bottom: 30px; 
-  }
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
 .filters {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
-.filter-input{
-  width: 200px; /* 調整寬度 */
-  height: 40px; /* 調整高度 */
 
+.filter-input {
+  width: 200px;
+  height: 40px;
 }
 </style>

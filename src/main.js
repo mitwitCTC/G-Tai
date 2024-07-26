@@ -17,10 +17,10 @@ import 'popper.js';
 import 'bootstrap';
 
 const app = createApp(App)
+app.use(ElementPlus);
 app.use(createPinia())
 app.use(router)
 app.use(VueAxios, axios)
-app.use(ElementPlus);
 app.mixin(getPageTitleMixin)
 
 app.mount('#app')

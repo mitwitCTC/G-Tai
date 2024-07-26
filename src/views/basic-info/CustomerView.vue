@@ -19,7 +19,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="客戶名稱">
-          <el-input v-model="search.customerName" placeholder="輸入客戶名稱"></el-input>
+          <el-input v-model="search.customerName" placeholder="輸入客戶名稱/統編"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleReset">重置</el-button>
@@ -41,7 +41,7 @@
         <el-table-column prop="fax" label="傳真號碼"></el-table-column>
       </el-table>
 
-      <div class="pagination-container">
+      <!-- <div class="pagination-container">
       <div class="pagination-info">
         Showing {{ startItem }} to {{ endItem }} of {{ filteredData.length }}
       </div>
@@ -53,7 +53,15 @@
         layout="prev, pager, next, jumper"
         class="pagination"
       />
-    </div>
+    </div> -->
+    <TablePaginated
+      :data="customers"
+      :filters="search"
+      :currentPage="currentPage"
+      :pageSize="pageSize"
+      @page-change="handlePageChange"
+    />
+
 
       <!-- 新增客戶 -->
       <el-dialog title="新增客戶" v-model="dialog" width="80%">
@@ -80,10 +88,12 @@
 <script>
 import bar from '@/components/bar.vue'
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import TablePaginated from '@/components/TablePaginated.vue';
 export default {
   components: {
     Breadcrumb,
-    bar
+    bar,
+    TablePaginated
   },
   data() {
     return {
