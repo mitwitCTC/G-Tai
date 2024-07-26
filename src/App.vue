@@ -1,9 +1,12 @@
 <template>
   <div class="container-fluid">
-    <RouterView />
-    <footer class="footer">
-      <Footer/>
-    </footer>
+    <div class="non-desktop-message">只支援解析度1024px電腦瀏覽</div>
+    <div class="content">
+      <RouterView />
+      <footer class="footer">
+        <Footer/>
+      </footer>
+    </div>
   </div>
 </template>
 
@@ -22,7 +25,6 @@ export default {
 </script>
 
 <style scoped>
-
 .container-fluid {
   margin-left: 250px;
   padding-top: 20px;
@@ -37,5 +39,23 @@ export default {
   width: 1600px; /* 与 .container-fluid 宽度一致 */
   background-color: #f8f9fa; /* 可以设置背景颜色 */
   padding: 10px; /* 内边距 */
+}
+
+/* 默认隐藏非桌面设备消息 */
+.non-desktop-message {
+  display: none;
+  text-align: center;
+  font-size: 24px;
+  color: red;
+}
+
+/* 对非桌面设备显示消息，隐藏内容 */
+@media (max-width: 1024px) {
+  .non-desktop-message {
+    display: block;
+  }
+  .content {
+    display: none;
+  }
 }
 </style>

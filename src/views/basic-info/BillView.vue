@@ -6,33 +6,35 @@
       <Breadcrumb :isSpecialPage="true" />
     </div>
     <div class="filters">
-    <el-select v-model="filters.area" placeholder="區域" class="filter-input">
-      <el-option label="北部" value="north"></el-option>
-      <el-option label="中部" value="central"></el-option>
-      <el-option label="南部" value="south"></el-option>
-      <el-option label="東部" value="east"></el-option>
-    </el-select>
-    <el-select v-model="filters.salesperson" placeholder="負責業務" class="filter-input">
-      <el-option label="業務1" value="sales1"></el-option>
-      <el-option label="業務2" value="sales2"></el-option>
-      <el-option label="業務3" value="sales3"></el-option>
-    </el-select>
-    <el-input v-model="filters.customerName" placeholder="客戶名稱" class="filter-input"></el-input>
-  </div>
+      <el-select v-model="filters.area" placeholder="區域" class="filter-input">
+        <el-option label="北部" value="north"></el-option>
+        <el-option label="中部" value="central"></el-option>
+        <el-option label="南部" value="south"></el-option>
+        <el-option label="東部" value="east"></el-option>
+      </el-select>
+      <el-select v-model="filters.salesperson" placeholder="負責業務" class="filter-input">
+        <el-option label="業務1" value="sales1"></el-option>
+        <el-option label="業務2" value="sales2"></el-option>
+        <el-option label="業務3" value="sales3"></el-option>
+      </el-select>
+      <el-input v-model="filters.customerName" placeholder="客戶名稱" class="filter-input"></el-input>
+    </div>
     <el-form-item>
       <el-button type="success" @click="dialogVisible = true">新增帳單</el-button>
     </el-form-item>
-    <el-table :data="paginatedBills" style="width: 100%">
-      <el-table-column prop="billId" label="帳單編號" width="150" />
-      <el-table-column prop="customerId" label="客戶編號" width="150" />
-      <el-table-column prop="customerName" label="客戶名稱" width="150" />
-      <el-table-column prop="transactionMode" label="交易模式" width="150" />
-      <el-table-column prop="taxId" label="開立統編" width="150" />
-      <el-table-column prop="recipientName" label="收件人姓名" width="150" />
-      <el-table-column prop="recipientTitle" label="收件人抬頭" width="150" />
-      <el-table-column prop="deliveryMethod" label="寄送方式" width="150" />
-      <el-table-column prop="deliveryAddress" label="收件地址" />
-    </el-table>
+    <div class="table-container">
+      <el-table :data="paginatedBills" style="width: 100%">
+        <el-table-column prop="billId" label="帳單編號" width="150" />
+        <el-table-column prop="customerId" label="客戶編號" width="150" />
+        <el-table-column prop="customerName" label="客戶名稱" width="150" />
+        <el-table-column prop="transactionMode" label="交易模式" width="150" />
+        <el-table-column prop="taxId" label="開立統編" width="150" />
+        <el-table-column prop="recipientName" label="收件人姓名" width="150" />
+        <el-table-column prop="recipientTitle" label="收件人抬頭" width="150" />
+        <el-table-column prop="deliveryMethod" label="寄送方式" width="150" />
+        <el-table-column prop="deliveryAddress" label="收件地址" />
+      </el-table>
+    </div>
     <TablePaginated
       :data="filteredBills"
       :filters="filters"
@@ -121,11 +123,37 @@ export default {
 
 .filters {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
 }
 
 .filter-input {
   width: 200px;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.el-table {
+  min-width: 900px;
+}
+
+.el-table th, .el-table td {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .filter-input {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>
