@@ -61,26 +61,151 @@
       :pageSize="pageSize"
       @page-change="handlePageChange"
     />
+ <!-- 新增客戶 -->
 
-
-      <!-- 新增客戶 -->
-      <el-dialog title="新增客戶" v-model="dialog" width="80%">
-        <el-form :model="form">
-          <el-row>
-            <el-col :span="8">
-              <el-form-item label="客戶名稱">
-                <el-input v-model="form.customerName" class="small-input"></el-input>
-              </el-form-item>
-            </el-col>
-            <!-- 省略其他表单字段 -->
-          </el-row>
-          <!-- 省略其他表单行 -->
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="dialog = false">取消</el-button>
-            <el-button type="primary" @click="savePass">送出</el-button>
-          </div>
-        </el-form>
-      </el-dialog>
+ <!-- 新增客戶 -->
+ <el-dialog title="新增客戶" v-model="dialog" width="80%">
+    <el-form :model="form" label-width="120px"> <!-- 统一标签宽度 -->
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="客戶名稱">
+            <el-input v-model="form.customerName" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="負責業務">
+            <el-input v-model="form.responsibleBusiness" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="虛擬帳號">
+            <el-input v-model="form.virtualAccount" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="區域">
+            <el-select v-model="form.region" placeholder="選擇區域" class="small-input">
+              <el-option label="北部" value="north"></el-option>
+              <el-option label="中部" value="central"></el-option>
+              <el-option label="南部" value="south"></el-option>
+              <el-option label="東部" value="east"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="產業類別">
+            <el-select v-model="form.industryType" placeholder="選擇產業類別" class="small-input">
+              <el-option label="科技" value="tech"></el-option>
+              <el-option label="金融" value="finance"></el-option>
+              <el-option label="製造" value="manufacturing"></el-option>
+              <el-option label="服務" value="service"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="預估加油量">
+            <el-input v-model="form.estimatedFuelAmount" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="公司電話">
+            <el-input v-model="form.companyPhone" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="傳真號碼">
+            <el-input v-model="form.faxNumber" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="公司統編">
+            <el-input v-model="form.taxId" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="公司抬頭">
+            <el-input v-model="form.companyTitle" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="前台密碼">
+            <el-input v-model="form.frontPassword" type="password" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="通知方式">
+            <el-input v-model="form.notificationMethod" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="低水位值">
+            <el-input v-model="form.lowWaterValue" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+      <el-col :span="8">
+          <el-form-item label="合約日期(起)">
+            <el-date-picker v-model="form.contractStartDate" type="date" class="small-input"></el-date-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="合約日期(迄)">
+            <el-date-picker v-model="form.contractEndDate" type="date" class="small-input"></el-date-picker>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="16">
+          <el-form-item label="營業登記地址">
+            <el-input v-model="form.registrationAddress"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="16">
+          <el-form-item label="聯絡地址">
+            <el-input v-model="form.contactAddress"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="付款方式" >
+            <el-select v-model="form.paymentMethod" placeholder="選擇付款方式" class="small-input">
+              <el-option label="現金" value="cash"></el-option>
+              <el-option label="信用卡" value="credit"></el-option>
+              <el-option label="轉帳" value="transfer"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="押金">
+            <el-input v-model="form.deposit" class="small-input"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="16">
+          <el-form-item label="合約備註">
+            <el-input v-model="form.contractRemarks"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="dialog = false">取消</el-button>
+      <el-button type="primary" @click="savePass">送出</el-button>
+    </div>
+  </el-dialog>
     </div>
   </div>
 </template>
