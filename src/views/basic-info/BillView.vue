@@ -6,10 +6,19 @@
       <Breadcrumb :isSpecialPage="true" />
     </div>
     <div class="filters">
-      <el-input v-model="filters.area" placeholder="區域" class="filter-input"></el-input>
-      <el-input v-model="filters.salesperson" placeholder="負責業務" class="filter-input"></el-input>
-      <el-input v-model="filters.customerName" placeholder="客戶名稱" class="filter-input"></el-input>
-    </div>
+    <el-select v-model="filters.area" placeholder="區域" class="filter-input">
+      <el-option label="北部" value="north"></el-option>
+      <el-option label="中部" value="central"></el-option>
+      <el-option label="南部" value="south"></el-option>
+      <el-option label="東部" value="east"></el-option>
+    </el-select>
+    <el-select v-model="filters.salesperson" placeholder="負責業務" class="filter-input">
+      <el-option label="業務1" value="sales1"></el-option>
+      <el-option label="業務2" value="sales2"></el-option>
+      <el-option label="業務3" value="sales3"></el-option>
+    </el-select>
+    <el-input v-model="filters.customerName" placeholder="客戶名稱" class="filter-input"></el-input>
+  </div>
     <el-form-item>
       <el-button type="success" @click="dialogVisible = true">新增帳單</el-button>
     </el-form-item>
@@ -118,6 +127,5 @@ export default {
 
 .filter-input {
   width: 200px;
-  height: 40px;
 }
 </style>
