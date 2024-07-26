@@ -5,17 +5,21 @@
     <div>
       <Breadcrumb :isSpecialPage="true"/>
   </div>
-    <el-table :data="suppliers" style="width: 100%">
-      <el-table-column prop="supplierName" label="供應商名稱" width="150" />
-      <el-table-column prop="taxId" label="統編" width="150" />
-      <el-table-column prop="address" label="地址" width="150" />
-      <el-table-column prop="phone" label="電話" width="150" />
-      <el-table-column label="操作" >
-        <template v-slot="scope">
-          <el-button @click="editSupplier(scope.row)" type="primary" size="small">编辑</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+  <div class="card-container">
+    <el-card v-for="supplier in suppliers" :key="supplier.supplierName" class="supplier-card" shadow="hover">
+      <div slot="header" class="card-header">
+        <span>{{ supplier.supplierName }}</span>
+      </div>
+      <div class="card-body">
+        <p><strong>統編:</strong> {{ supplier.taxId }}</p>
+        <p><strong>地址:</strong> {{ supplier.address }}</p>
+        <p><strong>電話:</strong> {{ supplier.phone }}</p>
+      </div>
+      <div class="card-footer">
+        <el-button @click="editSupplier(supplier)" type="primary" size="small">编辑</el-button>
+      </div>
+    </el-card>
+  </div>
   </div>
 </template>
 
@@ -59,4 +63,29 @@ data() {
   margin-top: 30px; 
   margin-bottom: 30px; 
   }
+  .card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.supplier-card {
+  width: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-header {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.card-footer {
+  padding: 16px;
+  text-align: right;
+}
 </style>
