@@ -7,9 +7,11 @@
   </div>
   <div class="card-container">
     <el-card v-for="supplier in suppliers" :key="supplier.supplierName" class="supplier-card" shadow="hover">
-      <div slot="header" class="card-header">
+      <template v-slot:header>
+<div  class="card-header">
         <span>{{ supplier.supplierName }}</span>
       </div>
+</template>
       <div class="card-body">
         <p><strong>統編:</strong> {{ supplier.taxId }}</p>
         <p><strong>地址:</strong> {{ supplier.address }}</p>

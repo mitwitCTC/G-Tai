@@ -61,10 +61,12 @@
             <!-- 省略其他表单字段 -->
           </el-row>
           <!-- 省略其他表单行 -->
-          <div slot="footer" class="dialog-footer">
+          <template v-slot:footer>
+<div  class="dialog-footer">
             <el-button @click="dialog = false">取消</el-button>
             <el-button type="primary" @click="savePass">送出</el-button>
           </div>
+</template>
         </el-form>
       </el-dialog>
     </div>
