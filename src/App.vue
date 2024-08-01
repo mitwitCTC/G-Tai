@@ -46,6 +46,13 @@ export default {
   text-align: center;
   font-size: 24px;
   color: red;
+  position: fixed; /* 固定在螢幕上 */
+  top: 50%; /* 垂直居中 */
+  left: 50%; /* 水平居中 */
+  transform: translate(-50%, -50%); /* 完全居中對齊 */
+  background-color: rgba(255, 255, 255, 0.8); /* 可選：增加背景顏色以提高可讀性 */
+  padding: 20px; /* 可選：增加內邊距 */
+  border-radius: 8px; /* 可選：增加圓角邊框 */
 }
 
 /* 对非桌面设备显示消息，隐藏内容 */

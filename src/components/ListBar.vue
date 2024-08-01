@@ -1,5 +1,3 @@
-
-
 <template>
   <!-- 側欄 -->
   <div class="bg-light border-right" id="sidebar-wrapper">
@@ -7,10 +5,10 @@
       <img src="@/assets/logo.png" alt="Logo" class="img-fluid" @click="goTo('/')" />
     </div>
     <div class="list-group list-group-flush">
-      <button class="btn btn-light w-100 text-start" data-bs-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-        基本資料維護↓
+      <button class="btn btn-light w-100 text-start" @click="toggleBasicInfoCollapse">
+        {{ isBasicInfoCollapsed ? '基本資料維護⭢' : '基本資料維護↓' }}
       </button>
-      <div class="collapse" id="collapseExample1">
+      <div class="collapse" :class="{ show: !isBasicInfoCollapsed }" id="collapseExample1">
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/customer')">客戶資料維護</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/contact')">聯絡人資料維護</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/bill')">帳單資料維護</button>
@@ -33,6 +31,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
@@ -42,12 +41,18 @@ const route = useRoute();
 
 const userName = ref('登入者：測試測試'); // 替換為實際的登入者名稱
 
+const isBasicInfoCollapsed = ref(true);
+
 const goTo = (path) => {
   if (route.path !== path) {
     router.push(path);
   } else {
     console.log('已在當前路徑，無須前往');
   }
+};
+
+const toggleBasicInfoCollapse = () => {
+  isBasicInfoCollapsed.value = !isBasicInfoCollapsed.value;
 };
 
 const logout = () => {
@@ -112,5 +117,4 @@ const logout = () => {
   border-bottom: 1px solid #ccc;
   margin-bottom: 10px; /* 可以根据需要调整 */
 }
-
 </style>
