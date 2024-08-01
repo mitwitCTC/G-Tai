@@ -72,6 +72,7 @@ const logout = () => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  z-index: 1000; /* 確保側欄在最上層 */
 }
 
 .sidebar-heading img {
