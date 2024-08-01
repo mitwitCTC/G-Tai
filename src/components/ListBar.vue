@@ -24,7 +24,7 @@
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/ReportManagement')">報表</button>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/AccessControl')">權限管理</button>
     </div>
-    <div class="sidebar-footer">
+    <div class="sidebar-TheFooter">
       <div class="divider"></div>
       <div class="user-info">
         <span>{{ userName }}</span>
@@ -93,7 +93,7 @@ const logout = () => {
 .custom-color:hover {
   background-color: #be4e04; 
 }
-.sidebar-footer {
+.sidebar-TheFooter {
   padding: 10px;
   text-align: center;
 }
@@ -108,7 +108,7 @@ const logout = () => {
 .list-group {
   flex-grow: 1;
 }
-.sidebar-footer .divider {
+.sidebar-TheFooter .divider {
   border-bottom: 1px solid #ccc;
   margin-bottom: 10px; /* 可以根据需要调整 */
 }

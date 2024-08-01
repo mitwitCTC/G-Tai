@@ -1,9 +1,9 @@
 <template>
   <div>
-    <bar />
+    <ListBar />
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
     <div>
-      <Breadcrumb :isSpecialPage="true" />
+      <BreadCrumb :isSpecialPage="true" />
     </div>
     <div class="filters">
       <el-select v-model="filters.area" placeholder="區域" class="filter-input">
@@ -46,14 +46,14 @@
 </template>
 
 <script>
-import bar from '@/components/bar.vue';
-import Breadcrumb from '@/components/Breadcrumb.vue';
+import ListBar from '@/components/ListBar.vue';
+import BreadCrumb from '@/components/BreadCrumb.vue';
 import TablePaginated from '@/components/TablePaginated.vue';
 
 export default {
   components: {
-    Breadcrumb,
-    bar,
+    BreadCrumb,
+    ListBar,
     TablePaginated
   },
   data() {

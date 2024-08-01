@@ -3,18 +3,17 @@
     <div class="non-desktop-message">只支援解析度1024px電腦瀏覽</div>
     <div class="content">
       <RouterView />
-      <footer class="footer">
-        <Footer/>
-      </footer>
+      <TheFooter class="footer">
+      </TheFooter>
     </div>
   </div>
 </template>
 
 <script>
-import Footer from '@/components/Footer.vue'
+import TheFooter from '@/components/TheFooter.vue'
 export default {
   components: {
-    Footer
+    TheFooter
   },
   data() {
     return {

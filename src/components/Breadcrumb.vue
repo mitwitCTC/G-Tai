@@ -7,7 +7,7 @@
   
   <script>
   export default {
-    name: 'Breadcrumb',
+    name: 'BreadCrumb',
     props: {
       isSpecialPage: {
         type: Boolean,

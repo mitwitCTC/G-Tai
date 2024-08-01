@@ -1,13 +1,13 @@
 <template>
-  <bar/>
+  <ListBar/>
   <h1>{{ text }}</h1>
 </template>
 
 <script>
-import bar from '@/components/bar.vue'
+import ListBar from '@/components/ListBar.vue'
 export default {
   components: {
-    bar
+    ListBar
   },
   data() {
     return {

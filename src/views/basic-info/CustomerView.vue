@@ -1,9 +1,9 @@
 <template>
   <div>
-    <bar/>
+    <ListBar/>
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
     <div>
-      <Breadcrumb :isSpecialPage="true"/>
+      <BreadCrumb :isSpecialPage="true"/>
     </div>
     
     <div>
@@ -213,13 +213,13 @@
 </template>
 
 <script>
-import bar from '@/components/bar.vue'
-import Breadcrumb from '@/components/Breadcrumb.vue';
+import ListBar from '@/components/ListBar.vue'
+import BreadCrumb from '@/components/BreadCrumb.vue';
 import TablePaginated from '@/components/TablePaginated.vue';
 export default {
   components: {
-    Breadcrumb,
-    bar,
+    BreadCrumb,
+    ListBar,
     TablePaginated
   },
   data() {
@@ -432,12 +432,12 @@ export default {
     };
   },
   computed: {
-    breadcrumbItems() {
+    BreadCrumbItems() {
       // 获取当前路由匹配的所有路由项
       const matched = this.$route.matched;
       // 生成面包屑项
       return matched.map(route => ({
-        label: route.meta.breadcrumb || '',
+        label: route.meta.BreadCrumb || '',
         path: route.path
       }));
     },
