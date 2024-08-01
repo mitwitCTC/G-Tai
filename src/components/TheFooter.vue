@@ -1,14 +1,20 @@
 <template>
     <footer class="footer">
-      <div class="left">2024雲研科技</div>
+      <div class="left">{{ currentYear }} 雲研科技</div>
       <div class="right">Version 1.0.0</div>
     </footer>
   </template>
   
   <script>
   export default {
-    name: "TheFooter",
-  };
+  name: 'TheFooter',
+  data() {
+    return {
+      // 計算當前年份
+      currentYear: new Date().getFullYear()
+    };
+  }
+};
   </script>
   
   <style scoped>
