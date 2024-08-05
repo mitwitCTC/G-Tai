@@ -17,7 +17,7 @@ export default {
   },
   data() {
     return {
-      text: "首頁",
+      text: "首頁 ",
     };
   },
 };
