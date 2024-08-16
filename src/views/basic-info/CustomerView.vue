@@ -39,6 +39,17 @@
         <el-table-column prop="estimatedFuel" label="預估加油量"></el-table-column>
         <el-table-column prop="phone" label="公司電話"></el-table-column>
         <el-table-column prop="fax" label="傳真號碼"></el-table-column>
+        <!-- 操作列 -->
+    <el-table-column label="操作">
+      <template v-slot="scope">
+        <div class="action-icons">
+          <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
+          <i class="fas fa-edit " @click="editItem(scope.row)"></i>
+          <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
+        </div>
+      </template>
+    </el-table-column>
+
       </el-table>
 
       <!-- <div class="pagination-container">
@@ -54,6 +65,7 @@
         class="pagination"
       />
     </div> -->
+    
     <TablePaginated
       :data="customers"
       :filters="search"
@@ -61,7 +73,6 @@
       :pageSize="pageSize"
       @page-change="handlePageChange"
     />
- <!-- 新增客戶 -->
 
  <!-- 新增客戶 -->
  <el-dialog title="新增客戶" v-model="dialog" width="80%">
@@ -208,6 +219,7 @@
     </div>
 </template>
   </el-dialog>
+
     </div>
   </div>
 </template>
@@ -216,15 +228,18 @@
 import ListBar from '@/components/ListBar.vue'
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import TablePaginated from '@/components/TablePaginated.vue';
+// import SelectDialog from '@/components/SelectDialog.vue';
 export default {
   components: {
     BreadCrumb,
     ListBar,
-    TablePaginated
+    TablePaginated,
+    
   },
   data() {
     return {
       dialog: false,
+      selectDialogVisible: true,
       search: {
         region: '',
         sales: '',
@@ -476,7 +491,23 @@ export default {
     savePass() {
       // 处理保存逻辑
       this.dialog = false;
-    }
+    },
+    viewDetails(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'SelectView',
+        query: {
+          customerName:row.customerName
+        }
+      });
+    },
+    editItem(row) {
+      console.log('Edit item:', row);
+    },
+    deleteItem(row) {
+      console.log('Delete item:', row);
+    },
+    
   }
 };
 </script>
@@ -510,5 +541,14 @@ export default {
 .pagination {
   flex: 1;
   text-align: right;
+}
+.action-icons {
+  display: flex;
+  gap: 20px; /* 调整图标之间的间距 */
+}
+
+.action-icons i {
+  cursor: pointer;
+  font-size: 20px; /* 调整图标的大小 */
 }
 </style>

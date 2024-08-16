@@ -32,12 +32,13 @@ export default {
 }
 
 .footer {
-  position: absolute; /* 绝对定位，让 footer 固定在容器底部 */
+  position: absolute; /*绝对定位，让 footer 固定在容器底部*/
   bottom: 0; /* 距离容器底部 0 像素 */
   left: 0; /* 距离容器左侧 0 像素 */
   width: 1600px; /* 与 .container-fluid 宽度一致 */
   background-color: #f8f9fa; /* 可以设置背景颜色 */
   padding: 10px; /* 内边距 */
+  margin-top: 50px;
 }
 
 /* 默认隐藏非桌面设备消息 */

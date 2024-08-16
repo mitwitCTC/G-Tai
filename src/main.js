@@ -15,6 +15,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'jquery';
 import 'popper.js';
 import 'bootstrap';
+import '@fortawesome/fontawesome-free/css/all.css';
+
 
 const app = createApp(App)
 app.use(ElementPlus);

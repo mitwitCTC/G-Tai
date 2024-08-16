@@ -21,9 +21,8 @@
   .footer {
     display: flex;
     justify-content: space-between;
-    padding: 10px 20px;
     background-color: #f8f9fa;
-    border-top: 1px solid #e9ecef;
+    margin-top: 50px;
   }
   .left {
     text-align: left;

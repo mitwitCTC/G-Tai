@@ -25,7 +25,7 @@ const router = createRouter({
             title: '客戶資料維護',
             breadcrumb: '客戶資料維護',
             isSpecialPage: true
-          }
+          },
         },
         {
           path: 'contact',
@@ -88,6 +88,16 @@ const router = createRouter({
           }
         },
         {
+          path: 'discount',
+          name: '客戶折讓資料',
+          component: () => import('@/views/basic-info/Discount.vue'),
+          meta: {
+            title: '客戶折讓資料',
+            breadcrumb: '客戶折讓資料',
+            isSpecialPage: true
+          }
+        },
+        {
           path: 'FinanceManagement',
           name: '帳務管理',
           component: () => import('@/views/basic-info/FinanceManagement.vue'),
@@ -126,6 +136,18 @@ const router = createRouter({
             breadcrumb: '供應權限管理商資料',
             isSpecialPage: false
           }
+        },
+        {
+          path: 'SelectView',
+          name: '客戶資料查詢',
+          component: () => import('@/views/basic-info/SelectView.vue'),
+          meta: {
+            title: '客戶資料查詢',
+            breadcrumb: '客戶資料查詢',
+          },
+          props: route => ({
+            customerName: route.query.customerName,
+          }),
         }
       ]
     }

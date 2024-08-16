@@ -16,6 +16,7 @@
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/communication-records')">通訊紀錄維護</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">業務員資料維護</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">供應商資料維護</button>
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/Discount')">客戶折讓資料</button>
       </div>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/FinanceManagement')">帳務管理</button>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/SalesControl')">銷售管理</button>
