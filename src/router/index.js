@@ -147,6 +147,7 @@ const router = createRouter({
           },
           props: route => ({
             customerName: route.query.customerName,
+            rowType:route.query.rowType,
           }),
         }
       ]

@@ -39,6 +39,15 @@
         <el-table-column prop="estimatedFuel" label="預估加油量"></el-table-column>
         <el-table-column prop="phone" label="公司電話"></el-table-column>
         <el-table-column prop="fax" label="傳真號碼"></el-table-column>
+        <el-table-column label="操作">
+        <template v-slot="scope">
+        <div class="action-icons">
+          <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
+          <i class="fas fa-edit " @click="editItem(scope.row)"></i>
+          <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
+        </div>
+      </template>
+      </el-table-column>
       </el-table>
 
       <TablePaginated
@@ -199,7 +208,23 @@ export default {
     savePass() {
       // 添加保存逻辑
       this.dialog = false;
-    }
+    },
+    viewDetails(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'SelectView',
+        query: {
+          rowType:'2',
+          customerName:row.customerName
+        }
+      });
+    },
+    editItem(row) {
+      console.log('Edit item:', row);
+    },
+    deleteItem(row) {
+      console.log('Delete item:', row);
+    },
   }
 };
 </script>
@@ -219,5 +244,13 @@ export default {
 .custom-select {
   width: 200px; /* 调整宽度 */
   height: 40px; /* 调整高度 */
+}
+.action-icons {
+  display: flex;
+  gap: 20px; /* 调整图标之间的间距 */
+}
+.action-icons i {
+  cursor: pointer;
+  font-size: 20px; /* 调整图标的大小 */
 }
 </style>

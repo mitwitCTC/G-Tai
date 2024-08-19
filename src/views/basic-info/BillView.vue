@@ -33,6 +33,15 @@
         <el-table-column prop="recipientTitle" label="收件人抬頭" width="150" />
         <el-table-column prop="deliveryMethod" label="寄送方式" width="150" />
         <el-table-column prop="deliveryAddress" label="收件地址" />
+        <el-table-column label="操作">
+        <template v-slot="scope">
+          <div class="action-icons">
+            <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
+            <i class="fas fa-edit " @click="editItem(scope.row)"></i>
+            <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
+          </div>
+        </template>
+      </el-table-column>
       </el-table>
     </div>
     <TablePaginated
@@ -110,7 +119,23 @@ export default {
   methods: {
     handlePageChange(page) {
       this.currentPage = page;
-    }
+    },
+    viewDetails(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'SelectView',
+        query: {
+          rowType:'3',
+          customerName:row.customerName
+        }
+      });
+    },
+    editItem(row) {
+      console.log('Edit item:', row);
+    },
+    deleteItem(row) {
+      console.log('Delete item:', row);
+    },
   }
 };
 </script>
@@ -155,5 +180,13 @@ export default {
     flex-direction: column;
     align-items: stretch;
   }
+}
+.action-icons {
+  display: flex;
+  gap: 20px; /* 调整图标之间的间距 */
+}
+.action-icons i {
+  cursor: pointer;
+  font-size: 20px; /* 调整图标的大小 */
 }
 </style>

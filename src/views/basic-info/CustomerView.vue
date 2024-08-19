@@ -497,6 +497,7 @@ export default {
       this.$router.push({ 
         path: 'SelectView',
         query: {
+          rowType:'1',
           customerName:row.customerName
         }
       });

@@ -98,7 +98,7 @@ export default {
         card_fee: '製卡費用',
         reissue_fee: '再製卡費用',
         sales_notes: '業務備註',
-        record_id: '記錄號碼',
+        record_id_id: '記錄號碼',
         createTime: '建立時間',
         updateTime: '修改時間',
         deleteTime: '刪除時間'
@@ -106,18 +106,18 @@ export default {
     },
     contactsInfo() {
       return {
-        JobTitle1: '職稱-1',
-        Gender1: '性別-1',
-        Name1: '姓名-1',
-        Mobile1: '電話/手機-1',
-        Email1: 'E-MAIL-1',
-        Notes1: '備註-1',
-        JobTitle2: '職稱-2',
-        Gender2: '性別-2',
-        Name2: '姓名-2',
-        Mobile2: '電話/手機-2',
-        Email2: 'E-MAIL-2',
-        Notes2: '備註-2'
+        job_title1: '職稱-1',
+        gender1: '性別-1',
+        name1: '姓名-1',
+        mobile1: '電話/手機-1',
+        e-mail1: 'E-MAIL-1',
+        notes1: '備註-1',
+        job_title2: '職稱-2',
+        gender2: '性別-2',
+        name2: '姓名-2',
+        mobile2: '電話/手機-2',
+        email2: 'E-MAIL-2',
+        notes2: '備註-2'
       };
     },
     billingInfo() {
@@ -139,15 +139,15 @@ export default {
     },
     discountInfo() {
       return {
-        ProductName: '油品名稱',
-        SupplierName: '廠商名稱',
-        Discount: '折讓',
-        ResponsiblePerson: '負責業務',
+        product_name: '油品名稱',
+        supplier_name: '廠商名稱',
+        discount: '折讓',
+        responsible_person: '負責業務',
         Updated: '更新人',
         Created: '建立人',
         Update: '更新時間',
         Create: '建立時間',
-        Record: '記錄號碼'
+        record_id: '記錄號碼'
       };
     }
   },
