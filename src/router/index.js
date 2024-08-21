@@ -149,6 +149,19 @@ const router = createRouter({
             customerName: route.query.customerName,
             rowType:route.query.rowType,
           }),
+        },
+        {
+          path: 'UpdateView',
+          name: '客戶資料編輯',
+          component: () => import('@/views/basic-info/UpdateView.vue'),
+          meta: {
+            title: '客戶資料編輯',
+            breadcrumb: '客戶資料編輯',
+          },
+          props: route => ({
+            customerName: route.query.customerName,
+            rowType:route.query.rowType,
+          }),
         }
       ]
     }

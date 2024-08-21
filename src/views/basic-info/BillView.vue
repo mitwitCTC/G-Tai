@@ -132,6 +132,13 @@ export default {
     },
     editItem(row) {
       console.log('Edit item:', row);
+      this.$router.push({ 
+        path: 'UpdateView',
+        query: {
+          rowType:'3',
+          customerName:row.customerName
+        }
+      });
     },
     deleteItem(row) {
       console.log('Delete item:', row);

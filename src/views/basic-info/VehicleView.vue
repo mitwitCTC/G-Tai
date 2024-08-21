@@ -21,6 +21,15 @@
       <el-table-column prop="cardStartDate" label="到卡日期" width="150" />
       <el-table-column prop="cardEndDate" label="停卡日期" width="150" />
       <el-table-column prop="vehicleType" label="車輛型態" />
+      <el-table-column label="操作">
+        <template v-slot="scope">
+          <div class="action-icons">
+            <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
+            <i class="fas fa-edit " @click="editItem(scope.row)"></i>
+            <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
+          </div>
+        </template>
+    </el-table-column>
     </el-table>
     <TablePaginated
       :data="filteredVehicles"
@@ -97,7 +106,29 @@ export default {
   methods: {
     handlePageChange(page) {
       this.currentPage = page;
-    }
+    },
+    viewDetails(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'SelectView',
+        query: {
+          rowType:'5',
+        }
+      });
+    },
+    editItem(row) {
+      console.log('Edit item:', row);
+      this.$router.push({ 
+        path: 'UpdateView',
+        query: {
+          rowType:'5',
+          customerName:row.customerName
+        }
+      });
+    },
+    deleteItem(row) {
+      console.log('Delete item:', row);
+    },
   }
 };
 </script>
@@ -117,5 +148,13 @@ export default {
 .filter-input {
   width: 200px;
   height: 40px;
+}
+.action-icons {
+  display: flex;
+  gap: 20px; /* 调整图标之间的间距 */
+}
+.action-icons i {
+  cursor: pointer;
+  font-size: 20px; /* 调整图标的大小 */
 }
 </style>
