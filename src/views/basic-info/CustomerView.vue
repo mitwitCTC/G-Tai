@@ -8,18 +8,8 @@
     
     <div>
       <el-form :inline="true" :model="search" class="demo-form-inline">
-        <el-form-item label="區域">
-          <el-select v-model="search.region" placeholder="選擇區域" class="custom-select">
-            <el-option v-for="item in regions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="負責業務">
-          <el-select v-model="search.sales" placeholder="選擇業務" class="custom-select">
-            <el-option v-for="item in salesPeople" :key="item.value" :label="item.label" :value="item.value"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="客戶名稱">
-          <el-input v-model="search.customerName" placeholder="輸入客戶名稱/統編"></el-input>
+        <el-form-item label="客戶名稱/客戶代號/統編">
+          <el-input v-model="search.customerName" placeholder="輸入客戶名稱/客戶代號/統編/" style="width: 225px;"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleReset">重置</el-button>
@@ -30,15 +20,13 @@
       </el-form>
 
       <el-table :data="paginatedData" style="width: 100%">
-        <el-table-column prop="customerCode" label="客戶代號"></el-table-column>
-        <el-table-column prop="customerName" label="客戶名稱"></el-table-column>
-        <el-table-column prop="salesPerson" label="負責業務"></el-table-column>
-        <el-table-column prop="virtualAccount" label="虛擬帳號"></el-table-column>
-        <el-table-column prop="region" label="區域"></el-table-column>
-        <el-table-column prop="industry" label="產業類別"></el-table-column>
-        <el-table-column prop="estimatedFuel" label="預估加油量"></el-table-column>
-        <el-table-column prop="phone" label="公司電話"></el-table-column>
-        <el-table-column prop="fax" label="傳真號碼"></el-table-column>
+        <el-table-column prop="cus_code" label="客戶代號" width="100"></el-table-column>
+        <el-table-column prop="cus_name" label="客戶名稱" width="200"></el-table-column>
+        <el-table-column prop="vat_number" label="統編" width="150"></el-table-column>
+        <el-table-column prop="region" label="區域" width="150"></el-table-column>
+        <el-table-column prop="industry" label="產業類別" width="150"></el-table-column>
+        <el-table-column prop="est_fuel_volume" label="預估月加油量" width="150"></el-table-column>
+        <el-table-column prop="phone" label="公司電話" width="150"></el-table-column>
         <!-- 操作列 -->
     <el-table-column label="操作">
       <template v-slot="scope">
@@ -46,6 +34,10 @@
           <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
           <i class="fas fa-edit " @click="editItem(scope.row)"></i>
           <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
+          <el-button type="primary" @click="onContact(scope.row)">聯絡人</el-button>
+          <el-button type="success" @click="onBill(scope.row)">帳單</el-button>
+          <el-button type="warning" @click="onVehicle(scope.row)">車籍</el-button>
+          <el-button type="danger" @click="onDiscount(scope.row)">折讓</el-button>
         </div>
       </template>
     </el-table-column>
@@ -257,167 +249,15 @@ export default {
       ],
       customers: [
         {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
+          cus_code: 'G2200696',
+          cus_name: '整樹貨運股份有限公司',
+          vat_number: 'A123456789',
+          region: '北、北、基、宜',
+          industry: '營建土木工程',
+          est_fuel_volume: '1000L',
+          phone: '123-456-7890'
         },
-        {
-          customerCode: 'C002',
-          customerName: '客戶二',
-          salesPerson: 'Jane',
-          virtualAccount: '2345678901',
-          region: 'south',
-          industry: 'Finance',
-          estimatedFuel: '2000L',
-          phone: '123-456-7892',
-          fax: '123-456-7893'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },   {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
-        },
+       
         // 添加更多客戶
       ],
       form: {
@@ -515,7 +355,42 @@ export default {
     deleteItem(row) {
       console.log('Delete item:', row);
     },
-    
+    onContact(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'contact',
+        query: {
+          rowType:'1',
+        }
+      });
+    },
+    onBill(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'bill',
+        query: {
+          rowType:'1',
+        }
+      });
+    },
+    onVehicle(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'vehicle',
+        query: {
+          rowType:'1',
+        }
+      });
+    },
+    onDiscount(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'discount',
+        query: {
+          rowType:'1',
+        }
+      });
+    },
   }
 };
 </script>

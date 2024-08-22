@@ -33,11 +33,11 @@
         <el-form-item label="傳真號碼">
           <el-input v-model="form.fax" readonly></el-input>
         </el-form-item>
-        <el-form-item label="公司統編">
-          <el-input v-model="form.vat_number" readonly></el-input>
+        <el-form-item label="交易模式">
+          <el-input v-model="form.transaction_mode" readonly></el-input>
         </el-form-item>
-        <el-form-item label="公司抬頭">
-          <el-input v-model="form.company_title" readonly></el-input>
+        <el-form-item label="押金">
+          <el-input v-model="form.deposit" readonly></el-input>
         </el-form-item>
         <el-form-item label="前台密碼(@)">
           <el-input v-model="form.front_pwd" readonly></el-input>
@@ -45,23 +45,21 @@
         <el-form-item label="合約日期(起)">
           <el-input v-model="form.contract_start" readonly></el-input>
         </el-form-item>
+        <el-form-item label="停油寬限額度">
+          <el-input v-model="form.fuel_grace_limit" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="公司統編">
+          <el-input v-model="form.vat_number" readonly></el-input>
+        </el-form-item>
         <el-form-item label="合約日期(迄)">
           <el-input v-model="form.contract_end" readonly></el-input>
         </el-form-item>
         <el-form-item label="低水位通知">
           <el-input v-model="form.low_balance_notice" readonly></el-input>
         </el-form-item>
-        <el-form-item label="停油寬限額度">
-          <el-input v-model="form.fuel_grace_limit" readonly></el-input>
+        <el-form-item label="公司抬頭">
+          <el-input v-model="form.company_title" readonly></el-input>
         </el-form-item>
-        
-        <el-form-item label="交易模式">
-          <el-input v-model="form.transaction_mode" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="押金">
-          <el-input v-model="form.deposit" readonly></el-input>
-        </el-form-item>
-        
         <el-form-item label="簽呈日期">
           <el-input v-model="form.submission_date" readonly></el-input>
         </el-form-item>
@@ -133,13 +131,13 @@
       <!-- 設定方式 (多選框) -->
       <el-form-item label="設定方式">
         <el-checkbox-group v-model="form.config_method" disabled>
-          <el-checkbox :label="1">銀行定存</el-checkbox>
-          <el-checkbox :label="2">現金</el-checkbox>
-          <el-checkbox :label="3">支票</el-checkbox>
-          <el-checkbox :label="4">商業本票</el-checkbox>
-          <el-checkbox :label="5">銀行保證</el-checkbox>
-          <el-checkbox :label="6">無擔保</el-checkbox>
-          <el-checkbox :label="7">其他</el-checkbox>
+          <el-checkbox :value="1">銀行定存</el-checkbox>
+          <el-checkbox :value="2">現金</el-checkbox>
+          <el-checkbox :value="3">支票</el-checkbox>
+          <el-checkbox :value="4">商業本票</el-checkbox>
+          <el-checkbox :value="5">銀行保證</el-checkbox>
+          <el-checkbox :value="6">無擔保</el-checkbox>
+          <el-checkbox :value="7">其他</el-checkbox>
         </el-checkbox-group>
     </el-form-item>
     <!-- 設定方式備註 -->
@@ -151,48 +149,28 @@
     
 
     <!-- 聯絡人 -->
-    <el-form-item label="聯絡人" class="section-header" v-if="this.rowType==='2'">
+    <!-- <el-form-item label="聯絡人" class="section-header" v-if="this.rowType==='2'">
       <el-row style="margin-bottom: 20px">
-        <el-form-item label="職稱-1">
+        <el-form-item label="職稱">
           <el-input v-model="form.job_title1" readonly></el-input>
         </el-form-item>
-        <el-form-item label="性別-1">
+        <el-form-item label="性別">
           <el-input v-model="form.gender1" readonly></el-input>
         </el-form-item>
-        <el-form-item label="姓名-1">
+        <el-form-item label="姓名">
           <el-input v-model="form.name1" readonly></el-input>
         </el-form-item>
-        <el-form-item label="電話/手機-1">
+        <el-form-item label="電話/手機">
           <el-input v-model="form.mobile1" readonly></el-input>
         </el-form-item>
-        <el-form-item label="E-MAIL-1">
+        <el-form-item label="E-MAIL">
           <el-input v-model="form.email1" readonly></el-input>
         </el-form-item>
-        <el-form-item label="備註-1">
+        <el-form-item label="備註">
           <el-input v-model="form.notes1" readonly></el-input>
         </el-form-item>
       </el-row>
-      <el-row style="margin-bottom: 20px">
-        <el-form-item label="職稱-2">
-          <el-input v-model="form.job_title2" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="性別-2">
-          <el-input v-model="form.gender2" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="姓名-2">
-          <el-input v-model="form.name2" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="電話/手機-2">
-          <el-input v-model="form.mobile2" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="E-MAIL-2">
-          <el-input v-model="form.email2" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="備註-2">
-          <el-input v-model="form.notes2" readonly></el-input>
-        </el-form-item>
-      </el-row>
-    </el-form-item>
+    </el-form-item> -->
 
     <!-- 帳單資訊 -->
     <el-form-item label="帳單資訊" class="section-header" v-if="this.rowType==='3'">
@@ -231,7 +209,7 @@
     </el-form-item>
 
     <!-- 折讓資料 -->
-    <el-form-item label="折讓資料" class="section-header" v-if="this.rowType==='4'" >
+    <!-- <el-form-item label="折讓資料" class="section-header" v-if="this.rowType==='4'" >
         <el-form-item label="油品名稱">
           <el-input v-model="form.product_name" readonly></el-input>
         </el-form-item>
@@ -244,7 +222,7 @@
         <el-form-item label="負責業務">
           <el-input v-model="form.responsible_person" readonly></el-input>
       </el-form-item>
-    </el-form-item>
+    </el-form-item> -->
 
     <!-- 車籍資料 -->
     <el-form-item label="車籍資料" class="section-header" v-if="this.rowType==='5'" >

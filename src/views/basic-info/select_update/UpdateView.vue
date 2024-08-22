@@ -19,10 +19,25 @@
           <el-input v-model="form.virtual_account" ></el-input>
         </el-form-item>
         <el-form-item label="區域">
-          <el-input v-model="form.region" ></el-input>
+          <el-select v-model="form.region" placeholder="選擇區域">
+            <el-option label="北、北、基、宜" :value="1"></el-option>
+            <el-option label="桃、竹、苗" :value="2"></el-option>
+            <el-option label="中、彰、投" :value="3"></el-option>
+            <el-option label="雲、嘉、南" :value="4"></el-option>
+            <el-option label="高、屏、澎" :value="5"></el-option>
+            <el-option label="花、東" :value="6"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="產業類別">
-          <el-input v-model="form.industry" ></el-input>
+          <el-select v-model="form.industry" placeholder="選擇產業類別">
+            <el-option label="食品飲料" :value="1"></el-option>
+            <el-option label="營建土木工程" :value="6"></el-option>
+            <el-option label="大眾運輸" :value="9"></el-option>
+            <el-option label="物流倉儲" :value="11"></el-option>
+            <el-option label="礦業土石" :value="12"></el-option>
+            <el-option label="資訊科技" :value="13"></el-option>
+            <el-option label="綜合工商" :value="19"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="預估月加油量">
           <el-input v-model="form.est_fuel_volume" ></el-input>
@@ -33,11 +48,14 @@
         <el-form-item label="傳真號碼">
           <el-input v-model="form.fax" ></el-input>
         </el-form-item>
-        <el-form-item label="公司統編">
-          <el-input v-model="form.vat_number" ></el-input>
+        <el-form-item label="交易模式">
+          <el-select v-model="form.transaction_mode" placeholder="選擇交易模式">
+            <el-option label="儲值" :value="1"></el-option>
+            <el-option label="月結" :value="2"></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="公司抬頭">
-          <el-input v-model="form.company_title" ></el-input>
+        <el-form-item label="押金">
+          <el-input v-model="form.deposit" ></el-input>
         </el-form-item>
         <el-form-item label="前台密碼(@)">
           <el-input v-model="form.front_pwd" ></el-input>
@@ -45,22 +63,23 @@
         <el-form-item label="合約日期(起)">
           <el-input v-model="form.contract_start" ></el-input>
         </el-form-item>
+        <el-form-item label="停油寬限額度">
+          <el-input v-model="form.fuel_grace_limit" ></el-input>
+        </el-form-item>
+        <el-form-item label="公司統編">
+          <el-input v-model="form.vat_number" ></el-input>
+        </el-form-item>
         <el-form-item label="合約日期(迄)">
           <el-input v-model="form.contract_end" ></el-input>
         </el-form-item>
         <el-form-item label="低水位通知">
           <el-input v-model="form.low_balance_notice" ></el-input>
         </el-form-item>
-        <el-form-item label="停油寬限額度">
-          <el-input v-model="form.fuel_grace_limit" ></el-input>
+
+        <el-form-item label="公司抬頭">
+          <el-input v-model="form.company_title" ></el-input>
         </el-form-item>
-        
-        <el-form-item label="交易模式">
-          <el-input v-model="form.transaction_mode" ></el-input>
-        </el-form-item>
-        <el-form-item label="押金">
-          <el-input v-model="form.deposit" ></el-input>
-        </el-form-item>
+
         
         <el-form-item label="簽呈日期">
           <el-input v-model="form.submission_date" ></el-input>
@@ -78,7 +97,11 @@
           <el-input v-model="form.balance_sms_phone" ></el-input>
         </el-form-item>
         <el-form-item label="合約狀態">
-          <el-input v-model="form.contract_status" ></el-input>
+          <el-select v-model="form.contract_status" placeholder="選擇合約狀態">
+            <el-option label="啟用" :value="1"></el-option>
+            <el-option label="暫停" :value="2"></el-option>
+            <el-option label="終止" :value="3"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="建立時間">
           <el-input v-model="form.createTime" ></el-input>
@@ -86,7 +109,6 @@
         <el-form-item label="修改時間">
           <el-input v-model="form.updateTime" ></el-input>
         </el-form-item>
-      
         <el-form-item label="營登地址" >
           <el-input v-model="form.reg_address" ></el-input>
         </el-form-item>
@@ -157,43 +179,23 @@
     <!-- 聯絡人 -->
     <el-form-item label="聯絡人" class="section-header" v-if="this.rowType==='2'">
       <el-row style="margin-bottom: 20px">
-        <el-form-item label="職稱-1">
+        <el-form-item label="職稱">
           <el-input v-model="form.job_title1" ></el-input>
         </el-form-item>
-        <el-form-item label="性別-1">
+        <el-form-item label="性別">
           <el-input v-model="form.gender1" ></el-input>
         </el-form-item>
-        <el-form-item label="姓名-1">
+        <el-form-item label="姓名">
           <el-input v-model="form.name1" ></el-input>
         </el-form-item>
-        <el-form-item label="電話/手機-1">
+        <el-form-item label="電話/手機">
           <el-input v-model="form.mobile1" ></el-input>
         </el-form-item>
-        <el-form-item label="E-MAIL-1">
+        <el-form-item label="E-MAIL">
           <el-input v-model="form.email1" ></el-input>
         </el-form-item>
-        <el-form-item label="備註-1">
+        <el-form-item label="備註">
           <el-input v-model="form.notes1" ></el-input>
-        </el-form-item>
-      </el-row>
-      <el-row style="margin-bottom: 20px">
-        <el-form-item label="職稱-2">
-          <el-input v-model="form.job_title2" ></el-input>
-        </el-form-item>
-        <el-form-item label="性別-2">
-          <el-input v-model="form.gender2" ></el-input>
-        </el-form-item>
-        <el-form-item label="姓名-2">
-          <el-input v-model="form.name2" ></el-input>
-        </el-form-item>
-        <el-form-item label="電話/手機-2">
-          <el-input v-model="form.mobile2" ></el-input>
-        </el-form-item>
-        <el-form-item label="E-MAIL-2">
-          <el-input v-model="form.email2" ></el-input>
-        </el-form-item>
-        <el-form-item label="備註-2">
-          <el-input v-model="form.notes2" ></el-input>
         </el-form-item>
       </el-row>
        <!-- 確認修改按鈕 -->
@@ -244,23 +246,25 @@
 
     <!-- 折讓資料 -->
     <el-form-item label="折讓資料" class="section-header" v-if="this.rowType==='4'" >
-        <el-form-item label="油品名稱">
-          <el-input v-model="form.product_name" ></el-input>
+      <el-form-item label="油品">
+          <el-select v-model="form.product_name" placeholder="選擇油品">
+            <el-option label="95無鉛汽油" :value="1"></el-option>
+            <el-option label="92無鉛汽油" :value="2"></el-option>
+            <el-option label="98無鉛汽油" :value="5"></el-option>
+            <el-option label="超級柴油" :value="6"></el-option>
+            <el-option label="尿素溶液" :value="17"></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="廠商名稱">
-          <el-input v-model="form.supplier_name" ></el-input>
+        <el-form-item label="廠商名稱" >
+          <el-input v-model="form.supplier_name" readonly></el-input>
         </el-form-item>
         <el-form-item label="折讓">
           <el-input v-model="form.discount" ></el-input>
         </el-form-item>
-        <el-form-item label="負責業務">
-          <el-input v-model="form.responsible_person" ></el-input>
-      </el-form-item>
        <!-- 確認修改按鈕 -->
-       <el-form-item>
-        <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
-      </el-form-item>
     </el-form-item>
+    <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
+    
 
     <!-- 車籍資料 -->
     <el-form-item label="車籍資料" class="section-header" v-if="this.rowType==='5'" >
@@ -333,8 +337,8 @@ data() {
         cus_name: this.customerName,
         salesmanId: '李柏青',
         virtual_account: '123456789',
-        region: '北、北、基、宜',
-        industry: '大眾運輸',
+        region: 3,
+        industry: 19,
         est_fuel_volume: '5000',
         phone: '06-266-1349',
         fax: '02-2503-1200',
@@ -347,7 +351,7 @@ data() {
         fuel_grace_limit: '50000',
         reg_address: '屏東縣內埔鄉振豐村新南路14號1樓',
         mail_address: '717台南市仁德區中正西路1011巷122號',
-        transaction_mode: '1.儲值',
+        transaction_mode: 1,
         deposit: '80000',
         contract_notes: '91083134甫漾物流通運有限公司所屬車籍開91083134甫漾物流通運有限公司',
         submission_date: '2024/8/1',
@@ -360,7 +364,7 @@ data() {
         card_fee_notes: '111/12月製卡費為業務自行吸收(扣抵獎金)',
         con_notes: '每個禮拜一傳負數到LINE群(不要天天傳)',
         invoice_notes: 'LINE包含EXCEL表',
-        contract_status: '暫停',
+        contract_status: 2,
         contract_sales: '李柏青',
         card_fee: '100',
         reissue_fee: '100',
@@ -416,6 +420,9 @@ data() {
 
 <style scoped>
 .el-input {
+  width: 300px
+}
+.el-select {
   width: 300px
 }
 .page-title {

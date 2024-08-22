@@ -140,7 +140,7 @@ const router = createRouter({
         {
           path: 'SelectView',
           name: '客戶資料查詢',
-          component: () => import('@/views/basic-info/SelectView.vue'),
+          component: () => import('@/views/basic-info/select_update/SelectView.vue'),
           meta: {
             title: '客戶資料查詢',
             breadcrumb: '客戶資料查詢',
@@ -153,7 +153,7 @@ const router = createRouter({
         {
           path: 'UpdateView',
           name: '客戶資料編輯',
-          component: () => import('@/views/basic-info/UpdateView.vue'),
+          component: () => import('@/views/basic-info/select_update/UpdateView.vue'),
           meta: {
             title: '客戶資料編輯',
             breadcrumb: '客戶資料編輯',

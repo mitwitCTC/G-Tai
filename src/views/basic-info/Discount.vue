@@ -5,20 +5,17 @@
     <div>
       <BreadCrumb :isSpecialPage="true" />
     </div>
-    <div class="filters">
-      <el-input v-model="filters.customerId" placeholder="客戶名稱" class="filter-input"></el-input>
-    </div>
+    <div class="page-title"><h5>客戶代號:G2200696 客戶名稱:客戶一</h5></div>
+
     <el-table :data="paginatedDiscount" style="width: 100%">
-      <el-table-column prop="customerId" label="客戶代號" width="150" />
-      <el-table-column prop="customerName" label="客戶名稱" width="450" />
       <el-table-column prop="ProductName" label="油品名稱" width="300" />
-      <el-table-column prop="SupplierName" label="廠商名稱" width="250" />
-      <el-table-column prop="Discount" label="折讓" width="150" />
-      <el-table-column prop="ResponsiblePerson" label="負責業務" width="150" />
+      <el-table-column prop="SupplierName" label="廠商名稱" width="500" />
+      <el-table-column prop="Discount" label="折讓" width="250" />
+      <el-table-column prop="ResponsiblePerson" label="負責業務" width="300" />
       <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
-            <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
+            <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
             <i class="fas fa-edit " @click="editItem(scope.row)"></i>
             <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
           </div>
@@ -91,15 +88,7 @@ export default {
     handlePageChange(page) {
       this.currentPage = page;
     },
-    viewDetails(row) {
-      console.log('View details for:', row);
-      this.$router.push({ 
-        path: 'SelectView',
-        query: {
-          rowType:'4',
-        }
-      });
-    },
+    
     editItem(row) {
       console.log('Edit item:', row);
       this.$router.push({ 

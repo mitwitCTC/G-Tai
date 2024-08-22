@@ -5,44 +5,20 @@
     <div>
       <BreadCrumb :isSpecialPage="true"/>
     </div>
-    
+    <div class="page-title"><h5>客戶代號:G2200696 客戶名稱:客戶一</h5></div>
     <div>
-      <el-form :inline="true" :model="search" class="demo-form-inline">
-        <el-form-item label="區域">
-          <el-select v-model="search.region" placeholder="選擇區域" class="custom-select">
-            <el-option v-for="item in regions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="負責業務">
-          <el-select v-model="search.sales" placeholder="選擇業務" class="custom-select">
-            <el-option v-for="item in salesPeople" :key="item.value" :label="item.label" :value="item.value"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="客戶名稱">
-          <el-input v-model="search.customerName" placeholder="輸入客戶名稱"  icon="search"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleReset">重置</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="success" @click="dialog = true">新增客戶</el-button>
-        </el-form-item>
-      </el-form>
-
+      
       <el-table :data="paginatedData" style="width: 100%">
-        <el-table-column prop="customerCode" label="客戶代號"></el-table-column>
-        <el-table-column prop="customerName" label="客戶名稱"></el-table-column>
-        <el-table-column prop="salesPerson" label="負責業務"></el-table-column>
-        <el-table-column prop="virtualAccount" label="虛擬帳號"></el-table-column>
-        <el-table-column prop="region" label="區域"></el-table-column>
-        <el-table-column prop="industry" label="產業類別"></el-table-column>
-        <el-table-column prop="estimatedFuel" label="預估加油量"></el-table-column>
-        <el-table-column prop="phone" label="公司電話"></el-table-column>
-        <el-table-column prop="fax" label="傳真號碼"></el-table-column>
+        <el-table-column prop="job_title1" label="職稱"></el-table-column>
+        <el-table-column prop="gender1" label="性別"></el-table-column>
+        <el-table-column prop="name1" label="姓名"></el-table-column>
+        <el-table-column prop="mobile1" label="手機/電話"></el-table-column>
+        <el-table-column prop="mail1" label="E-MAIL"></el-table-column>
+        <el-table-column prop="notes1" label="備註"></el-table-column>
         <el-table-column label="操作">
         <template v-slot="scope">
         <div class="action-icons">
-          <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
+          <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
           <i class="fas fa-edit " @click="editItem(scope.row)"></i>
           <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
         </div>
@@ -71,7 +47,7 @@
           </el-row>
           <!-- 省略其他表单行 -->
           <template v-slot:footer>
-<div  class="dialog-footer">
+      <div  class="dialog-footer">
             <el-button @click="dialog = false">取消</el-button>
             <el-button type="primary" @click="savePass">送出</el-button>
           </div>
@@ -102,40 +78,23 @@ export default {
         sales: '',
         customerName: ''
       },
-      regions: [
-        { value: 'north', label: '北部' },
-        { value: 'south', label: '南部' },
-        // 添加更多區域
-      ],
-      salesPeople: [
-        { value: 'john', label: 'John' },
-        { value: 'jane', label: 'Jane' },
-        // 添加更多業務員
-      ],
       customers: [
         {
-          customerCode: 'C001',
-          customerName: '客戶一',
-          salesPerson: 'John',
-          virtualAccount: '1234567890',
-          region: 'north',
-          industry: 'IT',
-          estimatedFuel: '1000L',
-          phone: '123-456-7890',
-          fax: '123-456-7891'
+          job_title1: '承辦',
+          gender1: '男',
+          name1: 'John',
+          mobile1: '1234567890',
+          mail1: 'north@111111.com',
+          notes1: 'IT'
         },
         {
-          customerCode: 'C002',
-          customerName: '客戶二',
-          salesPerson: 'Jane',
-          virtualAccount: '2345678901',
-          region: 'south',
-          industry: 'Finance',
-          estimatedFuel: '2000L',
-          phone: '123-456-7892',
-          fax: '123-456-7893'
+          job_title1: '承辦',
+          gender1: '男',
+          name1: 'John',
+          mobile1: '1234567890',
+          mail1: 'north@111111.com',
+          notes1: 'IT'
         },
-        // 添加更多客戶
       ],
       form: {
         customerName: '',
@@ -209,16 +168,7 @@ export default {
       // 添加保存逻辑
       this.dialog = false;
     },
-    viewDetails(row) {
-      console.log('View details for:', row);
-      this.$router.push({ 
-        path: 'SelectView',
-        query: {
-          rowType:'2',
-          customerName:row.customerName
-        }
-      });
-    },
+
     editItem(row) {
       console.log('Edit item:', row);
       this.$router.push({ 
