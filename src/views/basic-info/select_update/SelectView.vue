@@ -1,6 +1,10 @@
 <template>
   <ListBar/>
-  <div class="page-title"><h2>{{ pageTitle }}</h2></div>
+  <div class="page-title">
+  <h2 v-if="this.rowType === '1'">客戶基本資料查詢</h2>
+  <h2 v-else-if="this.rowType === '3'">帳單資料查詢</h2>
+  <h2 v-else-if="this.rowType === '6'">業務資料查詢</h2>
+</div>
   <div>
     <el-form :model="form" label-width="155px"   style="width: 100%; min-width: 1600px;">
     <!-- 客戶基本資料 -->
