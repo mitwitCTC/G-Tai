@@ -1,6 +1,8 @@
 <template>
     <div class="breadcrumb-container">
       <h6 v-if="isSpecialPage">基本資料維護 ⮕ {{ pageTitle }}</h6>
+      <h6 v-else-if="isLinkPage">基本資料維護 ⮕ 客戶資料維護 ⮕{{ pageTitle }}</h6>
+      <h6 v-else-if="isVehiclePage">基本資料維護 ⮕ 客戶資料維護 ⮕ 帳單維護資料 ⮕{{ pageTitle }}</h6>
       <h6 v-else>{{ pageTitle }}</h6>
     </div>
   </template>
@@ -11,8 +13,23 @@
     props: {
       isSpecialPage: {
         type: Boolean,
-      }
+      },
+      isLinkPage: {
+        type: Boolean,
+      },
     },
+    data() {
+    return {
+        isSpecialPage: false,
+        isLinkPage: false,
+        isVehiclePage:false
+      };
+    }, 
+    mounted() {
+      this.isSpecialPage = this.$route.meta.isSpecialPage || false;
+      this.isLinkPage = this.$route.meta.isLinkPage || false;
+      this.isVehiclePage = this.$route.meta.isVehiclePage || false;
+    }
   };
   </script>
   

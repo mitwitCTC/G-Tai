@@ -5,9 +5,9 @@
     <div>
       <BreadCrumb :isSpecialPage="true"/>
     </div>
-    <div class="page-title"><h5>客戶代號:G2200696 客戶名稱:客戶一</h5></div>
-    <div>
-      
+    <el-button type="primary" @click="dialogVisible = true">新增聯絡人</el-button>
+    <div class="page-title"><h5>客戶代號:<h4>G2200696</h4>客戶名稱:<h4>客戶一</h4></h5></div>
+    <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%">
         <el-table-column prop="job_title1" label="職稱"></el-table-column>
         <el-table-column prop="gender1" label="性別"></el-table-column>
@@ -187,21 +187,38 @@ export default {
 </script>
 
 <style scoped>
-.demo-form-inline .el-form-item {
-  margin-right: 10px;
+.page-title {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.page-title h4 {
+    color: #f5bd04;
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.custom-select .el-input {
-  min-width: 150px;
+.filter-input {
+  width: 200px;
 }
 
-.small-input .el-input__inner {
-  width: 100%;
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
 }
-.custom-select {
-  width: 200px; /* 调整宽度 */
-  height: 40px; /* 调整高度 */
+
+.el-table {
+  min-width: 900px;
 }
+
+.el-table th, .el-table td {
+  white-space: nowrap;
+}
+
+
 .action-icons {
   display: flex;
   gap: 20px; /* 调整图标之间的间距 */

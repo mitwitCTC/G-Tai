@@ -36,7 +36,6 @@
           <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
           <el-button type="primary" @click="onContact(scope.row)">聯絡人</el-button>
           <el-button type="success" @click="onBill(scope.row)">帳單</el-button>
-          <el-button type="warning" @click="onVehicle(scope.row)">車籍</el-button>
           <el-button type="danger" @click="onDiscount(scope.row)">折讓</el-button>
         </div>
       </template>
@@ -360,7 +359,7 @@ export default {
       this.$router.push({ 
         path: 'contact',
         query: {
-          rowType:'1',
+          
         }
       });
     },
@@ -369,25 +368,17 @@ export default {
       this.$router.push({ 
         path: 'bill',
         query: {
-          rowType:'1',
+          
         }
       });
     },
-    onVehicle(row) {
-      console.log('View details for:', row);
-      this.$router.push({ 
-        path: 'vehicle',
-        query: {
-          rowType:'1',
-        }
-      });
-    },
+    
     onDiscount(row) {
       console.log('View details for:', row);
       this.$router.push({ 
         path: 'discount',
         query: {
-          rowType:'1',
+  
         }
       });
     },

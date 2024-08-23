@@ -169,10 +169,6 @@
       <el-input v-model="form.config_notes" type="textarea" ></el-input>
     </el-form-item>
   </el-row>
-   <!-- 確認修改按鈕 -->
-      <el-form-item>
-        <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
-      </el-form-item>
     </el-form-item>
     
 
@@ -198,25 +194,26 @@
           <el-input v-model="form.notes1" ></el-input>
         </el-form-item>
       </el-row>
-       <!-- 確認修改按鈕 -->
-       <el-form-item>
-        <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
-      </el-form-item>
     </el-form-item>
 
     <!-- 帳單資訊 -->
     <el-form-item label="帳單資訊" class="section-header" v-if="this.rowType==='3'">
+      <el-form-item label="帳單名稱">
+        <el-input v-model="form.account_sortId" ></el-input>
+      </el-form-item>
       <el-form-item label="開立統編">
         <el-input v-model="form.use_number" ></el-input>
       </el-form-item>
       <el-form-item label="發票開立人名稱">
         <el-input v-model="form.invoice_name" ></el-input>
       </el-form-item>
-      <el-form-item label="對帳單組別">
-        <el-input v-model="form.statement_group" ></el-input>
-      </el-form-item>
       <el-form-item label="帳單寄送方式">
-        <el-input v-model="form.billing_method" ></el-input>
+          <el-select v-model="form.billing_method" placeholder="選擇方式">
+            <el-option label="MAIL" :value="1"></el-option>
+            <el-option label="平信" :value="2"></el-option>
+            <el-option label="官方LINE" :value="3"></el-option>
+            <el-option label="掛號" :value="4"></el-option>
+          </el-select>
       </el-form-item>
       <el-form-item label="地址/E-Mail">
         <el-input v-model="form.address_email" ></el-input>
@@ -224,10 +221,10 @@
       <el-form-item label="對帳單列印">
         <el-input v-model="form.statement_print" ></el-input>
       </el-form-item>
-      <el-form-item label="付款方式">
-        <el-input v-model="form.payment_method" ></el-input>
-      </el-form-item>
       <el-form-item label="收件人姓名">
+        <el-input v-model="form.recipient_name" ></el-input>
+      </el-form-item>
+      <el-form-item label="帳單聯絡人">
         <el-input v-model="form.recipient_name" ></el-input>
       </el-form-item>
       <el-row style="margin-bottom: 20px">
@@ -238,10 +235,6 @@
           <el-input v-model="form.statement_remarks" type="textarea" ></el-input>
         </el-form-item>
       </el-row>
-       <!-- 確認修改按鈕 -->
-       <el-form-item>
-        <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
-      </el-form-item>
     </el-form-item>
 
     <!-- 折讓資料 -->
@@ -263,7 +256,7 @@
         </el-form-item>
        <!-- 確認修改按鈕 -->
     </el-form-item>
-    <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
+    
     
 
     <!-- 車籍資料 -->
@@ -272,21 +265,64 @@
           <el-input v-model="form.license_plate" ></el-input>
         </el-form-item>
         <el-form-item label="車輛型態">
-          <el-input v-model="form.vehicle_type" ></el-input>
+          <el-select v-model="form.vehicle_type" placeholder="選擇車輛型態">
+            <el-option label="大巴" :value="1"></el-option>
+            <el-option label="中巴" :value="2"></el-option>
+            <el-option label="自小客" :value="3"></el-option>
+            <el-option label="油罐卡" :value="4"></el-option>
+            <el-option label="臨時卡" :value="5"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="油品名稱">
-          <el-input v-model="form.product_name" ></el-input>
+          <el-select v-model="form.product_name" placeholder="選擇油品">
+            <el-option label="95無鉛汽油" :value="1"></el-option>
+            <el-option label="92無鉛汽油" :value="2"></el-option>
+            <el-option label="98無鉛汽油" :value="5"></el-option>
+            <el-option label="超級柴油" :value="6"></el-option>
+            <el-option label="尿素溶液" :value="17"></el-option>
+          </el-select>
+      </el-form-item>
+    </el-form-item>
+
+    <!-- 業務員資料 -->
+    <el-form-item label="業務員資料" class="section-header" v-if="this.rowType==='6'" >
+        <el-form-item label="記錄號碼">
+          <el-input v-model="form.record_id" ></el-input>
         </el-form-item>
+        <el-form-item label="員工編號">
+          <el-input v-model="form.employee_id" ></el-input>
+        </el-form-item>
+        <el-form-item label="員工姓名">
+          <el-input v-model="form.employee_name" ></el-input>
+        </el-form-item>
+        <el-form-item label="職稱">
+          <el-input v-model="form.job_title" ></el-input>
+      </el-form-item>
+      <el-form-item label="部門代號">
+          <el-input v-model="form.department_code" ></el-input>
+      </el-form-item>
+      <el-form-item label="部門名稱">
+          <el-input v-model="form.department" ></el-input>
+      </el-form-item>
+      <el-form-item label="更新者">
+          <el-input v-model="form.updated" ></el-input>
+      </el-form-item>
+      <el-form-item label="建立者">
+          <el-input v-model="form.created" ></el-input>
+      </el-form-item>
+    </el-form-item>
+  <!-- 卡片資料 -->
+  <el-form-item label="車籍卡片資料" class="section-header" v-if="this.rowType==='7'" >
         <el-form-item label="卡號">
           <el-input v-model="form.card_number" ></el-input>
-      </el-form-item>
-      <el-form-item label="卡片類別">
+        </el-form-item>
+        <el-form-item label="卡片類別">
           <el-input v-model="form.card_type" ></el-input>
-      </el-form-item>
-      <el-form-item label="上傳中油時間">
+        </el-form-item>
+        <el-form-item label="上傳中油時間">
           <el-input v-model="form.upload_time" ></el-input>
-      </el-form-item>
-      <el-form-item label="上傳中油原因">
+        </el-form-item>
+        <el-form-item label="上傳中油原因">
           <el-input v-model="form.upload_reason" ></el-input>
       </el-form-item>
       <el-form-item label="到卡日期">
@@ -301,14 +337,10 @@
       <el-form-item label="車輛異動-因素">
           <el-input v-model="form.vehicle_change_reason" ></el-input>
       </el-form-item>
-       <!-- 確認修改按鈕 -->
-       <el-form-item>
-        <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
-      </el-form-item>
     </el-form-item>
-
+    <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
     <el-form-item label="" class="section-white" >
-    </el-form-item>
+  </el-form-item>
   </el-form>
   </div>
 </template>
@@ -387,8 +419,7 @@ data() {
         // 帳單資訊欄位
         use_number: 'A12345678',
         invoice_name: '台灣叮叮巴士股份有限公司',
-        statement_group: 'A',
-        billing_method: '官方LINE',
+        billing_method: 4,
         address_email: '717台南市仁德區中正西路1011巷122號',
         statement_print: 'YES',
         payment_method:'月結30日',
@@ -411,7 +442,16 @@ data() {
         card_arrival_date:'2023/11/10',
         card_stop_date:'2023/11/10',
         notes:'台灣叮叮巴士股份有限公司',
-        vehicle_change_reason:'更換油品'
+        vehicle_change_reason:'更換油品',
+        //業務員
+        record_id:'123',
+        employee_id:'GF-012',
+        employee_name:'湯惠誠',
+        job_title:'業務',
+        department_code:'C01',
+        department:'業務部',
+        updated:'2024-04-09',
+        created:'2024-04-09'
       },
   };
 },

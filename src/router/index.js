@@ -34,7 +34,8 @@ const router = createRouter({
           meta: {
             title: '聯絡人資料',
             breadcrumb: '聯絡人資料',
-            isSpecialPage: true
+            isSpecialPage: false,
+            isLinkPage: true
           }
         },
         {
@@ -44,17 +45,18 @@ const router = createRouter({
           meta: {
             title: '帳單資料',
             breadcrumb: '帳單資料',
-            isSpecialPage: true
+            isSpecialPage: false,
+            isLinkPage: true
           }
         },
         {
           path: 'vehicle',
-          name: '車籍資料維護',
+          name: '車籍卡片資料維護',
           component: () => import('@/views/basic-info/VehicleView.vue'),
           meta: {
-            title: '車籍資料',
-            breadcrumb: '車籍資料',
-            isSpecialPage: true
+            title: '車籍卡片資料',
+            breadcrumb: '車籍資卡片料',
+            isVehiclePage: true
           }
         },
         {
@@ -94,7 +96,8 @@ const router = createRouter({
           meta: {
             title: '客戶折讓資料',
             breadcrumb: '客戶折讓資料',
-            isSpecialPage: true
+            isSpecialPage: false,
+            isLinkPage: true
           }
         },
         {

@@ -5,7 +5,8 @@
     <div>
       <BreadCrumb :isSpecialPage="true" />
     </div>
-    <div class="page-title"><h5>客戶代號:G2200696 客戶名稱:客戶一</h5></div>
+    <el-button type="danger" @click="dialogVisible = true">新增折讓</el-button>
+    <div class="page-title"><h5>客戶代號:<h4>G2200696</h4>客戶名稱:<h4>客戶一</h4></h5></div>
 
     <el-table :data="paginatedDiscount" style="width: 100%">
       <el-table-column prop="ProductName" label="油品名稱" width="300" />
@@ -111,7 +112,9 @@ export default {
   margin-top: 30px;
   margin-bottom: 30px;
 }
-
+.page-title h4 {
+    color: #f5bd04;
+}
 .filters {
   display: flex;
   gap: 10px;

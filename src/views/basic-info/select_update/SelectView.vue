@@ -174,14 +174,14 @@
 
     <!-- 帳單資訊 -->
     <el-form-item label="帳單資訊" class="section-header" v-if="this.rowType==='3'">
+      <el-form-item label="帳單名稱">
+        <el-input v-model="form.account_sortId" readonly></el-input>
+      </el-form-item>
       <el-form-item label="開立統編">
         <el-input v-model="form.use_number" readonly></el-input>
       </el-form-item>
       <el-form-item label="發票開立人名稱">
         <el-input v-model="form.invoice_name" readonly></el-input>
-      </el-form-item>
-      <el-form-item label="對帳單組別">
-        <el-input v-model="form.statement_group" readonly></el-input>
       </el-form-item>
       <el-form-item label="帳單寄送方式">
         <el-input v-model="form.billing_method" readonly></el-input>
@@ -192,10 +192,10 @@
       <el-form-item label="對帳單列印">
         <el-input v-model="form.statement_print" readonly></el-input>
       </el-form-item>
-      <el-form-item label="付款方式">
-        <el-input v-model="form.payment_method" readonly></el-input>
-      </el-form-item>
       <el-form-item label="收件人姓名">
+        <el-input v-model="form.recipient_name" readonly></el-input>
+      </el-form-item>
+      <el-form-item label="帳單聯絡人">
         <el-input v-model="form.recipient_name" readonly></el-input>
       </el-form-item>
       <el-row style="margin-bottom: 20px">
@@ -225,7 +225,7 @@
     </el-form-item> -->
 
     <!-- 車籍資料 -->
-    <el-form-item label="車籍資料" class="section-header" v-if="this.rowType==='5'" >
+    <!-- <el-form-item label="車籍資料" class="section-header" v-if="this.rowType==='5'" >
         <el-form-item label="車牌號碼">
           <el-input v-model="form.license_plate" readonly></el-input>
         </el-form-item>
@@ -258,6 +258,34 @@
       </el-form-item>
       <el-form-item label="車輛異動-因素">
           <el-input v-model="form.vehicle_change_reason" readonly></el-input>
+      </el-form-item>
+    </el-form-item> -->
+
+     <!-- 業務員資料 -->
+     <el-form-item label="業務員資料" class="section-header" v-if="this.rowType==='6'" >
+        <el-form-item label="記錄號碼">
+          <el-input v-model="form.record_id" readonly ></el-input>
+        </el-form-item>
+        <el-form-item label="員工編號">
+          <el-input v-model="form.employee_id" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="員工姓名">
+          <el-input v-model="form.employee_name"readonly ></el-input>
+        </el-form-item>
+        <el-form-item label="職稱">
+          <el-input v-model="form.job_title" readonly></el-input>
+      </el-form-item>
+      <el-form-item label="部門代號">
+          <el-input v-model="form.department_code" readonly></el-input>
+      </el-form-item>
+      <el-form-item label="部門名稱">
+          <el-input v-model="form.department" readonly></el-input>
+      </el-form-item>
+      <el-form-item label="更新者">
+          <el-input v-model="form.updated" readonly></el-input>
+      </el-form-item>
+      <el-form-item label="建立者">
+          <el-input v-model="form.created" readonly></el-input>
       </el-form-item>
     </el-form-item>
 
@@ -365,7 +393,16 @@ data() {
         card_arrival_date:'2023/11/10',
         card_stop_date:'2023/11/10',
         notes:'台灣叮叮巴士股份有限公司',
-        vehicle_change_reason:'更換油品'
+        vehicle_change_reason:'更換油品',
+         //業務員
+         record_id:'123',
+        employee_id:'GF-012',
+        employee_name:'湯惠誠',
+        job_title:'業務',
+        department_code:'C01',
+        department:'業務部',
+        updated:'2024-04-09',
+        created:'2024-04-09'
       },
   };
 },
