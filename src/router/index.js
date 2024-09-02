@@ -71,11 +71,11 @@ const router = createRouter({
         },
         {
           path: 'salesperson',
-          name: '業務員資料維護',
+          name: '員工資料維護',
           component: () => import('@/views/basic-info/SalespersonView.vue'),
           meta: {
-            title: '業務員資料',
-            breadcrumb: '業務員資料',
+            title: '員工資料',
+            breadcrumb: '員工資料',
             isSpecialPage: true
           }
         },
@@ -151,6 +151,7 @@ const router = createRouter({
           props: route => ({
             customerName: route.query.customerName,
             rowType:route.query.rowType,
+            rowData:route.query.rowData,
           }),
         },
         {

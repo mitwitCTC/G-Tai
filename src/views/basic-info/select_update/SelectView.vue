@@ -3,7 +3,13 @@
   <div class="page-title">
   <h2 v-if="this.rowType === '1'">客戶基本資料查詢</h2>
   <h2 v-else-if="this.rowType === '3'">帳單資料查詢</h2>
-  <h2 v-else-if="this.rowType === '6'">業務資料查詢</h2>
+  <h2 v-else-if="this.rowType === '6'">員工資料查詢</h2>
+</div>
+  <div class="page-title">
+  <h5 v-if="this.rowType != '1' & this.rowType !== '6'" >
+    客戶代號:<h4>{{ this.cus_code }}</h4>
+    客戶名稱:<h4>{{ this.cus_name }}</h4>
+  </h5>
 </div>
   <div>
     <el-form :model="form" label-width="155px"   style="width: 100%; min-width: 1600px;">
@@ -11,130 +17,123 @@
     <el-form-item label="客戶基本資料" class="section-header" v-if="this.rowType==='1'">
       <el-row style="margin-bottom: 20px">
         <el-form-item label="客戶代號">
-          <el-input v-model="form.cus_code" readonly></el-input>
+          <el-input v-model="rowData.cus_code" readonly></el-input>
         </el-form-item>
         <el-form-item label="客戶名稱">
-          <el-input v-model="form.cus_name" readonly></el-input>
+          <el-input v-model="rowData.cus_name" readonly></el-input>
         </el-form-item>
         <el-form-item label="負責業務">
-          <el-input v-model="form.salesmanId" readonly></el-input>
+          <el-input v-model="rowData.salesmanId" readonly></el-input>
         </el-form-item>
         <el-form-item label="虛擬帳號">
-          <el-input v-model="form.virtual_account" readonly></el-input>
+          <el-input v-model="rowData.virtual_account" readonly></el-input>
         </el-form-item>
         <el-form-item label="區域">
-          <el-input v-model="form.region" readonly></el-input>
+          <el-input v-model="rowData.region" readonly></el-input>
         </el-form-item>
         <el-form-item label="產業類別">
-          <el-input v-model="form.industry" readonly></el-input>
+          <el-input v-model="rowData.industry" readonly></el-input>
         </el-form-item>
         <el-form-item label="預估月加油量">
-          <el-input v-model="form.est_fuel_volume" readonly></el-input>
+          <el-input v-model="rowData.est_fuel_volume" readonly></el-input>
         </el-form-item>
         <el-form-item label="公司電話">
-          <el-input v-model="form.phone" readonly></el-input>
+          <el-input v-model="rowData.phone" readonly></el-input>
         </el-form-item>
         <el-form-item label="傳真號碼">
-          <el-input v-model="form.fax" readonly></el-input>
+          <el-input v-model="rowData.fax" readonly></el-input>
         </el-form-item>
         <el-form-item label="交易模式">
-          <el-input v-model="form.transaction_mode" readonly></el-input>
+          <el-input v-model="rowData.transaction_mode" readonly></el-input>
         </el-form-item>
         <el-form-item label="押金">
-          <el-input v-model="form.deposit" readonly></el-input>
+          <el-input v-model="rowData.deposit" readonly></el-input>
         </el-form-item>
         <el-form-item label="前台密碼(@)">
-          <el-input v-model="form.front_pwd" readonly></el-input>
+          <el-input v-model="rowData.front_pwd" readonly></el-input>
         </el-form-item>
         <el-form-item label="合約日期(起)">
-          <el-input v-model="form.contract_start" readonly></el-input>
+          <el-input v-model="rowData.contract_start" readonly></el-input>
         </el-form-item>
         <el-form-item label="停油寬限額度">
-          <el-input v-model="form.fuel_grace_limit" readonly></el-input>
+          <el-input v-model="rowData.fuel_grace_limit" readonly></el-input>
         </el-form-item>
         <el-form-item label="公司統編">
-          <el-input v-model="form.vat_number" readonly></el-input>
+          <el-input v-model="rowData.vat_number" readonly></el-input>
         </el-form-item>
         <el-form-item label="合約日期(迄)">
-          <el-input v-model="form.contract_end" readonly></el-input>
+          <el-input v-model="rowData.contract_end" readonly></el-input>
         </el-form-item>
         <el-form-item label="低水位通知">
-          <el-input v-model="form.low_balance_notice" readonly></el-input>
+          <el-input v-model="rowData.low_balance_notice" readonly></el-input>
         </el-form-item>
         <el-form-item label="公司抬頭">
-          <el-input v-model="form.company_title" readonly></el-input>
+          <el-input v-model="rowData.company_title" readonly></el-input>
         </el-form-item>
         <el-form-item label="簽呈日期">
-          <el-input v-model="form.submission_date" readonly></el-input>
+          <el-input v-model="rowData.submission_date" readonly></el-input>
         </el-form-item>
         <el-form-item label="匯款日期">
-          <el-input v-model="form.remittance_date" readonly></el-input>
+          <el-input v-model="rowData.remittance_date" readonly></el-input>
         </el-form-item>
         <el-form-item label="油價簡訊電話">
-          <el-input v-model="form.fuel_sms_phone" readonly></el-input>
+          <el-input v-model="rowData.fuel_sms_phone" readonly></el-input>
         </el-form-item>
         <el-form-item label="油價簡訊選項">
-          <el-input v-model="form.fuel_sms_option" readonly></el-input>
+          <el-input v-model="rowData.fuel_sms_option" readonly></el-input>
         </el-form-item>
         <el-form-item label="餘額不足訊息電話">
-          <el-input v-model="form.balance_sms_phone" readonly></el-input>
+          <el-input v-model="rowData.balance_sms_phone" readonly></el-input>
         </el-form-item>
         <el-form-item label="合約狀態">
-          <el-input v-model="form.contract_status" readonly></el-input>
+          <el-input v-model="rowData.contract_status" readonly></el-input>
         </el-form-item>
-        <el-form-item label="建立時間">
-          <el-input v-model="form.createTime" readonly></el-input>
-        </el-form-item>
-        <el-form-item label="修改時間">
-          <el-input v-model="form.updateTime" readonly></el-input>
-        </el-form-item>
-      
         <el-form-item label="營登地址" >
-          <el-input v-model="form.reg_address" readonly></el-input>
+          <el-input v-model="rowData.reg_address" readonly></el-input>
         </el-form-item>
         <el-form-item label="通訊地址" >
-        <el-input v-model="form.mail_address" readonly></el-input>
+        <el-input v-model="rowData.mail_address" readonly></el-input>
         </el-form-item>
       </el-row> 
     
       <!-- 製卡費&備註 -->
       <el-row style="margin-bottom: 20px">
         <el-form-item label="製卡費用">
-          <el-input v-model="form.card_fee" readonly></el-input>
+          <el-input v-model="rowData.card_fee" readonly></el-input>
         </el-form-item>
         <el-form-item label="再製卡費用">
-          <el-input v-model="form.reissue_fee" readonly></el-input>
+          <el-input v-model="rowData.reissue_fee" readonly></el-input>
         </el-form-item>
         <el-form-item label="製卡費備註" style="width: 1000px">
-          <el-input v-model="form.card_fee_notes" type="textarea" readonly></el-input>
+          <el-input v-model="rowData.card_fee_notes" type="textarea" readonly></el-input>
         </el-form-item>
       </el-row>
       <!-- 備註 -->
       <el-row style="margin-bottom: 20px">
         <el-form-item label="對帳單及發票注意事項" style="width: 1000px">
-          <el-input v-model="form.invoice_notes" type="textarea" readonly></el-input>
+          <el-input v-model="rowData.invoice_notes" type="textarea" readonly></el-input>
         </el-form-item>
         <el-form-item label="預付及合約注意事項" style="width: 1000px">
-          <el-input v-model="form.con_notes" type="textarea" readonly></el-input>
+          <el-input v-model="rowData.con_notes" type="textarea" readonly></el-input>
         </el-form-item>
         <el-form-item label="合約備註" style="width: 1000px">
-          <el-input v-model="form.contract_notes" type="textarea" readonly></el-input>
+          <el-input v-model="rowData.contract_notes" type="textarea" readonly></el-input>
         </el-form-item>
       </el-row>
       <!-- 簽約業務&備註 -->
      <el-row style="margin-bottom: 20px">
       <el-form-item label="簽約業務">
-        <el-input v-model="form.contract_sales" readonly></el-input>
+        <el-input v-model="rowData.contract_sales" readonly></el-input>
       </el-form-item>
       <el-form-item label="業務備註" class="large-textbox">
-        <el-input v-model="form.sales_notes" type="textarea" readonly></el-input>
+        <el-input v-model="rowData.sales_notes" type="textarea" readonly></el-input>
       </el-form-item>
     </el-row>
       <!-- 設定方式&備註 -->
     <el-row style="margin-bottom: 20px">
       <!-- 設定方式 (多選框) -->
       <el-form-item label="設定方式">
-        <el-checkbox-group v-model="form.config_method" disabled>
+        <el-checkbox-group v-model="rowData.config_method" disabled>
           <el-checkbox :value="1">銀行定存</el-checkbox>
           <el-checkbox :value="2">現金</el-checkbox>
           <el-checkbox :value="3">支票</el-checkbox>
@@ -146,10 +145,16 @@
     </el-form-item>
     <!-- 設定方式備註 -->
     <el-form-item label="設定方式備註" class="large-textbox">
-      <el-input v-model="form.config_notes" type="textarea" readonly></el-input>
+      <el-input v-model="rowData.config_notes" type="textarea" readonly></el-input>
     </el-form-item>
   </el-row>
-    </el-form-item>
+  <el-form-item label="建立時間">
+    <el-input v-model="rowData.createTime" readonly></el-input>
+  </el-form-item>
+  <el-form-item label="修改時間">
+    <el-input v-model="rowData.updateTime" readonly></el-input>
+   </el-form-item>
+  </el-form-item>
     
 
     <!-- 聯絡人 -->
@@ -265,32 +270,31 @@
       </el-form-item>
     </el-form-item> -->
 
-     <!-- 業務員資料 -->
-     <el-form-item label="業務員資料" class="section-header" v-if="this.rowType==='6'" >
-        <el-form-item label="記錄號碼">
-          <el-input v-model="form.record_id" readonly ></el-input>
-        </el-form-item>
+     <!-- 員工資料 -->
+     <el-form-item label="員工資料" class="section-header" v-if="this.rowType==='6'" >
         <el-form-item label="員工編號">
-          <el-input v-model="form.employee_id" readonly></el-input>
+          <el-input v-model="rowData.employee_id" readonly></el-input>
         </el-form-item>
         <el-form-item label="員工姓名">
-          <el-input v-model="form.employee_name"readonly ></el-input>
+          <el-input v-model="rowData.employee_name"readonly ></el-input>
         </el-form-item>
         <el-form-item label="職稱">
-          <el-input v-model="form.job_title" readonly></el-input>
+          <el-input v-model="rowData.job_title" readonly></el-input>
       </el-form-item>
       <el-form-item label="部門代號">
-          <el-input v-model="form.department_code" readonly></el-input>
+          <el-input v-model="rowData.department_code" readonly></el-input>
       </el-form-item>
       <el-form-item label="部門名稱">
-          <el-input v-model="form.department" readonly></el-input>
+          <el-input v-model="rowData.department" readonly></el-input>
       </el-form-item>
+      <el-row>
       <el-form-item label="更新者">
-          <el-input v-model="form.updated" readonly></el-input>
+          <el-input v-model="rowData.updated" readonly></el-input>
       </el-form-item>
       <el-form-item label="建立者">
-          <el-input v-model="form.created" readonly></el-input>
+          <el-input v-model="rowData.created" readonly></el-input>
       </el-form-item>
+      </el-row>
     </el-form-item>
 
     <el-form-item label="" class="section-white" >
@@ -318,6 +322,7 @@ export default {
   },
 data() {
   return {
+    rowData:{},
     form: {
         cus_code: 'G2200696',
         cus_name: this.customerName,
@@ -398,17 +403,22 @@ data() {
         card_stop_date:'2023/11/10',
         notes:'台灣叮叮巴士股份有限公司',
         vehicle_change_reason:'更換油品',
-         //業務員
+         //員工
          record_id:'123',
         employee_id:'GF-012',
         employee_name:'湯惠誠',
         job_title:'業務',
         department_code:'C01',
         department:'業務部',
-        updated:'2024-04-09',
-        created:'2024-04-09'
+        updated:'柏青',
+        created:'柏青'
       },
   };
+},
+created() {
+  this.rowData = JSON.parse(this.$route.query.rowData);
+  this.cus_code = (this.$route.query.cus_code);
+  this.cus_name = (this.$route.query.cus_name);
 },
 };
 </script>
@@ -439,6 +449,14 @@ data() {
 .large-textbox {
   width: 600px
 }
+.page-title  {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.page-title h4 {
+    color: #f5bd04;
+}
+
 
 
 </style>

@@ -6,8 +6,21 @@
   <h2 v-else-if="this.rowType === '3'">帳單資料編輯</h2>
   <h2 v-else-if="this.rowType === '4'">折讓資料編輯</h2>
   <h2 v-else-if="this.rowType === '5'">車籍資料編輯</h2>
-  <h2 v-else-if="this.rowType === '6'">業務資料編輯</h2>
+  <h2 v-else-if="this.rowType === '6'">員工資料編輯</h2>
   <h2 v-else-if="this.rowType === '7'">卡片資料編輯</h2>
+</div>
+<div class="page-title">
+  <h5 v-if="this.rowType != '1' & this.rowType !== '6' & this.rowType !== '7'" >
+    客戶代號:<h4>{{ this.cus_code }}</h4>
+    客戶名稱:<h4>{{ this.cus_name }}</h4>
+  </h5>
+</div>
+<div class="page-title">
+  <h5 v-if="this.rowType ==='7'" >
+    客戶代號:<h4>{{ this.cus_code }}</h4>
+    客戶名稱:<h4>{{ this.cus_name }}</h4>
+    車牌號碼:<h4>{{this.license_plate}}</h4>
+  </h5>
 </div>
   <div>
     <el-form :model="form" label-width="155px"   style="width: 100%; min-width: 1600px;">
@@ -21,19 +34,23 @@
           <el-input v-model="form.cus_name" ></el-input>
         </el-form-item>
         <el-form-item label="負責業務">
-          <el-input v-model="form.salesmanId" ></el-input>
+          <el-select v-model="form.salesmanId" placeholder="選擇業務">
+            <el-option label="李柏青" :value="1"></el-option>
+            <el-option label="陳先生" :value="2"></el-option>
+            <el-option label="林先生" :value="3"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="虛擬帳號">
           <el-input v-model="form.virtual_account" ></el-input>
         </el-form-item>
         <el-form-item label="區域">
           <el-select v-model="form.region" placeholder="選擇區域">
-            <el-option label="北、北、基、宜" :value="1"></el-option>
-            <el-option label="桃、竹、苗" :value="2"></el-option>
-            <el-option label="中、彰、投" :value="3"></el-option>
-            <el-option label="雲、嘉、南" :value="4"></el-option>
-            <el-option label="高、屏、澎" :value="5"></el-option>
-            <el-option label="花、東" :value="6"></el-option>
+            <el-option label="1.北、北、基、宜" :value="1"></el-option>   
+            <el-option label="2.中、彰、投" :value="2"></el-option>
+            <el-option label="3.桃、竹、苗" :value="3"></el-option>
+            <el-option label="4.雲、嘉、南" :value="4"></el-option>
+            <el-option label="5.高、屏、澎" :value="5"></el-option>
+            <el-option label="6.花、東" :value="6"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="產業類別">
@@ -69,7 +86,14 @@
           <el-input v-model="form.front_pwd" ></el-input>
         </el-form-item>
         <el-form-item label="合約日期(起)">
-          <el-input v-model="form.contract_start" ></el-input>
+          <el-date-picker 
+          v-model="form.contract_start" 
+          type="date" 
+          format="YYYY-MM-DD" 
+          value-format="YYYY-MM-DD" 
+          placeholder="選擇日期"
+          style="width: 300px;">
+        </el-date-picker>
         </el-form-item>
         <el-form-item label="停油寬限額度">
           <el-input v-model="form.fuel_grace_limit" ></el-input>
@@ -78,28 +102,49 @@
           <el-input v-model="form.vat_number" ></el-input>
         </el-form-item>
         <el-form-item label="合約日期(迄)">
-          <el-input v-model="form.contract_end" ></el-input>
+          <el-date-picker 
+          v-model="form.contract_end" 
+          type="date" 
+          format="YYYY-MM-DD" 
+          value-format="YYYY-MM-DD" 
+          placeholder="選擇日期"
+          style="width: 300px;">
+        </el-date-picker>
         </el-form-item>
         <el-form-item label="低水位通知">
           <el-input v-model="form.low_balance_notice" ></el-input>
         </el-form-item>
-
         <el-form-item label="公司抬頭">
           <el-input v-model="form.company_title" ></el-input>
         </el-form-item>
-
-        
         <el-form-item label="簽呈日期">
-          <el-input v-model="form.submission_date" ></el-input>
+          <el-date-picker 
+          v-model="form.submission_date" 
+          type="date" 
+          format="YYYY-MM-DD" 
+          value-format="YYYY-MM-DD" 
+          placeholder="選擇日期"
+          style="width: 300px;">
+        </el-date-picker>
         </el-form-item>
         <el-form-item label="匯款日期">
-          <el-input v-model="form.remittance_date" ></el-input>
+          <el-date-picker 
+          v-model="form.remittance_date" 
+          type="date" 
+          format="YYYY-MM-DD" 
+          value-format="YYYY-MM-DD" 
+          placeholder="選擇日期"
+          style="width: 300px;">
+        </el-date-picker>
         </el-form-item>
         <el-form-item label="油價簡訊電話">
           <el-input v-model="form.fuel_sms_phone" ></el-input>
         </el-form-item>
         <el-form-item label="油價簡訊選項">
-          <el-input v-model="form.fuel_sms_option" ></el-input>
+          <el-select v-model="form.fuel_sms_option" placeholder="選擇交易模式">
+            <el-option label="Y" :value="Y"></el-option>
+            <el-option label="N" :value="N"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="餘額不足訊息電話">
           <el-input v-model="form.balance_sms_phone" ></el-input>
@@ -110,12 +155,6 @@
             <el-option label="暫停" :value="2"></el-option>
             <el-option label="終止" :value="3"></el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item label="建立時間">
-          <el-input v-model="form.createTime" ></el-input>
-        </el-form-item>
-        <el-form-item label="修改時間">
-          <el-input v-model="form.updateTime" ></el-input>
         </el-form-item>
         <el-form-item label="營登地址" >
           <el-input v-model="form.reg_address" ></el-input>
@@ -152,8 +191,12 @@
       <!-- 簽約業務&備註 -->
      <el-row style="margin-bottom: 20px">
       <el-form-item label="簽約業務">
-        <el-input v-model="form.contract_sales" ></el-input>
-      </el-form-item>
+          <el-select v-model="form.contract_sales" placeholder="選擇業務">
+            <el-option label="李柏青" :value="1"></el-option>
+            <el-option label="陳先生" :value="2"></el-option>
+            <el-option label="林先生" :value="3"></el-option>
+          </el-select>
+        </el-form-item>
       <el-form-item label="業務備註" class="large-textbox">
         <el-input v-model="form.sales_notes" type="textarea" ></el-input>
       </el-form-item>
@@ -292,31 +335,22 @@
       </el-form-item>
     </el-form-item>
 
-    <!-- 業務員資料 -->
-    <el-form-item label="業務員資料" class="section-header" v-if="this.rowType==='6'" >
-        <el-form-item label="記錄號碼">
-          <el-input v-model="form.record_id" ></el-input>
-        </el-form-item>
+    <!-- 員工資料 -->
+    <el-form-item label="員工資料" class="section-header" v-if="this.rowType==='6'" >
         <el-form-item label="員工編號">
-          <el-input v-model="form.employee_id" ></el-input>
+          <el-input v-model="rowData.employee_id" ></el-input>
         </el-form-item>
         <el-form-item label="員工姓名">
-          <el-input v-model="form.employee_name" ></el-input>
+          <el-input v-model="rowData.employee_name" ></el-input>
         </el-form-item>
         <el-form-item label="職稱">
-          <el-input v-model="form.job_title" ></el-input>
+          <el-input v-model="rowData.job_title" ></el-input>
       </el-form-item>
       <el-form-item label="部門代號">
-          <el-input v-model="form.department_code" ></el-input>
+          <el-input v-model="rowData.department_code" ></el-input>
       </el-form-item>
       <el-form-item label="部門名稱">
-          <el-input v-model="form.department" ></el-input>
-      </el-form-item>
-      <el-form-item label="更新者">
-          <el-input v-model="form.updated" ></el-input>
-      </el-form-item>
-      <el-form-item label="建立者">
-          <el-input v-model="form.created" ></el-input>
+          <el-input v-model="rowData.department" ></el-input>
       </el-form-item>
     </el-form-item>
   <!-- 卡片資料 -->
@@ -372,6 +406,10 @@ export default {
   },
 data() {
   return {
+    rowData:{},
+    cus_code:'',
+    cus_name:'',
+    license_plate:'',
     form: {
         cus_code: 'G2200696',
         cus_name: this.customerName,
@@ -385,7 +423,7 @@ data() {
         vat_number: '81155355',
         company_title: '整樹貨運股份有限公司',
         front_pwd: 'Lw81155355G2200696',
-        contract_start: '2024/8/1',
+        contract_start: '',
         contract_end: '2027/7/31',
         low_balance_notice: '100000',
         fuel_grace_limit: '50000',
@@ -451,17 +489,24 @@ data() {
         card_stop_date:'2023/11/10',
         notes:'台灣叮叮巴士股份有限公司',
         vehicle_change_reason:'更換油品',
-        //業務員
+        //員工
         record_id:'123',
         employee_id:'GF-012',
         employee_name:'湯惠誠',
         job_title:'業務',
         department_code:'C01',
         department:'業務部',
-        updated:'2024-04-09',
-        created:'2024-04-09'
+        updated:'柏青',
+        created:'柏青'
       },
   };
+},
+created() {
+  this.rowData = JSON.parse(this.$route.query.rowData);
+  this.cus_code = (this.$route.query.cus_code);
+  this.cus_name = (this.$route.query.cus_name);
+  this.license_plate = (this.$route.query.license_plate);
+  
 },
 };
 </script>
@@ -473,6 +518,7 @@ data() {
 .el-select {
   width: 300px
 }
+
 .page-title {
   margin-top: 30px; 
   margin-bottom: 30px; 
@@ -494,6 +540,13 @@ data() {
 }
 .large-textbox {
   width: 600px
+}
+.page-title {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.page-title h4 {
+    color: #f5bd04;
 }
 
 

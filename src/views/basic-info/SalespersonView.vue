@@ -4,12 +4,10 @@
   <div>
     <BreadCrumb :isSpecialPage="true"/>
   </div>
-    <el-input v-model="filters.salesperson" placeholder="查詢業務姓名"  style="width: 225px;"></el-input>
-    <el-form-item>
-    <el-button type="success" @click="dialogVisible = true">新增</el-button>
-    </el-form-item>
+    <el-input v-model="filters.salesperson" placeholder="查詢員工姓名"  style="width: 225px;"></el-input>
+    <el-button type="success" style="margin: 10px;" @click="dialog = true">新增員工</el-button>
     <div class="table-container">
-      <el-table :data="selses" style="width: 100%">
+      <el-table :data="currentPageData" style="width: 100%">
         <el-table-column prop="employee_id" label="員工編號"  />
         <el-table-column prop="employee_name" label="員工姓名"  />
         <el-table-column prop="job_title" label="職稱" />
@@ -26,15 +24,69 @@
       </el-table-column>
       </el-table>
     </div>
-    <div class="pagination-info">
-        Showing 1 to 2 of 2
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ startItem }} to {{ endItem }} of {{ selses.length }}
+      </div>
+      <el-pagination
+        @current-change="handlePageChange"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        :total="selses.length"
+        layout="prev, pager, next, jumper"
+        class="pagination"
+      />
     </div>
+
+    <!-- 新增員工 -->
+ <el-dialog title="新增員工" v-model="dialog" width="50%">
+    <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
+      <el-row>
+          <el-col :span="8">
+        <el-form-item label="員工編號">
+          <el-input v-model="form.employee_id" class="small-input"></el-input>
+        </el-form-item>
+      </el-col>
+        <el-col :span="8">
+        <el-form-item label="員工姓名">
+          <el-input v-model="form.employee_name" class="small-input"></el-input>
+        </el-form-item>
+      </el-col>
+        <el-col :span="8">
+        <el-form-item label="職稱">
+          <el-input v-model="form.job_title" class="small-input"></el-input>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    
+    <el-row>
+        <el-col :span="8">
+      <el-form-item label="部門代號">
+        <el-input v-model="form.department_code" class="small-input"></el-input>
+      </el-form-item>
+    </el-col>
+      <el-col :span="8">
+      <el-form-item label="部門名稱">
+        <el-input v-model="form.department" class="small-input"></el-input>
+      </el-form-item>
+    </el-col>
+  </el-row>
+    </el-form>
+    <template v-slot:footer>
+      <div class="dialog-footer">
+        <el-button @click="dialog = false">取消</el-button>
+        <el-button type="primary" @click="savePass">送出</el-button>
+    </div>
+    </template>
+  </el-dialog>
 </template>
+
 
 <script>
 import ListBar from '@/components/ListBar.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import TablePaginated from '@/components/TablePaginated.vue';
+import axios from 'axios';
 
 export default {
   components: {
@@ -44,51 +96,73 @@ export default {
   },
   data() {
     return {
+      dialog: false,
       filters: {
         salesperson: ''
       },
-      selses: [
-        {
-          employee_id: 'GF-012',
-          employee_name: '湯惠誠',
-          job_title: '業務',
-          department_code: 'C01',
-          department: '業務部'
-        },
-        {
-          employee_id: 'GF-010',
-          employee_name: '展億活動整合有限公司',
-          job_title: '業務',
-          department_code: 'C02',
-          department: '經銷商'
-        },
-      ],
+      form: {
+        employee_id:'',
+        employee_name:'',
+        job_title:'',
+        department_code:'',
+        department:'',
+      },
+      selses: [],
       currentPage: 1,
       pageSize: 10
     };
   },
+  created() {
+    this.getselectData();
+  },
   computed: {
     
+    // 計算當前頁面顯示的數據
+    currentPageData() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.selses.slice(start, end);
+    },
+    // 計算當前頁面顯示的起始和結束項目
+    startItem() {
+      const start = (this.currentPage - 1) * this.pageSize + 1;
+      return Math.min(start, this.selses.length);
+    },
+    endItem() {
+      const end = this.currentPage * this.pageSize;
+      return Math.min(end, this.selses.length);
+    }
   },
   methods: {
-    
+    async getselectData() {
+    try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.get('http://122.116.23.30:3345/main/selectSalesman');
+        const salesmanData = response.data.data; // 取得資料中的第一個元素
+        // 將資料放入 customers 陣列中
+        this.selses=salesmanData;
+    } catch (error) {
+        console.error('Error fetching customer data:', error);
+    }
+  },
+  handlePageChange(page) {
+      this.currentPage = page;
+    },
     viewDetails(row) {
-      console.log('View details for:', row);
       this.$router.push({ 
         path: 'SelectView',
         query: {
           rowType:'6',
-          
+          rowData: JSON.stringify(row)
         }
       });
     },
     editItem(row) {
-      console.log('Edit item:', row);
       this.$router.push({ 
         path: 'UpdateView',
         query: {
           rowType:'6',
-         
+          rowData: JSON.stringify(row)
         }
       });
     },
@@ -100,6 +174,21 @@ export default {
 </script>
 
 <style scoped>
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+.pagination-info {
+  margin-right: auto; /* 确保分页信息靠左 */
+  padding-right: 1100px; /* 可选: 添加右边距以与分页控件分开 */
+  white-space: nowrap;
+}
+.pagination {
+  flex: 1;
+  text-align: right;
+}
 .page-title {
   margin-top: 30px;
   margin-bottom: 30px;

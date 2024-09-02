@@ -6,7 +6,7 @@
       <BreadCrumb :isSpecialPage="true" />
     </div>
     <el-button type="warning" @click="dialogVisible = true">新增車籍</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>G2200696</h4>客戶名稱:<h4>客戶一</h4>車牌號碼:<h4>ACC-1234</h4></h5></div>
+    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4>車牌號碼:<h4>{{rowData.license_plate}}</h4></h5></div>
     <el-table :data="vehicles" style="width: 100%">
       <el-table-column prop="card_number" label="卡號" width="200" />
       <el-table-column prop="card_type" label="卡片類別" width="150" />
@@ -48,6 +48,9 @@ export default {
         billGroup: '',
         customerName: ''
       },
+      rowData:[],
+      cus_code:'',
+      cus_name:'',
       vehicles: [
         {
           card_number: '#121611200607123495',
@@ -73,6 +76,11 @@ export default {
       
     };
   },
+  created() {
+    this.rowData = JSON.parse(this.$route.query.rowData);
+    this.cus_code=(this.$route.query.cus_code);
+    this.cus_name=(this.$route.query.cus_name);
+  },
   computed: {
    
   },
@@ -84,7 +92,10 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'7',
-          customerName:row.customerName
+          cus_name:this.cus_name,
+          cus_code:this.cus_code,
+          license_plate:this.rowData.license_plate,
+          rowData: JSON.stringify(row)
         }
       });
     },

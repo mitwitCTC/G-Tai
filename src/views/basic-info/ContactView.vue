@@ -6,7 +6,7 @@
       <BreadCrumb :isSpecialPage="true"/>
     </div>
     <el-button type="primary" @click="dialogVisible = true">新增聯絡人</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>G2200696</h4>客戶名稱:<h4>客戶一</h4></h5></div>
+    <div class="page-title"><h5>客戶代號:<h4>{{rowData.cus_code}}</h4>客戶名稱:<h4>{{rowData.cus_name}}</h4></h5></div>
     <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%">
         <el-table-column prop="job_title1" label="職稱"></el-table-column>
@@ -62,7 +62,7 @@
 import ListBar from '@/components/ListBar.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import TablePaginated from '@/components/TablePaginated.vue';
-import { Search } from '@element-plus/icons-vue'
+
 
 export default {
   components: {
@@ -78,6 +78,7 @@ export default {
         sales: '',
         customerName: ''
       },
+      rowData:[],
       customers: [
         {
           job_title1: '承辦',
@@ -122,6 +123,9 @@ export default {
       pageSize: 10
     };
   },
+  created() {
+  this.rowData = JSON.parse(this.$route.query.rowData);
+},
   computed: {
     BreadCrumbItems() {
       // 获取当前路由匹配的所有路由项
@@ -175,7 +179,9 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'2',
-          customerName:row.customerName
+          cus_code:this.rowData.cus_code,
+          cus_name:this.rowData.cus_name,
+          rowData: JSON.stringify(row)
         }
       });
     },

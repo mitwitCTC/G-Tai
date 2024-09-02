@@ -6,7 +6,7 @@
       <BreadCrumb :isSpecialPage="true" />
     </div>
     <el-button type="success" @click="dialogVisible = true">新增帳單資料</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>G2200696</h4>客戶名稱:<h4>客戶一</h4></h5></div>
+    <div class="page-title"><h5>客戶代號:<h4>{{rowData.cus_code}}</h4>客戶名稱:<h4>{{rowData.cus_name}}</h4></h5></div>
     <div class="table-container">
       <el-table :data="bills" style="width: 100%">
         <el-table-column prop="billId" label="帳單編號" width="150" />
@@ -34,7 +34,7 @@
       <el-button type="warning" @click="dialogVisible = true">新增車籍</el-button>
       <el-table :data="vehicles" style="width: 100%">
         <el-table-column prop="billId" label="帳單編號" width="300" />
-        <el-table-column prop="licensePlate" label="車牌號碼" width="300" />
+        <el-table-column prop="license_plate" label="車牌號碼" width="300" />
         <el-table-column prop="vehicleType" label="車輛型態" width="300" />
         <el-table-column prop="product_name" label="油品名稱" width="350" />
         <el-table-column label="操作">
@@ -66,7 +66,7 @@ export default {
   },
   data() {
     return {
-      
+      rowData:[],
       bills: [
         {
           billId: 'B001',
@@ -94,13 +94,13 @@ export default {
       vehicles: [
         {
           billId: 'B001',
-          licensePlate: 'ABC-123',
+          license_plate: 'ABC-123',
           vehicleType: '自小客',
           product_name: ' 0017 國光尿素溶液'
         },
         {
           billId: 'B001',
-          licensePlate: 'ABC-123',
+          license_plate: 'ABC-1236',
           vehicleType: '自小客',
           product_name: ' 0017 國光尿素溶液'
         },
@@ -108,6 +108,9 @@ export default {
       currentPage: 1,
       pageSize: 10
     };
+  },
+  created() {
+    this.rowData = JSON.parse(this.$route.query.rowData);
   },
   computed: {
    
@@ -120,7 +123,9 @@ export default {
         path: 'SelectView',
         query: {
           rowType:'3',
-          customerName:row.customerName
+          cus_name:this.rowData.cus_name,
+          cus_code:this.rowData.cus_code,
+          rowData: JSON.stringify(row)
         }
       });
     },
@@ -130,7 +135,9 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'3',
-          customerName:row.customerName
+          cus_name:this.rowData.cus_name,
+          cus_code:this.rowData.cus_code,
+          rowData: JSON.stringify(row)
         }
       });
     },
@@ -143,7 +150,9 @@ export default {
         path: 'SelectView',
         query: {
           rowType:'5',
-          customerName:row.customerName
+          cus_name:this.rowData.cus_name,
+          cus_code:this.rowData.cus_code,
+          rowData: JSON.stringify(row)
         }
       });
     },
@@ -153,7 +162,9 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'5',
-          customerName:row.customerName
+          cus_name:this.rowData.cus_name,
+          cus_code:this.rowData.cus_code,
+          rowData: JSON.stringify(row)
         }
       });
     },
@@ -165,7 +176,9 @@ export default {
       this.$router.push({ 
         path: 'vehicle',
         query: {
-          
+          cus_name:this.rowData.cus_name,
+          cus_code:this.rowData.cus_code,
+          rowData: JSON.stringify(row)
         }
       });
     },

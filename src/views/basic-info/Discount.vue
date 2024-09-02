@@ -6,8 +6,7 @@
       <BreadCrumb :isSpecialPage="true" />
     </div>
     <el-button type="danger" @click="dialogVisible = true">新增折讓</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>G2200696</h4>客戶名稱:<h4>客戶一</h4></h5></div>
-
+    <div class="page-title"><h5>客戶代號:<h4>{{rowData.cus_code}}</h4>客戶名稱:<h4>{{rowData.cus_name}}</h4></h5></div>
     <el-table :data="paginatedDiscount" style="width: 100%">
       <el-table-column prop="ProductName" label="油品名稱" width="300" />
       <el-table-column prop="SupplierName" label="廠商名稱" width="500" />
@@ -49,6 +48,7 @@ export default {
       filters: {
         customerId: ''
       },
+      rowData:[],
       DiscountData: [
         {
           customerId: 'G220001',
@@ -70,6 +70,9 @@ export default {
       currentPage: 1,
       pageSize: 10
     };
+  },
+  created() {
+    this.rowData = JSON.parse(this.$route.query.rowData);
   },
   computed: {
     filteredDiscount() {
