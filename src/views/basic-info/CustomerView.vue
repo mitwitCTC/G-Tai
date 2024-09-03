@@ -395,8 +395,7 @@ export default {
         path: 'SelectView',
         query: {
           rowType:'1',
-          customerName:row.customerName,
-          rowData: JSON.stringify(row)
+          cus_code:row.cus_code
         }
       });
     },
@@ -428,7 +427,8 @@ export default {
       this.$router.push({ 
         path: 'bill',
         query: {
-          rowData: JSON.stringify(row)
+          cus_code:row.cus_code,
+          cus_name:row.cus_name
         }
       });
     },

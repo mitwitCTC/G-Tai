@@ -6,16 +6,15 @@
       <BreadCrumb :isSpecialPage="true" />
     </div>
     <el-button type="success" @click="dialogBill = true">新增帳單資料</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>{{rowData.cus_code}}</h4>客戶名稱:<h4>{{rowData.cus_name}}</h4></h5></div>
+    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
     <div class="table-container">
       <el-table :data="bills" style="width: 100%">
-        <el-table-column prop="billId" label="帳單編號" width="150" />
+        <el-table-column prop="account_sortId" label="帳單編號" width="150" />
         <el-table-column prop="acc_name" label="帳單名稱" width="150" />
-        <el-table-column prop="taxId" label="開立統編" width="150" />
-        <el-table-column prop="recipientName" label="收件人姓名" width="150" />
-        <el-table-column prop="recipientTitle" label="收件人抬頭" width="150" />
-        <el-table-column prop="deliveryMethod" label="寄送方式" width="150" />
-        <el-table-column prop="deliveryAddress" label="收件地址" />
+        <el-table-column prop="use_number" label="開立統編" width="150" />
+        <el-table-column prop="recipient_name" label="收件人姓名" width="200" />
+        <el-table-column prop="billing_method" label="寄送方式" width="150" />
+        <el-table-column prop="address_email" label="收件地址/Mail" />
         <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
@@ -29,13 +28,13 @@
     </div>
     <div class="pagination-info">
         Showing 1 to 0 of 0
-      </div>
+    </div>
       <div class="page-title"><h2>車籍資料維護</h2></div>
       <el-button type="warning" @click="dialog = true">新增車籍</el-button>
-      <el-table :data="vehicles" style="width: 100%">
-        <el-table-column prop="billId" label="帳單編號" width="300" />
+      <el-table :data="currentPageData" style="width: 100%">
+        <el-table-column prop="account_sortId" label="帳單編號" width="300" />
         <el-table-column prop="license_plate" label="車牌號碼" width="300" />
-        <el-table-column prop="vehicleType" label="車輛型態" width="300" />
+        <el-table-column prop="vehicle_type" label="車輛型態" width="300" />
         <el-table-column prop="product_name" label="油品名稱" width="350" />
         <el-table-column label="操作">
           <template v-slot="scope">
@@ -47,9 +46,22 @@
           </template>
        </el-table-column>
     </el-table>
-    <div class="pagination-info">
-        Showing 1 to 0 of 0
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ startItem }} to {{ endItem }} of {{ vehicles.length }}
+      </div>
+      <el-pagination
+        @current-change="handlePageChange"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        :total="vehicles.length"
+        layout="prev, pager, next, jumper"
+        class="pagination"
+      />
     </div>
+    <div><el-table style="width: 100%"></el-table></div>
+    
+
     <!-- 新增帳單資訊 -->
     <el-dialog title="新增帳單資訊" v-model="dialogBill" width="50%">
       <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
@@ -145,7 +157,7 @@
 <script>
 import ListBar from '@/components/ListBar.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
-
+import axios from 'axios';
 
 export default {
   components: {
@@ -155,47 +167,13 @@ export default {
   },
   data() {
     return {
+      cus_code:'',
+      cus_name:'',
       dialogBill: false,
       dialog: false,
       rowData:[],
-      bills: [
-        {
-          billId: 'B001',
-          customerId: 'C001',
-          acc_name: 'AAA',
-          transactionMode: '現金',
-          taxId: '12345678',
-          recipientName: '張三',
-          recipientTitle: '經理',
-          deliveryMethod: '快遞',
-          deliveryAddress: '台北市中正區'
-        },
-        {
-          billId: 'B002',
-          customerId: 'C002',
-          acc_name: 'BBB',
-          transactionMode: '刷卡',
-          taxId: '87654321',
-          recipientName: '李四',
-          recipientTitle: '主任',
-          deliveryMethod: '郵寄',
-          deliveryAddress: '台中市西屯區'
-        }
-      ],
-      vehicles: [
-        {
-          billId: 'B001',
-          license_plate: 'ABC-123',
-          vehicleType: '自小客',
-          product_name: ' 0017 國光尿素溶液'
-        },
-        {
-          billId: 'B001',
-          license_plate: 'ABC-1236',
-          vehicleType: '自小客',
-          product_name: ' 0017 國光尿素溶液'
-        },
-      ],
+      bills: [],
+      vehicles: [],
       form:{
         acc_name:'',
         use_number:'',
@@ -217,22 +195,58 @@ export default {
     };
   },
   created() {
-    this.rowData = JSON.parse(this.$route.query.rowData);
+    // this.rowData = JSON.parse(this.$route.query.rowData);
+    this.cus_code = (this.$route.query.cus_code);
+    this.cus_name = (this.$route.query.cus_name);
+    const postData = {
+      customerId:this.cus_code,
+    };
+      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+        .then(response => {
+          this.bills = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+        axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
+        .then(response => {
+          this.vehicles = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
   },
   computed: {
-   
+   // 計算當前頁面顯示的數據
+   currentPageData() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.vehicles.slice(start, end);
+    },
+    // 計算當前頁面顯示的起始和結束項目
+    startItem() {
+      const start = (this.currentPage - 1) * this.pageSize + 1;
+      return Math.min(start, this.vehicles.length);
+    },
+    endItem() {
+      const end = this.currentPage * this.pageSize;
+      return Math.min(end, this.vehicles.length);
+    },
   },
   methods: {
-   
+    handlePageChange(page) {
+      this.currentPage = page;
+    },
     viewDetails(row) {
       console.log('View details for:', row);
       this.$router.push({ 
         path: 'SelectView',
         query: {
           rowType:'3',
-          cus_name:this.rowData.cus_name,
-          cus_code:this.rowData.cus_code,
-          rowData: JSON.stringify(row)
+          cus_name:this.cus_name,
+          cus_code:this.cus_code
         }
       });
     },
@@ -257,9 +271,8 @@ export default {
         path: 'SelectView',
         query: {
           rowType:'5',
-          cus_name:this.rowData.cus_name,
-          cus_code:this.rowData.cus_code,
-          rowData: JSON.stringify(row)
+          cus_name:this.cus_name,
+          cus_code:this.cus_code
         }
       });
     },
@@ -294,6 +307,21 @@ export default {
 </script>
 
 <style scoped>
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+.pagination-info {
+  margin-right: auto; /* 确保分页信息靠左 */
+  padding-right: 890px; /* 可选: 添加右边距以与分页控件分开 */
+  white-space: nowrap;
+}
+.pagination {
+  flex: 1;
+  text-align: right;
+}
 .el-select {
   width: 175px
 }

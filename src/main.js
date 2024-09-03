@@ -18,7 +18,9 @@ import 'bootstrap';
 import '@fortawesome/fontawesome-free/css/all.css';
 
 
+
 const app = createApp(App)
+
 app.use(ElementPlus);
 app.use(createPinia())
 app.use(router)
