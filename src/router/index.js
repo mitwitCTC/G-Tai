@@ -166,6 +166,35 @@ const router = createRouter({
             customerName: route.query.customerName,
             rowType:route.query.rowType,
           }),
+        },
+        {
+          path: 'CustomerAccounts',
+          name: '客戶帳務',
+          component: () => import('@/views/basic-info/Accounts/CustomerAccounts.vue'),
+          meta: {
+            title: '客戶帳務',
+            breadcrumb: '客戶帳務',
+            isAccountsPage:true,
+          },
+        },
+        {
+          path: 'BANKSINOPAC_View',
+          name: '永豐銀行',
+          component: () => import('@/views/basic-info/Accounts/bank/BANKSINOPAC_View.vue'),
+          meta: {
+            title: '永豐銀行',
+            breadcrumb: '永豐銀行',
+            isBankPage:true
+          },
+        },{
+          path: 'TBB_View',
+          name: '台企銀',
+          component: () => import('@/views/basic-info/Accounts/bank/TBB_View.vue'),
+          meta: {
+            title: '台企銀',
+            breadcrumb: '台企銀',
+            isBankPage:true
+          },
         }
       ]
     }

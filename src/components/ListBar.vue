@@ -14,7 +14,20 @@
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">供應商資料維護</button>
       </div>
-      <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/FinanceManagement')">帳務管理</button>
+      <button class="btn btn-light w-100 text-start" @click="toggleBasicInfoCollapseTrade">
+        {{ isBasicInfoCollapsedTrade ? '帳務管理⭢' : '帳務管理↓' }}
+      </button>
+      <div class="collapse" :class="{ show: !isBasicInfoCollapsedTrade }" id="collapseExample2">
+        <button class="btn btn-light w-100 text-start trade-color"  @click="toggleBasicInfoCollapseBank">
+          {{ isBasicInfoCollapsedBank ? '銀行⭢' : '銀行↓' }}
+        </button>
+        <div class="collapse" :class="{ show: !isBasicInfoCollapsedBank }" id="collapseExample3">
+          <button class="btn btn-light w-100 text-start bank-color" @click="() => goTo('/basic-info/TBB_View')">台企銀</button>
+          <button class="btn btn-light w-100 text-start bank-color" @click="() => goTo('/basic-info/BANKSINOPAC_View')">永豐銀行</button>
+          </div>
+        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/CustomerAccounts')">客戶帳務</button>
+      </div>
+      <!-- <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/FinanceManagement')">帳務管理</button> -->
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/SalesControl')">銷售管理</button>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/ReportManagement')">報表</button>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/AccessControl')">權限管理</button>
@@ -39,6 +52,8 @@ const route = useRoute();
 const userName = ref('登入者：測試測試'); // 替換為實際的登入者名稱
 
 const isBasicInfoCollapsed = ref(true);
+const isBasicInfoCollapsedTrade = ref(true);
+const isBasicInfoCollapsedBank = ref(true);
 
 const goTo = (path) => {
   if (route.path !== path) {
@@ -50,6 +65,12 @@ const goTo = (path) => {
 
 const toggleBasicInfoCollapse = () => {
   isBasicInfoCollapsed.value = !isBasicInfoCollapsed.value;
+};
+const toggleBasicInfoCollapseTrade = () => {
+  isBasicInfoCollapsedTrade.value = !isBasicInfoCollapsedTrade.value;
+};
+const toggleBasicInfoCollapseBank = () => {
+  isBasicInfoCollapsedBank.value = !isBasicInfoCollapsedBank.value;
 };
 
 const logout = () => {
@@ -95,6 +116,18 @@ const logout = () => {
 }
 .custom-color:hover {
   background-color: #be4e04; 
+}
+.trade-color {
+  background-color: #76fa2a; 
+}
+.trade-color:hover {
+  background-color: #04b840; 
+}
+.bank-color {
+  background-color: #1ad0fd; 
+}
+.bank-color:hover {
+  background-color: #07a8f3; 
 }
 .sidebar-TheFooter {
   padding: 10px;

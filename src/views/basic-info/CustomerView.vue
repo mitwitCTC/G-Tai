@@ -289,7 +289,7 @@ export default {
       search: {
         customerName: ''
       },
-      customers: [],
+      customers:[],
       industryMap: {
         '1': '食品飲料',
         '6': '營建土木工程',

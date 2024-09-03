@@ -250,7 +250,7 @@
     <!-- 帳單資訊 -->
     <el-form-item label="帳單資訊" class="section-header" v-if="this.rowType==='3'">
       <el-form-item label="帳單名稱">
-        <el-input v-model="form.account_sortId" ></el-input>
+        <el-input v-model="form.acc_name" ></el-input>
       </el-form-item>
       <el-form-item label="開立統編">
         <el-input v-model="form.use_number" ></el-input>
@@ -276,7 +276,7 @@
         <el-input v-model="form.recipient_name" ></el-input>
       </el-form-item>
       <el-form-item label="帳單聯絡人">
-        <el-input v-model="form.recipient_name" ></el-input>
+        <el-input v-model="form.acc_contact" ></el-input>
       </el-form-item>
       <el-row style="margin-bottom: 20px">
         <el-form-item label="對帳單備註資訊" style="width: 1000px">
@@ -359,20 +359,44 @@
           <el-input v-model="form.card_number" ></el-input>
         </el-form-item>
         <el-form-item label="卡片類別">
-          <el-input v-model="form.card_type" ></el-input>
+          <el-select v-model="form.card_type" placeholder="選擇卡片類別">
+            <el-option label="1.尿素" :value="1"></el-option>
+            <el-option label="2.汽油" :value="2"></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="上傳中油時間">
-          <el-input v-model="form.upload_time" ></el-input>
-        </el-form-item>
-        <el-form-item label="上傳中油原因">
-          <el-input v-model="form.upload_reason" ></el-input>
-      </el-form-item>
-      <el-form-item label="到卡日期">
-          <el-input v-model="form.card_arrival_date" ></el-input>
-      </el-form-item>
-      <el-form-item label="停卡日期">
-          <el-input v-model="form.card_stop_date" ></el-input>
-      </el-form-item>
+        <el-form-item label="上傳中油日期">
+              <el-date-picker 
+                v-model="form.upload_time" 
+                type="date" 
+                format="YYYY-MM-DD" 
+                value-format="YYYY-MM-DD" 
+                placeholder="選擇日期"
+                style="width: 300px;">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="上傳中油原因">
+              <el-input v-model="form.upload_reason" ></el-input>
+            </el-form-item>
+            <el-form-item label="到卡日期">
+              <el-date-picker 
+                v-model="form.card_arrival_date" 
+                type="date" 
+                format="YYYY-MM-DD" 
+                value-format="YYYY-MM-DD" 
+                placeholder="選擇日期"
+                style="width: 300px;">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="停卡日期">
+              <el-date-picker 
+                v-model="form.card_stop_date" 
+                type="date" 
+                format="YYYY-MM-DD" 
+                value-format="YYYY-MM-DD" 
+                placeholder="選擇日期"
+                style="width: 300px;">
+              </el-date-picker>
+            </el-form-item>
       <el-form-item label="備註">
           <el-input v-model="form.notes" ></el-input>
       </el-form-item>

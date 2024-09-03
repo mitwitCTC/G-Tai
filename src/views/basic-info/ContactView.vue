@@ -5,7 +5,7 @@
     <div>
       <BreadCrumb :isSpecialPage="true"/>
     </div>
-    <el-button type="primary" @click="dialogVisible = true">新增聯絡人</el-button>
+    <el-button type="primary" @click="dialog = true">新增聯絡人</el-button>
     <div class="page-title"><h5>客戶代號:<h4>{{rowData.cus_code}}</h4>客戶名稱:<h4>{{rowData.cus_name}}</h4></h5></div>
     <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%">
@@ -34,25 +34,36 @@
         @page-change="handlePageChange"
       />
 
-      <!-- 新增客戶 -->
-      <el-dialog title="新增客戶" v-model="dialog" width="80%">
-        <el-form :model="form">
-          <el-row>
-            <el-col :span="8">
-              <el-form-item label="客戶名稱">
-                <el-input v-model="form.customerName" class="small-input"></el-input>
-              </el-form-item>
-            </el-col>
-            <!-- 省略其他表单字段 -->
+      <!-- 新增聯絡人 -->
+      <el-dialog title="新增聯絡人" v-model="dialog" width="50%">
+        <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
+          <el-row style="margin-bottom: 20px">
+          <el-form-item label="職稱">
+             <el-input v-model="form.job_title1" ></el-input>
+          </el-form-item>
+          <el-form-item label="性別">
+            <el-input v-model="form.gender1" ></el-input>
+          </el-form-item>
+          <el-form-item label="姓名">
+            <el-input v-model="form.name1" ></el-input>
+          </el-form-item>
+          <el-form-item label="電話/手機">
+            <el-input v-model="form.mobile1" ></el-input>
+          </el-form-item>
+          <el-form-item label="E-MAIL">
+            <el-input v-model="form.email1" ></el-input>
+          </el-form-item>
+          <el-form-item label="備註">
+            <el-input v-model="form.notes1" ></el-input>
+          </el-form-item>
           </el-row>
-          <!-- 省略其他表单行 -->
-          <template v-slot:footer>
-      <div  class="dialog-footer">
+        </el-form>
+        <template v-slot:footer>
+          <div  class="dialog-footer">
             <el-button @click="dialog = false">取消</el-button>
             <el-button type="primary" @click="savePass">送出</el-button>
           </div>
-</template>
-        </el-form>
+        </template>
       </el-dialog>
     </div>
   </div>
@@ -98,26 +109,12 @@ export default {
         },
       ],
       form: {
-        customerName: '',
-        responsibleBusiness: '',
-        virtualAccount: '',
-        region: '',
-        industryType: '',
-        estimatedFuelAmount: '',
-        companyPhone: '',
-        faxNumber: '',
-        taxId: '',
-        companyTitle: '',
-        frontPassword: '',
-        contractStartDate: '',
-        contractEndDate: '',
-        notificationMethod: '',
-        lowWaterValue: '',
-        registrationAddress: '',
-        contactAddress: '',
-        paymentMethod: '',
-        deposit: '',
-        contractRemarks: ''
+        job_title1:'',
+        gender1:'',
+        name1:'',
+        mobile1:'',
+        email1:'',
+        notes1:''
       },
       currentPage: 1,
       pageSize: 10

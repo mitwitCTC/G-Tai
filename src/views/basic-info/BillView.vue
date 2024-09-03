@@ -5,7 +5,7 @@
     <div>
       <BreadCrumb :isSpecialPage="true" />
     </div>
-    <el-button type="success" @click="dialogVisible = true">新增帳單資料</el-button>
+    <el-button type="success" @click="dialogBill = true">新增帳單資料</el-button>
     <div class="page-title"><h5>客戶代號:<h4>{{rowData.cus_code}}</h4>客戶名稱:<h4>{{rowData.cus_name}}</h4></h5></div>
     <div class="table-container">
       <el-table :data="bills" style="width: 100%">
@@ -31,7 +31,7 @@
         Showing 1 to 0 of 0
       </div>
       <div class="page-title"><h2>車籍資料維護</h2></div>
-      <el-button type="warning" @click="dialogVisible = true">新增車籍</el-button>
+      <el-button type="warning" @click="dialog = true">新增車籍</el-button>
       <el-table :data="vehicles" style="width: 100%">
         <el-table-column prop="billId" label="帳單編號" width="300" />
         <el-table-column prop="license_plate" label="車牌號碼" width="300" />
@@ -50,6 +50,95 @@
     <div class="pagination-info">
         Showing 1 to 0 of 0
     </div>
+    <!-- 新增帳單資訊 -->
+    <el-dialog title="新增帳單資訊" v-model="dialogBill" width="50%">
+      <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="帳單名稱">
+            <el-input v-model="form.acc_name" ></el-input>
+          </el-form-item>
+          <el-form-item label="開立統編">
+            <el-input v-model="form.use_number" ></el-input>
+          </el-form-item>
+          <el-form-item label="發票開立人名稱">
+            <el-input v-model="form.invoice_name" ></el-input>
+          </el-form-item>
+          <el-form-item label="帳單寄送方式">
+          <el-select v-model="form.billing_method" placeholder="選擇方式">
+            <el-option label="MAIL" :value="1"></el-option>
+            <el-option label="平信" :value="2"></el-option>
+            <el-option label="官方LINE" :value="3"></el-option>
+            <el-option label="掛號" :value="4"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="地址/E-Mail">
+          <el-input v-model="form.address_email" ></el-input>
+        </el-form-item>
+        <el-form-item label="對帳單列印">
+          <el-input v-model="form.statement_print" ></el-input>
+        </el-form-item>
+        <el-form-item label="收件人姓名">
+          <el-input v-model="form.recipient_name" ></el-input>
+        </el-form-item>
+        <el-form-item label="帳單聯絡人">
+         <el-input v-model="form.acc_contact" ></el-input>
+        </el-form-item>
+        <el-form-item label="對帳單備註資訊" style="width: 1000px">
+          <el-input v-model="form.statement_notes" type="textarea" ></el-input>
+        </el-form-item>
+        <el-form-item label="對帳單注意事項" style="width: 1000px">
+          <el-input v-model="form.statement_remarks" type="textarea" ></el-input>
+        </el-form-item>
+      </el-row>
+    </el-form>
+    <template v-slot:footer>
+      <div  class="dialog-footer">
+        <el-button @click="dialog = false">取消</el-button>
+        <el-button type="primary" @click="savePass">送出</el-button>
+      </div>
+    </template>
+  </el-dialog>
+
+       <!-- 新增車籍資訊 -->
+       <el-dialog title="新增車籍資訊" v-model="dialog" width="50%">
+        <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
+          <el-row style="margin-bottom: 20px">
+            <el-form-item label="帳單編號">
+          <el-select v-model="form.account_sortId" placeholder="選擇帳單編號">
+            <el-option label="B001" :value="1"></el-option>
+            <el-option label="B002" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="車牌號碼">
+          <el-input v-model="form.license_plate" ></el-input>
+        </el-form-item>
+        <el-form-item label="車輛型態">
+          <el-select v-model="form.vehicle_type" placeholder="選擇車輛型態">
+            <el-option label="大巴" :value="1"></el-option>
+            <el-option label="中巴" :value="2"></el-option>
+            <el-option label="自小客" :value="3"></el-option>
+            <el-option label="油罐卡" :value="4"></el-option>
+            <el-option label="臨時卡" :value="5"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="油品名稱">
+          <el-select v-model="form.product_name" placeholder="選擇油品">
+            <el-option label="95無鉛汽油" :value="1"></el-option>
+            <el-option label="92無鉛汽油" :value="2"></el-option>
+            <el-option label="98無鉛汽油" :value="5"></el-option>
+            <el-option label="超級柴油" :value="6"></el-option>
+            <el-option label="尿素溶液" :value="17"></el-option>
+          </el-select>
+        </el-form-item>
+        </el-row>
+        </el-form>
+          <template v-slot:footer>
+          <div  class="dialog-footer">
+            <el-button @click="dialog = false">取消</el-button>
+            <el-button type="primary" @click="savePass">送出</el-button>
+          </div>
+        </template>
+      </el-dialog>
   </div>
 </template>
 
@@ -66,6 +155,8 @@ export default {
   },
   data() {
     return {
+      dialogBill: false,
+      dialog: false,
       rowData:[],
       bills: [
         {
@@ -105,6 +196,22 @@ export default {
           product_name: ' 0017 國光尿素溶液'
         },
       ],
+      form:{
+        acc_name:'',
+        use_number:'',
+        invoice_name:'',
+        billing_method:'',
+        address_email:'',
+        statement_print:'',
+        recipient_name:'',
+        acc_contact:'',
+        statement_notes:'',
+        statement_remarks:'',
+        account_sortId:'',
+        license_plate:'',
+        vehicle_type:'',
+        product_name:''
+      },
       currentPage: 1,
       pageSize: 10
     };
@@ -187,7 +294,9 @@ export default {
 </script>
 
 <style scoped>
-
+.el-select {
+  width: 175px
+}
 .page-title  {
   margin-top: 30px;
   margin-bottom: 30px;
