@@ -6,7 +6,7 @@
       <BreadCrumb :isSpecialPage="true"/>
     </div>
     <el-button type="primary" @click="dialog = true">新增聯絡人</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>{{rowData.cus_code}}</h4>客戶名稱:<h4>{{rowData.cus_name}}</h4></h5></div>
+    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
     <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%">
         <el-table-column prop="job_title1" label="職稱"></el-table-column>
@@ -24,16 +24,20 @@
         </div>
       </template>
       </el-table-column>
-      </el-table>
-
-      <TablePaginated
-        :data="customers"
-        :filters="search"
-        :currentPage="currentPage"
-        :pageSize="pageSize"
-        @page-change="handlePageChange"
+    </el-table>
+      <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ startItem }} to {{ endItem }} of {{ contact.length }}
+      </div>
+      <el-pagination
+        @current-change="handlePageChange"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        :total="contact.length"
+        layout="prev, pager, next, jumper"
+        class="pagination"
       />
-
+    </div>
       <!-- 新增聯絡人 -->
       <el-dialog title="新增聯絡人" v-model="dialog" width="50%">
         <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
@@ -73,7 +77,7 @@
 import ListBar from '@/components/ListBar.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import TablePaginated from '@/components/TablePaginated.vue';
-
+import axios from 'axios';
 
 export default {
   components: {
@@ -81,33 +85,18 @@ export default {
     ListBar,
     TablePaginated,
   },
+
   data() {
     return {
+      cus_code:'',
+      cus_name:'',
       dialog: false,
       search: {
         region: '',
         sales: '',
         customerName: ''
       },
-      rowData:[],
-      customers: [
-        {
-          job_title1: '承辦',
-          gender1: '男',
-          name1: 'John',
-          mobile1: '1234567890',
-          mail1: 'north@111111.com',
-          notes1: 'IT'
-        },
-        {
-          job_title1: '承辦',
-          gender1: '男',
-          name1: 'John',
-          mobile1: '1234567890',
-          mail1: 'north@111111.com',
-          notes1: 'IT'
-        },
-      ],
+      contact: [],
       form: {
         job_title1:'',
         gender1:'',
@@ -121,7 +110,19 @@ export default {
     };
   },
   created() {
-  this.rowData = JSON.parse(this.$route.query.rowData);
+    this.cus_code = (this.$route.query.cus_code);
+    this.cus_name = (this.$route.query.cus_name);
+    const postData = {
+      customerId:this.cus_code,
+    };
+    axios.post('http://122.116.23.30:3345/main/searchContact',postData)
+        .then(response => {
+          this.contact = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
 },
   computed: {
     BreadCrumbItems() {
@@ -133,25 +134,17 @@ export default {
         path: route.path
       }));
     },
-    filteredData() {
-      return this.customers.filter(customer => {
-        return (
-          (this.search.region === '' || customer.region === this.search.region) &&
-          (this.search.sales === '' || customer.salesPerson === this.search.sales) &&
-          (this.search.customerName === '' || customer.customerName.includes(this.search.customerName))
-        );
-      });
-    },
+   
     paginatedData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.filteredData.slice(start, end);
+      return this.contact.slice(start, end);
     },
     startItem() {
       return (this.currentPage - 1) * this.pageSize + 1;
     },
     endItem() {
-      return Math.min(this.currentPage * this.pageSize, this.filteredData.length);
+      return Math.min(this.currentPage * this.pageSize, this.contact.length);
     }
   },
   methods: {
@@ -176,8 +169,8 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'2',
-          cus_code:this.rowData.cus_code,
-          cus_name:this.rowData.cus_name,
+          cus_code:this.cus_code,
+          cus_name:this.cus_name,
           rowData: JSON.stringify(row)
         }
       });
@@ -190,6 +183,21 @@ export default {
 </script>
 
 <style scoped>
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+.pagination-info {
+  margin-right: auto; /* 确保分页信息靠左 */
+  padding-right: 890px; /* 可选: 添加右边距以与分页控件分开 */
+  white-space: nowrap;
+}
+.pagination {
+  flex: 1;
+  text-align: right;
+}
 .page-title {
   margin-top: 30px;
   margin-bottom: 30px;

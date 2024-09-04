@@ -6,7 +6,7 @@
       <BreadCrumb :isSpecialPage="true" />
     </div>
     <el-button type="warning" @click="dialog = true">新增卡片資訊</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4>車牌號碼:<h4>{{rowData.license_plate}}</h4></h5></div>
+    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4>車牌號碼:<h4>{{this.license_plate}}</h4></h5></div>
     <el-table :data="vehicles" style="width: 100%">
       <el-table-column prop="card_number" label="卡號" width="200" />
       <el-table-column prop="card_type" label="卡片類別" width="150" />
@@ -95,7 +95,7 @@
 <script>
 import ListBar from '@/components/ListBar.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
-
+import axios from 'axios';
 
 export default {
   components: {
@@ -119,38 +119,29 @@ export default {
         billGroup: '',
         customerName: ''
       },
-      rowData:[],
       cus_code:'',
       cus_name:'',
-      vehicles: [
-        {
-          card_number: '#121611200607123495',
-          card_type: '汽油',
-          upload_time: '2024-05-05',
-          upload_reason: '2024-05-05',
-          card_arrival_date: '2023-01-01',
-          card_stop_date: '2023-01-01',
-          notes: '無',
-          vehicle_change_reason: '無'
-        },
-        {
-          card_number: '#121611200607123495',
-          card_type: '汽油',
-          upload_time: '12345678',
-          upload_reason: '2024-05-05',
-          card_arrival_date: '2023-01-01',
-          card_stop_date: '2023-01-01',
-          notes: '無',
-          vehicle_change_reason: '無'
-        },
-      ],
+      vehicles: [],
       
     };
   },
   created() {
-    this.rowData = JSON.parse(this.$route.query.rowData);
     this.cus_code=(this.$route.query.cus_code);
     this.cus_name=(this.$route.query.cus_name);
+    this.license_plate=(this.$route.query.license_plate);
+    this.vehicleId=(this.$route.query.vehicleId);
+    const postData = {
+      vehicleId:this.vehicleId,
+    };
+      axios.post('http://122.116.23.30:3345/main/searchCard',postData)
+        .then(response => {
+          this.vehicles = response.data.data;
+          console.log(this.vehicles)
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
   },
   computed: {
    
@@ -165,7 +156,7 @@ export default {
           rowType:'7',
           cus_name:this.cus_name,
           cus_code:this.cus_code,
-          license_plate:this.rowData.license_plate,
+          license_plate:this.license_plate,
           rowData: JSON.stringify(row)
         }
       });

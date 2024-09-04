@@ -136,7 +136,7 @@
   <el-row style="margin-bottom: 20px">
     <!-- 設定方式 (多選框) -->
     <el-form-item label="設定方式">
-      <el-checkbox-group v-model="cus_form.config_method" disabled>
+      <el-checkbox-group v-model="cus_form.config_method" disabled >
         <el-checkbox :value="1">銀行定存</el-checkbox>
         <el-checkbox :value="2">現金</el-checkbox>
         <el-checkbox :value="3">支票</el-checkbox>
@@ -188,7 +188,7 @@
     <!-- 帳單資訊 -->
     <el-form-item label="帳單資訊" class="section-header" v-if="this.rowType==='3'">
       <el-form-item label="帳單名稱">
-        <el-input v-model="bills_form.account_sortId" readonly></el-input>
+        <el-input v-model="bills_form.acc_name" readonly></el-input>
       </el-form-item>
       <el-form-item label="開立統編">
         <el-input v-model="bills_form.use_number" readonly></el-input>
@@ -209,7 +209,7 @@
         <el-input v-model="bills_form.recipient_name" readonly></el-input>
       </el-form-item>
       <el-form-item label="帳單聯絡人">
-        <el-input v-model="bills_form.recipient_name" readonly></el-input>
+        <el-input v-model="bills_form.acc_contact" readonly></el-input>
       </el-form-item>
       <el-row style="margin-bottom: 20px">
         <el-form-item label="對帳單備註資訊" style="width: 1000px">
@@ -350,7 +350,7 @@ data() {
         fuel_sms_phone: '',
         fuel_sms_option: '',
         balance_sms_phone: '',
-        config_method: [],
+        config_method:[],
         config_notes: '',
         card_fee_notes: '',
         con_notes: '',
@@ -389,7 +389,6 @@ data() {
   };
 },
 created() {
-  this.rowData = JSON.parse(this.$route.query.rowData);
   this.cus_code = (this.$route.query.cus_code);
   this.cus_name = (this.$route.query.cus_name);
   if (this.rowType==='1') {
@@ -399,6 +398,15 @@ created() {
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
           this.cus_form = response.data.data[0];
+          if (this.cus_form.config_method) {
+            if (typeof this.cus_form.config_method === 'string') {
+              // 将 "1,2" 转换为 [1, 2]
+              this.cus_form.config_method = this.cus_form.config_method.split(',').map(Number);
+            }
+          } else {
+          // 如果 config_method 是 null 或 undefined，则设置为空数组
+          this.cus_form.config_method = [];
+          }
         })
         .catch(error => {
           // 處理錯誤
@@ -417,6 +425,8 @@ created() {
           // 處理錯誤
           console.error('API request failed:', error);
         });
+    }else if(this.rowType=='6'){
+      this.rowData = JSON.parse(this.$route.query.rowData);
     }
   }
 };

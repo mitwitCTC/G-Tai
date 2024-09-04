@@ -10,11 +10,11 @@
     <div class="table-container">
       <el-table :data="bills" style="width: 100%">
         <el-table-column prop="account_sortId" label="帳單編號" width="150" />
-        <el-table-column prop="acc_name" label="帳單名稱" width="150" />
+        <el-table-column prop="acc_name" label="帳單名稱" width="200" />
         <el-table-column prop="use_number" label="開立統編" width="150" />
-        <el-table-column prop="recipient_name" label="收件人姓名" width="200" />
+        <el-table-column prop="recipient_name" label="收件人姓名" width="300" />
         <el-table-column prop="billing_method" label="寄送方式" width="150" />
-        <el-table-column prop="address_email" label="收件地址/Mail" />
+        <el-table-column prop="address_email" label="收件地址/Mail"width="300" />
         <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
@@ -59,7 +59,7 @@
         class="pagination"
       />
     </div>
-    <div><el-table style="width: 100%"></el-table></div>
+    <div style="margin-bottom: 50px;"></div>
     
 
     <!-- 新增帳單資訊 -->
@@ -256,9 +256,8 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'3',
-          cus_name:this.rowData.cus_name,
-          cus_code:this.rowData.cus_code,
-          rowData: JSON.stringify(row)
+          cus_name:this.cus_name,
+          cus_code:this.cus_code
         }
       });
     },
@@ -282,8 +281,6 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'5',
-          cus_name:this.rowData.cus_name,
-          cus_code:this.rowData.cus_code,
           rowData: JSON.stringify(row)
         }
       });
@@ -296,9 +293,10 @@ export default {
       this.$router.push({ 
         path: 'vehicle',
         query: {
-          cus_name:this.rowData.cus_name,
-          cus_code:this.rowData.cus_code,
-          rowData: JSON.stringify(row)
+          cus_name:this.cus_name,
+          cus_code:this.cus_code,
+          license_plate:row.license_plate,
+          vehicleId:row.vehicleId
         }
       });
     },
@@ -307,6 +305,7 @@ export default {
 </script>
 
 <style scoped>
+
 .pagination-container {
   display: flex;
   justify-content: space-between;
