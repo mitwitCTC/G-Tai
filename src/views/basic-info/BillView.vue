@@ -26,16 +26,26 @@
       </el-table-column>
       </el-table>
     </div>
-    <div class="pagination-info">
-        Showing 1 to 0 of 0
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ startItem }} to {{ endItem }} of {{ bills.length }}
+      </div>
+      <el-pagination
+        @current-change="handlePageChange"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        :total="bills.length"
+        layout="prev, pager, next, jumper"
+        class="pagination"
+      />
     </div>
       <div class="page-title"><h2>車籍資料維護</h2></div>
       <el-button type="warning" @click="dialog = true">新增車籍</el-button>
-      <el-table :data="currentPageData" style="width: 100%">
+      <el-table :data="currentPageData2" style="width: 100%">
         <el-table-column prop="account_sortId" label="帳單編號" width="300" />
         <el-table-column prop="license_plate" label="車牌號碼" width="300" />
         <el-table-column prop="vehicle_type" label="車輛型態" width="300" />
-        <el-table-column prop="product_name" label="油品名稱" width="350" />
+        <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="350" />
         <el-table-column label="操作">
           <template v-slot="scope">
             <div class="action-icons">
@@ -48,11 +58,11 @@
     </el-table>
     <div class="pagination-container">
       <div class="pagination-info">
-        Showing {{ startItem }} to {{ endItem }} of {{ vehicles.length }}
+        Showing {{ startItem2 }} to {{ endItem2 }} of {{ vehicles.length }}
       </div>
       <el-pagination
-        @current-change="handlePageChange"
-        :current-page="currentPage"
+        @current-change="handlePageChange2"
+        :current-page="currentPage2"
         :page-size="pageSize"
         :total="vehicles.length"
         layout="prev, pager, next, jumper"
@@ -158,6 +168,7 @@
 import ListBar from '@/components/ListBar.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import axios from 'axios';
+import { toRaw } from 'vue'; 
 
 export default {
   components: {
@@ -174,6 +185,13 @@ export default {
       rowData:[],
       bills: [],
       vehicles: [],
+      productMap:{
+        "0001": "0001 95無鉛汽油",
+        "0002": "0002 92無鉛汽油",
+        "0005": "0005 98無鉛汽油",
+        "0006": "0006 超級柴油",
+        "0017": "0017 尿素溶液"
+      },
       form:{
         acc_name:'',
         use_number:'',
@@ -191,6 +209,7 @@ export default {
         product_name:''
       },
       currentPage: 1,
+      currentPage2:1,
       pageSize: 10
     };
   },
@@ -219,25 +238,49 @@ export default {
         });
   },
   computed: {
+    //1為帳單資料 2為車籍資料
    // 計算當前頁面顯示的數據
    currentPageData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.vehicles.slice(start, end);
+      return this.bills.slice(start, end);
     },
     // 計算當前頁面顯示的起始和結束項目
     startItem() {
       const start = (this.currentPage - 1) * this.pageSize + 1;
-      return Math.min(start, this.vehicles.length);
+      return Math.min(start, this.bills.length);
     },
     endItem() {
       const end = this.currentPage * this.pageSize;
+      return Math.min(end, this.bills.length);
+    },
+    // 計算當前頁面顯示的數據
+   currentPageData2() {
+      const start = (this.currentPage2 - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.vehicles.slice(start, end);
+    },
+    // 計算當前頁面顯示的起始和結束項目
+    startItem2() {
+      const start = (this.currentPage2 - 1) * this.pageSize + 1;
+      return Math.min(start, this.vehicles.length);
+    },
+    endItem2() {
+      const end = this.currentPage2 * this.pageSize;
       return Math.min(end, this.vehicles.length);
     },
   },
   methods: {
+
+    formatProduct(product_name) {
+      const rawproduct = toRaw(product_name);
+      return this.productMap[rawproduct.product_name] || '未知';
+    },
     handlePageChange(page) {
       this.currentPage = page;
+    },
+    handlePageChange2(page) {
+      this.currentPage2 = page;
     },
     viewDetails(row) {
       console.log('View details for:', row);
@@ -281,6 +324,8 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'5',
+          cus_name:this.cus_name,
+          cus_code:this.cus_code,
           rowData: JSON.stringify(row)
         }
       });

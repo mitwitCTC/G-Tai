@@ -35,9 +35,12 @@
       </el-form-item>
       <el-form-item label="負責業務">
         <el-select v-model="cus_form.salesmanId" placeholder="選擇業務">
-          <el-option label="李柏青" :value="1"></el-option>
-          <el-option label="陳先生" :value="2"></el-option>
-          <el-option label="林先生" :value="3"></el-option>
+          <el-option
+          v-for="salesman in salesmenData"
+          :key="salesman.salesmanId"
+          :label="salesman.employee_name"
+          :value="salesman.salesmanId"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="虛擬帳號">
@@ -45,23 +48,23 @@
       </el-form-item>
       <el-form-item label="區域">
         <el-select v-model="cus_form.region" placeholder="選擇區域">
-          <el-option label="1.北、北、基、宜" :value="1"></el-option>
-          <el-option label="2.中、彰、投" :value="2"></el-option>
-          <el-option label="3.桃、竹、苗" :value="3"></el-option>
-          <el-option label="4.雲、嘉、南" :value="4"></el-option>
-          <el-option label="5.高、屏、澎" :value="5"></el-option>
-          <el-option label="6.花、東" :value="6"></el-option>
+          <el-option label="1.北、北、基、宜" :value="'1'"></el-option>
+          <el-option label="2.中、彰、投" :value="'2'"></el-option>
+          <el-option label="3.桃、竹、苗" :value="'3'"></el-option>
+          <el-option label="4.雲、嘉、南" :value="'4'"></el-option>
+          <el-option label="5.高、屏、澎" :value="'5'"></el-option>
+          <el-option label="6.花、東" :value="'6'"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="產業類別">
         <el-select v-model="cus_form.industry" placeholder="選擇產業類別">
-          <el-option label="食品飲料" :value="1"></el-option>
-          <el-option label="營建土木工程" :value="6"></el-option>
-          <el-option label="大眾運輸" :value="9"></el-option>
-          <el-option label="物流倉儲" :value="11"></el-option>
-          <el-option label="礦業土石" :value="12"></el-option>
-          <el-option label="資訊科技" :value="13"></el-option>
-          <el-option label="綜合工商" :value="19"></el-option>
+          <el-option label="1.食品飲料" :value="1"></el-option>
+          <el-option label="6.營建土木工程" :value="6"></el-option>
+          <el-option label="9.大眾運輸" :value="9"></el-option>
+          <el-option label="11.物流倉儲" :value="11"></el-option>
+          <el-option label="12.礦業土石" :value="12"></el-option>
+          <el-option label="13.資訊科技" :value="13"></el-option>
+          <el-option label="19.綜合工商" :value="19"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="預估月加油量">
@@ -75,8 +78,8 @@
       </el-form-item>
       <el-form-item label="交易模式">
         <el-select v-model="cus_form.transaction_mode" placeholder="選擇交易模式">
-          <el-option label="儲值" :value="1"></el-option>
-          <el-option label="月結" :value="2"></el-option>
+          <el-option label="1.儲值" :value="'1'"></el-option>
+          <el-option label="2.月結" :value="'2'"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="押金">
@@ -151,9 +154,9 @@
       </el-form-item>
       <el-form-item label="合約狀態">
         <el-select v-model="cus_form.contract_status" placeholder="選擇合約狀態">
-          <el-option label="啟用" :value="1"></el-option>
-          <el-option label="暫停" :value="2"></el-option>
-          <el-option label="終止" :value="3"></el-option>
+          <el-option label="啟用" :value="'N'"></el-option>
+          <el-option label="暫停" :value="'S'"></el-option>
+          <el-option label="終止" :value="'Y'"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="營登地址">
@@ -192,9 +195,12 @@
     <el-row style="margin-bottom: 20px">
       <el-form-item label="簽約業務">
         <el-select v-model="cus_form.contract_sales" placeholder="選擇業務">
-          <el-option label="李柏青" :value="1"></el-option>
-          <el-option label="陳先生" :value="2"></el-option>
-          <el-option label="林先生" :value="3"></el-option>
+          <el-option
+          v-for="salesman in salesmenData"
+          :key="salesman.salesmanId"
+          :label="salesman.employee_name"
+          :value="salesman.salesmanId"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="業務備註" class="large-textbox">
@@ -263,10 +269,12 @@
       </el-form-item>
       <el-form-item label="帳單寄送方式">
           <el-select v-model="bills_form.billing_method" placeholder="選擇方式">
-            <el-option label="MAIL" :value="1"></el-option>
-            <el-option label="平信" :value="2"></el-option>
-            <el-option label="官方LINE" :value="3"></el-option>
-            <el-option label="掛號" :value="4"></el-option>
+            <el-option label="0.不需要" :value="'0'"></el-option>
+            <el-option label="1.MAIL" :value="'1'"></el-option>
+            <el-option label="2.平信" :value="'2'"></el-option>
+            <el-option label="3.官方LINE" :value="'3'"></el-option>
+            <el-option label="4.掛號" :value="'4'"></el-option>
+            <el-option label="5.合併寄" :value="'5'"></el-option>
           </el-select>
       </el-form-item>
       <el-form-item label="地址/E-Mail">
@@ -329,11 +337,11 @@
         </el-form-item>
         <el-form-item label="油品名稱">
           <el-select v-model="rowData.product_name" placeholder="選擇油品">
-            <el-option label="95無鉛汽油" :value="1"></el-option>
-            <el-option label="92無鉛汽油" :value="2"></el-option>
-            <el-option label="98無鉛汽油" :value="5"></el-option>
-            <el-option label="超級柴油" :value="6"></el-option>
-            <el-option label="尿素溶液" :value="17"></el-option>
+            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
+            <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
+            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option>
+            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
+            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
           </el-select>
       </el-form-item>
     </el-form-item>
@@ -439,10 +447,32 @@ data() {
     cus_name:'',
     license_plate:'',
     rowData:{},
-    cus_form: {},
-    bills_form:{}
+    cus_form: {
+    },
+    bills_form:{},
+    salesmenData:[]
   };
 },
+mounted() {
+    // 在頁面加載時發送 API 請求
+    axios.get('http://122.116.23.30:3345/main/selectSalesman')
+      .then(response => {
+        this.salesmenData = response.data.data; // 將 API 回傳的數據存入 salesmenData
+        if (this.cus_form.contract_sales || this.cus_form.salesmanId) {
+          // 找到對應的業務名稱
+          const selectedSalesman = this.salesmenData.find(salesman => salesman.employee_id === this.cus_form.salesmanId);
+          const selectedcontractman = this.salesmenData.find(salesman => salesman.employee_id === this.cus_form.contract_sales);
+          // 如果找到匹配的業務代號，設置為對應的 ID，這樣會顯示名稱
+          if (selectedSalesman||selectedcontractman) {
+            this.cus_form.salesmanId=selectedSalesman.employee_name;
+            this.cus_form.contract_sales = selectedcontractman.employee_name;
+          }
+        }
+      })
+      .catch(error => {
+        console.error('API request failed:', error);
+      });
+  },
 created() {
   this.cus_code = (this.$route.query.cus_code);
   this.cus_name = (this.$route.query.cus_name);
@@ -485,8 +515,18 @@ created() {
       this.license_plate = (this.$route.query.license_plate);
       this.rowData = JSON.parse(this.$route.query.rowData);
     }
-  
-},
+  },
+  methods:{
+    getEmployeeName(employeeId) {
+      // 如果 salesmenData 仍為空，則返回空或其他提示
+      if (!this.salesmenData || this.salesmenData.length === 0) {
+        return '正在加載...';
+      }
+      // 使用 find 方法找到對應的 employee_name
+      const employee = this.salesmenData.find(item => item.employee_id === employeeId);
+      return employee ? employee.employee_name : '未知員工'; // 找到返回名字，找不到返回 "未知員工"
+    }
+  }
 };
 </script>
 

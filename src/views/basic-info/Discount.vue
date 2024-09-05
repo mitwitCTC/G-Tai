@@ -22,13 +22,19 @@
         </template>
       </el-table-column>
     </el-table>
-    <TablePaginated
-      :data="filteredDiscount"
-      :filters="filters"
-      :currentPage="currentPage"
-      :pageSize="pageSize"
-      @page-change="handlePageChange"
-    />
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ startItem }} to {{ endItem }} of {{ DiscountData.length }}
+      </div>
+      <el-pagination
+        @current-change="handlePageChange"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        :total="DiscountData.length"
+        layout="prev, pager, next, jumper"
+        class="pagination"
+      />
+    </div>
   </div>
 </template>
 
@@ -75,18 +81,20 @@ export default {
     this.rowData = JSON.parse(this.$route.query.rowData);
   },
   computed: {
-    filteredDiscount() {
-      return this.DiscountData.filter(vehicle => {
-        return (
-          vehicle.customerId.includes(this.filters.customerId)
-        );
-      });
-    },
+   
     paginatedDiscount() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.filteredDiscount.slice(start, end);
-    }
+      return this.DiscountData.slice(start, end);
+    },
+    startItem() {
+      const start = (this.currentPage - 1) * this.pageSize + 1;
+      return Math.min(start, this.DiscountData.length);
+    },
+    endItem() {
+      const end = this.currentPage * this.pageSize;
+      return Math.min(end, this.DiscountData.length);
+    },
   },
   methods: {
     handlePageChange(page) {
@@ -111,6 +119,21 @@ export default {
 </script>
 
 <style scoped>
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+.pagination-info {
+  margin-right: auto; /* 确保分页信息靠左 */
+  padding-right: 1100px; /* 可选: 添加右边距以与分页控件分开 */
+  white-space: nowrap;
+}
+.pagination {
+  flex: 1;
+  text-align: right;
+}
 .page-title {
   margin-top: 30px;
   margin-bottom: 30px;

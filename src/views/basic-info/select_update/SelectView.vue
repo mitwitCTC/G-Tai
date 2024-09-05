@@ -22,17 +22,17 @@
     <el-form-item label="客戶名稱">
       <el-input v-model="cus_form.cus_name" readonly></el-input>
     </el-form-item>
-    <el-form-item label="負責業務">
-      <el-input v-model="cus_form.salesmanId" readonly></el-input>
+    <el-form-item label="負責業務" v-if="this.salesmenData">
+      <el-input :value="getEmployeeName(cus_form.salesmanId)"  readonly></el-input>
     </el-form-item>
     <el-form-item label="虛擬帳號">
       <el-input v-model="cus_form.virtual_account" readonly></el-input>
     </el-form-item>
     <el-form-item label="區域">
-      <el-input v-model="cus_form.region" readonly></el-input>
+      <el-input v-model="cus_form.region" :formatter="formatRegion" readonly></el-input>
     </el-form-item>
     <el-form-item label="產業類別">
-      <el-input v-model="cus_form.industry" readonly></el-input>
+      <el-input v-model="cus_form.industry" :formatter="formatIndustry" readonly></el-input>
     </el-form-item>
     <el-form-item label="預估月加油量">
       <el-input v-model="cus_form.est_fuel_volume" readonly></el-input>
@@ -44,7 +44,10 @@
       <el-input v-model="cus_form.fax" readonly></el-input>
     </el-form-item>
     <el-form-item label="交易模式">
-      <el-input v-model="cus_form.transaction_mode" readonly></el-input>
+      <el-input
+      :value="cus_form.transaction_mode == '1' ? '1.儲值' : (cus_form.transaction_mode == '2' ? '2.月結' : '未知')"
+      readonly
+      ></el-input>
     </el-form-item>
     <el-form-item label="押金">
       <el-input v-model="cus_form.deposit" readonly></el-input>
@@ -86,7 +89,9 @@
       <el-input v-model="cus_form.balance_sms_phone" readonly></el-input>
     </el-form-item>
     <el-form-item label="合約狀態">
-      <el-input v-model="cus_form.contract_status" readonly></el-input>
+      <el-input :value="cus_form.contract_status == 'N' ? '啟用' : (cus_form.contract_status == 'Y' ? '停用' : (cus_form.contract_status == 'S' ? '暫停' : '未知'))"
+      readonly 
+      ></el-input>
     </el-form-item>
     <el-form-item label="營登地址">
       <el-input v-model="cus_form.reg_address" readonly></el-input>
@@ -124,8 +129,8 @@
 
   <!-- 簽約業務&備註 -->
   <el-row style="margin-bottom: 20px">
-    <el-form-item label="簽約業務">
-      <el-input v-model="cus_form.contract_sales" readonly></el-input>
+    <el-form-item label="簽約業務" v-if="this.salesmenData">
+      <el-input :value="getEmployeeName(cus_form.contract_sales)"   readonly></el-input>
     </el-form-item>
     <el-form-item label="業務備註" class="large-textbox">
       <el-input v-model="cus_form.sales_notes" type="textarea" readonly></el-input>
@@ -197,7 +202,7 @@
         <el-input v-model="bills_form.invoice_name" readonly></el-input>
       </el-form-item>
       <el-form-item label="帳單寄送方式">
-        <el-input v-model="bills_form.billing_method" readonly></el-input>
+        <el-input v-model="bills_form.billing_method" :formatter="formatBill" readonly></el-input>
       </el-form-item>
       <el-form-item label="地址/E-Mail">
         <el-input v-model="bills_form.address_email" readonly></el-input>
@@ -322,6 +327,32 @@ export default {
   },
 data() {
   return {
+    salesmenData:[],
+    industryMap: {
+        '1': '1.食品飲料',
+        '6': '6.營建土木工程',
+        '9': '9.大眾運輸',
+        '11': '11.物流倉儲',
+        '12': '12.礦業土石',
+        '13': '13.資訊科技',
+        '19': '19.綜合工商'
+      } ,// 產業類別對應的映射
+      regionMap: {
+        '1': '1.北、北、基、宜',
+        '2': '2.中、彰、投',
+        '3': '3.桃、竹、苗',
+        '4': '4.雲、嘉、南',
+        '5': '5.高、屏、澎',
+        '6': '6.花、東'
+      } ,// 區域對應的映射
+      billMap:{
+        '0': '0.不需要',
+        '1': '1.MAIL',
+        '2': '2.平信',
+        '3': '3.官方LINE',
+        '4': '4.掛號',
+        '5': '5.合併寄'
+      },
     cus_form:{
       //客戶基本資料
         cus_code: '',
@@ -388,6 +419,18 @@ data() {
     }
   };
 },
+mounted() {
+    // 發送 API 請求以獲取業務資料
+    axios.get('http://122.116.23.30:3345/main/selectSalesman')
+      .then(response => {
+        this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
+        console.log("API Data:", this.salesmenData);
+      })
+      .catch(error => {
+        // 處理錯誤
+        console.error('API request failed:', error);
+      });
+  },
 created() {
   this.cus_code = (this.$route.query.cus_code);
   this.cus_name = (this.$route.query.cus_name);
@@ -427,6 +470,26 @@ created() {
         });
     }else if(this.rowType=='6'){
       this.rowData = JSON.parse(this.$route.query.rowData);
+    }
+  },
+  methods:{
+    formatIndustry(value) {
+      return this.industryMap[value] || '未知';
+    },
+    formatRegion(value) {
+      return this.regionMap[value] || '未知';
+    },
+    formatBill(value) {
+      return this.billMap[value] || '未知';
+    },
+    getEmployeeName(employeeId) {
+      // 如果 salesmenData 仍為空，則返回空或其他提示
+      if (!this.salesmenData || this.salesmenData.length === 0) {
+        return '正在加載...';
+      }
+      // 使用 find 方法找到對應的 employee_name
+      const employee = this.salesmenData.find(item => item.employee_id === employeeId);
+      return employee == null ? '' : (employee ? employee.employee_name : '未知員工');
     }
   }
 };
