@@ -8,9 +8,10 @@
   <h2 v-else-if="this.rowType === '5'">車籍資料編輯</h2>
   <h2 v-else-if="this.rowType === '6'">員工資料編輯</h2>
   <h2 v-else-if="this.rowType === '7'">卡片資料編輯</h2>
+  <h2 v-else-if="this.rowType === '9'">永豐資料編輯</h2>
 </div>
 <div class="page-title">
-  <h5 v-if="this.rowType != '1' & this.rowType !== '6' & this.rowType !== '7'" >
+  <h5 v-if="this.rowType != '1' & this.rowType !== '6' & this.rowType !== '7'& this.rowType !== '9'"  >
     客戶代號:<h4>{{ this.cus_code }}</h4>
     客戶名稱:<h4>{{ this.cus_name }}</h4>
   </h5>
@@ -226,6 +227,18 @@
         <el-input v-model="cus_form.config_notes" type="textarea"></el-input>
       </el-form-item>
     </el-row>
+    <!-- 信用卡收取手續費 -->
+    <el-row style="margin-bottom: 20px">
+    <el-form-item label="信用卡手續費收取">
+          <el-select v-model="rowData.card_other_fee" placeholder="選擇是否收取">
+            <el-option label="0.不收取" :value="'0'"></el-option>
+            <el-option label="1.另外收取" :value="'1'"></el-option>
+          </el-select>
+        </el-form-item>
+    <el-form-item label="信用卡手續費%數">
+      <el-input v-model="cus_form.card_handling" ></el-input>
+    </el-form-item>
+    </el-row>
     </el-form-item>
     
 
@@ -415,6 +428,67 @@
           <el-input v-model="rowData.vehicle_change_reason" ></el-input>
       </el-form-item>
     </el-form-item>
+    <!-- 永豐資料 -->
+  <el-form-item label="永豐資料" class="section-header" v-if="this.rowType==='9'" >
+    <el-row style="margin-bottom: 20px">
+            <el-form-item label="收款單號">
+            <el-input v-model="SinopacBank.invoice" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="客戶代號">
+             <el-input v-model="this.cus_code"readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="客戶名稱">
+            <el-input v-model="SinopacBank.cus_name" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="刷卡日期">
+              <el-date-picker 
+                v-model="SinopacBank.credit_card_data" 
+                type="date" 
+                format="YYYY-MM-DD" 
+                value-format="YYYY-MM-DD" 
+                placeholder="選擇日期"
+                style="width: 300px;">
+              </el-date-picker>
+            </el-form-item>
+          <el-form-item label="發卡銀行">
+            <el-input v-model="SinopacBank.issuing_bank" ></el-input>
+          </el-form-item>
+          <el-form-item label="授權碼">
+            <el-input v-model="SinopacBank.remark" ></el-input>
+          </el-form-item>
+          <el-form-item label="信用卡手續費收取">
+            <el-input v-model="SinopacBank.card_other_fee" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="刷卡金額">
+            <el-input v-model="SinopacBank.credit_amount" ></el-input>
+          </el-form-item>
+          <el-form-item label="永豐入帳日期">
+              <el-date-picker 
+                v-model="SinopacBank.account_date" 
+                type="date" 
+                format="YYYY-MM-DD" 
+                value-format="YYYY-MM-DD" 
+                placeholder="選擇日期"
+                style="width: 300px;">
+              </el-date-picker>
+            </el-form-item>
+          <el-form-item label="永豐手續費%">
+            <el-input v-model="SinopacBank.credit_percent" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="永豐手續費">
+            <el-input v-model="SinopacBank.handling_fee" readonly ></el-input>
+          </el-form-item>
+            <el-form-item label="永豐入帳金額">
+            <el-input v-model="SinopacBank.bank_amount" ></el-input>
+          </el-form-item>
+          <el-form-item label="肯美系統手續費%">
+            <el-input v-model="SinopacBank.card_handling" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="肯美系統入帳金額">
+            <el-input v-model="SinopacBank.amount" readonly ></el-input>
+          </el-form-item>
+          </el-row>
+    </el-form-item>
     <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
     <el-form-item label="" class="section-white" >
   </el-form-item>
@@ -449,6 +523,7 @@ data() {
     rowData:{},
     cus_form: {
     },
+    SinopacBank:{},
     bills_form:{},
     salesmenData:[]
   };

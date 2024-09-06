@@ -1,5 +1,4 @@
 <template>
-  <div>
     <ListBar/>
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
     <div>
@@ -70,7 +69,6 @@
         </template>
       </el-dialog>
     </div>
-  </div>
 </template>
 
 <script>

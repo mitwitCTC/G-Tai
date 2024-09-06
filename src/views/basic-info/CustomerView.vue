@@ -255,6 +255,18 @@
     <el-form-item label="設定方式備註" class="large-textbox">
       <el-input v-model="form.config_notes" type="textarea" ></el-input>
     </el-form-item>
+    <!-- 信用卡收取手續費 -->
+    <el-row style="margin-bottom: 20px">
+    <el-form-item label="信用卡手續費收取">
+          <el-select v-model="form.card_other_fee" placeholder="選擇是否收取">
+            <el-option label="0.不收取" :value="'0'"></el-option>
+            <el-option label="1.另外收取" :value="'1'"></el-option>
+          </el-select>
+        </el-form-item>
+    <el-form-item label="信用卡手續費%數">
+      <el-input v-model="form.card_handling" ></el-input>
+    </el-form-item>
+    </el-row>
   </el-row>
     </el-form>
     <template v-slot:footer>
@@ -327,7 +339,8 @@ export default {
         contactAddress: '',
         paymentMethod: '',
         deposit: '',
-        contractRemarks: ''
+        contractRemarks: '',
+        card_handling: 0.2
       },
       currentPage: 1,
       pageSize: 10

@@ -195,7 +195,16 @@ const router = createRouter({
             breadcrumb: '台企銀',
             isBankPage:true
           },
-        }
+        },
+        {
+          path: 'CardMake',
+          name: '製卡明細',
+          component: () => import('@/views/basic-info/CardMakeView.vue'),
+          meta: {
+            title: '製卡明細',
+            breadcrumb: '製卡明細',
+          },
+        },
       ]
     }
   ]

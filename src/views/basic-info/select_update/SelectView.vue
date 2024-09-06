@@ -4,9 +4,10 @@
   <h2 v-if="this.rowType === '1'">客戶基本資料查詢</h2>
   <h2 v-else-if="this.rowType === '3'">帳單資料查詢</h2>
   <h2 v-else-if="this.rowType === '6'">員工資料查詢</h2>
+  <h2 v-else-if="this.rowType === '9'">永豐資料查詢</h2>
 </div>
   <div class="page-title">
-  <h5 v-if="this.rowType != '1' & this.rowType !== '6'" >
+  <h5 v-if="this.rowType != '1' & this.rowType !== '6' & this.rowType !== '9'">
     客戶代號:<h4>{{ this.cus_code }}</h4>
     客戶名稱:<h4>{{ this.cus_name }}</h4>
   </h5>
@@ -156,13 +157,23 @@
       <el-input v-model="cus_form.config_notes" type="textarea" readonly></el-input>
     </el-form-item>
   </el-row>
-
-  <el-form-item label="建立時間">
-    <el-input v-model="cus_form.createTime" readonly></el-input>
-  </el-form-item>
-  <el-form-item label="修改時間">
-    <el-input v-model="cus_form.updateTime" readonly></el-input>
-  </el-form-item>
+  <!-- 信用卡收取手續費 -->
+  <el-row style="margin-bottom: 20px">
+    <el-form-item label="信用卡手續費%數">
+      <el-input v-model="cus_form.card_other_fee" readonly ></el-input>
+    </el-form-item>
+    <el-form-item label="信用卡手續費%數">
+      <el-input v-model="cus_form.card_handling" readonly ></el-input>
+    </el-form-item>
+  </el-row>
+  <el-row style="margin-bottom: 20px">
+    <el-form-item label="建立時間">
+      <el-input v-model="cus_form.createTime" readonly></el-input>
+    </el-form-item>
+    <el-form-item label="修改時間">
+      <el-input v-model="cus_form.updateTime" readonly></el-input>
+    </el-form-item>
+  </el-row>
   </el-form-item>
     
 
@@ -305,6 +316,54 @@
       </el-form-item>
       </el-row>
     </el-form-item>
+    <!-- 永豐資料 -->
+    <el-form-item label="永豐資料" class="section-header" v-if="this.rowType==='9'" >
+      <el-row style="margin-bottom: 20px">
+            <el-form-item label="收款單號">
+            <el-input v-model="SinopacBank.invoice" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="客戶代號">
+             <el-input v-model="SinopacBank.customerId" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="客戶名稱">
+            <el-input v-model="SinopacBank.cus_name" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="刷卡日期">
+            <el-input v-model="SinopacBank.credit_card_data" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="發卡銀行">
+            <el-input v-model="SinopacBank.issuing_bank" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="授權碼">
+            <el-input v-model="SinopacBank.remark" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="信用卡手續費收取">
+            <el-input v-model="SinopacBank.card_other_fee" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="刷卡金額">
+            <el-input v-model="SinopacBank.credit_amount" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="永豐入帳日期">
+            <el-input v-model="SinopacBank.account_date" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="永豐手續費%">
+            <el-input v-model="SinopacBank.credit_percent" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="永豐手續費">
+            <el-input v-model="SinopacBank.handling_fee" readonly ></el-input>
+          </el-form-item>
+            <el-form-item label="永豐入帳金額">
+            <el-input v-model="SinopacBank.bank_amount" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="肯美系統手續費%">
+            <el-input v-model="SinopacBank.card_handling" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="肯美系統入帳金額">
+            <el-input v-model="SinopacBank.amount" readonly ></el-input>
+          </el-form-item>
+      </el-row>
+    </el-form-item>
+
 
     <el-form-item label="" class="section-white" >
     </el-form-item>
@@ -416,7 +475,9 @@ data() {
         department:'',
        updated:'',
        created:''
-    }
+    },
+    SinopacBank:{},
+    
   };
 },
 mounted() {
