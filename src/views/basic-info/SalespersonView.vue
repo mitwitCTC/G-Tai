@@ -4,7 +4,6 @@
   <div>
     <BreadCrumb :isSpecialPage="true"/>
   </div>
-    <el-input v-model="filters.salesperson" placeholder="查詢員工姓名"  style="width: 225px;"></el-input>
     <el-button type="success" style="margin: 10px;" @click="dialog = true">新增員工</el-button>
     <div class="table-container">
       <el-table :data="currentPageData" style="width: 100%">
@@ -133,6 +132,36 @@ export default {
     }
   },
   methods: {
+    savePass() {
+      const req = this.form;
+      axios.post('http://122.116.23.30:3345/main/createSalesman', req)
+        .then(response => {
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '新增成功',
+              type: 'success'
+            });
+            this.form = {};
+            this.dialog = false
+            this.getselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '新增失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '新增失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+    },
     async getselectData() {
     try {
         // 發送 GET 請求到指定的 API

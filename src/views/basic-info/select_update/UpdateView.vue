@@ -44,9 +44,9 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="虛擬帳號">
+      <!-- <el-form-item label="虛擬帳號">
         <el-input v-model="cus_form.virtual_account"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="區域">
         <el-select v-model="cus_form.region" placeholder="選擇區域">
           <el-option label="1.北、北、基、宜" :value="'1'"></el-option>
@@ -329,7 +329,6 @@
         <el-form-item label="折讓">
           <el-input v-model="form.discount" ></el-input>
         </el-form-item>
-       <!-- 確認修改按鈕 -->
     </el-form-item>
     
     

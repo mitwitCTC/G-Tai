@@ -159,8 +159,8 @@
   </el-row>
   <!-- 信用卡收取手續費 -->
   <el-row style="margin-bottom: 20px">
-    <el-form-item label="信用卡手續費%數">
-      <el-input v-model="cus_form.card_other_fee" readonly ></el-input>
+    <el-form-item label="信用卡手續費收取">
+      <el-input v-model="cus_form.card_other_fee" :formatter="formatOtherfee" readonly ></el-input>
     </el-form-item>
     <el-form-item label="信用卡手續費%數">
       <el-input v-model="cus_form.card_handling" readonly ></el-input>
@@ -412,6 +412,10 @@ data() {
         '4': '4.掛號',
         '5': '5.合併寄'
       },
+      Otherfee:{
+        '0': '0.不收取',
+        '1': '1.另外收取'
+      },
     cus_form:{
       //客戶基本資料
         cus_code: '',
@@ -542,6 +546,9 @@ created() {
     },
     formatBill(value) {
       return this.billMap[value] || '未知';
+    },
+    formatOtherfee(value) {
+      return this.Otherfee[value] || '未知';
     },
     getEmployeeName(employeeId) {
       // 如果 salesmenData 仍為空，則返回空或其他提示

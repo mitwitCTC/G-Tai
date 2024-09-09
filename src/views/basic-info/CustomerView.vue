@@ -12,14 +12,11 @@
           <el-input v-model="search.customerName" placeholder="輸入客戶名稱/客戶代號/統編/" style="width: 225px;"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleReset">重置</el-button>
-        </el-form-item>
-        <el-form-item>
           <el-button type="success" @click="dialog = true">新增客戶</el-button>
         </el-form-item>
       </el-form>
 
-      <el-table :data="currentPageData" style="width: 100%">
+      <el-table :data="paginatedData" style="width: 100%">
         <el-table-column prop="cus_code" label="客戶代號" width="100"></el-table-column>
         <el-table-column prop="cus_name" label="客戶名稱" width="250"></el-table-column>
         <el-table-column prop="vat_number" label="統編" width="150"></el-table-column>
@@ -45,13 +42,13 @@
 
       <div class="pagination-container">
       <div class="pagination-info">
-        Showing {{ startItem }} to {{ endItem }} of {{ customers.length }}
+        Showing {{ startItem }} to {{ endItem }} of {{ filteredData.length }}
       </div>
       <el-pagination
         @current-change="handlePageChange"
         :current-page="currentPage"
         :page-size="pageSize"
-        :total="customers.length"
+        :total="filteredData.length"
         layout="prev, pager, next, jumper"
         class="pagination"
       />
@@ -71,14 +68,17 @@
         </el-form-item>
         <el-form-item label="負責業務">
           <el-select v-model="form.salesmanId" placeholder="選擇業務">
-            <el-option label="李柏青" :value="1"></el-option>
-            <el-option label="陳先生" :value="2"></el-option>
-            <el-option label="林先生" :value="3"></el-option>
+            <el-option
+          v-for="salesman in salesmenData"
+          :key="salesman.salesmanId"
+          :label="salesman.employee_name"
+          :value="salesman.employee_id"
+          ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="虛擬帳號">
+        <!-- <el-form-item label="虛擬帳號">
           <el-input v-model="form.virtual_account" ></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="區域">
           <el-select v-model="form.region" placeholder="選擇區域">
             <el-option label="1.北、北、基、宜" :value="1"></el-option>
@@ -178,8 +178,8 @@
         </el-form-item>
         <el-form-item label="油價簡訊選項">
           <el-select v-model="form.fuel_sms_option" placeholder="選擇交易模式">
-            <el-option label="Y" :value="Y"></el-option>
-            <el-option label="N" :value="N"></el-option>
+            <el-option label="Y" :value="'Y'"></el-option>
+            <el-option label="N" :value="'N'"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="餘額不足訊息電話">
@@ -228,9 +228,12 @@
      <el-row style="margin-bottom: 20px">
       <el-form-item label="簽約業務">
           <el-select v-model="form.contract_sales" placeholder="選擇業務">
-            <el-option label="李柏青" :value="1"></el-option>
-            <el-option label="陳先生" :value="2"></el-option>
-            <el-option label="林先生" :value="3"></el-option>
+            <el-option
+          v-for="salesman in salesmenData"
+          :key="salesman.salesmanId"
+          :label="salesman.employee_name"
+          :value="salesman.salesmanId"
+          ></el-option>
           </el-select>
         </el-form-item>
       <el-form-item label="業務備註" class="large-textbox">
@@ -320,28 +323,11 @@ export default {
         '6': '花、東'
       } ,// 區域對應的映射
       form: {
-        customerName: '',
-        responsibleBusiness: '',
-        virtualAccount: '',
-        region: '',
-        industryType: '',
-        estimatedFuelAmount: '',
-        companyPhone: '',
-        faxNumber: '',
-        taxId: '',
-        companyTitle: '',
-        frontPassword: '',
-        contractStartDate: '',
-        contractEndDate: '',
-        notificationMethod: '',
-        lowWaterValue: '',
-        registrationAddress: '',
-        contactAddress: '',
-        paymentMethod: '',
-        deposit: '',
-        contractRemarks: '',
-        card_handling: 0.2
+        createTime:'',
+        cus_code:'',
+        cus_name:''
       },
+      salesmenData:[],
       currentPage: 1,
       pageSize: 10
     };
@@ -350,21 +336,8 @@ export default {
     this.getselectData();
   },
   computed: {
-    BreadCrumbItems() {
-      // 获取当前路由匹配的所有路由项
-      const matched = this.$route.matched;
-      // 生成面包屑项
-      return matched.map(route => ({
-        label: route.meta.BreadCrumb || '',
-        path: route.path
-      }));
-    },
-    // 計算當前頁面顯示的數據
-    currentPageData() {
-      const start = (this.currentPage - 1) * this.pageSize;
-      const end = start + this.pageSize;
-      return this.customers.slice(start, end);
-    },
+
+    
     // 計算當前頁面顯示的起始和結束項目
     startItem() {
       const start = (this.currentPage - 1) * this.pageSize + 1;
@@ -373,6 +346,28 @@ export default {
     endItem() {
       const end = this.currentPage * this.pageSize;
       return Math.min(end, this.customers.length);
+    },
+     // 過濾搜尋後的資料
+     filteredData() {
+      const searchTerm = this.search.customerName.trim().toLowerCase();
+
+      return this.customers.filter(item => {
+        const cusCode = item.cus_code ? item.cus_code.toLowerCase() : '';
+        const cusName = item.cus_name ? item.cus_name.toLowerCase() : '';
+        const vatNumber = item.vat_number ? item.vat_number.toLowerCase() : '';
+
+        return (
+          cusCode.includes(searchTerm) ||
+          cusName.includes(searchTerm) ||
+          vatNumber.includes(searchTerm)
+        );
+      });
+    },
+    // 處理分頁資料
+    paginatedData() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredData.slice(start, end);
     }
   },
   methods: {
@@ -398,12 +393,48 @@ export default {
         console.error('Error fetching customer data:', error);
     }
   },
-    savePass() {
-      // 处理保存逻辑
-      this.dialog = false;
+  savePass() {
+      this.form.createTime = this.form.createTime.trim();
+      this.form.cus_name = this.form.cus_name.trim();
+      this.form.cus_code = this.form.cus_code.trim();
+      const req = this.form;
+      if(!req.cus_code||!req.cus_name){
+        this.$message({
+              message: '客戶代號 & 客戶名稱不可為空',
+              type: 'error'
+            });
+        return
+      }
+      console.log(JSON.stringify(req))
+      axios.post('http://122.116.23.30:3345/main/createCustomer', req)
+        .then(response => {
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '新增成功',
+              type: 'success'
+            });
+            this.form = {};
+            this.dialog = false
+            this.getselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '新增失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '新增失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
     },
     viewDetails(row) {
-      console.log('View details for:', row);
       this.$router.push({ 
         path: 'SelectView',
         query: {
@@ -451,11 +482,22 @@ export default {
       this.$router.push({ 
         path: 'discount',
         query: {
-          rowData: JSON.stringify(row)
+          cus_code:row.cus_code,
+          cus_name:row.cus_name
         }
       });
     },
-  }
+  },
+  mounted() {
+    // 在頁面加載時發送 API 請求
+      axios.get('http://122.116.23.30:3345/main/selectSalesman')
+      .then(response => {
+        this.salesmenData = response.data.data; // 將 API 回傳的數據存入 salesmenData
+      })
+      .catch(error => {
+        console.error('API request failed:', error);
+      });
+  },
 };
 </script>
 
