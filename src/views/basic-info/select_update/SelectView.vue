@@ -215,9 +215,6 @@
       <el-form-item label="帳單寄送方式">
         <el-input v-model="bills_form.billing_method" :formatter="formatBill" readonly></el-input>
       </el-form-item>
-      <el-form-item label="地址/E-Mail">
-        <el-input v-model="bills_form.address_email" readonly></el-input>
-      </el-form-item>
       <el-form-item label="對帳單列印">
         <el-input v-model="bills_form.statement_print" readonly></el-input>
       </el-form-item>
@@ -228,6 +225,9 @@
         <el-input v-model="bills_form.acc_contact" readonly></el-input>
       </el-form-item>
       <el-row style="margin-bottom: 20px">
+        <el-form-item label="地址/E-Mail" style="width: 1000px" >
+        <el-input v-model="bills_form.address_email" type="textarea" ></el-input>
+      </el-form-item>
         <el-form-item label="對帳單備註資訊" style="width: 1000px">
           <el-input v-model="bills_form.statement_notes" type="textarea" readonly></el-input>
         </el-form-item>
@@ -499,6 +499,7 @@ mounted() {
 created() {
   this.cus_code = (this.$route.query.cus_code);
   this.cus_name = (this.$route.query.cus_name);
+  this.account_sortId  = (this.$route.query.account_sortId );
   if (this.rowType==='1') {
       const postData = {
         cus_code:this.cus_code,
@@ -522,9 +523,9 @@ created() {
         });
     }else if(this.rowType==='3'){
       const postData = {
-      customerId:this.cus_code,
+        account_sortId :this.account_sortId,
     };
-      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+      axios.post('http://122.116.23.30:3345/main/viewAccount_sort',postData)
         .then(response => {
           this.bills_form = response.data.data[0];
           console.log("ABC"+JSON.stringify(this.bills_form));

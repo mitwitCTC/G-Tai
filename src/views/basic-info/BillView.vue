@@ -13,7 +13,7 @@
         <el-table-column prop="acc_name" label="帳單名稱" width="200" />
         <el-table-column prop="use_number" label="開立統編" width="150" />
         <el-table-column prop="recipient_name" label="收件人姓名" width="300" />
-        <el-table-column prop="billing_method" label="寄送方式" width="150" />
+        <el-table-column prop="billing_method" label="寄送方式" :formatter="formatbilling_method"  width="150" />
         <el-table-column prop="address_email" label="收件地址/Mail"width="300" />
         <el-table-column label="操作">
         <template v-slot="scope">
@@ -44,7 +44,7 @@
       <el-table :data="currentPageData2" style="width: 100%">
         <el-table-column prop="account_sortId" label="帳單編號" width="300" />
         <el-table-column prop="license_plate" label="車牌號碼" width="300" />
-        <el-table-column prop="vehicle_type" label="車輛型態" width="300" />
+        <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" />
         <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="350" />
         <el-table-column label="操作">
           <template v-slot="scope">
@@ -74,49 +74,53 @@
 
     <!-- 新增帳單資訊 -->
     <el-dialog title="新增帳單資訊" v-model="dialogBill" width="50%">
-      <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
+      <el-form :model="billform" label-width="120px"> <!-- 统一標籤寬度 -->
         <el-row style="margin-bottom: 20px">
           <el-form-item label="帳單名稱">
-            <el-input v-model="form.acc_name" ></el-input>
+            <el-input v-model="billform.acc_name" ></el-input>
           </el-form-item>
           <el-form-item label="開立統編">
-            <el-input v-model="form.use_number" ></el-input>
+            <el-input v-model="billform.use_number" ></el-input>
           </el-form-item>
           <el-form-item label="發票開立人名稱">
-            <el-input v-model="form.invoice_name" ></el-input>
+            <el-input v-model="billform.invoice_name" ></el-input>
           </el-form-item>
           <el-form-item label="帳單寄送方式">
-          <el-select v-model="form.billing_method" placeholder="選擇方式">
+          <el-select v-model="billform.billing_method" placeholder="選擇方式">
             <el-option label="MAIL" :value="1"></el-option>
             <el-option label="平信" :value="2"></el-option>
             <el-option label="官方LINE" :value="3"></el-option>
             <el-option label="掛號" :value="4"></el-option>
+            <el-option label="合併寄" :value="5"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="地址/E-Mail">
-          <el-input v-model="form.address_email" ></el-input>
+        <el-form-item label="地址/E-Mail" style="width: 1000px">
+          <el-input v-model="billform.address_email" ></el-input>
         </el-form-item>
         <el-form-item label="對帳單列印">
-          <el-input v-model="form.statement_print" ></el-input>
+          <el-select v-model="billform.statement_print" placeholder="選擇方式">
+            <el-option label="YES" :value="'YES'"></el-option>
+            <el-option label="NO" :value="'NO'"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="收件人姓名">
-          <el-input v-model="form.recipient_name" ></el-input>
+          <el-input v-model="billform.recipient_name" ></el-input>
         </el-form-item>
         <el-form-item label="帳單聯絡人">
-         <el-input v-model="form.acc_contact" ></el-input>
+         <el-input v-model="billform.acc_contact" ></el-input>
         </el-form-item>
         <el-form-item label="對帳單備註資訊" style="width: 1000px">
-          <el-input v-model="form.statement_notes" type="textarea" ></el-input>
+          <el-input v-model="billform.statement_notes" type="textarea" ></el-input>
         </el-form-item>
         <el-form-item label="對帳單注意事項" style="width: 1000px">
-          <el-input v-model="form.statement_remarks" type="textarea" ></el-input>
+          <el-input v-model="billform.statement_remarks" type="textarea" ></el-input>
         </el-form-item>
       </el-row>
     </el-form>
     <template v-slot:footer>
       <div  class="dialog-footer">
         <el-button @click="dialog = false">取消</el-button>
-        <el-button type="primary" @click="savePass">送出</el-button>
+        <el-button type="primary" @click="savePassbill">送出</el-button>
       </div>
     </template>
   </el-dialog>
@@ -127,8 +131,12 @@
           <el-row style="margin-bottom: 20px">
             <el-form-item label="帳單編號">
           <el-select v-model="form.account_sortId" placeholder="選擇帳單編號">
-            <el-option label="B001" :value="1"></el-option>
-            <el-option label="B002" :value="2"></el-option>
+            <el-option
+              v-for="id in bills"
+              :key="id.account_sortId"
+              :label="id.account_sortId"
+              :value="id.account_sortId"
+          ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="車牌號碼">
@@ -145,11 +153,11 @@
         </el-form-item>
         <el-form-item label="油品名稱">
           <el-select v-model="form.product_name" placeholder="選擇油品">
-            <el-option label="95無鉛汽油" :value="1"></el-option>
-            <el-option label="92無鉛汽油" :value="2"></el-option>
-            <el-option label="98無鉛汽油" :value="5"></el-option>
-            <el-option label="超級柴油" :value="6"></el-option>
-            <el-option label="尿素溶液" :value="17"></el-option>
+            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
+            <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
+            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option>
+            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
+            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
           </el-select>
         </el-form-item>
         </el-row>
@@ -182,7 +190,6 @@ export default {
       cus_name:'',
       dialogBill: false,
       dialog: false,
-      rowData:[],
       bills: [],
       vehicles: [],
       productMap:{
@@ -192,7 +199,23 @@ export default {
         "0006": "0006 超級柴油",
         "0017": "0017 尿素溶液"
       },
-      form:{
+      productType:{
+        "1": "大巴",
+        "2": "中巴",
+        "3": "自小客",
+        "4": "油罐卡",
+        "5": "臨時卡"
+      },
+      billing_methodMap:{
+        "0": "不需要",
+        "1": "MAIL",
+        "2": "平信",
+        "3": "官方LINE",
+        "4": "掛號",
+        "5": "合併寄",
+      },
+      billform:{
+        customerId:'',
         acc_name:'',
         use_number:'',
         invoice_name:'',
@@ -203,10 +226,11 @@ export default {
         acc_contact:'',
         statement_notes:'',
         statement_remarks:'',
-        account_sortId:'',
-        license_plate:'',
-        vehicle_type:'',
-        product_name:''
+        createTime:''
+      },
+      form:{
+        customerId:'',
+        createTime:''
       },
       currentPage: 1,
       currentPage2:1,
@@ -217,25 +241,10 @@ export default {
     // this.rowData = JSON.parse(this.$route.query.rowData);
     this.cus_code = (this.$route.query.cus_code);
     this.cus_name = (this.$route.query.cus_name);
-    const postData = {
-      customerId:this.cus_code,
-    };
-      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
-        .then(response => {
-          this.bills = response.data.data;
-        })
-        .catch(error => {
-          // 處理錯誤
-          console.error('API request failed:', error);
-        });
-        axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
-        .then(response => {
-          this.vehicles = response.data.data;
-        })
-        .catch(error => {
-          // 處理錯誤
-          console.error('API request failed:', error);
-        });
+    this.billform.customerId = this.cus_code;
+    this.form.customerId = this.cus_code;
+    this.getbillselectData();
+    this.getselectData();
   },
   computed: {
     //1為帳單資料 2為車籍資料
@@ -271,7 +280,122 @@ export default {
     },
   },
   methods: {
+    async getbillselectData() {
+      const postData = {
+      customerId:this.cus_code,
+      };
+      await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+        .then(response => {
+          this.bills = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
+    async getselectData() {
+      const postData = {
+      customerId:this.cus_code,
+      };
+      await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
+        .then(response => {
+          this.vehicles = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
 
+    savePassbill() {
+      const req = this.billform;
+      //發送 POST 請求
+      axios.post('http://122.116.23.30:3345/main/createAccount_sort', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '新增成功',
+              type: 'success'
+            });
+            this.form.acc_name = '';
+            this.form.use_number = '';
+            this.form.invoice_name = '';
+            this.form.billing_method = '';
+            this.form.address_email = '';
+            this.form.statement_print = '';
+            this.form.recipient_name = '';
+            this.form.acc_contact = '';
+            this.form.statement_notes = '';
+            this.form.statement_remarks = '';
+            // 關閉對話框
+            this.dialogBill = false;
+
+            // 刷新數據
+            this.getbillselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '新增失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '新增失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+    }, 
+    savePass() {
+      this.form.license_plate = this.form.license_plate.trim();
+      const req = this.form;
+      //發送 POST 請求
+      axios.post('http://122.116.23.30:3345/main/createVehicle', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '新增成功',
+              type: 'success'
+            });
+            this.license_plate = '';
+            this.vehicle_type = '';
+            this.product_name = '';
+            // 關閉對話框
+            this.dialog = false;
+            // 刷新數據
+            this.getselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '新增失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '新增失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+    }, 
+    formatType(vehicle_type) {
+      const rawproduct = toRaw(vehicle_type);
+      return this.productType[rawproduct.vehicle_type] || '未知';
+    },
+    formatbilling_method(billing_method) {
+      const rawproduct = toRaw(billing_method);
+      return this.billing_methodMap[rawproduct.billing_method] || '未知';
+    },
     formatProduct(product_name) {
       const rawproduct = toRaw(product_name);
       return this.productMap[rawproduct.product_name] || '未知';
@@ -289,7 +413,8 @@ export default {
         query: {
           rowType:'3',
           cus_name:this.cus_name,
-          cus_code:this.cus_code
+          cus_code:this.cus_code,
+          account_sortId :row.account_sortId 
         }
       });
     },
@@ -326,7 +451,10 @@ export default {
           rowType:'5',
           cus_name:this.cus_name,
           cus_code:this.cus_code,
-          rowData: JSON.stringify(row)
+          rowData: JSON.stringify({
+          ...row, // 複製原始數據
+          updateTime: '' // 將 updateTime 設為空字串
+          })
         }
       });
     },

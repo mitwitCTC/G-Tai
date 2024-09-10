@@ -8,12 +8,12 @@
     <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
     <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%">
-        <el-table-column prop="job_title1" label="職稱"></el-table-column>
-        <el-table-column prop="gender1" label="性別"></el-table-column>
-        <el-table-column prop="name1" label="姓名"></el-table-column>
-        <el-table-column prop="mobile1" label="手機/電話"></el-table-column>
-        <el-table-column prop="mail1" label="E-MAIL"></el-table-column>
-        <el-table-column prop="notes1" label="備註"></el-table-column>
+        <el-table-column prop="job_title" label="職稱"></el-table-column>
+        <el-table-column prop="gender" label="性別"></el-table-column>
+        <el-table-column prop="name" label="姓名"></el-table-column>
+        <el-table-column prop="mobile" label="手機/電話"></el-table-column>
+        <el-table-column prop="mail" label="E-MAIL"></el-table-column>
+        <el-table-column prop="notes" label="備註"></el-table-column>
         <el-table-column label="操作">
         <template v-slot="scope">
         <div class="action-icons">
@@ -42,22 +42,25 @@
         <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
           <el-row style="margin-bottom: 20px">
           <el-form-item label="職稱">
-             <el-input v-model="form.job_title1" ></el-input>
+             <el-input v-model="form.job_title" ></el-input>
           </el-form-item>
           <el-form-item label="性別">
-            <el-input v-model="form.gender1" ></el-input>
-          </el-form-item>
+            <el-select v-model="form.gender" placeholder="選擇性別">
+            <el-option label="男" :value="'男'"></el-option>
+            <el-option label="女" :value="'女'"></el-option>
+          </el-select>
+        </el-form-item>
           <el-form-item label="姓名">
-            <el-input v-model="form.name1" ></el-input>
+            <el-input v-model="form.name" ></el-input>
           </el-form-item>
           <el-form-item label="電話/手機">
-            <el-input v-model="form.mobile1" ></el-input>
+            <el-input v-model="form.mobile" ></el-input>
           </el-form-item>
           <el-form-item label="E-MAIL">
-            <el-input v-model="form.email1" ></el-input>
+            <el-input v-model="form.mail" ></el-input>
           </el-form-item>
           <el-form-item label="備註">
-            <el-input v-model="form.notes1" ></el-input>
+            <el-input v-model="form.notes" ></el-input>
           </el-form-item>
           </el-row>
         </el-form>
@@ -89,19 +92,15 @@ export default {
       cus_code:'',
       cus_name:'',
       dialog: false,
-      search: {
-        region: '',
-        sales: '',
-        customerName: ''
-      },
       contact: [],
       form: {
-        job_title1:'',
-        gender1:'',
-        name1:'',
-        mobile1:'',
-        email1:'',
-        notes1:''
+        customerId:'',
+        job_title:'',
+        gender:'',
+        name:'',
+        mobile:'',
+        mail:'',
+        notes:''
       },
       currentPage: 1,
       pageSize: 10
@@ -110,29 +109,11 @@ export default {
   created() {
     this.cus_code = (this.$route.query.cus_code);
     this.cus_name = (this.$route.query.cus_name);
-    const postData = {
-      customerId:this.cus_code,
-    };
-    axios.post('http://122.116.23.30:3345/main/searchContact',postData)
-        .then(response => {
-          this.contact = response.data.data;
-        })
-        .catch(error => {
-          // 處理錯誤
-          console.error('API request failed:', error);
-        });
+    this.form.customerId = this.cus_code;
+    this.getselectData();
 },
   computed: {
-    BreadCrumbItems() {
-      // 获取当前路由匹配的所有路由项
-      const matched = this.$route.matched;
-      // 生成面包屑项
-      return matched.map(route => ({
-        label: route.meta.BreadCrumb || '',
-        path: route.path
-      }));
-    },
-   
+
     paginatedData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
@@ -146,21 +127,67 @@ export default {
     }
   },
   methods: {
-    handleReset() {
-      this.search = {
-        region: '',
-        sales: '',
-        customerName: ''
+    async getselectData() {
+      const postData = {
+      customerId:this.cus_code,
       };
+      await axios.post('http://122.116.23.30:3345/main/searchContact',postData)
+        .then(response => {
+          this.contact = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
     },
+    savePass() {
+      const req = this.form;
+      
+      // 發送 POST 請求
+      axios.post('http://122.116.23.30:3345/main/createContact', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '新增成功',
+              type: 'success'
+            });
+          
+            // 清空表單
+            this.form.job_title = '';
+            this.form.gender = '';
+            this.form.name = '';
+            this.form.mobile = '';
+            this.form.mail = '';
+            this.form.notes = '';
+
+            // 關閉對話框
+            this.dialog = false;
+
+            // 刷新數據
+            this.getselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '新增失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '新增失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+    }, 
     handlePageChange(page) {
       this.currentPage = page;
     },
-    savePass() {
-      // 添加保存逻辑
-      this.dialog = false;
-    },
-
+  
     editItem(row) {
       console.log('Edit item:', row);
       this.$router.push({ 
@@ -181,6 +208,9 @@ export default {
 </script>
 
 <style scoped>
+.el-select{
+  width: 175px;
+}
 .pagination-container {
   display: flex;
   justify-content: space-between;

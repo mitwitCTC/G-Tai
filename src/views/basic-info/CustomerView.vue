@@ -472,7 +472,7 @@ export default {
         path: 'bill',
         query: {
           cus_code:row.cus_code,
-          cus_name:row.cus_name
+          cus_name:row.cus_name,
         }
       });
     },

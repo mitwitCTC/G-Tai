@@ -32,16 +32,16 @@
     <el-dialog title="新增車籍卡片資訊" v-model="dialog" width="50%">
         <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
             <el-row style="margin-bottom: 20px">
-            <el-form-item label="卡號">
+            <!-- <el-form-item label="卡號">
             <el-input v-model="form.card_number" ></el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="卡片類別">
               <el-select v-model="form.card_type" placeholder="選擇卡片類別">
                 <el-option label="1.尿素" :value="1"></el-option>
                 <el-option label="2.汽油" :value="2"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="上傳中油日期">
+            <!-- <el-form-item label="上傳中油日期">
               <el-date-picker 
                 v-model="form.upload_time" 
                 type="date" 
@@ -50,11 +50,11 @@
                 placeholder="選擇日期"
                 style="width: 175px;">
               </el-date-picker>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="上傳中油原因">
               <el-input v-model="form.upload_reason" ></el-input>
             </el-form-item>
-            <el-form-item label="到卡日期">
+            <!-- <el-form-item label="到卡日期">
               <el-date-picker 
                 v-model="form.card_arrival_date" 
                 type="date" 
@@ -73,7 +73,7 @@
                 placeholder="選擇日期"
                 style="width: 175px;">
               </el-date-picker>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="備註">
                 <el-input v-model="form.notes" ></el-input>
             </el-form-item>
@@ -106,18 +106,12 @@ export default {
     return {
       dialog:false,
       form:{
-        card_number:'',
+        vehicleId:'',
         card_type:'',
-        upload_time:'',
         upload_reason:'',
-        card_arrival_date:'',
-        card_stop_date:'',
         notes:'',
-        vehicle_change_reason:''
-      },
-      filters: {
-        billGroup: '',
-        customerName: ''
+        vehicle_change_reason:'',
+        createTime:''
       },
       cus_code:'',
       cus_name:'',
@@ -130,10 +124,58 @@ export default {
     this.cus_name=(this.$route.query.cus_name);
     this.license_plate=(this.$route.query.license_plate);
     this.vehicleId=(this.$route.query.vehicleId);
-    const postData = {
+    this.form.vehicleId=this.vehicleId
+    this.getselectData();
+  },
+  computed: {
+   
+  },
+  methods: {
+    savePass() {
+      const req = this.form;
+      // 發送 POST 請求
+      axios.post('http://122.116.23.30:3345/main/createCard', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '新增成功',
+              type: 'success'
+            });
+
+            // 清空表單
+            this.form.card_type = '';
+            this.form.upload_reason = '';
+            this.form.notes = '';
+            this.form.vehicle_change_reason = '';
+            // 關閉對話框
+            this.dialog = false;
+            // 刷新數據
+            this.getselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '新增失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '新增失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+    },
+    async getselectData() {
+      const postData = {
       vehicleId:this.vehicleId,
     };
-      axios.post('http://122.116.23.30:3345/main/searchCard',postData)
+      await axios.post('http://122.116.23.30:3345/main/searchCard',postData)
         .then(response => {
           this.vehicles = response.data.data;
           console.log(this.vehicles)
@@ -143,10 +185,6 @@ export default {
           console.error('API request failed:', error);
         });
   },
-  computed: {
-   
-  },
-  methods: {
    
     editItem(row) {
       console.log('Edit item:', row);
@@ -157,7 +195,10 @@ export default {
           cus_name:this.cus_name,
           cus_code:this.cus_code,
           license_plate:this.license_plate,
-          rowData: JSON.stringify(row)
+          rowData: JSON.stringify({
+          ...row, // 複製原始數據
+          updateTime: '' // 將 updateTime 設為空字串
+          })
         }
       });
     },

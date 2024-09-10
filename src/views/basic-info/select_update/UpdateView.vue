@@ -246,25 +246,25 @@
     <el-form-item label="聯絡人" class="section-header" v-if="this.rowType==='2'">
       <el-row style="margin-bottom: 20px">
         <el-form-item label="職稱">
-          <el-input v-model="rowData.job_title1" ></el-input>
+          <el-input v-model="rowData.job_title" ></el-input>
         </el-form-item>
         <el-form-item label="性別">
-          <el-select v-model="rowData.gender1" placeholder="選擇性別">
+          <el-select v-model="rowData.gender" placeholder="選擇性別">
           <el-option label="男" :value="'男'"></el-option>
           <el-option label="女" :value="'女'"></el-option>
         </el-select>
         </el-form-item>
         <el-form-item label="姓名">
-          <el-input v-model="rowData.name1" ></el-input>
+          <el-input v-model="rowData.name" ></el-input>
         </el-form-item>
         <el-form-item label="電話/手機">
-          <el-input v-model="rowData.mobile1" ></el-input>
+          <el-input v-model="rowData.mobile" ></el-input>
         </el-form-item>
         <el-form-item label="E-MAIL">
-          <el-input v-model="rowData.email1" ></el-input>
+          <el-input v-model="rowData.mail" ></el-input>
         </el-form-item>
         <el-form-item label="備註">
-          <el-input v-model="rowData.notes1" ></el-input>
+          <el-input v-model="rowData.notes" ></el-input>
         </el-form-item>
       </el-row>
     </el-form-item>
@@ -290,11 +290,11 @@
             <el-option label="5.合併寄" :value="'5'"></el-option>
           </el-select>
       </el-form-item>
-      <el-form-item label="地址/E-Mail">
-        <el-input v-model="bills_form.address_email" ></el-input>
-      </el-form-item>
       <el-form-item label="對帳單列印">
-        <el-input v-model="bills_form.statement_print" ></el-input>
+        <el-select v-model="bills_form.statement_print" placeholder="選擇方式">
+            <el-option label="YES" :value="'YES'"></el-option>
+            <el-option label="NO" :value="'NO'"></el-option>
+          </el-select>
       </el-form-item>
       <el-form-item label="收件人姓名">
         <el-input v-model="bills_form.recipient_name" ></el-input>
@@ -303,6 +303,9 @@
         <el-input v-model="bills_form.acc_contact" ></el-input>
       </el-form-item>
       <el-row style="margin-bottom: 20px">
+        <el-form-item label="地址/E-Mail" style="width: 1000px" >
+        <el-input v-model="bills_form.address_email" type="textarea" ></el-input>
+      </el-form-item>
         <el-form-item label="對帳單備註資訊" style="width: 1000px">
           <el-input v-model="bills_form.statement_notes" type="textarea" ></el-input>
         </el-form-item>
@@ -315,36 +318,56 @@
     <!-- 折讓資料 -->
     <el-form-item label="折讓資料" class="section-header" v-if="this.rowType==='4'" >
       <el-form-item label="油品">
-          <el-select v-model="form.product_name" placeholder="選擇油品">
-            <el-option label="95無鉛汽油" :value="1"></el-option>
-            <el-option label="92無鉛汽油" :value="2"></el-option>
-            <el-option label="98無鉛汽油" :value="5"></el-option>
-            <el-option label="超級柴油" :value="6"></el-option>
-            <el-option label="尿素溶液" :value="17"></el-option>
+          <el-select v-model="rowData.product_name" placeholder="選擇油品">
+            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
+            <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
+            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option>
+            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
+            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="廠商名稱" >
-          <el-input v-model="form.supplier_name" readonly></el-input>
+          <el-input v-model="rowData.supplier_name" readonly></el-input>
         </el-form-item>
         <el-form-item label="折讓">
-          <el-input v-model="form.discount" ></el-input>
+          <el-input v-model="rowData.discount_float" ></el-input>
         </el-form-item>
+        <el-form-item label="負責業務">
+        <el-select v-model="rowData.responsible_person" placeholder="選擇業務">
+          <el-option
+          v-for="salesman in salesmenData"
+          :key="salesman.salesmanId"
+          :label="salesman.employee_name"
+          :value="salesman.employee_id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
     </el-form-item>
     
     
 
     <!-- 車籍資料 -->
     <el-form-item label="車籍資料" class="section-header" v-if="this.rowType==='5'" >
+      <el-form-item label="帳單編號">
+          <el-select v-model="rowData.account_sortId" placeholder="選擇帳單編號">
+            <el-option
+              v-for="id in bills_form"
+              :key="id.account_sortId"
+              :label="id.account_sortId"
+              :value="id.account_sortId"
+          ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="車牌號碼">
           <el-input v-model="rowData.license_plate" ></el-input>
         </el-form-item>
         <el-form-item label="車輛型態">
           <el-select v-model="rowData.vehicle_type" placeholder="選擇車輛型態">
-            <el-option label="大巴" :value="1"></el-option>
-            <el-option label="中巴" :value="2"></el-option>
-            <el-option label="自小客" :value="3"></el-option>
-            <el-option label="油罐卡" :value="4"></el-option>
-            <el-option label="臨時卡" :value="5"></el-option>
+            <el-option label="大巴" :value="'1'"></el-option>
+            <el-option label="中巴" :value="'2'"></el-option>
+            <el-option label="自小客" :value="'3'"></el-option>
+            <el-option label="油罐卡" :value="'4'"></el-option>
+            <el-option label="臨時卡" :value="'5'"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="油品名稱">
@@ -378,47 +401,14 @@
     </el-form-item>
   <!-- 卡片資料 -->
   <el-form-item label="車籍卡片資料" class="section-header" v-if="this.rowType==='7'" >
-        <el-form-item label="卡號">
-          <el-input v-model="rowData.card_number" ></el-input>
-        </el-form-item>
         <el-form-item label="卡片類別">
           <el-select v-model="rowData.card_type" placeholder="選擇卡片類別">
-            <el-option label="1.尿素" :value="1"></el-option>
-            <el-option label="2.汽油" :value="2"></el-option>
+            <el-option label="1.尿素" :value="'1'"></el-option>
+            <el-option label="2.汽油" :value="'2'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="上傳中油日期">
-              <el-date-picker 
-                v-model="rowData.upload_time" 
-                type="date" 
-                format="YYYY-MM-DD" 
-                value-format="YYYY-MM-DD" 
-                placeholder="選擇日期"
-                style="width: 300px;">
-              </el-date-picker>
-            </el-form-item>
             <el-form-item label="上傳中油原因">
               <el-input v-model="rowData.upload_reason" ></el-input>
-            </el-form-item>
-            <el-form-item label="到卡日期">
-              <el-date-picker 
-                v-model="rowData.card_arrival_date" 
-                type="date" 
-                format="YYYY-MM-DD" 
-                value-format="YYYY-MM-DD" 
-                placeholder="選擇日期"
-                style="width: 300px;">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item label="停卡日期">
-              <el-date-picker 
-                v-model="rowData.card_stop_date" 
-                type="date" 
-                format="YYYY-MM-DD" 
-                value-format="YYYY-MM-DD" 
-                placeholder="選擇日期"
-                style="width: 300px;">
-              </el-date-picker>
             </el-form-item>
       <el-form-item label="備註">
           <el-input v-model="rowData.notes" ></el-input>
@@ -519,12 +509,15 @@ data() {
     cus_code:'',
     cus_name:'',
     license_plate:'',
-    rowData:{},
+    rowData:{
+      updateTime:''
+    },
     cus_form: {
     },
     SinopacBank:{},
     bills_form:{},
-    salesmenData:[]
+    salesmenData:[],
+    discount_form:[],
   };
 },
 mounted() {
@@ -578,12 +571,26 @@ created() {
       axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
           this.bills_form = response.data.data[0];
+          console.log("個別帳單"+JSON.stringify(this.bills_form))
         })
         .catch(error => {
           // 處理錯誤
           console.error('API request failed:', error);
         });
-    }else if(this.rowType=='2'||this.rowType=='5'||this.rowType=='6'){
+    }else if(this.rowType=='5'){
+      const postData = {
+      customerId:this.cus_code,
+    };
+      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+        .then(response => {
+            console.log("帳單一覽"+JSON.stringify(this.bills_form))
+            this.rowData = JSON.parse(this.$route.query.rowData)
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    }else if(this.rowType=='2'||this.rowType=='4'||this.rowType=='6'){
       this.rowData = JSON.parse(this.$route.query.rowData);
     }else if(this.rowType=='7'){
       this.license_plate = (this.$route.query.license_plate);
@@ -599,7 +606,178 @@ created() {
       // 使用 find 方法找到對應的 employee_name
       const employee = this.salesmenData.find(item => item.employee_id === employeeId);
       return employee ? employee.employee_name : '未知員工'; // 找到返回名字，找不到返回 "未知員工"
-    }
+    },
+
+    onConfirmEdit(){
+      if (this.rowType==='1') {
+      console.log("發送客戶修改API")
+      const req = this.cus_form;
+      axios.post('http://122.116.23.30:3345/main/updateCustomer', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode == 0) {
+            // 成功提示
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+            // 刷新數據
+            setTimeout(() => {
+            window.location.reload();
+            }, 2000); // 3000 毫秒 = 3 秒
+
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '更新失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: ' 更新失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+    }else if(this.rowType==='3'){
+      console.log("發送客戶帳單API")
+      const req = this.bills_form;
+      axios.post('http://122.116.23.30:3345/main/updateAccount_sort', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode == 0) {
+            // 成功提示
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+            // 刷新數據
+            setTimeout(() => {
+            window.location.reload();
+            }, 2000); // 3000 毫秒 = 3 秒
+
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '更新失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: ' 更新失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+
+    }else if(this.rowType==='4'){
+      console.log("發送客戶折讓API")
+      const req = this.rowData;
+      axios.post('http://122.116.23.30:3345/main/updateDiscount', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode == 0) {
+            // 成功提示
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+            // 刷新數據
+            setTimeout(() => {
+              window.history.back();
+            }, 2000); // 3000 毫秒 = 3 秒
+
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '更新失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: ' 更新失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+    }else if(this.rowType==='5'){
+      console.log("發送客戶車籍API")
+      this.rowData.license_plate = this.rowData.license_plate.trim();
+      const req = this.rowData;
+      axios.post('http://122.116.23.30:3345/main/updateVehicle', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode == 0) {
+            // 成功提示
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+            // 刷新數據
+            setTimeout(() => {
+              window.history.back();
+            }, 2000); // 3000 毫秒 = 3 秒
+
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '更新失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: ' 更新失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+      }else if(this.rowType==='7'){
+      console.log("發送客戶車籍卡片API")
+      const req = this.rowData;
+      axios.post('http://122.116.23.30:3345/main/updateCard', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode == 0) {
+            // 成功提示
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+            // 刷新數據
+            setTimeout(() => {
+              window.history.back();
+            }, 2000); // 3000 毫秒 = 3 秒
+
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '更新失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: ' 更新失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+      }
+    },
   }
 };
 </script>

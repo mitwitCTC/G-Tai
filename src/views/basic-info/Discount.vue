@@ -41,7 +41,7 @@
         </el-select>
       </el-form-item>
         <el-form-item label="折讓">
-          <el-input v-model="form.discount" @input="validateFloat" ></el-input>
+          <el-input v-model="form.discount_float" @input="validateFloat" ></el-input>
         </el-form-item>
         <el-form-item label="負責業務">
         <el-select v-model="form.responsible_person" placeholder="選擇業務">
@@ -110,7 +110,7 @@ export default {
       },
       form:{
         customerId:'',
-        discount: 0
+        discount_float:0
       },
       currentPage: 1,
       pageSize: 10
@@ -166,9 +166,7 @@ export default {
         });
   },
   savePass() {
-      this.form.discount=parseFloat(this.form.discount)
       const req = this.form;
-
       // 發送 POST 請求
       axios.post('http://122.116.23.30:3345/main/createDiscount', req)
         .then(response => {
@@ -184,7 +182,7 @@ export default {
             // 清空表單
             this.form.product_name = '';
             this.form.supplier_name = '';
-            this.form.discount = '';
+            this.form.discount_float = '';
             this.form.responsible_person = '';
 
             // 關閉對話框
@@ -208,11 +206,11 @@ export default {
           });
           console.error('Error:', error);
         });
-    },
-      validateFloat() {
+    }, 
+    validateFloat() {
       const regex = /^\d*\.?\d{0,3}$/; // 限制最多兩位小數
-      if (!regex.test(this.form.discount)) {
-        this.form.discount = this.form.discount.slice(0, -1);
+      if (!regex.test(this.form.discount_float)) {
+        this.form.discount_float = this.form.discount_float.slice(0, -1);
       }
     },
     handlePageChange(page) {
@@ -238,7 +236,9 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'4',
-          customerName:row.customerName
+          cus_code:this.cus_code,
+          cus_name:this.cus_name,
+          rowData: JSON.stringify(row)
         }
       });
     },
