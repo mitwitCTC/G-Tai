@@ -38,9 +38,9 @@
         <el-select v-model="cus_form.salesmanId" placeholder="選擇業務">
           <el-option
           v-for="salesman in salesmenData"
-          :key="salesman.salesmanId"
+          :key="salesman.employee_id"
           :label="salesman.employee_name"
-          :value="salesman.salesmanId"
+          :value="salesman.employee_id"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -198,9 +198,9 @@
         <el-select v-model="cus_form.contract_sales" placeholder="選擇業務">
           <el-option
           v-for="salesman in salesmenData"
-          :key="salesman.salesmanId"
+          :key="salesman.employee_i"
           :label="salesman.employee_name"
-          :value="salesman.salesmanId"
+          :value="salesman.employee_id"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -445,11 +445,20 @@
           <el-form-item label="授權碼">
             <el-input v-model="SinopacBank.remark" ></el-input>
           </el-form-item>
-          <el-form-item label="信用卡手續費收取">
-            <el-input v-model="SinopacBank.card_other_fee" readonly ></el-input>
-          </el-form-item>
           <el-form-item label="刷卡金額">
             <el-input v-model="SinopacBank.credit_amount" ></el-input>
+          </el-form-item>
+          <!-- <el-form-item label="手續費收取">
+            <el-input v-model="SinopacBank.card_other_fee" readonly ></el-input>
+          </el-form-item> -->
+          <el-form-item label="永豐手續費%">
+            <el-input v-model="SinopacBank.credit_percent" readonly ></el-input>
+          </el-form-item>
+          <el-form-item label="永豐手續費">
+            <el-input v-model="SinopacBank.handling_fee" readonly ></el-input>
+          </el-form-item>
+            <el-form-item label="永豐入帳金額">
+            <el-input v-model="SinopacBank.bank_amount" ></el-input>
           </el-form-item>
           <el-form-item label="永豐入帳日期">
               <el-date-picker 
@@ -461,19 +470,11 @@
                 style="width: 300px;">
               </el-date-picker>
             </el-form-item>
-          <el-form-item label="永豐手續費%">
-            <el-input v-model="SinopacBank.credit_percent" readonly ></el-input>
-          </el-form-item>
-          <el-form-item label="永豐手續費">
-            <el-input v-model="SinopacBank.handling_fee" readonly ></el-input>
-          </el-form-item>
-            <el-form-item label="永豐入帳金額">
-            <el-input v-model="SinopacBank.bank_amount" ></el-input>
-          </el-form-item>
-          <el-form-item label="肯美系統手續費%">
+          <!--           
+          <el-form-item label="系統手續費%">
             <el-input v-model="SinopacBank.card_handling" readonly ></el-input>
-          </el-form-item>
-          <el-form-item label="肯美系統入帳金額">
+          </el-form-item> -->
+          <el-form-item label="系統入帳金額">
             <el-input v-model="SinopacBank.amount" readonly ></el-input>
           </el-form-item>
           </el-row>
@@ -513,6 +514,7 @@ data() {
       updateTime:''
     },
     cus_form: {
+      
     },
     SinopacBank:{},
     bills_form:{},
@@ -521,29 +523,37 @@ data() {
   };
 },
 mounted() {
-    // 在頁面加載時發送 API 請求
-    axios.get('http://122.116.23.30:3345/main/selectSalesman')
-      .then(response => {
-        this.salesmenData = response.data.data; // 將 API 回傳的數據存入 salesmenData
-        if (this.cus_form.contract_sales || this.cus_form.salesmanId) {
-          // 找到對應的業務名稱
-          const selectedSalesman = this.salesmenData.find(salesman => salesman.employee_id === this.cus_form.salesmanId);
-          const selectedcontractman = this.salesmenData.find(salesman => salesman.employee_id === this.cus_form.contract_sales);
-          // 如果找到匹配的業務代號，設置為對應的 ID，這樣會顯示名稱
-          if (selectedSalesman||selectedcontractman) {
-            this.cus_form.salesmanId=selectedSalesman.employee_name;
-            this.cus_form.contract_sales = selectedcontractman.employee_name;
-          }
-        }
-      })
-      .catch(error => {
-        console.error('API request failed:', error);
-      });
+    // // 在頁面加載時發送 API 請求
+    // axios.get('http://122.116.23.30:3345/main/selectSalesman')
+    //   .then(response => {
+    //     this.salesmenData = response.data.data; // 將 API 回傳的數據存入 salesmenData
+    //     if (this.cus_form.contract_sales || this.cus_form.salesmanId) {
+    //       // 找到對應的業務名稱
+    //       const selectedSalesman = this.salesmenData.find(salesman => salesman.employee_id === this.cus_form.salesmanId);
+    //       const selectedcontractman = this.salesmenData.find(salesman => salesman.employee_id === this.cus_form.contract_sales);
+    //       // 如果找到匹配的業務代號，設置為對應的 ID，這樣會顯示名稱
+    //       if (selectedSalesman||selectedcontractman) {
+    //         this.cus_form.salesmanId=selectedSalesman.employee_name;
+    //         this.cus_form.contract_sales = selectedcontractman.employee_name;
+    //       }
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.error('API request failed:', error);
+    //   });
   },
 created() {
   this.cus_code = (this.$route.query.cus_code);
   this.cus_name = (this.$route.query.cus_name);
+  this.account_sortId  = (this.$route.query.account_sortId );
   if (this.rowType==='1') {
+    axios.get('http://122.116.23.30:3345/main/selectSalesman')
+      .then(response => {
+        this.salesmenData = response.data.data;
+      })
+      .catch(error => {
+        console.error('API request failed:', error);
+      });
       const postData = {
         cus_code:this.cus_code,
       };
@@ -566,9 +576,9 @@ created() {
         });
     }else if(this.rowType==='3'){
       const postData = {
-      customerId:this.cus_code,
-    };
-      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+          account_sortId :this.account_sortId,
+      };
+      axios.post('http://122.116.23.30:3345/main/viewAccount_sort',postData)
         .then(response => {
           this.bills_form = response.data.data[0];
           console.log("個別帳單"+JSON.stringify(this.bills_form))
@@ -583,6 +593,7 @@ created() {
     };
       axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
+          this.bills_form = response.data.data;
             console.log("帳單一覽"+JSON.stringify(this.bills_form))
             this.rowData = JSON.parse(this.$route.query.rowData)
         })
@@ -598,6 +609,14 @@ created() {
     }
   },
   methods:{
+    handleSalesmanChange(newValue) {
+      // Check if the new value is different from the old one
+      console.log("newValue"+newValue)
+      if (newValue == '') {
+        // If no value selected, delete salesmanId
+        delete this.cus_form.salesmanId;
+      }
+    },
     getEmployeeName(employeeId) {
       // 如果 salesmenData 仍為空，則返回空或其他提示
       if (!this.salesmenData || this.salesmenData.length === 0) {
@@ -611,6 +630,7 @@ created() {
     onConfirmEdit(){
       if (this.rowType==='1') {
       console.log("發送客戶修改API")
+      this.cus_form.updateTime='';
       const req = this.cus_form;
       axios.post('http://122.116.23.30:3345/main/updateCustomer', req)
         .then(response => {
@@ -644,6 +664,7 @@ created() {
         });
     }else if(this.rowType==='3'){
       console.log("發送客戶帳單API")
+      this.bills_form.updateTime='';
       const req = this.bills_form;
       axios.post('http://122.116.23.30:3345/main/updateAccount_sort', req)
         .then(response => {
@@ -776,10 +797,76 @@ created() {
           });
           console.error('Error:', error);
         });
+      }else if(this.rowType==='2'){
+      console.log("發送客戶聯絡人API")
+      const req = this.rowData;
+      axios.post('http://122.116.23.30:3345/main/updateContact', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode == 0) {
+            // 成功提示
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+            // 刷新數據
+            setTimeout(() => {
+              window.history.back();
+            }, 2000); // 3000 毫秒 = 3 秒
+
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '更新失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: ' 更新失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+      }else if(this.rowType==='6'){
+      console.log("發送員工API")
+      const req = this.rowData;
+      axios.post('http://122.116.23.30:3345/main/updateSalesman', req)
+        .then(response => {
+          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+          if (response.status === 200 && response.data.returnCode == 0) {
+            // 成功提示
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+            // 刷新數據
+            setTimeout(() => {
+              window.history.back();
+            }, 2000); // 3000 毫秒 = 3 秒
+
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '更新失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: ' 更新失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
       }
     },
   }
-};
+}
 </script>
 
 <style scoped>

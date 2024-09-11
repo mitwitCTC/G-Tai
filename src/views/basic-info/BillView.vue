@@ -425,7 +425,8 @@ export default {
         query: {
           rowType:'3',
           cus_name:this.cus_name,
-          cus_code:this.cus_code
+          cus_code:this.cus_code,
+          account_sortId :row.account_sortId 
         }
       });
     },

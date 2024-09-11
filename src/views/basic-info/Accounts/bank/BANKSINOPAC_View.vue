@@ -4,15 +4,16 @@
   <div>
       <BreadCrumb/>
   </div>
-  <el-button type="primary" @click="dialog = true">新增資料</el-button>
+  <el-button type="primary" @click="dialogopen()">新增資料</el-button>
   <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%">
+        <el-table-column prop="invoice" label="收款單號"></el-table-column>
         <el-table-column prop="customerId" label="客戶代號"></el-table-column>
         <el-table-column prop="credit_card_data" label="刷卡日期"></el-table-column>
         <el-table-column prop="issuing_bank" label="發卡銀行"></el-table-column>
         <el-table-column prop="credit_amount" label="刷卡金額"></el-table-column>
         <el-table-column prop="bank_amount" label="永豐入帳金額"></el-table-column>
-        <el-table-column prop="amount" label="肯美系統入帳金額"></el-table-column>
+        <el-table-column prop="amount" label="系統入帳金額"></el-table-column>
         <el-table-column label="操作">
       <template v-slot="scope">
       <div class="action-icons">
@@ -40,17 +41,34 @@
     <!-- 新增資料 -->
     <el-dialog title="新增資料" v-model="dialog" width="80%">
         <el-form :model="form" label-width="155px"> <!-- 统一標籤寬度 -->
+          <h6>*為必填欄位</h6>
           <el-row style="margin-bottom: 20px">
             <el-form-item label="收款單號">
-            <el-input v-model="form.invoice" ></el-input>
+            <el-input v-model="form.invoice" readonly ></el-input>
           </el-form-item>
-          <el-form-item label="客戶代號">
+          <el-form-item label="*客戶代號">
              <el-input v-model="form.customerId" ></el-input>
           </el-form-item>
-          <el-form-item label="客戶名稱">
-            <el-input v-model="form.cus_name"  ></el-input>
+          <el-button type="primary" @click="SelectCus">帶入客戶資料</el-button>
+        </el-row>
+          <el-row style="margin-bottom: 20px">
+          <el-form-item label="*客戶名稱" style="width: 660px;">
+            <el-input v-model="form.cus_name" readonly  ></el-input>
           </el-form-item>
-          <el-form-item label="永豐刷卡日期">
+          <h6 v-if="this.form.card_other_fee == '0'">此客戶符合外卡不扣刷卡手續費</h6>
+          <h6 v-if="isDiscountCard">永豐信用卡-手續費優惠卡號</h6>
+        </el-row>
+          <el-row style="margin-bottom: 20px">
+            <el-form-item label="*刷卡卡號">
+            <el-input v-model="form.account"  @input="formatCardNumber" ></el-input>
+          </el-form-item>
+          <el-form-item label="*刷卡金額">
+            <el-input v-model="form.credit_amount" @input="formatamount"></el-input>
+          </el-form-item>
+          <el-form-item label="發卡銀行">
+            <el-input v-model="form.issuing_bank" ></el-input>
+          </el-form-item>
+          <el-form-item label="刷卡日期">
             <el-date-picker 
                 v-model="form.credit_card_data" 
                 type="date" 
@@ -60,24 +78,14 @@
                 style="width: 175px;">
               </el-date-picker>
             </el-form-item>
-            <el-form-item label="永豐刷卡金額">
-            <el-input v-model="form.credit_amount" ></el-input>
+            <el-form-item label="永豐手續費%" >
+            <el-input v-model="form.credit_percent" readonly  ></el-input>
           </el-form-item>
-          <el-form-item label="永豐入帳金額">
-            <el-input v-model="form.bank_amount" ></el-input>
+          <el-form-item label="永豐手續費" >
+            <el-input v-model="form.handling_fee" readonly ></el-input>
           </el-form-item>
-
-          <el-form-item label="發卡銀行">
-            <el-input v-model="form.issuing_bank" ></el-input>
-          </el-form-item>
-          <el-form-item label="永豐手續費%">
-            <el-input v-model="form.credit_percent"  ></el-input>
-          </el-form-item>
-          <el-form-item label="永豐手續費">
-            <el-input v-model="form.handling_fee"  ></el-input>
-          </el-form-item>
-          <el-form-item label="永豐刷卡卡號">
-            <el-input v-model="form.account"  ></el-input>
+          <el-form-item label="永豐入帳金額" >
+            <el-input v-model="form.bank_amount" readonly ></el-input>
           </el-form-item>
           <el-form-item label="永豐入帳日期">
             <el-date-picker 
@@ -89,9 +97,6 @@
                 style="width: 175px;">
               </el-date-picker>
             </el-form-item>
-            <el-form-item label="肯美系統入帳金額">
-            <el-input v-model="form.amount"  ></el-input>
-          </el-form-item>
           <el-form-item label="授權碼">
             <el-input v-model="form.remark" ></el-input>
           </el-form-item>
@@ -99,6 +104,11 @@
             <el-input v-model="form.card_handling" readonly ></el-input>
           </el-form-item> -->
           </el-row>
+          <el-row style="margin-bottom: 20px">
+          <el-form-item label="系統入帳金額">
+            <el-input v-model="form.amount"  readonly ></el-input>
+          </el-form-item>
+        </el-row>
         </el-form>
         <template v-slot:footer>
           <div  class="dialog-footer">
@@ -124,11 +134,19 @@
       dialog: false,
       form:{
         trading_model:'2',
-        bank:'永豐'
+        bank:'永豐',
+        credit_percent:0.017,
+        handling_fee:0,
+        bank_amount:0,
+        amount:0
        },
       BankData:[],
       currentPage:1,
-      pageSize:10
+      pageSize:10,
+      lastInvoiceNumber: 1,
+      serialNumber: '', // 当前流水号 // 用于模拟流水号
+      currentDate: this.getCurrentDate(new Date()), // 当天日期
+      isDiscountCard: false // 是否顯示"手續費優惠卡號"提示
     };
   },
   created() {
@@ -149,20 +167,95 @@
     }
   },
   methods: {
+    formatamount(){
+      if(!this.form.account){
+        this.form.credit_amount=''
+        this.$message({
+              message: '請先輸入卡號',
+              type: 'error'
+            });
+      }
+      this.form.credit_amount=this.form.credit_amount.replace(/\D/g, '');
+      this.form.handling_fee=Math.round(this.form.credit_amount* this.form.credit_percent)
+      this.form.bank_amount=this.form.credit_amount-this.form.handling_fee
+      if(this.isDiscountCard || this.form.card_other_fee ){
+        this.form.amount=this.form.credit_amount
+      }else{
+        this.form.amount=Math.round(this.form.credit_amount* 0.98)//0.98是算 刷卡金額扣掉0.02手續費
+      }
+    },
+    formatCardNumber() {
+      this.form.credit_amount=''
+      this.form.handling_fee=0
+      this.form.bank_amount=0
+      this.form.amount=0
+      // 移除所有非數字的字符
+      let input = this.form.account.replace(/\D/g, '');
+      // 限制輸入的數字最多16個字符
+      if (input.length > 16) {
+        input = input.slice(0, 16);
+      }
+      // 每4位數字後加一個'-'，並且在輸入第4位時加上'-'
+      input = input.replace(/(.{4})/g, '$1-');
+      // 移除最後一個多餘的'-'（如果存在）
+      if (input.endsWith('-')) {
+        input = input.slice(0, -1);
+      }
+      // 更新格式化後的卡號
+      this.form.account = input;
+       // 檢查前8碼是否為特定的卡號
+      const firstEightDigits = input.replace(/-/g, '').slice(0, 8);
+      const discountCardNumbers = ['51992306', '51992302', '46965600'];
+      // 根據卡號判斷是否顯示"手續費優惠卡號"
+      this.isDiscountCard = discountCardNumbers.includes(firstEightDigits);
+      if(this.isDiscountCard){
+        this.form.credit_percent=0.004
+      }else{
+        this.form.credit_percent=0.017
+      }
+    },
+    getCurrentDate() {
+    const today = new Date();
+    const year = today.getFullYear().toString().slice(-2); // 取年末两位
+    const month = ('0' + (today.getMonth() + 1)).slice(-2); // 补零
+    const day = ('0' + today.getDate()).slice(-2); // 补零
+    return `${year}${month}${day}`;
+    },
+    generateInvoice() {
+      // 从 localStorage 获取上一次的流水号
+    let lastInvoiceNumber = localStorage.getItem('lastInvoiceNumber');
+    let lastInvoiceDate = localStorage.getItem('lastInvoiceDate');
+
+    // 如果没有记录或者日期已变，重置流水号
+    if (!lastInvoiceNumber || lastInvoiceDate !== this.currentDate) {
+      lastInvoiceNumber = 1;
+    }
+    // 格式化流水号为三位数
+    const serialNumber = ('00' + lastInvoiceNumber).slice(-3);
+      // 生成收款单号
+    this.form.invoice = `G${this.currentDate}${serialNumber}`;
+    },
+    dialogopen(){
+      this.dialog=true;
+      this.currentDate = this.getCurrentDate(); // 生成当前日期格式
+      this.generateInvoice();
+    },
+    updateInvoiceNumber() {
+    // 增加流水号
+    this.lastInvoiceNumber = parseInt(this.lastInvoiceNumber) + 1;
+    // 更新 localStorage 中的流水号和日期
+    localStorage.setItem('lastInvoiceNumber', this.lastInvoiceNumber);
+    localStorage.setItem('lastInvoiceDate', this.currentDate);
+  },
     savePass() {
-      this.form.credit_card_data=this.formatDate(this.form.credit_card_data);
-      this.form.account_date=this.formatDate(this.form.account_date);
-      if (this.form.bank_amount) {
-      this.form.bank_amount = this.form.bank_amount.replace(/,/g, '');
-    }
-    if (this.form.credit_amount) {
-      this.form.credit_amount = this.form.credit_amount.replace(/,/g, '');
-    }
-    if (this.form.handling_fee) {
-      this.form.handling_fee = this.form.handling_fee.replace(/,/g, '');
-    }
-    if (this.form.amount) {
-      this.form.amount = this.form.amount.replace(/,/g, '');
+      this.form.credit_card_data=this.formatDateROC(this.form.credit_card_data);
+      this.form.account_date=this.formatDateROC(this.form.account_date);
+    if(!this.form.customerId||!this.form.cus_name||!this.form.account||!this.form.credit_amount ){
+      this.$message({
+              message: '必填欄位不可為空',
+              type: 'error'
+            });
+            return
     }
       const req = this.form;
       console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
@@ -176,6 +269,7 @@
               message: '新增成功',
               type: 'success'
             });
+            this.updateInvoiceNumber();
             // 清空表單
             this.form.invoice = '';
             this.form.customerId = '';
@@ -248,7 +342,7 @@
     deleteItem(row) {
       console.log('Delete item:', row);
     },
-    formatDate(date) {
+    formatDateROC(date) {
     if (!date) return ''; // 確保日期存在
 
     const [year, month, day] = date.split('-').map(Number);
@@ -260,12 +354,52 @@
     const formattedDate = `${year1911}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}`;
 
     return formattedDate;
+  },
+  SelectCus(){
+    if(!this.form.customerId){
+      this.$message({
+      message: '客戶代號不可為空',
+      type: 'error'
+      });
+      return
+    }
+      this.form.credit_amount=''
+      this.form.handling_fee=0
+      this.form.bank_amount=0
+      this.form.amount=0
+    this.getdata(this.form.customerId = this.form.customerId.trim());
+  },
+  getdata(customerId){
+    const postData = {
+        cus_code:customerId,
+      };
+      console.log(JSON.stringify(postData))
+      axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+        .then(response => {
+            this.form.cus_name = response.data.data[0].cus_name;
+            this.form.card_other_fee=response.data.data[0].card_other_fee;
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '請確認客戶代號是否有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
   }
   }
  };
   </script>
   
   <style scoped>
+  h6 {
+  color: rgb(255, 0, 0);
+  margin-left: 20px;
+  }
+  .el-button{
+    margin-left: 20px;
+  }
   .page-title {
     margin-top: 30px; 
     margin-bottom: 30px; 

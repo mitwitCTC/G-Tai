@@ -337,15 +337,12 @@
           <el-form-item label="授權碼">
             <el-input v-model="SinopacBank.remark" readonly></el-input>
           </el-form-item>
-          <el-form-item label="信用卡手續費收取">
-            <el-input v-model="SinopacBank.card_other_fee" readonly ></el-input>
-          </el-form-item>
           <el-form-item label="刷卡金額">
             <el-input v-model="SinopacBank.credit_amount" readonly ></el-input>
           </el-form-item>
-          <el-form-item label="永豐入帳日期">
-            <el-input v-model="SinopacBank.account_date" readonly ></el-input>
-          </el-form-item>
+          <!-- <el-form-item label="手續費收取">
+            <el-input v-model="SinopacBank.card_other_fee" readonly ></el-input>
+          </el-form-item> -->
           <el-form-item label="永豐手續費%">
             <el-input v-model="SinopacBank.credit_percent" readonly ></el-input>
           </el-form-item>
@@ -355,10 +352,13 @@
             <el-form-item label="永豐入帳金額">
             <el-input v-model="SinopacBank.bank_amount" readonly ></el-input>
           </el-form-item>
-          <el-form-item label="肯美系統手續費%">
-            <el-input v-model="SinopacBank.card_handling" readonly ></el-input>
+          <el-form-item label="永豐入帳日期">
+            <el-input v-model="SinopacBank.account_date" readonly ></el-input>
           </el-form-item>
-          <el-form-item label="肯美系統入帳金額">
+          <!-- <el-form-item label="系統手續費%">
+            <el-input v-model="SinopacBank.card_handling" readonly ></el-input>
+          </el-form-item> -->
+          <el-form-item label="系統入帳金額">
             <el-input v-model="SinopacBank.amount" readonly ></el-input>
           </el-form-item>
       </el-row>
@@ -528,7 +528,6 @@ created() {
       axios.post('http://122.116.23.30:3345/main/viewAccount_sort',postData)
         .then(response => {
           this.bills_form = response.data.data[0];
-          console.log("ABC"+JSON.stringify(this.bills_form));
         })
         .catch(error => {
           // 處理錯誤

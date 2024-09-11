@@ -190,7 +190,10 @@ export default {
         path: 'UpdateView',
         query: {
           rowType:'6',
-          rowData: JSON.stringify(row)
+          rowData: JSON.stringify({
+          ...row, // 複製原始數據
+          updateTime: '' // 將 updateTime 設為空字串
+          })
         }
       });
     },

@@ -238,7 +238,10 @@ export default {
           rowType:'4',
           cus_code:this.cus_code,
           cus_name:this.cus_name,
-          rowData: JSON.stringify(row)
+          rowData: JSON.stringify({
+          ...row, // 複製原始數據
+          updateTime: '' // 將 updateTime 設為空字串
+          })
         }
       });
     },
