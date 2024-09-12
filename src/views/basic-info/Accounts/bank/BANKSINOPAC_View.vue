@@ -254,9 +254,11 @@
       console.log('Credit Card Data:', this.form.credit_card_data);
     }
     if (this.form.account_date) {
-      console.log('Account Date:', this.form.account_date);
+      
       this.form.account_date = this.formatDateROC(this.form.account_date);
-      this.form.account_time = this.formatDateROC(this.form.account_time);
+      console.log('Account Date:', this.form.account_date);
+      this.form.account_time = this.form.account_date;
+      console.log('Account TIME:', this.form.account_time);
     }
      
     if(!this.form.customerId||!this.form.cus_name||!this.form.account||!this.form.credit_amount ){
