@@ -162,9 +162,9 @@
     <el-form-item label="信用卡手續費收取">
       <el-input v-model="cus_form.card_other_fee" :formatter="formatOtherfee" readonly ></el-input>
     </el-form-item>
-    <el-form-item label="信用卡手續費%數">
+    <!-- <el-form-item label="信用卡手續費%數">
       <el-input v-model="cus_form.card_handling" readonly ></el-input>
-    </el-form-item>
+    </el-form-item> -->
   </el-row>
   <el-row style="margin-bottom: 20px">
     <el-form-item label="建立時間">
@@ -328,6 +328,9 @@
           <el-form-item label="客戶名稱">
             <el-input v-model="SinopacBank.cus_name" readonly ></el-input>
           </el-form-item>
+          <el-form-item label="信用卡號">
+            <el-input v-model="SinopacBank.account" readonly ></el-input>
+          </el-form-item>
           <el-form-item label="刷卡日期">
             <el-input v-model="SinopacBank.credit_card_data" readonly ></el-input>
           </el-form-item>
@@ -386,6 +389,7 @@ export default {
   },
 data() {
   return {
+    invoice:'',
     salesmenData:[],
     industryMap: {
         '1': '1.食品飲料',
@@ -421,6 +425,7 @@ data() {
         cus_code: '',
         cus_name: '',
         salesmanId: '',
+        invoice:'',
         virtual_account: '',
         region: '',
         industry: '',
@@ -500,6 +505,7 @@ created() {
   this.cus_code = (this.$route.query.cus_code);
   this.cus_name = (this.$route.query.cus_name);
   this.account_sortId  = (this.$route.query.account_sortId );
+  this.invoice=(this.$route.query.invoice );
   if (this.rowType==='1') {
       const postData = {
         cus_code:this.cus_code,
@@ -535,6 +541,32 @@ created() {
         });
     }else if(this.rowType=='6'){
       this.rowData = JSON.parse(this.$route.query.rowData);
+    }else if(this.rowType==='9'){
+      const postData = {
+        customerId :this.cus_code,
+        invoice :this.invoice
+    };
+    const postData2 = {
+      cus_code :this.cus_code,
+    };
+    axios.post('http://122.116.23.30:3345/finance/searchSINOPAC',postData)
+        .then(response => {
+          this.SinopacBank = response.data.data[0];
+          console.log(JSON.stringify(this.SinopacBank))
+          //客戶名稱
+          axios.post('http://122.116.23.30:3345/main/searchCustomer',postData2)
+        .then(response => {
+          this.SinopacBank.cus_name = response.data.data[0].cus_name;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
     }
   },
   methods:{

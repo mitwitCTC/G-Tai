@@ -204,6 +204,24 @@ const router = createRouter({
             title: '製卡明細',
             breadcrumb: '製卡明細',
           },
+        },{
+          path: 'Export',
+          name: '匯出車籍中油檔',
+          component: () => import('@/views/basic-info/DataProcessing/Export.vue'),
+          meta: {
+            title: '匯出車籍中油檔',
+            breadcrumb: '匯出車籍中油檔',
+            isData:true
+          },
+        },{
+          path: 'Import',
+          name: '匯入車籍中油檔',
+          component: () => import('@/views/basic-info/DataProcessing/Import.vue'),
+          meta: {
+            title: '匯入車籍中油檔',
+            breadcrumb: '匯入車籍中油檔',
+            isData:true
+          },
         },
       ]
     }

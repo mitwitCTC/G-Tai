@@ -235,9 +235,9 @@
             <el-option label="1.另外收取" :value="'1'"></el-option>
           </el-select>
         </el-form-item>
-    <el-form-item label="信用卡手續費%數">
+    <!-- <el-form-item label="信用卡手續費%數">
       <el-input v-model="cus_form.card_handling" ></el-input>
-    </el-form-item>
+    </el-form-item> -->
     </el-row>
     </el-form-item>
     

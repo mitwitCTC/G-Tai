@@ -8,7 +8,7 @@
     <el-button type="success" @click="dialogBill = true">新增帳單資料</el-button>
     <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
     <div class="table-container">
-      <el-table :data="bills" style="width: 100%">
+      <el-table :data="currentPageData" style="width: 100%">
         <el-table-column prop="account_sortId" label="帳單編號" width="150" />
         <el-table-column prop="acc_name" label="帳單名稱" width="200" />
         <el-table-column prop="use_number" label="開立統編" width="150" />
@@ -40,7 +40,12 @@
       />
     </div>
       <div class="page-title"><h2>車籍資料維護</h2></div>
-      <el-button type="warning" @click="dialog = true">新增車籍</el-button>
+      <el-form :inline="true" :model="search" class="demo-form-inline">
+        <el-form-item label="搜尋車牌號碼">
+          <el-input v-model="search.license_plate" placeholder="輸入車牌號碼" style="width: 225px;"></el-input>
+        </el-form-item>
+        <el-button type="warning" @click="dialog = true">新增車籍</el-button>
+      </el-form>
       <el-table :data="currentPageData2" style="width: 100%">
         <el-table-column prop="account_sortId" label="帳單編號" width="300" />
         <el-table-column prop="license_plate" label="車牌號碼" width="300" />
@@ -58,13 +63,13 @@
     </el-table>
     <div class="pagination-container">
       <div class="pagination-info">
-        Showing {{ startItem2 }} to {{ endItem2 }} of {{ vehicles.length }}
+        Showing {{ startItem2 }} to {{ endItem2 }} of {{ filteredData.length }}
       </div>
       <el-pagination
         @current-change="handlePageChange2"
         :current-page="currentPage2"
         :page-size="pageSize"
-        :total="vehicles.length"
+        :total="filteredData.length"
         layout="prev, pager, next, jumper"
         class="pagination"
       />
@@ -190,6 +195,9 @@ export default {
       cus_name:'',
       dialogBill: false,
       dialog: false,
+      search: {
+        license_plate: ''
+      },
       bills: [],
       vehicles: [],
       productMap:{
@@ -267,7 +275,7 @@ export default {
    currentPageData2() {
       const start = (this.currentPage2 - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.vehicles.slice(start, end);
+      return this.filteredData.slice(start, end);
     },
     // 計算當前頁面顯示的起始和結束項目
     startItem2() {
@@ -277,6 +285,15 @@ export default {
     endItem2() {
       const end = this.currentPage2 * this.pageSize;
       return Math.min(end, this.vehicles.length);
+    },
+    filteredData() {
+      const searchTerm = this.search.license_plate.trim().toLowerCase();
+      return this.vehicles.filter(item => {
+      const license_plate = item.license_plate ? item.license_plate.toLowerCase() : '';
+      return (
+          license_plate.includes(searchTerm)
+        );
+      });
     },
   },
   methods: {
@@ -406,6 +423,7 @@ export default {
     handlePageChange2(page) {
       this.currentPage2 = page;
     },
+    
     viewDetails(row) {
       console.log('View details for:', row);
       this.$router.push({ 

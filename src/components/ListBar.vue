@@ -14,6 +14,13 @@
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">供應商資料維護</button>
       </div>
+      <button class="btn btn-light w-100 text-start" @click="toggleData">
+        {{ isData ? '大批管理客戶資料⭢' : '大批管理客戶資料⭢' }}
+      </button>
+      <div class="collapse" :class="{ show: !isData }" id="collapseExample4">
+        <button class="btn btn-light w-100 text-start Data-color" @click="() => goTo('/basic-info/Export')">匯出車藉中油檔</button>
+        <button class="btn btn-light w-100 text-start Data-color" @click="() => goTo('/basic-info/Import')">匯入車藉中油檔</button>
+      </div>
       <button class="btn btn-light w-100 text-start" @click="toggleBasicInfoCollapseTrade">
         {{ isBasicInfoCollapsedTrade ? '帳務管理⭢' : '帳務管理↓' }}
       </button>
@@ -55,6 +62,7 @@ const userName = ref('登入者：測試測試'); // 替換為實際的登入者
 const isBasicInfoCollapsed = ref(true);
 const isBasicInfoCollapsedTrade = ref(true);
 const isBasicInfoCollapsedBank = ref(true);
+const isData = ref(true);
 
 const goTo = (path) => {
   if (route.path !== path) {
@@ -72,6 +80,9 @@ const toggleBasicInfoCollapseTrade = () => {
 };
 const toggleBasicInfoCollapseBank = () => {
   isBasicInfoCollapsedBank.value = !isBasicInfoCollapsedBank.value;
+};
+const toggleData = () => {
+  isData.value = !isData.value;
 };
 
 const logout = () => {
@@ -129,6 +140,12 @@ const logout = () => {
 }
 .bank-color:hover {
   background-color: #07a8f3; 
+}
+.Data-color {
+  background-color: #ff5bf7; 
+}
+.Data-color:hover {
+  background-color: #ff00f2; 
 }
 .sidebar-TheFooter {
   padding: 10px;

@@ -9,7 +9,7 @@
       <el-table :data="paginatedData" style="width: 100%">
         <el-table-column prop="invoice" label="收款單號"></el-table-column>
         <el-table-column prop="customerId" label="客戶代號"></el-table-column>
-        <el-table-column prop="credit_card_data" label="刷卡日期"></el-table-column>
+        <el-table-column prop="account_date" label="刷卡日期"></el-table-column>
         <el-table-column prop="issuing_bank" label="發卡銀行"></el-table-column>
         <el-table-column prop="credit_amount" label="刷卡金額"></el-table-column>
         <el-table-column prop="bank_amount" label="永豐入帳金額"></el-table-column>
@@ -18,7 +18,7 @@
       <template v-slot="scope">
       <div class="action-icons">
         <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
-        <i class="fas fa-edit " @click="editItem(scope.row)"></i>
+        <!-- <i class="fas fa-edit " @click="editItem(scope.row)"></i> -->
         <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
       </div>
       </template>
@@ -70,7 +70,7 @@
           </el-form-item>
           <el-form-item label="刷卡日期">
             <el-date-picker 
-                v-model="form.credit_card_data" 
+                v-model="form.account_date" 
                 type="date" 
                 format="YYYY-MM-DD" 
                 value-format="YYYY-MM-DD" 
@@ -89,7 +89,7 @@
           </el-form-item>
           <el-form-item label="永豐入帳日期">
             <el-date-picker 
-                v-model="form.account_date" 
+                v-model="form.credit_card_data" 
                 type="date" 
                 format="YYYY-MM-DD" 
                 value-format="YYYY-MM-DD" 
@@ -178,7 +178,7 @@
       this.form.credit_amount=this.form.credit_amount.replace(/\D/g, '');
       this.form.handling_fee=Math.round(this.form.credit_amount* this.form.credit_percent)
       this.form.bank_amount=this.form.credit_amount-this.form.handling_fee
-      if(this.isDiscountCard || this.form.card_other_fee ){
+      if(this.isDiscountCard || this.form.card_other_fee==0 ){
         this.form.amount=this.form.credit_amount
       }else{
         this.form.amount=Math.round(this.form.credit_amount* 0.98)//0.98是算 刷卡金額扣掉0.02手續費
@@ -248,8 +248,10 @@
     localStorage.setItem('lastInvoiceDate', this.currentDate);
   },
     savePass() {
+      
       this.form.credit_card_data=this.formatDateROC(this.form.credit_card_data);
       this.form.account_date=this.formatDateROC(this.form.account_date);
+      this.form.account_time=this.form.account_date;
     if(!this.form.customerId||!this.form.cus_name||!this.form.account||!this.form.credit_amount ){
       this.$message({
               message: '必填欄位不可為空',
@@ -325,17 +327,8 @@
         path: 'SelectView',
         query: {
           rowType:'9',
-          cus_code:row.customerId
-        }
-      });
-    },
-    editItem(row) {
-      console.log('Edit item:', row);
-      this.$router.push({ 
-        path: 'UpdateView',
-        query: {
-          rowType:'9',
-          cus_code:row.customerId
+          cus_code:row.customerId,
+          invoice:row.invoice
         }
       });
     },
