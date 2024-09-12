@@ -7,7 +7,7 @@
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
   <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%">
-        <el-table-column prop="invoice" label="收款單號"></el-table-column>
+        <el-table-column prop="invoice" label="收款單號"></el-table-column> 
         <el-table-column prop="customerId" label="客戶代號"></el-table-column>
         <el-table-column prop="account_date" label="刷卡日期"></el-table-column>
         <el-table-column prop="issuing_bank" label="發卡銀行"></el-table-column>
@@ -132,6 +132,9 @@
   data() {
     return {
       dialog: false,
+      biginvoice:'',
+      bigdate:'',
+      bigNo:'',
       form:{
         trading_model:'2',
         bank:'永豐',
@@ -150,6 +153,7 @@
     };
   },
   created() {
+   
     this.getselectData();
   },
   computed: {
@@ -167,6 +171,7 @@
     }
   },
   methods: {
+   
     formatamount(){
       if(!this.form.account){
         this.form.credit_amount=''
@@ -222,18 +227,11 @@
     return `${year}${month}${day}`;
     },
     generateInvoice() {
-      // 从 localStorage 获取上一次的流水号
-    let lastInvoiceNumber = localStorage.getItem('lastInvoiceNumber');
-    let lastInvoiceDate = localStorage.getItem('lastInvoiceDate');
-
-    // 如果没有记录或者日期已变，重置流水号
-    if (!lastInvoiceNumber || lastInvoiceDate !== this.currentDate) {
-      lastInvoiceNumber = 1;
-    }
-    // 格式化流水号为三位数
-    const serialNumber = ('00' + lastInvoiceNumber).slice(-3);
-      // 生成收款单号
-    this.form.invoice = `G${this.currentDate}${serialNumber}`;
+      if (this.bigdate !== this.currentDate) {
+        this.bigdate = this.currentDate; // 更新bigdate為當前日期
+        this.bigNo = '001'; // 重置流水號為001
+      }
+      this.form.invoice = `G${this.bigdate}${this.bigNo}`;
     },
     dialogopen(){
       this.dialog=true;
@@ -242,16 +240,12 @@
     },
     updateInvoiceNumber() {
     // 增加流水号
-    this.lastInvoiceNumber = parseInt(this.lastInvoiceNumber) + 1;
-    // 更新 localStorage 中的流水号和日期
-    localStorage.setItem('lastInvoiceNumber', this.lastInvoiceNumber);
-    localStorage.setItem('lastInvoiceDate', this.currentDate);
+    this.bigNo = ('00' + (parseInt(this.bigNo) + 1)).slice(-3); // 增加流水號
   },
     savePass() {
-      
       this.form.credit_card_data=this.formatDateROC(this.form.credit_card_data);
       this.form.account_date=this.formatDateROC(this.form.account_date);
-      this.form.account_time=this.form.account_date;
+      this.form.account_time=this.formatDateROC(this.form.account_date);
     if(!this.form.customerId||!this.form.cus_name||!this.form.account||!this.form.credit_amount ){
       this.$message({
               message: '必填欄位不可為空',
@@ -312,6 +306,15 @@
       await axios.get('http://122.116.23.30:3345/finance/selectSINOPAC')
         .then(response => {
           this.BankData = response.data.data;
+           // 找出最大 invoice 的數據
+          const maxInvoiceData = this.BankData.reduce((max, item) => {
+            return (item.invoice > max.invoice) ? item : max;
+          } , this.BankData[0]);
+    // 將最大的 invoice 值賦給變量
+      this.biginvoice = maxInvoiceData.invoice;
+      this.bigdate=this.biginvoice.substring(1, 7);
+      this.bigNo=this.biginvoice.substring(7);
+      console.log("日期"+this.bigdate +"流水號"+ this.bigNo)
         })
         .catch(error => {
           // 處理錯誤
