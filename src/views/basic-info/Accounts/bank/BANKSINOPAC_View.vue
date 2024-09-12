@@ -249,9 +249,16 @@
     this.bigNo = ('00' + (parseInt(this.bigNo) + 1)).slice(-3); // 增加流水號
   },
     savePass() {
-      this.form.credit_card_data=this.formatDateROC(this.form.credit_card_data);
-      this.form.account_date=this.formatDateROC(this.form.account_date);
-      this.form.account_time=this.formatDateROC(this.form.account_date);
+      if (this.form.credit_card_data) {
+      this.form.credit_card_data = this.formatDateROC(this.form.credit_card_data);
+      console.log('Credit Card Data:', this.form.credit_card_data);
+    }
+    if (this.form.account_date) {
+      console.log('Account Date:', this.form.account_date);
+      this.form.account_date = this.formatDateROC(this.form.account_date);
+      this.form.account_time = this.formatDateROC(this.form.account_time);
+    }
+     
     if(!this.form.customerId||!this.form.cus_name||!this.form.account||!this.form.credit_amount ){
       this.$message({
               message: '必填欄位不可為空',
@@ -284,6 +291,7 @@
             this.form.handling_fee = '';
             this.form.account = '';
             this.form.account_date = '';
+            this.form.account_time='',
             this.form.amount = '';
             this.form.remark = '';
             // 關閉對話框
@@ -345,17 +353,17 @@
       console.log('Delete item:', row);
     },
     formatDateROC(date) {
-    if (!date) return ''; // 確保日期存在
+      if (!date) return ''; // 確保日期存在
 
-    const [year, month, day] = date.split('-').map(Number);
+const [year, month, day] = date.split('-').map(Number);
 
-    // 計算減去 1911 年的年份
-    const year1911 = year - 1911;
+// 計算民國年（2024 年 -> 113 年）
+const year1911 = year - 1911;
 
-    // 格式化日期字符串
-    const formattedDate = `${year1911}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}`;
+// 格式化日期字符串
+const formattedDate = `${year1911.toString().padStart(3, '0')}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}`;
 
-    return formattedDate;
+return formattedDate;
   },
   SelectCus(){
     if(!this.form.customerId){
