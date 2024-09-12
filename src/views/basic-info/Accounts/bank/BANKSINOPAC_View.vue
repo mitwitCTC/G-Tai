@@ -230,13 +230,19 @@
       if (this.bigdate !== this.currentDate) {
         this.bigdate = this.currentDate; // 更新bigdate為當前日期
         this.bigNo = '001'; // 重置流水號為001
+        this.form.invoice = `G${this.bigdate}${this.bigNo}`;
       }
-      this.form.invoice = `G${this.bigdate}${this.bigNo}`;
+      
     },
     dialogopen(){
-      this.dialog=true;
+     
       this.currentDate = this.getCurrentDate(); // 生成当前日期格式
+      const nextNo = ('00' + (parseInt(this.bigNo) + 1)).slice(-3);
+      // 顯示新的流水號
+      this.form.invoice = `G${this.bigdate}${nextNo}`;
+      console.log("顯示的新的流水號: " + this.form.invoice);
       this.generateInvoice();
+      this.dialog=true;
     },
     updateInvoiceNumber() {
     // 增加流水号
