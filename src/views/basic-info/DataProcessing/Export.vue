@@ -4,7 +4,7 @@
   <div>
       <BreadCrumb/>
   </div>
-  <el-button type="primary" @click="addRow">新增</el-button>
+  <el-button type="primary" @click="dialog=true">新增</el-button>
   <el-table :data="paginatedDiscount" style="width: 100%">
       <el-table-column prop="product_name" label="客戶編號"  width="100" />
       <el-table-column prop="supplier_name" label="客戶名稱" width="300" />
@@ -14,39 +14,33 @@
       <el-table-column prop="discount_float" label="狀態" width="150" />
       <el-table-column prop="responsible_person" label="異動時間"  />
     </el-table>
-    <!-- 新增折讓 -->
- <el-dialog title="新增折讓" v-model="dialog" width="25%">
-  <el-row style="margin-bottom: 20px">
+    <!-- 新增 -->
+ <el-dialog title="新增資料" v-model="dialog" width="70%">
+
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
-      <el-form-item label="油品">
-          <el-select v-model="form.product_name" placeholder="選擇油品">
-            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
-            <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
-            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option>
-            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
-            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
-          </el-select>
+      <el-row style="margin-bottom: 20px">
+        <el-form-item label="客戶編號">
+          <el-input v-model="form.cus_code" ></el-input>
         </el-form-item>
-        <el-form-item label="廠商名稱">
-        <el-select v-model="form.supplier_name" placeholder="選擇廠商">
-          <el-option label="台灣中油股份有限公司" :value="'台灣中油股份有限公司'" ></el-option>
-        </el-select>
-      </el-form-item>
-        <el-form-item label="折讓">
-          <el-input v-model="form.discount_float" @input="validateFloat" ></el-input>
+        <el-form-item label="客戶名稱">
+            <el-input v-model="form.cus_name" readonly ></el-input>
         </el-form-item>
-        <el-form-item label="負責業務">
-        <el-select v-model="form.responsible_person" placeholder="選擇業務">
-          <el-option
-          v-for="salesman in salesmenData"
-          :key="salesman.salesmanId"
-          :label="salesman.employee_name"
-          :value="salesman.employee_id"
-          ></el-option>
-        </el-select>
-      </el-form-item>
+      </el-row>
+      <el-row style="margin-bottom: 20px">
+        <el-form-item label="帳單組別">
+          <el-input v-model="form.acc_name" ></el-input>
+        </el-form-item>
+        <el-form-item label="車號">
+            <el-input v-model="form.license_plate" ></el-input>
+        </el-form-item>
+        <el-form-item label="卡號">
+            <el-input v-model="form.card_number" ></el-input>
+        </el-form-item>
+      </el-row>
+      <el-form-item label="狀態">
+            <el-input v-model="form.state" readonly></el-input>
+        </el-form-item>
     </el-form>
-  </el-row>
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button @click="dialog = false">取消</el-button>
@@ -91,6 +85,7 @@ export default {
       rowData:[],
       DiscountData: [],
       salesmenData:[],
+      form:{},
       productMap:{
         "0001": "0001 95無鉛汽油",
         "0002": "0002 92無鉛汽油",
@@ -107,19 +102,10 @@ export default {
     };
   },
   created() {
-    this.getselectData();
+
   },
   mounted() {
-    // 發送 API 請求以獲取業務資料
-    axios.get('http://122.116.23.30:3345/main/selectSalesman')
-      .then(response => {
-        this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
-        console.log("API Data:", this.salesmenData);
-      })
-      .catch(error => {
-        // 處理錯誤
-        console.error('API request failed:', error);
-      });
+    
   },
   computed: {
    
@@ -138,66 +124,16 @@ export default {
     },
   },
   methods: {
-    async getselectData() {
-      const postData = {
-      customerId:this.cus_code,
-      };
-      await axios.post('http://122.116.23.30:3345/main/searchDiscount',postData)
-        .then(response => {
-          this.DiscountData = response.data.data;
-        })
-        .catch(error => {
-          // 處理錯誤
-          console.error('API request failed:', error);
-        });
+
   },
   savePass() {
-      const req = this.form;
-      // 發送 POST 請求
-      axios.post('http://122.116.23.30:3345/main/createDiscount', req)
-        .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
-
-          if (response.status === 200 && response.data.returnCode === 0) {
-            // 成功提示
-            this.$message({
-              message: '新增成功',
-              type: 'success'
-            });
-
-            // 清空表單
-            this.form.product_name = '';
-            this.form.supplier_name = '';
-            this.form.discount_float = '';
-            this.form.responsible_person = '';
-
-            // 關閉對話框
-            this.dialog = false;
-
-            // 刷新數據
-            this.getselectData();
-          } else {
-            // 處理非 0 成功代碼
-            this.$message({
-              message: '新增失敗',
-              type: 'error'
-            });
-          }
-        })
-        .catch(error => {
-          // 發生錯誤時，顯示錯誤提示
-          this.$message({
-            message: '新增失敗，伺服器錯誤',
-            type: 'error'
-          });
-          console.error('Error:', error);
-        });
+     
     }, 
     
     handlePageChange(page) {
       this.currentPage = page;
     },
-  }
+
 };
 </script>
 

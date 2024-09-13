@@ -23,7 +23,7 @@
         <el-table-column prop="region" label="區域" :formatter="formatRegion" width="150"></el-table-column>
         <el-table-column prop="industry" label="產業類別" :formatter="formatIndustry" width="150"></el-table-column>
         <el-table-column prop="est_fuel_volume" label="預估月加油量" width="150"></el-table-column>
-        <el-table-column prop="phone" label="公司電話" width="150"></el-table-column>
+        <el-table-column prop="phone" label="公司電話" width="200"></el-table-column>
         <!-- 操作列 -->
     <el-table-column label="操作">
       <template v-slot="scope">

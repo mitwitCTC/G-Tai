@@ -332,7 +332,7 @@
             <el-input v-model="SinopacBank.account" readonly ></el-input>
           </el-form-item>
           <el-form-item label="刷卡日期">
-            <el-input v-model="SinopacBank.credit_card_data" readonly ></el-input>
+            <el-input v-model="SinopacBank.account_date" readonly ></el-input>
           </el-form-item>
           <el-form-item label="發卡銀行">
             <el-input v-model="SinopacBank.issuing_bank" readonly ></el-input>
@@ -356,7 +356,7 @@
             <el-input v-model="SinopacBank.bank_amount" readonly ></el-input>
           </el-form-item>
           <el-form-item label="永豐入帳日期">
-            <el-input v-model="SinopacBank.account_date" readonly ></el-input>
+            <el-input v-model="SinopacBank.credit_card_data" readonly ></el-input>
           </el-form-item>
           <!-- <el-form-item label="系統手續費%">
             <el-input v-model="SinopacBank.card_handling" readonly ></el-input>
