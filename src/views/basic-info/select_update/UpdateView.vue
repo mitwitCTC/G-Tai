@@ -230,7 +230,7 @@
     <!-- 信用卡收取手續費 -->
     <el-row style="margin-bottom: 20px">
     <el-form-item label="信用卡手續費收取">
-          <el-select v-model="rowData.card_other_fee" placeholder="選擇是否收取">
+          <el-select v-model="cus_form.card_other_fee" placeholder="選擇是否收取">
             <el-option label="0.不收取" :value="'0'"></el-option>
             <el-option label="1.另外收取" :value="'1'"></el-option>
           </el-select>
