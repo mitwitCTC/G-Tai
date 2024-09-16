@@ -146,8 +146,8 @@
       </el-form-item>
       <el-form-item label="油價簡訊選項">
         <el-select v-model="cus_form.fuel_sms_option" placeholder="選擇交易模式">
-          <el-option label="Y" :value="Y"></el-option>
-          <el-option label="N" :value="N"></el-option>
+          <el-option label="Y" :value="'Y'"></el-option>
+          <el-option label="N" :value="'N'"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="餘額不足訊息電話">
