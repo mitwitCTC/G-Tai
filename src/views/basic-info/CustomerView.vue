@@ -58,12 +58,13 @@
 
  <!-- 新增客戶 -->
  <el-dialog title="新增客戶" v-model="dialog" width="80%">
+  <h6>*為必填欄位</h6>
     <el-form :model="form" label-width="155px"> <!-- 统一标签宽度 -->
       <el-row style="margin-bottom: 20px">
-        <el-form-item label="客戶代號">
+        <el-form-item label="*客戶代號">
           <el-input v-model="form.cus_code" ></el-input>
         </el-form-item>
-        <el-form-item label="客戶名稱">
+        <el-form-item label="*客戶名稱">
           <el-input v-model="form.cus_name" ></el-input>
         </el-form-item>
         <el-form-item label="負責業務">
@@ -134,7 +135,7 @@
         <el-form-item label="停油寬限額度">
           <el-input v-model="form.fuel_grace_limit" ></el-input>
         </el-form-item>
-        <el-form-item label="公司統編">
+        <el-form-item label="*公司統編">
           <el-input v-model="form.vat_number" ></el-input>
         </el-form-item>
         <el-form-item label="合約日期(迄)">
@@ -266,9 +267,9 @@
             <el-option label="1.另外收取" :value="'1'"></el-option>
           </el-select>
         </el-form-item>
-    <el-form-item label="信用卡手續費%數">
+    <!-- <el-form-item label="信用卡手續費%數">
       <el-input v-model="form.card_handling" ></el-input>
-    </el-form-item>
+    </el-form-item> -->
     </el-row>
   </el-row>
     </el-form>
@@ -394,13 +395,18 @@ export default {
     }
   },
   savePass() {
+    if(!this.form.config_method){
+      this.form.config_method=[0]
+    }
+    if(this.form.createTime){
       this.form.createTime = this.form.createTime.trim();
+    }
       this.form.cus_name = this.form.cus_name.trim();
       this.form.cus_code = this.form.cus_code.trim();
       const req = this.form;
-      if(!req.cus_code||!req.cus_name){
+      if(!req.cus_code||!req.cus_name||!req.vat_number){
         this.$message({
-              message: '客戶代號 & 客戶名稱不可為空',
+              message: '必填欄位不可為空',
               type: 'error'
             });
         return
@@ -546,5 +552,9 @@ export default {
   cursor: pointer;
   font-size: 20px; /* 调整图标的大小 */
 }
+h6 {
+  color: rgb(255, 0, 0);
+  margin-left: 20px;
+  }
 
 </style>
