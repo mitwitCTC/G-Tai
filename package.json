@@ -21,6 +21,8 @@
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "element-plus": "^2.7.7",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "jquery": "^3.7.1",
     "pinia": "^2.1.7",
     "popper.js": "^1.16.1",
