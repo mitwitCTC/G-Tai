@@ -9,21 +9,27 @@
     <el-button type="danger" @click="clearExcelData">清除</el-button>
     <br />
     <br />
-    <el-table :data="excelData" style="width: 100%" v-if="excelData.length > 0">
-      <el-table-column label="選擇" width="55">
-        <template v-slot="scope">
-          <el-checkbox v-model="scope.row.selected"></el-checkbox>
-        </template>
-      </el-table-column>
-      <el-table-column
-        v-for="(header, index) in headers"
-        :key="index"
-        :prop="header"
-        :label="header"
-      >
-      </el-table-column>
-    </el-table>
-    
+    <el-table
+  :data="excelData"
+  style="width: 100%"
+  v-if="excelData.length > 0"
+  :row-class-name="rowClassName"
+>
+  <el-table-column label="選擇" width="55">
+    <template v-slot="scope">
+      <el-checkbox v-model="scope.row.selected"></el-checkbox>
+    </template>
+  </el-table-column>
+
+  <el-table-column
+    v-for="(header, index) in headers"
+    :key="index"
+    :prop="header"
+    :label="header"
+  >
+  </el-table-column>
+</el-table>
+
     <div style="margin-bottom: 50px;"></div>
 </template>
 
@@ -61,15 +67,38 @@ methods: {
           // 將 Excel 表頭（第一列）存入 headers
           this.headers = jsonData[0];
 
+          const licensePlateCount = {};
+          const duplicates = new Set(); // 用於儲存重複的車號
           // 將表格數據儲存，排除表頭
           this.excelData = jsonData.slice(1).map((row) => {
             const rowData = {};
             this.headers.forEach((header, index) => {
               rowData[header] = row[index] || '';
             });
+             // 記錄車號
+            const licensePlate = rowData['車號']; // 假設你的車號欄位名為 "車號"
+            if (licensePlate) {
+              if (!licensePlateCount[licensePlate]) {
+                licensePlateCount[licensePlate] = 1;
+              } else {
+                licensePlateCount[licensePlate]++;
+                duplicates.add(licensePlate); // 加入重複的車號到集合中
+              }
+            }
             rowData.selected = true;
             return rowData;
           });
+           // 標記重複的車號
+            this.excelData.forEach((row) => {
+            const licensePlate = row['車號'];
+            row.isDuplicate = licensePlateCount[licensePlate] > 1;
+          });
+           // console.log 出有重複的車號
+  if (duplicates.size > 0) {
+    console.log('重複的車號有:', Array.from(duplicates));
+  } else {
+    console.log('沒有重複的車號');
+  }
         };
         reader.readAsArrayBuffer(file); // 讀取檔案為 ArrayBuffer 格式
       }
@@ -87,14 +116,21 @@ methods: {
     clearExcelData() {
       this.headers =[];
       this.excelData = [];
-    }
+    },
+    rowClassName({ row }) {
+    // 如果 row.isDuplicate 為 true，設置行的背景色為紅色
+    return row.isDuplicate ? 'duplicate-row' : '';
+  }
   },
 };
 </script>
 
-<style scoped>
+<style >
 .page-title {
   margin-top: 30px; 
   margin-bottom: 30px; 
   }
+  .duplicate-row {
+  color: red; /* 文字顏色變白 */
+}
 </style>
