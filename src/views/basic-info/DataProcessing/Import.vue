@@ -37,6 +37,7 @@
 import * as XLSX from 'xlsx';
 import ListBar from '@/components/ListBar.vue'
 import BreadCrumb from '@/components/BreadCrumb.vue';
+import axios from 'axios';
 export default {
   components: {
     BreadCrumb,
@@ -103,7 +104,7 @@ methods: {
         reader.readAsArrayBuffer(file); // 讀取檔案為 ArrayBuffer 格式
       }
     },
-    submitData() {
+    async submitData() {
       const selectedData = this.excelData.filter(row => row.selected);
       const processedData = selectedData.map(row => ({
       license_plate: row['車號'],
@@ -111,8 +112,24 @@ methods: {
       custodian: row['管理單位'],
       product_name: row['油品別'] ? row['油品別'].substring(0, 4) : ''
     }));
-      const jsonData = JSON.stringify(processedData);
-      console.log('送出的資料:', jsonData);
+      const jsonData = {
+        data: processedData
+      };
+      console.log('送出的資料:', JSON.stringify(jsonData));
+       await axios.post('http://122.116.23.30:3345/main/importCPCfile',jsonData)
+        try {
+           this.$message({
+               message: '新增成功',
+              type: 'success'
+            });
+        }
+        catch{
+          this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        }
     },
     clearExcelData() {
       this.headers =[];
