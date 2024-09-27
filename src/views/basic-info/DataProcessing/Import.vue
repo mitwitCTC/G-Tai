@@ -108,6 +108,7 @@ methods: {
       const processedData = selectedData.map(row => ({
       license_plate: row['車號'],
       card_number: row['卡號'],
+      custodian: row['管理單位'],
       product_name: row['油品別'] ? row['油品別'].substring(0, 4) : ''
     }));
       const jsonData = JSON.stringify(processedData);
