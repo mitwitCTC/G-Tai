@@ -400,10 +400,21 @@ export default {
           try {
             // 確保資料先完成取得
             await this.getResult();
+            const rowsPerFile = 20;
 
-            this.result = this.result.slice(0, 20); // 只取前20筆
-            console.log("匯入20筆" + JSON.stringify(this.result)); // 檢查資料是否已更新
-
+            // 將資料切割成每 20 筆為一組
+            const chunkArray = (arr, size) => {
+              const result = [];
+              for (let i = 0; i < arr.length; i += size) {
+                result.push(arr.slice(i, i + size));
+              }
+              return result;
+            };
+            const dataChunks = chunkArray(this.result, rowsPerFile); // 將 result 資料按 20 筆一組進行拆分
+            console.log("dataChunks"+JSON.stringify(dataChunks))
+            console.log(dataChunks.length)
+            for (let fileIndex = 0; fileIndex < dataChunks.length; fileIndex++) {
+              const chunk = dataChunks[fileIndex];
             // 讀取 Excel 文件
             const workbook = new ExcelJS.Workbook();
             const fr = new FileReader();
@@ -425,7 +436,7 @@ export default {
                 rowstitle=[['']]
               }
               // 處理資料，生成每一行的數據
-              const rowsData = this.result.map((data, index) => [
+              const rowsData = chunk.map((data, index) => [
                 index + 1, // 流水號
                 data.license_plate, // 假設 vehicleId 是車牌
                 data.product_name === '0006' ? 'V' : '', // 超級柴油
@@ -484,7 +495,7 @@ export default {
               link.href = URL.createObjectURL(blob);
               link.download = newFileName;
               link.click();
-              
+            } 
               this.$message({
                       message: '匯出成功',
                       type: 'success'
@@ -496,6 +507,7 @@ export default {
 
               this.getRecorded();
             };
+          
           } catch (error) {
             console.error('Error during export to Excel:', error);
           }
