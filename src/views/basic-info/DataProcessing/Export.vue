@@ -6,7 +6,7 @@
   </div>
   <el-button type="primary" @click="dialog=true">新增</el-button>
   <el-button @click="exportToExcel">匯出</el-button>
-  <input type="file" @change="handleFileChange" />
+  <!-- <input type="file" @change="handleFileChange" /> -->
   <el-table :data="paginatedDiscount" style="width: 100%">
       <el-table-column prop="cpc_account" label="中油帳號"  width="100" />
       <el-table-column prop="customerId" label="客戶編號"  width="100" />
@@ -43,11 +43,26 @@
         <el-form-item label="車號">
             <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="8"></el-input>
         </el-form-item>
-        <el-form-item label="卡號">
-            <el-input v-model="form.card_number"  @input="getcard" maxlength="19"></el-input>
+        <el-form-item label="選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4" >
+          <el-select v-model="form.state" placeholder="選擇狀態">
+            <el-option label="刪除" :value="4"></el-option>
+            <el-option label="改卡號" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-row>
+      <el-row style="margin-bottom: 20px">
+        <el-form-item label="卡號" v-if="this.form.state!=1">
+            <el-select v-model="form.card_number" placeholder="選擇卡號">
+          <el-option
+          v-for="card in cards"
+          :key="card.card_relationIid "
+          :label="card.card_number"
+          :value="card.card_number"
+          ></el-option>
+        </el-select>
         </el-form-item>
         <el-form-item label="中油帳號">
-          <el-select v-model="form.cpc_account" placeholder="選擇油品">
+          <el-select v-model="form.cpc_account" placeholder="選擇帳號">
             <el-option label="TT6112060" :value="'TT6112060'"></el-option>
             <el-option label="TT6112061" :value="'TT6112061'"></el-option>
           </el-select>
@@ -80,6 +95,7 @@
             <el-option label="判斷結果：1.新增" :value="1"></el-option>
             <el-option label="判斷結果：2.更改卡號" :value="2"></el-option>
             <el-option label="判斷結果：3.改客戶" :value="3"></el-option>
+            <el-option label="判斷結果：4.刪除卡片" :value="4"></el-option>
           </el-select>
         </el-form-item>
     </el-form>
@@ -132,7 +148,7 @@ export default {
       salesmenData:[],
       Vehicle:[],
       bills:[],
-      card:[],
+      cards:[],
       allVehicle:[],
       Recorded:[],
       result:[],
@@ -184,8 +200,9 @@ export default {
       this.currentPage = page;
     },
     async getResult() {
+      // date:new Date().toISOString().split('T')[0],
       const time = {
-        date:new Date().toISOString().split('T')[0],
+        date:"2024-09-26",
         cpc_account:"TT6112060"
       }
       try {
@@ -208,36 +225,38 @@ export default {
           console.error('API request failed:', error);
         });
     },
-    getcard(){
-      if(this.form.card_number.length>18 && this.form.state!=3){
-        
-        console.log("有車號，做卡號判斷，車籍編號:"+this.vehicleId)
+    async getcard(){
         const postvehicleId = {
               vehicleId:this.vehicleId
         };
-        axios.post('http://122.116.23.30:3345/main/searchCard',postvehicleId)
-        .then(response => {
-          this.card=response.data.data[0]
-          console.log(this.card)
-            if(this.card.card_number!=this.form.card_number){
-              //有卡號 做修改
-              console.log("客戶沒卡號，做修改卡號")
-              this.form.state=2
-            }else{
-              console.log("沒卡號，做改客戶")
-              this.form.state=3
-            }
-        })
-        .catch(error => {
+        const response = await axios.post('http://122.116.23.30:3345/main/searchCard',postvehicleId)
+        try {
+          this.cards=response.data.data
+          console.log("cards"+JSON.stringify(this.cards))
+        }
+        catch{
           this.$message({
               message: '系統有誤',
               type: 'error'
             });
           console.error('API request failed:', error);
-        });
-      }
+        }
     },
-    getVehicle() {
+    async getPlate(){
+      const postvehicleId = {
+        license_plate :this.form.license_plate
+      };
+      const response= await axios.post('http://122.116.23.30:3345/main/searchPlate',postvehicleId)
+      try{
+        this.vehicleId=response.data.data[0].vehicleId
+        console.log("車號ID:"+ this.vehicleId)
+      }
+      catch (error) {
+        console.error('取得車牌ID失敗:', error);
+      }
+   },
+    
+  async getVehicle() {
   this.form.card_number = '';
   this.form.license_plate = this.form.license_plate.trim();
   
@@ -245,58 +264,63 @@ export default {
     customerId: this.form.cus_code,
   };
 
-  if (this.form.license_plate.length === 6 || this.form.license_plate.length === 7 || this.form.license_plate.length === 8) {
-    axios.post('http://122.116.23.30:3345/main/searchVehicle', postData)
-      .then(response => {
-        this.Vehicle = response.data.data;
-        console.log(JSON.stringify(this.Vehicle));
-        
-        let found = false;
-
-        this.Vehicle.forEach(vehicle => {
-          if (vehicle.license_plate === this.form.license_plate) {
-            this.vehicleId = vehicle.vehicleId;  // 更正逗號為分號
-            found = true;  // 找到匹配的車牌
-            console.log("已有車號" + this.form.state);
-          } 
-        });
-
-        // 如果沒有找到匹配車牌，則進行全資料檢索
-        if (!found) {
-          axios.get('http://122.116.23.30:3345/main/selectVehicle')
-            .then(response => {
-              this.allVehicle=response.data.data
-              this.allVehicle.forEach(vehicle => {
-          if (vehicle.license_plate === this.form.license_plate) {
-            this.vehicleId = vehicle.vehicleId;  // 更正逗號為分號
-            this.form.state=3
-            console.log("已有車號，改客戶" + this.form.state);
-          } 
-        });
-              // 如果在全資料檢索中找不到，則改客戶
-            })
-            .catch(error => {
-              this.$message({
-                message: '系統有誤',
-                type: 'error'
-              });
-              console.error('API request failed:', error);
-            });
+  if (
+    this.form.license_plate.length === 6 ||
+    this.form.license_plate.length === 7 ||
+    this.form.license_plate.length === 8
+  ) {
+    
+    try {
+      //1.先找全部車牌 有就判斷 沒就新增
+      this.vehicleId='';
+      let vehicleFound = false;
+      this.form.state = "判斷中...";
+      const response = await axios.get('http://122.116.23.30:3345/main/selectVehicle');
+      this.allVehicle = response.data.data;
+      for (const vehicle of this.allVehicle) {
+        if (vehicle.license_plate === this.form.license_plate) {
+          vehicleFound = true;
+          break; // 如果找到匹配車牌，退出循環
         }
-
-        // 更新狀態：找到則設為 '0'，未找到設為 '1'
-        this.form.state = found ? 0 : 1;
-        console.log("狀態已更新:", this.form.state);
-      })
-      .catch(error => {
-        this.$message({
-          message: '系統有誤',
-          type: 'error'
-        });
-        console.error('API request failed:', error);
+      }
+      if (!vehicleFound) {
+        this.form.state = 1; // 資料庫裡沒有此車號，設置狀態為 1
+        console.log("資料庫沒有車號，新增" + this.form.state);
+        return
+      } else {
+        console.log("資料庫已有車號，繼續下一步");
+      }
+      //有車號 就找車號ID
+      await this.getPlate();
+      //有ID 找卡號
+      await this.getcard();
+      //2.資料庫有資料 判斷現在輸入的客戶 下是否有此車 有就繼續判斷4.刪除或2.改卡號 沒有就是3.轉客戶
+      const cus_response = await axios.post('http://122.116.23.30:3345/main/searchVehicle', postData);
+      this.Vehicle = cus_response.data.data;
+      let customerHasVehicle = false;
+      for (const vehicle of this.Vehicle) {
+        if (vehicle.license_plate === this.form.license_plate) {
+          customerHasVehicle = true;
+          break; // 客戶下有此車牌，退出循環
+        }
+      }
+      if (!customerHasVehicle) {
+        this.form.state = 3; // 客戶下沒有此車，但資料庫有，3.轉客戶
+        console.log("客戶下沒有此車，但資料庫有，轉客戶：" + this.form.state);
+      } else {
+        this.form.state = ''; // 客戶有此車牌，判斷刪除或改卡號
+        console.log("客戶下已有此車號，請選擇操作：" + this.form.state);
+      }
+    } catch (error) {
+      this.$message({
+        message: '系統有誤',
+        type: 'error'
       });
+      console.error('API request failed:', error);
+    }
   }
 },
+
 
     getdata(){
       this.form.card_number = '';
@@ -329,7 +353,6 @@ export default {
       axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
             this.bills = response.data.data;
-            console.log("個別帳單"+JSON.stringify(this.bills))
         })
         .catch(error => {
           // 處理錯誤
@@ -353,97 +376,87 @@ export default {
     },
      // 匯出 Excel
      async exportToExcel() {
-      await this.getResult(); // 確保資料先完成取得
-      this.result = this.result.slice(0, 20);
-      console.log("匯入20筆" + JSON.stringify(this.result)); // 檢查資料是否已更新
       
-      try {
-        const file = this.excelFile; // 取得選中的檔案
+  try {
+    // 確保資料先完成取得
+    await this.getResult();
+    this.result = this.result.slice(0, 20); // 只取前20筆
+    console.log("匯入20筆" + JSON.stringify(this.result)); // 檢查資料是否已更新
 
-        if (!(file instanceof File)) {
-          console.error('Selected item is not a file');
-          return;
-        }
+    // 讀取 Excel 文件
+    const workbook = new ExcelJS.Workbook();
+    const fr = new FileReader();
+    const response = await fetch(new URL('@/assets/new.xlsx', import.meta.url).href); // 從 URL 載入模板檔案
+    const data = await response.blob(); // 轉為 Blob
+    fr.readAsArrayBuffer(data);
 
-        // 讀取 Excel 文件
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(await file.arrayBuffer());
+    // 當 FileReader 完成後，讀取 Excel 並進行修改
+    fr.onload = async (ev) => {
+      await workbook.xlsx.load(ev.target.result);
+      const worksheet = workbook.worksheets[0]; // 取得第一個工作表
 
-        // 取得第一個工作表
-        const worksheet = workbook.worksheets[0];
-      //   worksheet.addTable({
-      //     name: 'table名稱',  // 表格內看不到的，算是key值
-      //     ref: 'C1', // 表頭
-      //     headerRow: false,
-      //     columns: [
-      //       { name: '中油帳號' },
-      //     ],
-      //     rows: [
-      //       ['中油']  // 使用 productValue 來動態填充 C1 單元格
-      //     ]
-      //  });
-          // 將數據寫入特定單元格
-          // 將每一個表單資料寫入到表格中
-          
-          const rowsData = this.result.map((data,index) => [
-            index+1,  // 流水號
-            data.license_plate,  // 假設 vehicleId 是車牌
-            data.product_name === '0001' ? 'V' : '',  // 超級柴油
-            data.product_name === '0002' ? 'V' : '',  // 無鉛汽油
-            data.product_name === '0005' ? 'V' : '',  // 酒精汽油
-            data.product_name === '0009' ? 'V' : '',  // 不限油品
-            data.product_name === '0017' ? 'V' : '',  // 尿素溶液
-            data.upload_reason === '新增' ? 'V' : '',  // 新增
-            data.upload_reason === '停用' ? 'V' : '',  // 停用
-            data.upload_reason === '遺失' ? 'V' : '',  // 遺失
-            data.upload_reason === '故障' ? 'V' : '',  // 故障
-            data.upload_reason === '原卡復油' ? 'V' : '',  // 原卡復油
-            data.customerId,  // 保管單位
-            data.custodian.substring(8, 12), // 公司名稱
-            data.notes || '' // 備註
-        ]);
+      // 處理資料，生成每一行的數據
+      const rowsData = this.result.map((data, index) => [
+        index + 1, // 流水號
+        data.license_plate, // 假設 vehicleId 是車牌
+        data.product_name === '0001' ? 'V' : '', // 超級柴油
+        data.product_name === '0002' ? 'V' : '', // 無鉛汽油
+        data.product_name === '0005' ? 'V' : '', // 酒精汽油
+        data.product_name === '0009' ? 'V' : '', // 不限油品
+        data.product_name === '0017' ? 'V' : '', // 尿素溶液
+        data.upload_reason === '新增' ? 'V' : '', // 新增
+        data.upload_reason === '停用' ? 'V' : '', // 停用
+        data.upload_reason === '遺失' ? 'V' : '', // 遺失
+        data.upload_reason === '故障' ? 'V' : '', // 故障
+        data.upload_reason === '原卡復油' ? 'V' : '', // 原卡復油
+        data.customerId, // 保管單位
+        data.custodian.substring(8, 12), // 公司名稱 (取第9~12個字)
+        data.notes || '' // 備註
+      ]);
 
-        // 添加表格，將所有行數據一次性寫入
-        worksheet.addTable({
-          name: 'table名稱',  // 表格的名稱
-          ref: 'A4',  // 表格從 A4 開始
-          headerRow: false,  // 如果你不需要表頭，可以設為 false
-          columns: [
-            { name: '流水號' },
-            { name: '車牌' },
-            { name: '超級柴油' },
-            { name: '無鉛汽油' },
-            { name: '酒精汽油' },
-            { name: '不限油品' },
-            { name: '尿素溶液' },
-            { name: '新增' },
-            { name: '停用' },
-            { name: '遺失' },
-            { name: '故障' },
-            { name: '原卡復油' },
-            { name: '保管單位' },
-            { name: '公司名稱' },
-            { name: '備註' }
-          ],
-          rows: rowsData  // 將生成的行數據放入表格
-        });
-    
+      // 添加表格，將所有行數據一次性寫入
+      worksheet.addTable({
+        name: 'table名稱', // 表格的名稱
+        ref: 'A4', // 表格從 A4 開始
+        headerRow: false, // 不需要表頭
+        columns: [
+          { name: '流水號' },
+          { name: '車牌' },
+          { name: '超級柴油' },
+          { name: '無鉛汽油' },
+          { name: '酒精汽油' },
+          { name: '不限油品' },
+          { name: '尿素溶液' },
+          { name: '新增' },
+          { name: '停用' },
+          { name: '遺失' },
+          { name: '故障' },
+          { name: '原卡復油' },
+          { name: '保管單位' },
+          { name: '公司名稱' },
+          { name: '備註' }
+        ],
+        rows: rowsData // 將生成的行數據放入表格
+      });
 
-        // 保存到新的文件
-        const newFileName = 'modified_file.xlsx';
-        const buffer = await workbook.xlsx.writeBuffer();
+      // 保存到新的文件
+      const newFileName = 'modified_file.xlsx';
+      const buffer = await workbook.xlsx.writeBuffer();
 
-        const blob = new Blob([buffer], { type: 'application/octet-stream' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = newFileName;
-        link.click();
-        this.getRecorded()
-      } catch (error) {
-        console.error('Error in exportToExcel function:', error);
-      }
-  },
+      // 生成下載鏈接並觸發下載
+      const blob = new Blob([buffer], { type: 'application/octet-stream' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = newFileName;
+      link.click();
 
+      // 可選：執行其他方法，如 this.getRecorded();
+      this.getRecorded();
+    };
+  } catch (error) {
+    console.error('Error during export to Excel:', error);
+  }
+},
     savePass() {
       this.form.customerId=this.form.cus_code
       this.form.status=this.form.state
