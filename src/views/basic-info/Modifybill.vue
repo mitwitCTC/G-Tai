@@ -43,13 +43,37 @@
       />
     </div>
     <el-dialog title="修改帳單" v-model="dialogpage" width="75%">
-  <el-row style="margin-bottom: 20px">
+ 
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
-      <el-form-item label="欲修改客戶" style="width: 900px; ">
-        <el-input v-model="form.cus" type="textarea" readonly></el-input>
-      </el-form-item>
-    </el-form>
-  </el-row>
+      <el-row style="margin-bottom: 20px">
+        <el-form-item label="欲修改客戶" style="width: 900px; ">
+          <el-input v-model="form.cus" type="textarea" readonly></el-input>
+        </el-form-item>
+      </el-row>
+  <el-form-item label="客戶代號">
+    <el-input v-model="this.form.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputdata" maxlength="8" ></el-input>
+  </el-form-item>
+  <el-form-item label="帳單組別">
+    <el-select v-model="this.form.acc_name" placeholder="選擇帳單組別" style="margin-right:20px;" @change="filter">
+        <el-option
+        v-for="bill in uniqueBills"
+        :key="bill.account_sortId "
+        :label="bill.acc_name+'(開立統編：'+bill.use_number+')'"
+        :value="bill.account_sortId "
+      ></el-option>
+      </el-select>
+    </el-form-item>
+  <el-form-item label="合約日期(迄)">
+        <el-date-picker
+          v-model="form.contract_end"
+          type="date"
+          format="YYYY-MM-DD"
+          value-format="YYYY-MM-DD"
+          placeholder="選擇日期"
+          style="width: 300px;">
+        </el-date-picker>
+    </el-form-item>
+  </el-form>
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button @click="dialogpage = false">取消</el-button>
