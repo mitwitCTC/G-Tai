@@ -7,6 +7,7 @@
   <el-select v-model="this.cpc_account" placeholder="選擇中油帳號" style="margin-right:20px ;" @change="filterRecorded">
             <el-option label="TT6112060" :value="'TT6112060'"></el-option>
             <el-option label="TT6112061" :value="'TT6112061'"></el-option>
+            <el-option label="42993157(諾瓦帳號)" :value="'42993157'"></el-option>
   </el-select>
   <el-button @click="exportToExcel">匯出</el-button>
   <br>
@@ -70,6 +71,7 @@
           <el-select v-model="form.cpc_account" placeholder="選擇帳號">
             <el-option label="TT6112060" :value="'TT6112060'"></el-option>
             <el-option label="TT6112061" :value="'TT6112061'"></el-option>
+            <el-option label="42993157(諾瓦帳號)" :value="'42993157'"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="油品">
@@ -204,7 +206,7 @@ export default {
   methods: {
     filterRecorded() {
       if (this.cpc_account) {
-        this.filteredRecorded = this.Recorded.filter(item => item.cpc_account === this.cpc_account);
+        this.filteredRecorded = this.Recorded.filter(item => item.cpc_account == this.cpc_account);
       } else {
         // 如果沒有選擇特定的帳號，顯示所有資料
         this.filteredRecorded = this.Recorded;

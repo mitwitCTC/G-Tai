@@ -28,6 +28,16 @@ const router = createRouter({
           },
         },
         {
+          path: 'modifybill',
+          name: '修改帳單',
+          component: () => import('@/views/basic-info//Modifybill.vue'),
+          meta: {
+            title: '修改帳單',
+            breadcrumb: '修改帳單',
+            isSpecialPage:true
+          },
+        },
+        {
           path: 'contact',
           name: '聯絡人資料維護',
           component: () => import('@/views/basic-info/ContactView.vue'),
