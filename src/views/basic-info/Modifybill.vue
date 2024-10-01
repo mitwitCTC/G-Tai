@@ -17,7 +17,7 @@
           <el-button v-if="bills.length > 0" type="danger" @click=dialog>確認修改</el-button>
       </el-form-item>
     </div>
-        <el-table :data="paginatedData" style="width: 100%">
+        <el-table  :data="paginatedData" style="width: 100%" v-if="bills.length > 0" >
         <el-table-column label="選擇" width="55">
           <template v-slot="scope">
           <el-checkbox v-model="scope.row.selected"></el-checkbox>
@@ -47,7 +47,7 @@
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
       <el-row style="margin-bottom: 20px">
         <el-form-item label="欲修改客戶" style="width: 900px; ">
-          <el-input v-model="form.cus" type="textarea" readonly></el-input>
+          <el-input v-model="form.cus" type="textarea"  rows="10"  readonly   class="no-resize"></el-input>
         </el-form-item>
       </el-row>
   <el-form-item label="客戶代號">
@@ -56,23 +56,24 @@
   <el-form-item label="帳單組別">
     <el-select v-model="this.form.acc_name" placeholder="選擇帳單組別" style="margin-right:20px;" @change="filter">
         <el-option
-        v-for="bill in uniqueBills"
+        v-for="bill in uniqueFormBills"
         :key="bill.account_sortId "
         :label="bill.acc_name+'(開立統編：'+bill.use_number+')'"
         :value="bill.account_sortId "
       ></el-option>
       </el-select>
     </el-form-item>
-  <el-form-item label="合約日期(迄)">
-        <el-date-picker
-          v-model="form.contract_end"
-          type="date"
-          format="YYYY-MM-DD"
-          value-format="YYYY-MM-DD"
-          placeholder="選擇日期"
-          style="width: 300px;">
-        </el-date-picker>
-    </el-form-item>
+  <el-form-item label="結帳日期">
+    <el-date-picker
+      v-model="form.contract_end"
+      type="date"
+      format="YYYY-MM-DD"
+      value-format="YYYY-MM-DD"
+      placeholder="選擇日期"
+      :disabled-date="disabledDateBeforeToday"
+      style="width: 300px;">
+    </el-date-picker>
+  </el-form-item>
   </el-form>
     <template v-slot:footer>
       <div class="dialog-footer">
@@ -102,6 +103,7 @@ data() {
     customerId:'',
     acc_name:'',
     bills:[],
+    formbills:[],
     accountdata:[],
     filterbill:[],
     form:{},
@@ -111,9 +113,21 @@ created() {
     this.getaccdata();
 },
 computed: {
+ 
   uniqueBills() {
       const seen = new Set();
       return this.bills.filter(bill => {
+        // 只保留第一次出現的 account_sortId
+        if (!seen.has(bill.account_sortId)) {
+          seen.add(bill.account_sortId);
+          return true;
+        }
+        return false;
+      });
+    },
+    uniqueFormBills() {
+      const seen = new Set();
+      return this.formbills.filter(bill => {
         // 只保留第一次出現的 account_sortId
         if (!seen.has(bill.account_sortId)) {
           seen.add(bill.account_sortId);
@@ -135,6 +149,11 @@ computed: {
   }
 },
 methods:{
+  disabledDateBeforeToday(date) {
+    const today = new Date(); // 取得當前日期
+    today.setHours(0, 0, 0, 0); // 將時間設置為當天零點，避免時間上的誤差
+    return date.getTime() > today.getTime(); // 禁用未來日期
+  },
   dialog(){
     const selectedRows = this.paginatedData.filter(row => row.selected);
     if(!selectedRows.length){
@@ -149,11 +168,14 @@ methods:{
       // 將勾選的資料組合成字串，每個勾選項目換行
       const combinedData = selectedRows.map(row => 
         `車號:${row.license_plate}、帳單名稱: ${row.acc_name}、統編: ${row.use_number}、抬頭: ${row.invoice_name}`
-      ).join('\n');
+      ).join('\n------------\n');
       // 更新 form.cus
       this.form.cus = combinedData;
   },
   filter() {
+      this.filterbill.forEach(row => {
+      row.selected = false;
+      });
       if (this.acc_name) {
         this.filterbill = this.bills.filter(item => item.account_sortId == this.acc_name);
       } else {
@@ -175,10 +197,10 @@ methods:{
           console.error('API request failed:', error);
         });
   },
-  async getdata(){
+  async getdata(customerId){
   
       const postData={
-        customerId:this.customerId
+        customerId:customerId
       }
       await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
       .then(response => {
@@ -193,22 +215,90 @@ methods:{
           console.error('API request failed:', error);
         });
   },
-  async inputdata(){
-    this.acc_name=''
-    if(this.customerId.length==8){
-      await this.getdata();
-      this.bills=this.bills.map((item) => {
-              const accountInfo = this.accountdata.find(account => account.account_sortId === item.account_sortId);
-              return {
-                ...item,
-                acc_name: accountInfo ? accountInfo.acc_name : '',
-                use_number: accountInfo ? accountInfo.use_number : '',
-                invoice_name: accountInfo ? accountInfo.invoice_name : ''
-               };
-          });
-        this.filterbill = this.bills;
-    }
-  },
+  // async inputdata(){
+  //   this.acc_name=''
+  //   if(this.customerId.length==8){
+  //     await this.getdata(this.customerId);
+  //     this.bills=this.bills.map((item) => {
+  //             const accountInfo = this.accountdata.find(account => account.account_sortId === item.account_sortId);
+  //             return {
+  //               ...item,
+  //               acc_name: accountInfo ? accountInfo.acc_name : '',
+  //               use_number: accountInfo ? accountInfo.use_number : '',
+  //               invoice_name: accountInfo ? accountInfo.invoice_name : ''
+  //              };
+  //         });
+  //       if(!this.bills.length){
+  //         this.$message({
+  //             message: '請確認客戶代號是否有誤',
+  //             type: 'error'
+  //           });
+  //       }else{
+  //         this.filterbill = this.bills;
+  //       }
+  //   } 
+  //   if(this.form.customerId.length==8){
+  //     this.form.acc_name=''
+  //     await this.getdata(this.form.customerId);
+  //     this.bills=this.bills.map((item) => {
+  //             const accountInfo = this.accountdata.find(account => account.account_sortId === item.account_sortId);
+  //             return {
+  //               ...item,
+  //               acc_name: accountInfo ? accountInfo.acc_name : '',
+  //               use_number: accountInfo ? accountInfo.use_number : '',
+  //               invoice_name: accountInfo ? accountInfo.invoice_name : ''
+  //              };
+  //         });
+  //       if(!this.bills.length){
+  //         this.$message({
+  //             message: '請確認客戶代號是否有誤',
+  //             type: 'error'
+  //           });
+  //       }
+  //     this.formbills=this.bills
+  //   }
+  // },
+  async inputdata() {
+  this.acc_name = '';
+  if (this.customerId.length === 8) {
+    await this.processBills(this.customerId, false);
+  } 
+  if (this.form.customerId.length === 8) {
+    this.form.acc_name = '';
+    await this.processBills(this.form.customerId, true);
+  }
+},
+async processBills(customerId, isForm) {
+  await this.getdata(customerId); // 呼叫 API 獲取數據
+  
+  // 更新賬單的 acc_name, use_number, invoice_name
+  this.bills = this.bills.map((item) => {
+    const accountInfo = this.accountdata.find(account => account.account_sortId === item.account_sortId);
+    return {
+      ...item,
+      acc_name: accountInfo ? accountInfo.acc_name : '',
+      use_number: accountInfo ? accountInfo.use_number : '',
+      invoice_name: accountInfo ? accountInfo.invoice_name : ''
+    };
+  });
+
+  if (!this.bills.length) {
+    this.$message({
+      message: '請確認客戶代號是否有誤',
+      type: 'error'
+    });
+    return;
+  }
+
+  // 根據 isForm 來決定要更新的對象
+  if (isForm) {
+    this.formbills = this.bills;
+  } else {
+    this.filterbill = this.bills;
+  }
+},
+
+
   handlePageChange(page) {
       this.currentPage = page;
     },
@@ -238,5 +328,8 @@ methods:{
 .pagination {
   flex: 1;
   text-align: right;
+}
+.no-resize >>> textarea {
+  resize: none; /* 禁止調整大小 */
 }
 </style>
