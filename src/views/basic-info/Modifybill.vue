@@ -14,7 +14,7 @@
               :value="bill.account_sortId "
           ></el-option>
           </el-select>
-          <el-button v-if="bills.length > 0" type="danger" @click=dialog>確認修改</el-button>
+          <el-button v-if="filterbill.length > 0" type="danger" @click=dialog>確認修改</el-button>
       </el-form-item>
     </div>
         <el-table  :data="paginatedData" style="width: 100%" v-if="bills.length > 0" >
@@ -51,10 +51,10 @@
         </el-form-item>
       </el-row>
   <el-form-item label="客戶代號">
-    <el-input v-model="this.form.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputdata" maxlength="8" ></el-input>
+    <el-input v-model="this.form.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputformdata" maxlength="8" ></el-input>
   </el-form-item>
   <el-form-item label="帳單組別">
-    <el-select v-model="this.form.acc_name" placeholder="選擇帳單組別" style="margin-right:20px;" @change="filter">
+    <el-select v-model="this.form.acc_name" placeholder="選擇帳單組別" style="margin-right:20px;" >
         <el-option
         v-for="bill in uniqueFormBills"
         :key="bill.account_sortId "
@@ -198,13 +198,29 @@ methods:{
         });
   },
   async getdata(customerId){
-  
       const postData={
         customerId:customerId
       }
       await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
       .then(response => {
           this.bills=response.data.data
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '請確認客戶代號是否有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+  },
+  async getformdata(customerId){
+      const postData={
+        customerId:customerId
+      }
+      await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
+      .then(response => {
+          this.formbills=response.data.data
         })
         .catch(error => {
           // 處理錯誤
@@ -258,21 +274,34 @@ methods:{
   //     this.formbills=this.bills
   //   }
   // },
-  async inputdata() {
-  this.acc_name = '';
-  if (this.customerId.length === 8) {
-    await this.processBills(this.customerId, false);
-  } 
+  
+  async inputformdata() {
   if (this.form.customerId.length === 8) {
     this.form.acc_name = '';
     await this.processBills(this.form.customerId, true);
   }
 },
-async processBills(customerId, isForm) {
-  await this.getdata(customerId); // 呼叫 API 獲取數據
   
+  async inputdata() {
+  this.acc_name = '';
+  if (this.customerId.length === 8) {
+    await this.processBills(this.customerId, false);
+  } 
+},
+async processBills(customerId, isForm) {
+  const billKey = isForm ? 'formbills' : 'bills'; // 動態設置使用 formbills 或 bills
+  await this.getDataBasedOnType(customerId, isForm); // 根據 isForm 決定調用 getformdata 還是 getdata
+
+  if (!this[billKey].length) {
+    this.$message({
+      message: '請確認客戶代號是否有誤',
+      type: 'error'
+    });
+    return;
+  }
+
   // 更新賬單的 acc_name, use_number, invoice_name
-  this.bills = this.bills.map((item) => {
+  this[billKey] = this[billKey].map((item) => {
     const accountInfo = this.accountdata.find(account => account.account_sortId === item.account_sortId);
     return {
       ...item,
@@ -282,19 +311,16 @@ async processBills(customerId, isForm) {
     };
   });
 
-  if (!this.bills.length) {
-    this.$message({
-      message: '請確認客戶代號是否有誤',
-      type: 'error'
-    });
-    return;
-  }
-
-  // 根據 isForm 來決定要更新的對象
-  if (isForm) {
-    this.formbills = this.bills;
-  } else {
+  if (!isForm) {
     this.filterbill = this.bills;
+  }
+},
+
+async getDataBasedOnType(customerId, isForm) {
+  if (isForm) {
+    await this.getformdata(customerId);
+  } else {
+    await this.getdata(customerId);
   }
 },
 
