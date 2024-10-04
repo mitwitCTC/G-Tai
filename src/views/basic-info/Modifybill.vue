@@ -35,7 +35,8 @@
           <el-button v-if="filterbill.length > 0" type="danger" @click=dialog>確認修改</el-button>
       </el-form-item>
     </div>
-        <el-table  :data="paginatedData" style="width: 100%" v-if="filterbill.length > 0" >
+    
+        <el-table  :data="paginatedData" style="width: 100%" v-if="filterbill.length > 0"  >
         <el-table-column label="選擇" width="55">
           <template v-slot="scope">
           <el-checkbox v-model="scope.row.selected"></el-checkbox>
@@ -60,14 +61,14 @@
         class="pagination"
       />
     </div>
-    <el-dialog title="修改帳單" v-model="dialogpage" width="75%">
- 
+    <el-dialog title="修改帳單" v-model="dialogpage" width="75%" @close="handleClear">
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
       <el-row style="margin-bottom: 20px">
         <el-form-item label="欲修改客戶" style="width: 900px; ">
           <el-input v-model="form.cus" type="textarea"  rows="10"  readonly   class="no-resize"></el-input>
         </el-form-item>
       </el-row>
+      
       <el-form-item label="客戶代號">
           <!-- <el-input v-model="this.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputdata" maxlength="8" ></el-input> -->
           <el-select 
@@ -115,10 +116,12 @@
       style="width: 300px;">
     </el-date-picker>
   </el-form-item>
+  <div class="red"><h5 v-if="this.form.state==2">請至基本資料修改車籍資料</h5></div>
+ 
   </el-form>
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button @click="dialogpage = false">取消</el-button>
+        <el-button @click="handleClear">取消</el-button>
         <el-button type="primary" @click="savePass">送出</el-button>
       </div>
     </template>
@@ -192,6 +195,10 @@ computed: {
   }
 },
 methods:{
+  handleClear() {
+    this.dialogpage=false
+    this.form = {};
+  },
   savePass() {
      if (!this.form.customerId||!this.form.acc_name||!this.form.date) {
     this.$message({
@@ -450,6 +457,9 @@ async getDataBasedOnType(customerId, isForm) {
 </script>
 
 <style scoped>
+.red{
+  color: #f50404;
+}
 .el-select {
   width: 300px
 }
