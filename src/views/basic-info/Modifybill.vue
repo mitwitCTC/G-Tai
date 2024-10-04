@@ -5,8 +5,26 @@
       <BreadCrumb/>
       <div> 
       <el-form-item label="客戶代號">
-          <el-input v-model="this.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputdata" maxlength="8" ></el-input>
-          <el-select v-if="bills.length > 0" v-model="this.acc_name" placeholder="選擇帳單組別" style="margin-right:20px;" @change="filter">
+          <!-- <el-input v-model="this.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputdata" maxlength="8" ></el-input> -->
+          <el-select 
+          v-model="this.customerId" 
+          placeholder="輸入客戶名稱/客代"
+          filterable
+          :clearable="true" 
+          @clear="clearFilterbill"
+          style="width: 400px; margin-right:20px;" 
+          @change="inputdata" 
+        >
+          <!-- 使用 cusdata 直接顯示每個字符串 -->
+          <el-option
+            v-for="item in cusdata"
+            :key="item"
+            :label="item"
+            :value="item.split(' ')[0]"  
+          ></el-option>
+          </el-select>
+
+          <el-select v-if="filterbill.length > 0" v-model="this.acc_name" placeholder="選擇帳單組別" style="margin-right:20px;" @change="filter" :clearable="true">
             <el-option
               v-for="bill in uniqueBills"
               :key="bill.account_sortId "
@@ -17,7 +35,7 @@
           <el-button v-if="filterbill.length > 0" type="danger" @click=dialog>確認修改</el-button>
       </el-form-item>
     </div>
-        <el-table  :data="paginatedData" style="width: 100%" v-if="bills.length > 0" >
+        <el-table  :data="paginatedData" style="width: 100%" v-if="filterbill.length > 0" >
         <el-table-column label="選擇" width="55">
           <template v-slot="scope">
           <el-checkbox v-model="scope.row.selected"></el-checkbox>
@@ -50,8 +68,25 @@
           <el-input v-model="form.cus" type="textarea"  rows="10"  readonly   class="no-resize"></el-input>
         </el-form-item>
       </el-row>
-  <el-form-item label="客戶代號">
-    <el-input v-model="this.form.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputformdata" maxlength="8" ></el-input>
+      <el-form-item label="客戶代號">
+          <!-- <el-input v-model="this.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputdata" maxlength="8" ></el-input> -->
+          <el-select 
+          v-model="this.form.customerId" 
+          placeholder="輸入客戶名稱/客代"
+          filterable
+          clearable
+          style="width: 400px; margin-right:20px;" 
+          @change="inputformdata" 
+        >
+          <!-- 使用 cusdata 直接顯示每個字符串 -->
+          <el-option
+            v-for="item in cusdata"
+            :key="item"
+            :label="item"
+            :value="item.split(' ')[0]"  
+          ></el-option>
+          </el-select>
+    <!-- <el-input v-model="this.form.customerId" placeholder="輸入客戶代號" style="width: 225px; margin-right:20px;" @input="inputformdata" maxlength="8" ></el-input> -->
   </el-form-item>
   <el-form-item label="帳單組別">
     <el-select v-model="this.form.acc_name" placeholder="選擇帳單組別" style="margin-right:20px;" >
@@ -63,9 +98,15 @@
       ></el-option>
       </el-select>
     </el-form-item>
+    <el-form-item label="狀態"  >
+      <el-select v-model="form.state" placeholder="狀態" disabled=true>     
+        <el-option label="切換客代" :value="2"></el-option>
+        <el-option label="切換帳單" :value="3"></el-option>
+      </el-select>
+    </el-form-item>
   <el-form-item label="結帳日期">
     <el-date-picker
-      v-model="form.contract_end"
+      v-model="form.date"
       type="date"
       format="YYYY-MM-DD"
       value-format="YYYY-MM-DD"
@@ -103,6 +144,7 @@ data() {
     customerId:'',
     acc_name:'',
     bills:[],
+    cusdata:[],
     formbills:[],
     accountdata:[],
     filterbill:[],
@@ -110,6 +152,7 @@ data() {
   };
 },
 created() {
+    this.getcusdata();
     this.getaccdata();
 },
 computed: {
@@ -149,13 +192,62 @@ computed: {
   }
 },
 methods:{
+  savePass() {
+     if (!this.form.customerId||!this.form.acc_name||!this.form.date) {
+    this.$message({
+      message: '欄位不可為空',
+      type: 'error'
+    });
+    return;
+  }
+  const selectedRows = this.filterbill.filter(row => row.selected);
+  let result = [];
+  if (this.form.state == 2) {
+    result = selectedRows.map(row => ({
+      license_plate: row.license_plate,
+      OldCustomerId: this.customerId, // 客戶代號
+      NewCustomerId: this.form.customerId, // 假設你有一個叫 cuscustomerId 的字段
+      account_sortId: row.account_sortId, // 帳單代號
+      mode: this.form.state,
+      date:this.form.date
+    }));
+  } else if (this.form.state == 3) {
+    result = selectedRows.map(row => ({
+      license_plate: row.license_plate,
+      customerId: this.customerId, // 客戶代號
+      account_sortId: row.account_sortId, // 帳單代號
+      mode: this.form.state,
+      date:this.form.date
+    }));
+  }
+  console.log(JSON.stringify(result)); // 將結果打印到控制台
+  this.form = {};
+  this.dialogpage=false
+},
+  clearFilterbill() {
+    this.form = {};
+  },
   disabledDateBeforeToday(date) {
-    const today = new Date(); // 取得當前日期
-    today.setHours(0, 0, 0, 0); // 將時間設置為當天零點，避免時間上的誤差
-    return date.getTime() > today.getTime(); // 禁用未來日期
+    const today = new Date(); // 當前日期
+  today.setHours(0, 0, 0, 0); // 將時間設置為當天零點，避免時間誤差
+  
+  const currentYear = today.getFullYear(); 
+  const currentMonth = today.getMonth(); // 當前月份
+  
+  const startOfMonth = new Date(currentYear, currentMonth, 1); // 當月的 1 號
+
+  if (this.form.state === 2) {
+    // 限制選擇從本月的 1 號到今天
+    return date < startOfMonth || date > today; // 禁用小於本月 1 號或大於今天的日期
+  } else if (this.form.state === 3) {
+    // 限制只能選擇這個月的 1 號
+    return date.getTime() !== startOfMonth.getTime(); // 只允許 1 號
+  }
+  
+  return date.getTime() > today.getTime(); // 禁用未來的日期
   },
   dialog(){
-    const selectedRows = this.paginatedData.filter(row => row.selected);
+    const selectedRows = this.filterbill.filter(row => row.selected);
     if(!selectedRows.length){
       this.$message({
               message: '請先勾選選擇修改帳號',
@@ -187,6 +279,21 @@ methods:{
       await axios.get('http://122.116.23.30:3345/main/selectAccount_sort')
       .then(response => {
           this.accountdata=response.data.data
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+  },
+  async getcusdata(){
+      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      .then(response => {
+          this.cusdata=response.data.data
+          this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
         })
         .catch(error => {
           // 處理錯誤
@@ -279,6 +386,13 @@ methods:{
   if (this.form.customerId.length === 8) {
     this.form.acc_name = '';
     await this.processBills(this.form.customerId, true);
+    if(this.form.customerId===this.customerId){
+      this.form.state=3
+      console.log("切帳單")
+    }else{
+      this.form.state=2
+      console.log("切客戶")
+    }
   }
 },
   
@@ -286,6 +400,9 @@ methods:{
   this.acc_name = '';
   if (this.customerId.length === 8) {
     await this.processBills(this.customerId, false);
+    this.filterbill.forEach(row => {
+      row.selected = false;
+      });
   } 
 },
 async processBills(customerId, isForm) {
@@ -294,7 +411,7 @@ async processBills(customerId, isForm) {
 
   if (!this[billKey].length) {
     this.$message({
-      message: '請確認客戶代號是否有誤',
+      message: '查無帳單資訊',
       type: 'error'
     });
     return;

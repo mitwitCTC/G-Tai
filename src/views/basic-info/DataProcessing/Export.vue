@@ -24,13 +24,29 @@
       <el-table-column prop="createTime" label="異動時間"  />
     </el-table>
     <!-- 新增 -->
- <el-dialog title="新增資料" v-model="dialog" width="70%">
+ <el-dialog title="新增資料" v-model="dialog" width="70%" @close="handleClear">
 
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
       <el-row style="margin-bottom: 20px">
-        <el-form-item label="客戶編號">
-          <el-input v-model="form.cus_code" @input="getdata" maxlength="8"></el-input>
-        </el-form-item>
+         <el-form-item label="客戶編號">
+          <!-- <el-input v-model="form.cus_code" @input="getdata" maxlength="8"></el-input> -->
+        <el-select 
+          v-model="form.cus_code" 
+          placeholder="輸入客戶名稱/客代"
+          filterable
+          :clearable="true"
+          style="width: 300px; margin-right:20px;" 
+          @change="getdata" 
+        >
+          <!-- 使用 cusdata 直接顯示每個字符串 -->
+          <el-option
+            v-for="item in cusdata"
+            :key="item"
+            :label="item"
+            :value="item.split(' ')[0]"  
+          ></el-option>
+          </el-select>
+        </el-form-item> 
         <el-form-item label="客戶名稱">
             <el-input v-model="form.cus_name" readonly ></el-input>
         </el-form-item>
@@ -108,7 +124,7 @@
     </el-form>
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button @click="dialog = false">取消</el-button>
+        <el-button @click="handleClear">取消</el-button>
         <el-button type="primary" @click="savePass">送出</el-button>
     </div>
     </template>
@@ -183,6 +199,7 @@ export default {
   },
   created() {
     this.getRecorded()
+    this.getcusdata()
   },
   mounted() {
     
@@ -204,6 +221,25 @@ export default {
     },
   },
   methods: {
+    handleClear() {
+    this.dialog=false
+    this.form = {};
+  },
+    async getcusdata(){
+      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      .then(response => {
+          this.cusdata=response.data.data
+          this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+  },
     filterRecorded() {
       if (this.cpc_account) {
         this.filteredRecorded = this.Recorded.filter(item => item.cpc_account == this.cpc_account);
@@ -369,6 +405,13 @@ export default {
       axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
             this.bills = response.data.data;
+            if(!this.bills.length){
+              this.$message({
+              message: '查無帳單資訊',
+              type: 'error'
+            });
+            return;
+            }
         })
         .catch(error => {
           // 處理錯誤
