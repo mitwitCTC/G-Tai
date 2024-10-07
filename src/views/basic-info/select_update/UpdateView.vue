@@ -198,7 +198,7 @@
         <el-select v-model="cus_form.contract_sales" placeholder="選擇業務">
           <el-option
           v-for="salesman in salesmenData"
-          :key="salesman.employee_i"
+          :key="salesman.employee_id"
           :label="salesman.employee_name"
           :value="salesman.employee_id"
           ></el-option>
@@ -336,7 +336,7 @@
         <el-select v-model="rowData.responsible_person" placeholder="選擇業務">
           <el-option
           v-for="salesman in salesmenData"
-          :key="salesman.salesmanId"
+          :key="salesman.employee_id"
           :label="salesman.employee_name"
           :value="salesman.employee_id"
           ></el-option>
@@ -587,6 +587,15 @@ created() {
           // 處理錯誤
           console.error('API request failed:', error);
         });
+    }else if(this.rowType==='4'){
+      axios.get('http://122.116.23.30:3345/main/selectSalesman')
+      .then(response => {
+        this.salesmenData = response.data.data;
+      })
+      .catch(error => {
+        console.error('API request failed:', error);
+      });
+      this.rowData = JSON.parse(this.$route.query.rowData);
     }else if(this.rowType=='5'){
       const postData = {
       customerId:this.cus_code,
@@ -601,7 +610,7 @@ created() {
           // 處理錯誤
           console.error('API request failed:', error);
         });
-    }else if(this.rowType=='2'||this.rowType=='4'||this.rowType=='6'){
+    }else if(this.rowType=='2'||this.rowType=='6'){
       this.rowData = JSON.parse(this.$route.query.rowData);
     }else if(this.rowType=='7'){
       this.license_plate = (this.$route.query.license_plate);

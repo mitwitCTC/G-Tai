@@ -233,7 +233,7 @@
           v-for="salesman in salesmenData"
           :key="salesman.salesmanId"
           :label="salesman.employee_name"
-          :value="salesman.salesmanId"
+          :value="salesman.employee_id"
           ></el-option>
           </el-select>
         </el-form-item>
