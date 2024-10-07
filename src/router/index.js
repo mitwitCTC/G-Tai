@@ -179,11 +179,11 @@ const router = createRouter({
         },
         {
           path: 'CustomerAccounts',
-          name: '客戶帳務',
+          name: '未核銷帳務',
           component: () => import('@/views/basic-info/Accounts/CustomerAccounts.vue'),
           meta: {
-            title: '客戶帳務',
-            breadcrumb: '客戶帳務',
+            title: '未核銷帳務',
+            breadcrumb: '未核銷帳務',
             isAccountsPage:true,
           },
         },

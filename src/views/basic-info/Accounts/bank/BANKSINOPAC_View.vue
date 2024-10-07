@@ -351,8 +351,28 @@
         }
       });
     },
-    deleteItem(row) {
+    async deleteItem(row) {
       console.log('Delete item:', row);
+      const postData ={
+        id:row.id,
+        delete_time:''
+      };
+      await axios.post('http://122.116.23.30:3345/finance/deleteSINOPAC',postData)
+        .then(response => {
+          if(response.data.returnCode==0){
+            this.$message({
+              message: '刪除成功',
+              type: 'success'
+            });
+            setTimeout(() => {
+              this.getselectData();
+            }, 3000); // 延遲3秒後執行
+          }
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
     },
     formatDateROC(date) {
       if (!date) return ''; // 確保日期存在

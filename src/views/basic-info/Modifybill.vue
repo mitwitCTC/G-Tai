@@ -235,7 +235,7 @@ methods:{
     this.form = {};
   },
   disabledDateBeforeToday(date) {
-    const today = new Date(); // 當前日期
+  const today = new Date(); // 當前日期
   today.setHours(0, 0, 0, 0); // 將時間設置為當天零點，避免時間誤差
   
   const currentYear = today.getFullYear(); 
