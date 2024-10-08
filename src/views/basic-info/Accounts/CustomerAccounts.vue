@@ -28,16 +28,16 @@
 </el-form-item>
 <el-form-item label="中油" class="section-header" >
   <el-table :data="writeoff" style="width: 100%">
-  <el-table-column prop="T6112060" label="客代" width="100" />
-  <el-table-column prop="T6112060_OTR" label="車牌" width="100" />
-  <el-table-column prop="BBB" label="交易時間" width="150" />
-  <el-table-column prop="NNN" label="結轉日" width="150" />
-  <el-table-column prop="NNN" label="油品類型" width="100" />
-  <el-table-column prop="NNN" label="加油站"  width="150"/>
-  <el-table-column prop="NNN" label="卡號"  width="250"/>
-  <el-table-column prop="NNN" label="油量" width="100" />
-  <el-table-column prop="NNN" label="參考單價"  width="100"/>
-  <el-table-column prop="NNN" label="參考金額" width="100" />
+  <el-table-column prop="" label="客代" width="100" />
+  <el-table-column prop="" label="車牌" width="100" />
+  <el-table-column prop="" label="交易時間" width="150" />
+  <el-table-column prop="" label="結轉日" width="150" />
+  <el-table-column prop="" label="油品類型" width="100" />
+  <el-table-column prop="" label="加油站"  width="150"/>
+  <el-table-column prop="" label="卡號"  width="250"/>
+  <el-table-column prop="" label="油量" width="100" />
+  <el-table-column prop="" label="參考單價"  width="100"/>
+  <el-table-column prop="" label="參考金額" width="100" />
   <el-table-column label="操作">
   <template v-slot="scope">
   <el-button type="primary" @click="onContact(scope.row)">核銷</el-button>
@@ -47,12 +47,12 @@
 </el-form-item>
 <el-form-item label="儲值" class="section-header" >
   <el-table :data="writeoff" style="width: 100%">
-  <el-table-column prop="T6112060" label="客代" width="350" />
-  <el-table-column prop="T6112060_OTR" label="入帳來源" width="350" />
-  <el-table-column prop="BBB" label="虛擬帳號" width="350" />
-  <el-table-column prop="NNN" label="交易時間"  />
-  <el-table-column prop="NNN" label="正確帳號"  />
-  <el-table-column prop="NNN" label="不核銷原因"  />
+  <el-table-column prop="" label="客代" width="350" />
+  <el-table-column prop="" label="入帳來源" width="350" />
+  <el-table-column prop="" label="虛擬帳號" width="350" />
+  <el-table-column prop="" label="交易時間"  />
+  <el-table-column prop="" label="正確帳號"  />
+  <el-table-column prop="" label="不核銷原因"  />
   <el-table-column label="操作">
   <template v-slot="scope">
   <el-button type="primary" @click="onContact(scope.row)">核銷</el-button>
@@ -65,6 +65,7 @@
 <script>
 import ListBar from '@/components/ListBar.vue'
 import BreadCrumb from '@/components/BreadCrumb.vue';
+import axios from 'axios';
 export default {
   components: {
     BreadCrumb,
@@ -73,22 +74,37 @@ export default {
 data() {
   return {
     selectedDate: null ,
-    writeoff: [
-      {
-        T6112060: "1筆",
-        T6112060_OTR: "5筆",
-        BBB: "8筆",
-        NNN: "10筆"
-      }
-    ]
+    // writeoff: [
+    //   {
+    //     T6112060: "1筆",
+    //     T6112060_OTR: "5筆",
+    //     BBB: "8筆",
+    //     NNN: "10筆"
+    //   }
+    // ]
   };
 },
+created() {
+   this.getselectData();
+ },
   methods:{
     DateBeforeToday(date) {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // 將時間設置為當天午夜
       return date.getTime() > today.getTime(); // 禁用今天以後的日期
     },
+    async getselectData() {
+     
+     await axios.get('http://122.116.23.30:3345/finance/unverified')
+       .then(response => {
+         this.BankData = response.data.data;
+         this.BankData.sort((a, b) => b.invoice.localeCompare(a.invoice));
+       })
+       .catch(error => {
+         // 處理錯誤
+         console.error('API request failed:', error);
+       });
+ },
   }
 }
 </script>

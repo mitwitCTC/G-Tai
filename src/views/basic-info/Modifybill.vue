@@ -199,7 +199,7 @@ methods:{
     this.dialogpage=false
     this.form = {};
   },
-  savePass() {
+  async savePass() {
      if (!this.form.customerId||!this.form.acc_name||!this.form.date) {
     this.$message({
       message: '欄位不可為空',
@@ -228,6 +228,23 @@ methods:{
     }));
   }
   console.log(JSON.stringify(result)); // 將結果打印到控制台
+  await axios.post('http://122.116.23.30:3345/main/transformation',result)
+      .then(response => {
+          if(response.data.returnCode==0){
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+          }
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
   this.form = {};
   this.dialogpage=false
 },

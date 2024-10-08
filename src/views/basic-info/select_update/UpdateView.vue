@@ -29,7 +29,7 @@
     <el-form-item label="客戶基本資料" class="section-header" v-if="this.rowType==='1'">
     <el-row style="margin-bottom: 20px">
       <el-form-item label="客戶代號">
-        <el-input v-model="cus_form.cus_code"></el-input>
+        <el-input v-model="cus_form.cus_code" readonly></el-input>
       </el-form-item>
       <el-form-item label="客戶名稱">
         <el-input v-model="cus_form.cus_name"></el-input>

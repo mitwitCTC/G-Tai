@@ -322,6 +322,7 @@
       await axios.get('http://122.116.23.30:3345/finance/selectSINOPAC')
         .then(response => {
           this.BankData = response.data.data;
+          this.BankData.sort((a, b) => b.invoice.localeCompare(a.invoice));
            // 找出最大 invoice 的數據
           const maxInvoiceData = this.BankData.reduce((max, item) => {
             return (item.invoice > max.invoice) ? item : max;
@@ -364,9 +365,7 @@
               message: '刪除成功',
               type: 'success'
             });
-            setTimeout(() => {
               this.getselectData();
-            }, 3000); // 延遲3秒後執行
           }
         })
         .catch(error => {
