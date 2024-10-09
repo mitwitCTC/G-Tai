@@ -17,13 +17,13 @@
           <div class="action-icons">
             <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
             <i class="fas fa-edit " @click="editItem(scope.row)"></i>
-            <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
+            <!-- <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i> -->
           </div>
         </template>
       </el-table-column>
     </el-table>
     <!-- 新增折讓 -->
- <el-dialog title="新增折讓" v-model="dialog" width="25%">
+ <el-dialog title="新增折讓" v-model="dialog" width="25%" :close-on-click-modal="false">
   <el-row style="margin-bottom: 20px">
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
       <el-form-item label="油品">
@@ -245,8 +245,42 @@ export default {
         }
       });
     },
-    deleteItem(row) {
+    async deleteItem(row) {
+      const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
+      if (result) {
       console.log('Delete item:', row);
+      const req = {
+        discountId:row.discountId,
+        updated:'',
+        deleteTime:''
+      };
+      console.log('Delete item:', JSON.stringify(req));
+      await axios.post('http://122.116.23.30:3345/main/deleteDiscount', req)
+        .then(response => {
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '刪除成功',
+              type: 'success'
+            });
+            this.getselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '刪除失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '刪除失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+      }
     },
   }
 };

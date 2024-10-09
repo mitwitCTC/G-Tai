@@ -30,8 +30,8 @@
           {{ isBasicInfoCollapsedBank ? '銀行⭢' : '銀行↓' }}
         </button>
         <div class="collapse" :class="{ show: !isBasicInfoCollapsedBank }" id="collapseExample3">
-          <button class="btn btn-light w-100 text-start bank-color" @click="() => goTo('/basic-info/TBB_View')">台企銀</button>
-          <button class="btn btn-light w-100 text-start bank-color" @click="() => goTo('/basic-info/BANKSINOPAC_View')">永豐銀行</button>
+          <button class="btn btn-light w-100 text-start bank-color" @click="() => goTo('/basic-info/TBB_View')">匯款/支票</button>
+          <button class="btn btn-light w-100 text-start bank-color" @click="() => goTo('/basic-info/BANKSINOPAC_View')">刷卡帳務</button>
           </div>
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/CustomerAccounts')">未核銷帳務</button>
       </div>

@@ -19,7 +19,7 @@
         <div class="action-icons">
           <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
           <i class="fas fa-edit " @click="editItem(scope.row)"></i>
-          <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
+          <!-- <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i> -->
         </div>
       </template>
       </el-table-column>
@@ -38,7 +38,7 @@
       />
     </div>
       <!-- 新增聯絡人 -->
-      <el-dialog title="新增聯絡人" v-model="dialog" width="50%">
+      <el-dialog title="新增聯絡人" v-model="dialog" width="50%" :close-on-click-modal="false">
         <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
           <el-row style="margin-bottom: 20px">
           <el-form-item label="職稱">
@@ -200,9 +200,7 @@ export default {
         }
       });
     },
-    deleteItem(row) {
-      console.log('Delete item:', row);
-    },
+    
   }
 };
 </script>

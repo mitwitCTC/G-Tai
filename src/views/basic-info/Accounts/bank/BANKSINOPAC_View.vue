@@ -11,9 +11,9 @@
         <el-table-column prop="customerId" label="客戶代號"></el-table-column>
         <el-table-column prop="account_date" label="刷卡日期"></el-table-column>
         <el-table-column prop="issuing_bank" label="發卡銀行"></el-table-column>
-        <el-table-column prop="credit_amount" label="刷卡金額"></el-table-column>
-        <el-table-column prop="bank_amount" label="永豐入帳金額"></el-table-column>
-        <el-table-column prop="amount" label="系統入帳金額"></el-table-column>
+        <el-table-column prop="credit_amount" label="刷卡金額" ><template v-slot="scope">{{ formatCurrency(scope.row.credit_amount)}} </template></el-table-column>
+        <el-table-column prop="bank_amount" label="永豐入帳金額" ><template v-slot="scope">{{ formatCurrency(scope.row.bank_amount)}} </template></el-table-column>
+        <el-table-column prop="amount" label="系統入帳金額" ><template v-slot="scope">{{ formatCurrency(scope.row.amount)}} </template></el-table-column>
         <el-table-column label="操作">
       <template v-slot="scope">
       <div class="action-icons">
@@ -39,7 +39,7 @@
     </div>
     
     <!-- 新增資料 -->
-    <el-dialog title="新增資料" v-model="dialog" width="80%">
+    <el-dialog title="新增資料" v-model="dialog" width="80%" :close-on-click-modal="false">
         <el-form :model="form" label-width="155px"> <!-- 统一標籤寬度 -->
           <h6>*為必填欄位</h6>
           <el-row style="margin-bottom: 20px">
@@ -353,6 +353,8 @@
       });
     },
     async deleteItem(row) {
+      const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
+      if (result) {
       console.log('Delete item:', row);
       const postData ={
         id:row.id,
@@ -372,6 +374,7 @@
           // 處理錯誤
           console.error('API request failed:', error);
         });
+      }
     },
     formatDateROC(date) {
       if (!date) return ''; // 確保日期存在
@@ -418,7 +421,11 @@ return formattedDate;
             });
           console.error('API request failed:', error);
         });
-  }
+    },
+    formatCurrency(value) {
+      if (!value) return '0';
+      return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
+    }
   }
  };
   </script>

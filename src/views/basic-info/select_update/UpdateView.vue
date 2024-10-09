@@ -353,7 +353,7 @@
             <el-option
               v-for="id in bills_form"
               :key="id.account_sortId"
-              :label="id.account_sortId"
+              :label="id.acc_name"
               :value="id.account_sortId"
           ></el-option>
           </el-select>

@@ -29,11 +29,11 @@ const router = createRouter({
         },
         {
           path: 'modifybill',
-          name: '修改帳單',
+          name: '切換客代帳號',
           component: () => import('@/views/basic-info//Modifybill.vue'),
           meta: {
-            title: '修改帳單',
-            breadcrumb: '修改帳單',
+            title: '切換客代帳號',
+            breadcrumb: '切換客代帳號',
             isSpecialPage:true
           },
         },
@@ -189,20 +189,20 @@ const router = createRouter({
         },
         {
           path: 'BANKSINOPAC_View',
-          name: '永豐銀行',
+          name: '刷卡帳務',
           component: () => import('@/views/basic-info/Accounts/bank/BANKSINOPAC_View.vue'),
           meta: {
-            title: '永豐銀行',
-            breadcrumb: '永豐銀行',
+            title: '刷卡帳務',
+            breadcrumb: '刷卡帳務',
             isBankPage:true
           },
         },{
           path: 'TBB_View',
-          name: '台企銀',
+          name: '匯款/支票',
           component: () => import('@/views/basic-info/Accounts/bank/TBB_View.vue'),
           meta: {
-            title: '台企銀',
-            breadcrumb: '台企銀',
+            title: '匯款/支票',
+            breadcrumb: '匯款/支票',
             isBankPage:true
           },
         },

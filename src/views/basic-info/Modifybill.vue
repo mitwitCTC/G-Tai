@@ -61,7 +61,7 @@
         class="pagination"
       />
     </div>
-    <el-dialog title="修改帳單" v-model="dialogpage" width="75%" @close="handleClear">
+    <el-dialog title="修改帳單" v-model="dialogpage" width="75%" @close="handleClear" :close-on-click-modal="false">
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
       <el-row style="margin-bottom: 20px">
         <el-form-item label="欲修改客戶" style="width: 900px; ">

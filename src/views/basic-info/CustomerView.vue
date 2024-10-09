@@ -57,12 +57,12 @@
 
 
  <!-- 新增客戶 -->
- <el-dialog title="新增客戶" v-model="dialog" width="80%">
+ <el-dialog title="新增客戶" v-model="dialog" width="80%" :close-on-click-modal="false">
   <h6>*為必填欄位</h6>
     <el-form :model="form" label-width="155px"> <!-- 统一标签宽度 -->
       <el-row style="margin-bottom: 20px">
         <el-form-item label="*客戶代號">
-          <el-input v-model="form.cus_code" ></el-input>
+          <el-input v-model="form.cus_code" maxlength=8></el-input>
         </el-form-item>
         <el-form-item label="*客戶名稱">
           <el-input v-model="form.cus_name" ></el-input>
@@ -136,7 +136,7 @@
           <el-input v-model="form.fuel_grace_limit" ></el-input>
         </el-form-item>
         <el-form-item label="*公司統編">
-          <el-input v-model="form.vat_number" ></el-input>
+          <el-input v-model="form.vat_number" maxlength=10 ></el-input>
         </el-form-item>
         <el-form-item label="合約日期(迄)">
           <el-date-picker 
@@ -459,8 +459,42 @@ export default {
         }
       });
     },
-    deleteItem(row) {
+    async deleteItem(row) {
+      const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
+      if (result) {
       console.log('Delete item:', row);
+      const req = {
+        customerId:row.customerId,
+        updated:'',
+        deleteTime:''
+      };
+      console.log('Delete item:', req);
+      await axios.post('http://122.116.23.30:3345/main/deleteCustomer', req)
+        .then(response => {
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '刪除成功',
+              type: 'success'
+            });
+            this.getselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '刪除失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '刪除失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+      }
     },
     onContact(row) {
       console.log('View details for:', row);

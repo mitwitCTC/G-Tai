@@ -24,7 +24,7 @@
       <el-table-column prop="createTime" label="異動時間"  />
     </el-table>
     <!-- 新增 -->
- <el-dialog title="新增資料" v-model="dialog" width="70%" @close="handleClear">
+ <el-dialog title="新增資料" v-model="dialog" width="70%" @close="handleClear" :close-on-click-modal="false">
 
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
       <el-row style="margin-bottom: 20px">

@@ -74,14 +74,14 @@ export default {
 data() {
   return {
     selectedDate: null ,
-    // writeoff: [
-    //   {
-    //     T6112060: "1筆",
-    //     T6112060_OTR: "5筆",
-    //     BBB: "8筆",
-    //     NNN: "10筆"
-    //   }
-    // ]
+    writeoff: [
+      {
+        T6112060: "1筆",
+        T6112060_OTR: "5筆",
+        BBB: "8筆",
+        NNN: "10筆"
+      }
+    ]
   };
 },
 created() {

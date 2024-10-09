@@ -47,7 +47,7 @@
         <el-button type="warning" @click="dialog = true">新增車籍</el-button>
       </el-form>
       <el-table :data="currentPageData2" style="width: 100%">
-        <el-table-column prop="account_sortId" label="帳單編號" width="300" />
+        <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
         <el-table-column prop="license_plate" label="車牌號碼" width="300" />
         <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" />
         <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="350" />
@@ -78,7 +78,7 @@
     
 
     <!-- 新增帳單資訊 -->
-    <el-dialog title="新增帳單資訊" v-model="dialogBill" width="50%">
+    <el-dialog title="新增帳單資訊" v-model="dialogBill" width="50%" :close-on-click-modal="false">
       <el-form :model="billform" label-width="120px"> <!-- 统一標籤寬度 -->
         <el-row style="margin-bottom: 20px">
           <el-form-item label="帳單名稱">
@@ -131,7 +131,7 @@
   </el-dialog>
 
        <!-- 新增車籍資訊 -->
-       <el-dialog title="新增車籍資訊" v-model="dialog" width="50%">
+       <el-dialog title="新增車籍資訊" v-model="dialog" width="50%" :close-on-click-modal="false">
         <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
           <el-row style="margin-bottom: 20px">
             <el-form-item label="帳單編號">
@@ -139,7 +139,7 @@
             <el-option
               v-for="id in bills"
               :key="id.account_sortId"
-              :label="id.account_sortId"
+              :label="id.acc_name"
               :value="id.account_sortId"
           ></el-option>
           </el-select>
@@ -405,6 +405,11 @@ export default {
           console.error('Error:', error);
         });
     }, 
+    formatName(account_sortId) {
+      // 使用 find 方法找到對應的 employee_name
+      const account = this.bills.find(item => item.account_sortId == account_sortId);
+      return account == null ? '' : (account ? account.acc_name : '未知名稱');
+    },
     formatType(vehicle_type) {
       const rawproduct = toRaw(vehicle_type);
       return this.productType[rawproduct.vehicle_type] || '未知';
@@ -448,8 +453,41 @@ export default {
         }
       });
     },
-    deleteItem(row) {
+    async deleteItem(row) {
+      const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
+      if (result) {
       console.log('Delete item:', row);
+      const req = {
+        account_sortId:row.account_sortId,
+        deleteTime:''
+      };
+      console.log('Delete item:', req);
+      await axios.post('http://122.116.23.30:3345/main/deleteAccount_sort', req)
+        .then(response => {
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '刪除成功',
+              type: 'success'
+            });
+            this.getbillselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '刪除失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '刪除失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+      }
     },
     viewDetailVehicles(row) {
       console.log('View details for:', row);
@@ -477,8 +515,41 @@ export default {
         }
       });
     },
-    deleteItemVehicle(row) {
+    async deleteItemVehicle(row) {
+      const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
+      if (result) {
       console.log('Delete item:', row);
+      const req = {
+        vehicleId:row.vehicleId,
+        deleteTime:''
+      };
+      console.log('Delete item:', req);
+      await axios.post('http://122.116.23.30:3345/main/deleteVehicle', req)
+        .then(response => {
+          if (response.status === 200 && response.data.returnCode === 0) {
+            // 成功提示
+            this.$message({
+              message: '刪除成功',
+              type: 'success'
+            });
+            this.getselectData();
+          } else {
+            // 處理非 0 成功代碼
+            this.$message({
+              message: '刪除失敗',
+              type: 'error'
+            });
+          }
+        })
+        .catch(error => {
+          // 發生錯誤時，顯示錯誤提示
+          this.$message({
+            message: '刪除失敗，伺服器錯誤',
+            type: 'error'
+          });
+          console.error('Error:', error);
+        });
+      }
     },
     onVehicle(row) {
       console.log('View details for:', row);

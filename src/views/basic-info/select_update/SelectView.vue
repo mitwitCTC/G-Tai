@@ -51,7 +51,7 @@
       ></el-input>
     </el-form-item>
     <el-form-item label="押金">
-      <el-input v-model="cus_form.deposit" readonly></el-input>
+      <el-input v-model="cus_form.deposit" :value="formatCurrency(cus_form.deposit)" readonly></el-input>
     </el-form-item>
     <el-form-item label="前台密碼(@)">
       <el-input v-model="cus_form.front_pwd" readonly></el-input>
@@ -175,6 +175,76 @@
     </el-form-item>
   </el-row>
   </el-form-item>
+  <!--查詢所有list-->
+  <!--帳單list-->
+  <el-form-item label="帳單資訊" class="section-header" v-if="this.rowType==='1'">
+    <div class="table-container">
+        <el-table :data="bills" style="width: 100%; "  >
+          <el-table-column prop="account_sortId" label="帳單編號" width="150" />
+          <el-table-column prop="acc_name" label="帳單名稱" width="250" />
+          <el-table-column prop="use_number" label="開立統編" width="100" />
+          <el-table-column prop="recipient_name" label="收件人姓名" width="300" />
+          <el-table-column prop="billing_method" label="寄送方式" :formatter="formatbilling_method"  width="150" />
+          <el-table-column prop="address_email" label="收件地址/Mail"width="400" />
+        </el-table>
+      </div>
+    </el-form-item>
+    <!--車籍list-->
+    <el-form-item label="車籍資訊" class="section-header" v-if="this.rowType==='1'">
+    <div class="table-container">
+      <el-table :data="currentPageData2" style="width: 100%">
+        <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
+        <el-table-column prop="license_plate" label="車牌號碼" width="200" />
+        <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" />
+        <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="350" />
+        <el-table-column label="操作"  width="200">
+          <template v-slot="scope">
+            <div class="action-icons">
+              <el-button type="warning" @click="onVehicle(scope.row)">車籍卡片</el-button>
+            </div>
+          </template>
+       </el-table-column>
+    </el-table>
+      </div>
+      <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ startItem2 }} to {{ endItem2 }} of {{ vehicles.length }}
+      </div>
+      <el-pagination
+        @current-change="handlePageChange2"
+        :current-page="currentPage2"
+        :page-size="pageSize"
+        :total="vehicles.length"
+        layout="prev, pager, next, jumper"
+        class="pagination"
+      />
+    </div>
+    </el-form-item>
+    
+    <el-form-item label="折讓資訊" class="section-header" v-if="this.rowType==='1'">
+    <div class="table-container">
+      <el-table :data="DiscountData" style="width: 100%">
+      <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="300" />
+      <el-table-column prop="supplier_name" label="廠商名稱" width="500" />
+      <el-table-column prop="discount_float" label="折讓" width="250" />
+      <el-table-column prop="responsible_person" label="負責業務" :formatter="getEmployeeName" width="300" />
+    </el-table>
+      </div>
+    </el-form-item>
+    <!--聯絡人list-->
+    <el-form-item label="聯絡人資訊" class="section-header" v-if="this.rowType==='1'">
+      <div class="table-container">
+      <el-table :data="contact" style="width: 100%">
+        <el-table-column prop="job_title" label="職稱" width="150"></el-table-column>
+        <el-table-column prop="gender" label="性別" width="100"></el-table-column>
+        <el-table-column prop="name" label="姓名" width="250"></el-table-column>
+        <el-table-column prop="mobile" label="手機/電話" width="250"></el-table-column>
+        <el-table-column prop="mail" label="E-MAIL" width="300"></el-table-column>
+        <el-table-column prop="notes" label="備註" width="300"></el-table-column>
+      </el-table>
+    </div>
+    </el-form-item>
+  
     
 
     <!-- 聯絡人 -->
@@ -341,19 +411,19 @@
             <el-input v-model="SinopacBank.remark" readonly></el-input>
           </el-form-item>
           <el-form-item label="刷卡金額">
-            <el-input v-model="SinopacBank.credit_amount" readonly ></el-input>
+            <el-input v-model="SinopacBank.credit_amount" :value="formatCurrency(SinopacBank.credit_amount)" readonly ></el-input>
           </el-form-item>
           <!-- <el-form-item label="手續費收取">
             <el-input v-model="SinopacBank.card_other_fee" readonly ></el-input>
           </el-form-item> -->
           <el-form-item label="永豐手續費%">
-            <el-input v-model="SinopacBank.credit_percent" readonly ></el-input>
+            <el-input v-model="SinopacBank.credit_percent" :value="formatCurrency(SinopacBank.credit_percent)" readonly ></el-input>
           </el-form-item>
           <el-form-item label="永豐手續費">
-            <el-input v-model="SinopacBank.handling_fee" readonly ></el-input>
+            <el-input v-model="SinopacBank.handling_fee" :value="formatCurrency(SinopacBank.handling_fee)" readonly ></el-input>
           </el-form-item>
             <el-form-item label="永豐入帳金額">
-            <el-input v-model="SinopacBank.bank_amount" readonly ></el-input>
+            <el-input v-model="SinopacBank.bank_amount" :value="formatCurrency(SinopacBank.bank_amount)" readonly ></el-input>
           </el-form-item>
           <el-form-item label="永豐入帳日期">
             <el-input v-model="SinopacBank.credit_card_data" readonly ></el-input>
@@ -362,7 +432,7 @@
             <el-input v-model="SinopacBank.card_handling" readonly ></el-input>
           </el-form-item> -->
           <el-form-item label="系統入帳金額">
-            <el-input v-model="SinopacBank.amount" readonly ></el-input>
+            <el-input v-model="SinopacBank.amount" :value="formatCurrency(SinopacBank.amount)" readonly ></el-input>
           </el-form-item>
       </el-row>
     </el-form-item>
@@ -377,6 +447,7 @@
 <script>
 import ListBar from '@/components/ListBar.vue'
 import axios from 'axios';
+import { toRaw } from 'vue'; 
 export default {
   components: {
     ListBar
@@ -389,8 +460,14 @@ export default {
   },
 data() {
   return {
+    currentPage2:1,
+    pageSize: 10,
     invoice:'',
     salesmenData:[],
+    bills:[],
+    vehicles:[],
+    DiscountData:[],
+    contact:[],
     industryMap: {
         '1': '1.食品飲料',
         '6': '6.營建土木工程',
@@ -489,6 +566,25 @@ data() {
     
   };
 },
+computed: {
+ 
+    // 計算當前頁面顯示的數據
+   currentPageData2() {
+      const start = (this.currentPage2 - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.vehicles.slice(start, end);
+    },
+    // 計算當前頁面顯示的起始和結束項目
+    startItem2() {
+      const start = (this.currentPage2 - 1) * this.pageSize + 1;
+      return Math.min(start, this.vehicles.length);
+    },
+    endItem2() {
+      const end = this.currentPage2 * this.pageSize;
+      return Math.min(end, this.vehicles.length);
+    },
+   
+  },
 mounted() {
     // 發送 API 請求以獲取業務資料
     axios.get('http://122.116.23.30:3345/main/selectSalesman')
@@ -527,6 +623,10 @@ created() {
           // 處理錯誤
           console.error('API request failed:', error);
         });
+        this.getbillselectData()
+        this.getvehiclesselectData()
+        this.getdiscountselectData()
+        this.getcontactselectData()
     }else if(this.rowType==='3'){
       const postData = {
         account_sortId :this.account_sortId,
@@ -570,6 +670,64 @@ created() {
     }
   },
   methods:{
+    async getcontactselectData() {
+      const postData = {
+      customerId:this.cus_code,
+      };
+      await axios.post('http://122.116.23.30:3345/main/searchContact',postData)
+        .then(response => {
+          this.contact = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+  },
+    async getdiscountselectData() {
+      const postData = {
+      customerId:this.cus_code,
+      };
+      await axios.post('http://122.116.23.30:3345/main/searchDiscount',postData)
+        .then(response => {
+          this.DiscountData = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+  },
+    async getvehiclesselectData() {
+      const postData = {
+      customerId:this.cus_code,
+      };
+      await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
+        .then(response => {
+          this.vehicles = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
+    async getbillselectData() {
+      const postData = {
+      customerId:this.cus_code,
+      };
+      await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+        .then(response => {
+          this.bills = response.data.data;
+          console.log(JSON.stringify(this.bills))
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
+    formatName(account_sortId) {
+      // 使用 find 方法找到對應的 employee_name
+      const account = this.bills.find(item => item.account_sortId == account_sortId);
+      return account == null ? '' : (account ? account.acc_name : '未知名稱');
+    },
     formatIndustry(value) {
       return this.industryMap[value] || '未知';
     },
@@ -590,12 +748,50 @@ created() {
       // 使用 find 方法找到對應的 employee_name
       const employee = this.salesmenData.find(item => item.employee_id === employeeId);
       return employee == null ? '' : (employee ? employee.employee_name : '未知員工');
-    }
+    },
+    formatCurrency(value) {
+      if (!value) return '0';
+      return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
+    },
+    onVehicle(row) {
+      console.log('View details for:', row);
+      this.$router.push({ 
+        path: 'vehicle',
+        query: {
+          cus_name:this.cus_name,
+          cus_code:this.cus_code,
+          license_plate:row.license_plate,
+          vehicleId:row.vehicleId
+        }
+      });
+    },
+    handlePageChange2(page) {
+      this.currentPage2 = page;
+    },
+    formatbilling_method(billing_method) {
+      const rawproduct = toRaw(billing_method);
+      return this.billMap[rawproduct.billing_method] || '未知';
+    },
   }
 };
 </script>
 
 <style scoped>
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+.pagination-info {
+  margin-right: auto; /* 确保分页信息靠左 */
+  padding-right: 750px; /* 可选: 添加右边距以与分页控件分开 */
+  white-space: nowrap;
+}
+.pagination {
+  flex: 1;
+  text-align: right;
+}
 .el-input {
   width: 300px
 }
@@ -628,7 +824,10 @@ created() {
 .page-title h4 {
     color: #f5bd04;
 }
-
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
 
 
 </style>
