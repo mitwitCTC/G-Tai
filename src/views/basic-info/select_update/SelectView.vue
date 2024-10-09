@@ -196,7 +196,7 @@
         <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
         <el-table-column prop="license_plate" label="車牌號碼" width="200" />
         <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" />
-        <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="350" />
+        <el-table-column prop="product_name" label="油品名稱"  width="350" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
         <el-table-column label="操作"  width="200">
           <template v-slot="scope">
             <div class="action-icons">
@@ -224,7 +224,7 @@
     <el-form-item label="折讓資訊" class="section-header" v-if="this.rowType==='1'">
     <div class="table-container">
       <el-table :data="DiscountData" style="width: 100%">
-      <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="300" />
+      <el-table-column prop="product_name" label="油品名稱"  width="300" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
       <el-table-column prop="supplier_name" label="廠商名稱" width="500" />
       <el-table-column prop="discount_float" label="折讓" width="250" />
       <el-table-column prop="responsible_person" label="負責業務" :formatter="getEmployeeName" width="300" />
@@ -468,6 +468,14 @@ data() {
     vehicles:[],
     DiscountData:[],
     contact:[],
+    productMap:[],
+      productType:{
+        "1": "大巴",
+        "2": "中巴",
+        "3": "自小客",
+        "4": "油罐卡",
+        "5": "臨時卡"
+      },
     industryMap: {
         '1': '1.食品飲料',
         '6': '6.營建土木工程',
@@ -627,6 +635,7 @@ created() {
         this.getvehiclesselectData()
         this.getdiscountselectData()
         this.getcontactselectData()
+        this.getproduct_name();
     }else if(this.rowType==='3'){
       const postData = {
         account_sortId :this.account_sortId,
@@ -696,6 +705,16 @@ created() {
           console.error('API request failed:', error);
         });
   },
+  async getproduct_name() {
+      await axios.get('http://122.116.23.30:3345/main/selectProduct')
+        .then(response => {
+          this.productMap = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
     async getvehiclesselectData() {
       const postData = {
       customerId:this.cus_code,
@@ -771,6 +790,24 @@ created() {
     formatbilling_method(billing_method) {
       const rawproduct = toRaw(billing_method);
       return this.billMap[rawproduct.billing_method] || '未知';
+    },
+    formatType(vehicle_type) {
+      const rawproduct = toRaw(vehicle_type);
+      return this.productType[rawproduct.vehicle_type] || '未知';
+    },
+    formatProduct(product_name) {
+      const product = this.productMap.find(item => item.classId == product_name);
+      return product == null ? '' : (product ? product.className : '未知名稱');
+    },
+    getEmployeeName(responsible_person) {
+      // 如果 salesmenData 仍為空，則返回空或其他提示
+      if (!this.salesmenData || this.salesmenData.length === 0) {
+        return '正在加載...';
+      }
+      // 使用 find 方法找到對應的 employee_name
+      const responsible = toRaw(responsible_person);
+      const employee = this.salesmenData.find(item => item.employee_id == responsible.responsible_person);
+      return employee == null ? '' : (employee ? employee.employee_name : '未知員工');
     },
   }
 };

@@ -188,9 +188,9 @@
         </el-form-item>
         <el-form-item label="合約狀態">
           <el-select v-model="form.contract_status" placeholder="選擇合約狀態">
-            <el-option label="啟用" :value="1"></el-option>
-            <el-option label="暫停" :value="2"></el-option>
-            <el-option label="終止" :value="3"></el-option>
+            <el-option label="啟用" :value="'N'"></el-option>
+            <el-option label="暫停" :value="'S'"></el-option>
+            <el-option label="終止" :value="'Y'"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="營登地址" >

@@ -50,7 +50,7 @@
         <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
         <el-table-column prop="license_plate" label="車牌號碼" width="300" />
         <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" />
-        <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="350" />
+        <el-table-column prop="product_name" label="油品名稱"  width="350" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
             <div class="action-icons">
@@ -134,8 +134,8 @@
        <el-dialog title="新增車籍資訊" v-model="dialog" width="50%" :close-on-click-modal="false">
         <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
           <el-row style="margin-bottom: 20px">
-            <el-form-item label="帳單編號">
-          <el-select v-model="form.account_sortId" placeholder="選擇帳單編號">
+            <el-form-item label="帳單名稱">
+          <el-select v-model="form.account_sortId" placeholder="選擇帳單">
             <el-option
               v-for="id in bills"
               :key="id.account_sortId"
@@ -145,7 +145,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="車牌號碼">
-          <el-input v-model="form.license_plate" ></el-input>
+          <el-input v-model="form.license_plate" maxlength="8" ></el-input>
         </el-form-item>
         <el-form-item label="車輛型態">
           <el-select v-model="form.vehicle_type" placeholder="選擇車輛型態">
@@ -158,11 +158,12 @@
         </el-form-item>
         <el-form-item label="油品名稱">
           <el-select v-model="form.product_name" placeholder="選擇油品">
-            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
-            <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
-            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option>
-            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
-            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
+            <el-option
+              v-for="id in productMap"
+              :key="id.id"
+              :label="id.className"
+              :value="id.classId"
+          ></el-option>
           </el-select>
         </el-form-item>
         </el-row>
@@ -200,13 +201,7 @@ export default {
       },
       bills: [],
       vehicles: [],
-      productMap:{
-        "0001": "0001 95無鉛汽油",
-        "0002": "0002 92無鉛汽油",
-        "0005": "0005 98無鉛汽油",
-        "0006": "0006 超級柴油",
-        "0017": "0017 尿素溶液"
-      },
+      productMap:[],
       productType:{
         "1": "大巴",
         "2": "中巴",
@@ -253,6 +248,8 @@ export default {
     this.form.customerId = this.cus_code;
     this.getbillselectData();
     this.getselectData();
+    this.getproduct_name();
+    this.getVehicle();
   },
   computed: {
     //1為帳單資料 2為車籍資料
@@ -304,6 +301,16 @@ export default {
       await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
           this.bills = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
+    async getproduct_name() {
+      await axios.get('http://122.116.23.30:3345/main/selectProduct')
+        .then(response => {
+          this.productMap = response.data.data;
         })
         .catch(error => {
           // 處理錯誤
@@ -369,6 +376,14 @@ export default {
         });
     }, 
     savePass() {
+      if (this.licens.includes(this.form.license_plate)) {
+        this.$message({
+              message: '此車牌已登入',
+              type: 'error'
+            });
+            this.form.license_plate=''
+            return
+      } 
       this.form.license_plate = this.form.license_plate.trim();
       const req = this.form;
       //發送 POST 請求
@@ -419,8 +434,8 @@ export default {
       return this.billing_methodMap[rawproduct.billing_method] || '未知';
     },
     formatProduct(product_name) {
-      const rawproduct = toRaw(product_name);
-      return this.productMap[rawproduct.product_name] || '未知';
+      const product = this.productMap.find(item => item.classId == product_name);
+      return product == null ? '' : (product ? product.className : '未知名稱');
     },
     handlePageChange(page) {
       this.currentPage = page;
@@ -563,6 +578,16 @@ export default {
         }
       });
     },
+    async getVehicle(){
+      await axios.get('http://122.116.23.30:3345/main/selectVehicle')
+        .then(response => {
+          this.licens = response.data.data.map(item => item.license_plate)
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    }
   }
 };
 </script>

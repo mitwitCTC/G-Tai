@@ -46,7 +46,8 @@
             <el-form-item label="收款單號">
             <el-input v-model="form.invoice" readonly ></el-input>
           </el-form-item>
-          <el-form-item label="*客戶代號">
+        </el-row>
+          <!-- <el-form-item label="*客戶代號">
              <el-input v-model="form.customerId" ></el-input>
           </el-form-item>
           <el-button type="primary" @click="SelectCus">帶入客戶資料</el-button>
@@ -54,10 +55,31 @@
           <el-row style="margin-bottom: 20px">
           <el-form-item label="*客戶名稱" style="width: 660px;">
             <el-input v-model="form.cus_name" readonly  ></el-input>
-          </el-form-item>
-          <h6 v-if="this.form.card_other_fee == '0'">此客戶符合外卡不扣刷卡手續費</h6>
-          <h6 v-if="isDiscountCard">永豐信用卡-手續費優惠卡號</h6>
-        </el-row>
+          </el-form-item> -->
+          <el-row style="margin-bottom: 20px">
+            <el-form-item label="*客戶編號">
+            <el-select 
+              v-model="form.customerId" 
+              placeholder="輸入客戶名稱/客代"
+              filterable
+              :clearable="true"
+              style="width: 300px; " 
+              @change="getdata" 
+            >
+              <!-- 使用 cusdata 直接顯示每個字符串 -->
+              <el-option
+                v-for="item in cusdata"
+                :key="item"
+                :label="item"
+                :value="item.split(' ')[0]"  
+              ></el-option>
+              </el-select>
+            </el-form-item> 
+            <el-form-item label="*客戶名稱">
+              <el-input v-model="form.cus_name" readonly ></el-input>
+            </el-form-item>
+          </el-row>
+         
           <el-row style="margin-bottom: 20px">
             <el-form-item label="*刷卡卡號">
             <el-input v-model="form.account"  @input="formatCardNumber" ></el-input>
@@ -75,7 +97,7 @@
                 format="YYYY-MM-DD" 
                 value-format="YYYY-MM-DD" 
                 placeholder="選擇日期"
-                style="width: 175px;">
+                style="width: 300px;">
               </el-date-picker>
             </el-form-item>
             <el-form-item label="永豐手續費%" >
@@ -84,9 +106,6 @@
           <el-form-item label="永豐手續費" >
             <el-input v-model="form.handling_fee" readonly ></el-input>
           </el-form-item>
-          <el-form-item label="永豐入帳金額" >
-            <el-input v-model="form.bank_amount" readonly ></el-input>
-          </el-form-item>
           <el-form-item label="永豐入帳日期">
             <el-date-picker 
                 v-model="form.credit_card_data" 
@@ -94,9 +113,12 @@
                 format="YYYY-MM-DD" 
                 value-format="YYYY-MM-DD" 
                 placeholder="選擇日期"
-                style="width: 175px;">
+                style="width: 300px;">
               </el-date-picker>
             </el-form-item>
+          <el-form-item label="永豐入帳金額" >
+            <el-input v-model="form.bank_amount" readonly ></el-input>
+          </el-form-item>
           <el-form-item label="授權碼">
             <el-input v-model="form.remark" ></el-input>
           </el-form-item>
@@ -109,6 +131,8 @@
             <el-input v-model="form.amount"  readonly ></el-input>
           </el-form-item>
         </el-row>
+        <h6 v-if="this.form.card_other_fee == '0'">此客戶符合外卡不扣刷卡手續費</h6>
+        <h6 v-if="isDiscountCard">永豐信用卡-手續費優惠卡號</h6>
         </el-form>
         <template v-slot:footer>
           <div  class="dialog-footer">
@@ -153,7 +177,7 @@
     };
   },
   created() {
-   
+    this.getcusdata()
     this.getselectData();
   },
   computed: {
@@ -389,24 +413,70 @@ const formattedDate = `${year1911.toString().padStart(3, '0')}${month.toString()
 
 return formattedDate;
   },
-  SelectCus(){
-    if(!this.form.customerId){
-      this.$message({
-      message: '客戶代號不可為空',
-      type: 'error'
-      });
-      return
-    }
+  // SelectCus(){
+  //   if(!this.form.customerId){
+  //     this.$message({
+  //     message: '客戶代號不可為空',
+  //     type: 'error'
+  //     });
+  //     return
+  //   }
+      // this.form.credit_amount=''
+      // this.form.handling_fee=0
+      // this.form.bank_amount=0
+      // this.form.amount=0
+  //   this.getdata(this.form.customerId = this.form.customerId.trim());
+  // },
+  // getdata(customerId){
+  //   const postData = {
+  //       cus_code:customerId,
+  //     };
+  //     console.log(JSON.stringify(postData))
+  //     axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+  //       .then(response => {
+  //           this.form.cus_name = response.data.data[0].cus_name;
+  //           this.form.card_other_fee=response.data.data[0].card_other_fee;
+  //       })
+  //       .catch(error => {
+  //         // 處理錯誤
+  //           this.$message({
+  //             message: '請確認客戶代號是否有誤',
+  //             type: 'error'
+  //           });
+  //         console.error('API request failed:', error);
+  //       });
+  //   },
+    formatCurrency(value) {
+      if (!value) return '0';
+      return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
+    },
+    async getcusdata(){
+      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      .then(response => {
+          this.cusdata=response.data.data
+          this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+    },
+    getdata(){
       this.form.credit_amount=''
       this.form.handling_fee=0
       this.form.bank_amount=0
       this.form.amount=0
-    this.getdata(this.form.customerId = this.form.customerId.trim());
-  },
-  getdata(customerId){
-    const postData = {
-        cus_code:customerId,
+      this.form.cus_name=''
+      const postData = {
+        cus_code:this.form.customerId,
+        customerId:this.form.customerId,
       };
+     if(this.form.customerId.length==8){
+      this.form.cus_name='查詢中..'
       console.log(JSON.stringify(postData))
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
@@ -415,22 +485,46 @@ return formattedDate;
         })
         .catch(error => {
           // 處理錯誤
+            this.form.cus_name=''
             this.$message({
               message: '請確認客戶代號是否有誤',
               type: 'error'
             });
           console.error('API request failed:', error);
         });
-    },
-    formatCurrency(value) {
-      if (!value) return '0';
-      return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
-    }
+     } 
+     if(this.form.cus_name){
+      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+        .then(response => {
+            this.bills = response.data.data;
+            if(!this.bills.length){
+              this.$message({
+              message: '查無帳單資訊',
+              type: 'error'
+            });
+            return;
+            }
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.form.cus_name=''
+            this.$message({
+              message: '系統錯誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+     }
+    
+  },
   }
  };
   </script>
   
   <style scoped>
+  .el-input{
+    width: 300px;
+  }
   h6 {
   color: rgb(255, 0, 0);
   margin-left: 20px;

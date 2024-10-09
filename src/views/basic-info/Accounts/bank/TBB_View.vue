@@ -43,7 +43,7 @@
     <el-dialog title="新增資料" v-model="dialog" width="80%" :close-on-click-modal="false">
         <el-form :model="form" label-width="155px"> <!-- 统一標籤寬度 -->
           <h6>*為必填欄位</h6>
-          <el-row style="margin-bottom: 20px">
+          <!-- <el-row style="margin-bottom: 20px">
           <el-form-item label="*客戶代號">
              <el-input v-model="form.customerId" ></el-input>
           </el-form-item>
@@ -53,18 +53,42 @@
           <el-form-item label="*客戶名稱" style="width: 660px;">
             <el-input v-model="form.cus_name" readonly  ></el-input>
           </el-form-item>
-        </el-row>
+        </el-row> -->
+        <el-row style="margin-bottom: 20px">
+         <el-form-item label="*客戶編號">
+        <el-select 
+          v-model="form.customerId" 
+          placeholder="輸入客戶名稱/客代"
+          filterable
+          :clearable="true"
+          style="width: 300px; margin-right:20px;" 
+          @change="getdata" 
+        >
+          <!-- 使用 cusdata 直接顯示每個字符串 -->
+          <el-option
+            v-for="item in cusdata"
+            :key="item"
+            :label="item"
+            :value="item.split(' ')[0]"  
+          ></el-option>
+          </el-select>
+        </el-form-item> 
+        <el-form-item label="*客戶名稱">
+            <el-input v-model="form.cus_name" readonly ></el-input>
+        </el-form-item>
+      </el-row>
         <el-form-item label="*入帳模式">
           <el-select v-model="form.trading_model" placeholder="選擇入帳模式" style=" width: 250px;" @change="inputdata" >
-            <el-option label="永豐匯款" :value="'2'"></el-option>
+            <el-option label="永豐匯款" :value="'4'"></el-option>
             <el-option label="台企匯款" :value="'0'"></el-option>
             <el-option label="支票" :value="'3'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="*銀行來源" v-if="this.form.trading_model==='2'||this.form.trading_model==='0'">
+        <el-form-item label="*銀行來源" v-if="this.form.trading_model==='4'||this.form.trading_model==='0'||this.form.trading_model==='3'">
           <el-select v-model="form.bank" placeholder="選擇銀行來源" style=" width: 250px;" disabled="true">
             <el-option label="永豐" :value="'永豐匯款'"></el-option>
             <el-option label="台企" :value="'台企'"></el-option>
+            <el-option label="支票" :value="'支票'"></el-option>
           </el-select>
         </el-form-item>
             <el-form-item label="*台企虛擬帳號" v-if="this.form.trading_model==='0'" >
@@ -79,11 +103,11 @@
           <el-form-item label="統一編號" >
               <el-input v-model="form.taxId" maxlength="9"></el-input>
           </el-form-item>
-          <el-form-item :label="form.trading_model === '3' ? '到期日' : '入帳日'">
+          <el-form-item :label="form.trading_model === '3' ? '*到期日' : '*入帳日'">
             <el-input v-model="form.account_date" maxlength="7"></el-input>
             <h6>格式為民國年月日，例:1130101</h6>
           </el-form-item>
-          <el-form-item label="交易時間">
+          <el-form-item label="*交易時間">
             <el-input v-model="form.account_time" maxlength="13"></el-input>
             <h6>格式為民國年月日時分秒，例:1130101235959</h6>
           </el-form-item>
@@ -127,7 +151,7 @@
     };
   },
   created() {
-   
+    this.getcusdata()
     this.getselectData();
   },
   computed: {
@@ -146,12 +170,12 @@
   },
   methods: {
     inputdata() {
-    if (this.form.trading_model == '2') {
+    if (this.form.trading_model == '4') {
       this.form.bank='永豐匯款'
     } else if(this.form.trading_model == '0'){
       this.form.bank='台企'
     }else if(this.form.trading_model == '3'){
-      this.form.bank=''
+      this.form.bank='支票'
     }
   },
    
@@ -161,7 +185,7 @@
     
     savePass() {
     if (!this.form.customerId || !this.form.cus_name || 
-    (!this.form.account && this.form.trading_model !== '2')) { 
+    (!this.form.account && this.form.trading_model !== '4')) { 
       this.$message({
         message: '必填欄位不可為空',
         type: 'error'
@@ -260,22 +284,63 @@
       }
     },
 
-  SelectCus(){
-    if(!this.form.customerId){
-      this.$message({
-      message: '客戶代號不可為空',
-      type: 'error'
-      });
-      return
-    }
+  // SelectCus(){
+  //   if(!this.form.customerId){
+  //     this.$message({
+  //     message: '客戶代號不可為空',
+  //     type: 'error'
+  //     });
+  //     return
+  //   }
      
-      this.form.amount=''
-    this.getdata(this.form.customerId = this.form.customerId.trim());
-  },
-  getdata(customerId){
-    const postData = {
-        cus_code:customerId,
+  //     this.form.amount=''
+  //   this.getdata(this.form.customerId = this.form.customerId.trim());
+  // },
+  // getdata(customerId){
+  //   const postData = {
+  //       cus_code:customerId,
+  //     };
+  //     console.log(JSON.stringify(postData))
+  //     axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+  //       .then(response => {
+  //           this.form.cus_name = response.data.data[0].cus_name;
+  //       })
+  //       .catch(error => {
+  //         // 處理錯誤
+  //           this.$message({
+  //             message: '請確認客戶代號是否有誤',
+  //             type: 'error'
+  //           });
+  //         console.error('API request failed:', error);
+  //       });
+  //   },
+    formatCurrency(value) {
+      if (!value) return '0';
+      return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
+    },
+    async getcusdata(){
+      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      .then(response => {
+          this.cusdata=response.data.data
+          this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+    },
+    getdata(){
+      this.form.cus_name=''
+      const postData = {
+        cus_code:this.form.customerId,
+        customerId:this.form.customerId,
       };
+     if(this.form.customerId.length==8){
+      this.form.cus_name='查詢中..'
       console.log(JSON.stringify(postData))
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
@@ -283,17 +348,38 @@
         })
         .catch(error => {
           // 處理錯誤
+            this.form.cus_name=''
             this.$message({
               message: '請確認客戶代號是否有誤',
               type: 'error'
             });
           console.error('API request failed:', error);
         });
-    },
-    formatCurrency(value) {
-      if (!value) return '0';
-      return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
-    }
+     } 
+     if(this.form.cus_name){
+      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+        .then(response => {
+            this.bills = response.data.data;
+            if(!this.bills.length){
+              this.$message({
+              message: '查無帳單資訊',
+              type: 'error'
+            });
+            return;
+            }
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.form.cus_name=''
+            this.$message({
+              message: '系統錯誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+     }
+    
+  },
   }
  };
   </script>
