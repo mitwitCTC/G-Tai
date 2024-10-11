@@ -31,40 +31,65 @@
   </div>
 </el-form-item>
 
-<el-form-item label="中油未核銷" class="section-header" >
-  <el-table :data="writeoff" style="width: 100%">
-  <el-table-column prop="" label="客代" width="100" />
-  <el-table-column prop="" label="車牌" width="100" />
-  <el-table-column prop="" label="交易時間" width="150" />
-  <el-table-column prop="" label="結轉日" width="150" />
-  <el-table-column prop="" label="油品類型" width="100" />
-  <el-table-column prop="" label="加油站"  width="150"/>
-  <el-table-column prop="" label="卡號"  width="250"/>
-  <el-table-column prop="" label="油量" width="100" />
-  <el-table-column prop="" label="參考單價"  width="100"/>
-  <el-table-column prop="" label="參考金額" width="100" />
-  <el-table-column label="操作">
-  <template v-slot="scope">
-  <el-button type="primary" @click="onContact(scope.row)">核銷</el-button>
-  </template>
-</el-table-column>
-</el-table>
+      <!-- 顯示表格 -->
+      <el-form-item label="中油未核銷" class="section-header" >
+        <el-button type="primary" @click="onContact(1)">核銷</el-button>
+        <el-table :data="errcpc" style="width: 100%" v-loading="loading">
+        <el-table-column prop="customerId" label="客代" width="100" />
+        <el-table-column prop="license_plate" label="車牌" width="100" />
+        <el-table-column prop="trade_time" label="交易時間" width="150" />
+        <el-table-column prop="account_date" label="結轉日" width="150" />
+        <el-table-column prop="fuel_type" label="油品類型" width="100" />
+        <el-table-column prop="station_name" label="加油站"  width="150"/>
+        <el-table-column prop="card_number" label="卡號"  width="250"/>
+        <el-table-column prop="fuel_volume" label="油量" width="100" />
+        <el-table-column prop="reference_price" label="參考單價"  width="100"/>
+        <el-table-column prop="reference_amount" label="參考金額" width="100" />
+      </el-table>
+      </el-form-item>
+      <el-form-item label="銀行未核銷" class="section-header" >
+  <el-button type="primary" @click="onContact(2)">核銷</el-button>
+  
+  <el-table :data="errbank" style="width: 100%" v-loading="loading">
+    
+    <!-- 可編輯的 customerId -->
+    <el-table-column prop="customerId" label="客代" width="200">
+      <template v-slot="scope">
+        <el-input v-model="scope.row.customerId" maxlength=8  v-if="isEditable"></el-input>
+      </template>
+    </el-table-column>
+    
+    <el-table-column prop="bank" label="入帳來源" width="200" />
+    <el-table-column prop="account" label="虛擬帳號" width="200" />
+    <el-table-column prop="credit_card_data" label="交易時間" />
+    
+    <!-- 金額使用格式化 -->
+    <el-table-column prop="amount" label="金額">
+      <template v-slot="scope">{{ formatAmount(scope.row.amount) }}</template>
+    </el-table-column>
+    
+    <!-- 可編輯的 account_new -->
+    <el-table-column prop="account_new" label="正確帳號">
+      <template v-slot="scope">
+        <el-input v-model="scope.row.account_new"maxlength=14 v-if="isEditable"></el-input>
+      </template>
+    </el-table-column>
+    
+    <!-- 可編輯的 correct -->
+    <el-table-column prop="correct" label="不核銷原因">
+      <template v-slot="scope">
+        <el-input v-model="scope.row.correct" v-if="isEditable"></el-input>
+      </template>
+    </el-table-column>
+    <el-table-column label="操作">
+          <template v-slot="scope">
+              <el-button type="warning" @click="Edit(scope.row)" v-if="!isEditable">修改</el-button>
+              <el-button type="success" @click="Edit(scope.row)" v-if="isEditable">儲存</el-button>
+          </template>
+       </el-table-column>
+  </el-table>
 </el-form-item>
-<el-form-item label="銀行未核銷" class="section-header" >
-  <el-table :data="writeoff" style="width: 100%">
-  <el-table-column prop="" label="客代" width="350" />
-  <el-table-column prop="" label="入帳來源" width="350" />
-  <el-table-column prop="" label="虛擬帳號" width="350" />
-  <el-table-column prop="" label="交易時間"  />
-  <el-table-column prop="" label="正確帳號"  />
-  <el-table-column prop="" label="不核銷原因"  />
-  <el-table-column label="操作">
-  <template v-slot="scope">
-  <el-button type="primary" @click="onContact(scope.row)">核銷</el-button>
-  </template>
-</el-table-column>
-</el-table>
-</el-form-item>
+
 </template>
 
 <script>
@@ -78,9 +103,13 @@ export default {
   },
 data() {
   return {
+    loading: false,  // 加載狀態
     selectedDate: null ,
+    isEditable: false, // 控制是否可以編輯的布爾變量
     cpcData: [],  // 用來儲存來自 "cpc_dataCount" 的資料
-    bankData: []  // 用來儲存來自 "bank_dataCount" 的資料
+    bankData: [],  // 用來儲存來自 "bank_dataCount" 的資料
+    errcpc:[],
+    errbank:[]
   };
 },
 created() {
@@ -93,16 +122,19 @@ created() {
       return date.getTime() > today.getTime(); // 禁用今天以後的日期
     },
     async getselectData() {
-     
-     await axios.get('http://122.116.23.30:3345/finance/unverified')
-       .then(response => {
-         this.BankData = response.data.data;
-         this.BankData.sort((a, b) => b.invoice.localeCompare(a.invoice));
-       })
-       .catch(error => {
-         // 處理錯誤
-         console.error('API request failed:', error);
-       });
+      this.loading = true;  // 開始加載
+      const postData = {
+        account_date :"",
+      };
+      try {
+        const response = await axios.post('http://122.116.23.30:3345/finance/unverified', postData);
+        this.errcpc = response.data.data.cpc_data;
+        this.errbank = response.data.data.bank_data;
+     } catch (error) {
+       console.error('API request failed:', error);
+      } finally {
+        this.loading = false;  // 請求完成後關閉加載狀態
+      }
     },
     async dialog(){
       const postData = {
@@ -117,8 +149,53 @@ created() {
           // 處理錯誤
           console.error('API request failed:', error);
         });
-
     },
+    formatAmount(value) {
+      // 將金額字串轉換為數字並移除前導零
+      const num = parseInt(value, 10);
+      // 如果解析後不是數字，返回空字串
+      if (isNaN(num)) {
+        return '';
+      }
+      // 使用toLocaleString將數字格式化為千分位
+      return num.toLocaleString();
+    },
+    async onContact(type){
+      if(type===1){
+        await axios.get('http://122.116.23.30:3345/finance/reconciliationCPC')
+        .then(response => {
+          if(response.data.returnCode==0){
+            this.$message({
+              message: '中油資料已核銷：'+response.data.data,
+              type: 'success'
+            });
+          }
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+      }else if(type===2){
+        await axios.get('http://122.116.23.30:3345/finance/reconciliationTBB')
+        .then(response => {
+          if(response.data.returnCode==0){
+            this.$message({
+              message: '銀行資料已核銷：'+response.data.data,
+              type: 'success'
+            });
+          }
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+      }
+      
+    },
+    Edit(){
+      this.isEditable = !this.isEditable;
+    }
+
   }
 }
 </script>

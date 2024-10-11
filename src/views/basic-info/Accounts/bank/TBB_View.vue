@@ -382,7 +382,6 @@
           console.error('API request failed:', error);
         });
      }
-    
   },
   }
  };
