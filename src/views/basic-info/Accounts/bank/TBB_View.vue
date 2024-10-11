@@ -82,13 +82,15 @@
             <el-option label="永豐匯款" :value="'4'"></el-option>
             <el-option label="台企匯款" :value="'0'"></el-option>
             <el-option label="支票" :value="'3'"></el-option>
+            <el-option label="現金" :value="'5'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="*銀行來源" v-if="this.form.trading_model==='4'||this.form.trading_model==='0'||this.form.trading_model==='3'">
+        <el-form-item label="*銀行來源" v-if="this.form.trading_model==='4'||this.form.trading_model==='0'||this.form.trading_model==='3'||this.form.trading_model==='5'">
           <el-select v-model="form.bank" placeholder="選擇銀行來源" style=" width: 250px;" disabled="true">
             <el-option label="永豐" :value="'永豐匯款'"></el-option>
             <el-option label="台企" :value="'台企'"></el-option>
             <el-option label="支票" :value="'支票'"></el-option>
+            <el-option label="現金" :value="'現金'"></el-option>
           </el-select>
         </el-form-item>
             <el-form-item label="*台企虛擬帳號" v-if="this.form.trading_model==='0'" >
@@ -176,6 +178,8 @@
       this.form.bank='台企'
     }else if(this.form.trading_model == '3'){
       this.form.bank='支票'
+    }else if(this.form.trading_model == '5'){
+      this.form.bank='現金'
     }
   },
    
@@ -185,7 +189,7 @@
     
     savePass() {
     if (!this.form.customerId || !this.form.cus_name || 
-    (!this.form.account && this.form.trading_model !== '4')) { 
+    (!this.form.account && (this.form.trading_model !== '4'&&this.form.trading_model !== '5'))) { 
       this.$message({
         message: '必填欄位不可為空',
         type: 'error'
@@ -248,7 +252,7 @@
       await axios.get('http://122.116.23.30:3345/finance/selectTBB')
         .then(response => {
           this.BankData = response.data.data;
-          this.BankData.sort((a, b) => b.invoice.localeCompare(a.invoice));
+          this.BankData.sort((a, b) => b.id - a.id);
         })
         .catch(error => {
           // 處理錯誤

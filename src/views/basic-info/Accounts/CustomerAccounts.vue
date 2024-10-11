@@ -4,12 +4,12 @@
   <div>
       <BreadCrumb/>
   </div>
-  <div> 
-      <el-form-item label="結轉日">
+  <div>
+      <el-form-item label="查詢核銷狀態">
           <el-date-picker
           v-model="selectedDate"
           type="date"
-          placeholder="選擇日期"
+          placeholder="選擇結轉日"
           :disabled-date="DateBeforeToday"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
@@ -17,16 +17,21 @@
         </el-date-picker>
         <el-button  type="danger" @click=dialog>查詢</el-button>
       </el-form-item>
-    </div>
-  <el-form-item label="核銷狀態" class="section-header" >
-  <el-table :data="writeoff" style="width: 100%">
-  <el-table-column prop="T6112060" label="T6112060(OIL加油)" width="350" />
-  <el-table-column prop="T6112060_OTR" label="T6112060(OTR其他類)" width="350" />
-  <el-table-column prop="BBB" label="台企" width="350" />
-  <el-table-column prop="NNN" label="諾瓦"  />
-</el-table>
+     </div> 
+    <el-form-item label="核銷狀態" class="section-header">
+  <div class="table-container">
+    <el-table :data="cpcData" style="flex: 1; margin-right: 20px;">
+      <el-table-column prop="data_source" label="中油核銷" ></el-table-column>
+      <el-table-column prop="count" label="數量"></el-table-column>
+    </el-table>
+    <el-table :data="bankData" style="flex: 1;">
+      <el-table-column prop="bank" label="銀行" ></el-table-column>
+      <el-table-column prop="count" label="數量" ></el-table-column>
+    </el-table>
+  </div>
 </el-form-item>
-<el-form-item label="中油" class="section-header" >
+
+<el-form-item label="中油未核銷" class="section-header" >
   <el-table :data="writeoff" style="width: 100%">
   <el-table-column prop="" label="客代" width="100" />
   <el-table-column prop="" label="車牌" width="100" />
@@ -45,7 +50,7 @@
 </el-table-column>
 </el-table>
 </el-form-item>
-<el-form-item label="儲值" class="section-header" >
+<el-form-item label="銀行未核銷" class="section-header" >
   <el-table :data="writeoff" style="width: 100%">
   <el-table-column prop="" label="客代" width="350" />
   <el-table-column prop="" label="入帳來源" width="350" />
@@ -74,14 +79,8 @@ export default {
 data() {
   return {
     selectedDate: null ,
-    writeoff: [
-      {
-        T6112060: "1筆",
-        T6112060_OTR: "5筆",
-        BBB: "8筆",
-        NNN: "10筆"
-      }
-    ]
+    cpcData: [],  // 用來儲存來自 "cpc_dataCount" 的資料
+    bankData: []  // 用來儲存來自 "bank_dataCount" 的資料
   };
 },
 created() {
@@ -104,7 +103,22 @@ created() {
          // 處理錯誤
          console.error('API request failed:', error);
        });
- },
+    },
+    async dialog(){
+      const postData = {
+        account_date :this.selectedDate,
+      };
+      await axios.post('http://122.116.23.30:3345/finance/unverified',postData)
+        .then(response => {
+          this.cpcData = response.data.data.cpc_dataCount;
+          this.bankData = response.data.data.bank_dataCount;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+
+    },
   }
 }
 </script>
@@ -121,5 +135,10 @@ created() {
   border-radius: 10px; /* 圆角 */
   padding: 10px; /* 内边距 */
   margin-bottom: 10px; /* 项目之间的间距 */
+}
+.table-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 </style>

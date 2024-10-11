@@ -108,7 +108,7 @@
             <el-option label="停用" :value="'停用'"></el-option>
             <el-option label="遺失" :value="'遺失'"></el-option>
             <el-option label="故障" :value="'故障'"></el-option>
-            <el-option label="其它" :value="'其它'"></el-option>
+            <el-option label="原卡復油" :value="'原卡復油'"></el-option>
           </el-select>
         </el-form-item>
       </el-row>
@@ -176,12 +176,6 @@ export default {
       Recorded:[],
       result:[],
       filteredRecorded: [], // 篩選後的資料
-      form:{
-        name:'123',
-        age:'456',
-        address:'789',
-        state:0
-      },
       productMap:{
         "0001": "0001 95無鉛汽油",
         "0002": "0002 92無鉛汽油",
@@ -190,8 +184,8 @@ export default {
         "0017": "0017 尿素溶液"
       },
       form:{
-        customerId:'',
-        discount_float:0
+        state:0,
+        deleteTime:''
       },
       currentPage: 1,
       pageSize: 10
@@ -496,11 +490,11 @@ export default {
                 data.upload_reason === '原卡復油' ? 'V' : '', // 原卡復油
                 data.customerId, // 保管單位
                 data.custodian.substring(8, 12), // 公司名稱 (取第9~12個字)
-                data.notes || '' // 備註
+                data.card_number //備註
               ]);
               worksheet.addTable({
                 name: 'table名稱', // 表格的名稱
-                ref: 'C1', // 表格從 A4 開始
+                ref: 'C1', 
                 headerRow: false, // 不需要表頭
                 columns: [ { name: '標題' } ],
                 rows: rowstitle // 將生成的行數據放入表格
@@ -562,6 +556,23 @@ export default {
       this.form.status=this.form.state
       this.form.createTime=""
       this.form.card_create_date=""
+      this.form.deleteTime=""
+      if(this.form.product_name=="0006"){
+        //柴油 
+        this.form.card_type="1"
+      }else if(this.form.product_name=="0001"){
+        //汽油 
+        this.form.card_type="2"
+      }else if(this.form.product_name=="0005"){
+        //酒精汽油 
+        this.form.card_type="3"
+      }else if(this.form.product_name=="0009"){
+        //不限 
+        this.form.card_type="4"
+      }else if(this.form.product_name=="0017"){
+        //尿素 
+        this.form.card_type="5"
+      }
       const postData=this.form
       axios.post('http://122.116.23.30:3345/main/recordedVehicle',postData)
         .then(response => {
