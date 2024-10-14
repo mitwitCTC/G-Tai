@@ -51,7 +51,7 @@
       ></el-input>
     </el-form-item>
     <el-form-item label="押金">
-      <el-input v-model="cus_form.deposit" :value="formatCurrency(cus_form.deposit)" readonly ></el-input>
+      <el-input v-model="cus_form.deposit" :value="formatCurrency(cus_form.deposit)" readonly class="right-align-input" ></el-input>
     </el-form-item>
     <el-form-item label="前台密碼(@)">
       <el-input v-model="cus_form.front_pwd" readonly></el-input>
@@ -105,7 +105,7 @@
   <!-- 製卡費&備註 -->
   <el-row style="margin-bottom: 20px">
     <el-form-item label="製卡費用">
-      <el-input v-model="cus_form.card_fee" readonly></el-input>
+      <el-input v-model="cus_form.card_fee" readonly class="right-align-input"></el-input>
     </el-form-item>
     <el-form-item label="再製卡費用">
       <el-input v-model="cus_form.reissue_fee" readonly class="right-align-input"></el-input>
