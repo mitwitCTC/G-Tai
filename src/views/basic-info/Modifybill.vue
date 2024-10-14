@@ -303,6 +303,7 @@ methods:{
       await axios.get('http://122.116.23.30:3345/main/selectAccount_sort')
       .then(response => {
           this.accountdata=response.data.data
+          
         })
         .catch(error => {
           // 處理錯誤
@@ -335,6 +336,9 @@ methods:{
       await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
       .then(response => {
           this.bills=response.data.data
+          this.bills = response.data.data.sort((a, b) => {
+          return a.license_plate.localeCompare(b.license_plate, 'zh-Hans-TW-u-kn-true');
+        });
         })
         .catch(error => {
           // 處理錯誤
