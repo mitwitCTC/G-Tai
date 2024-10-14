@@ -12,9 +12,9 @@
         <el-table-column prop="bank" label="銀行"></el-table-column>
         <el-table-column prop="account_date" label="入帳日"></el-table-column>
         <el-table-column prop="account_time" label="交易時間"></el-table-column>
-        <el-table-column prop="amount" label="入帳金額"><template v-slot="scope">{{ formatCurrency(scope.row.amount)}} </template></el-table-column>
         <el-table-column prop="taxId" label="統一編號"></el-table-column>
         <el-table-column prop="remark" label="備註"></el-table-column>
+        <el-table-column prop="amount" label="入帳金額" align="right"><template v-slot="scope">{{ formatCurrency(scope.row.amount)}} </template></el-table-column>
         <el-table-column label="操作">
       <template v-slot="scope">
       <div class="action-icons">
@@ -118,7 +118,7 @@
           </el-form-item>
           <el-row style="margin-bottom: 20px">
           <el-form-item label="系統入帳金額">
-            <el-input v-model="form.amount" ></el-input>
+            <el-input v-model="form.amount"  ></el-input>
           </el-form-item>
         </el-row>
         </el-form>

@@ -11,9 +11,9 @@
         <el-table-column prop="customerId" label="客戶代號"></el-table-column>
         <el-table-column prop="account_date" label="刷卡日期"></el-table-column>
         <el-table-column prop="issuing_bank" label="發卡銀行"></el-table-column>
-        <el-table-column prop="credit_amount" label="刷卡金額" ><template v-slot="scope">{{ formatCurrency(scope.row.credit_amount)}} </template></el-table-column>
-        <el-table-column prop="bank_amount" label="永豐入帳金額" ><template v-slot="scope">{{ formatCurrency(scope.row.bank_amount)}} </template></el-table-column>
-        <el-table-column prop="amount" label="系統入帳金額" ><template v-slot="scope">{{ formatCurrency(scope.row.amount)}} </template></el-table-column>
+        <el-table-column prop="credit_amount" label="刷卡金額" align="right"  ><template v-slot="scope">{{ formatCurrency(scope.row.credit_amount)}} </template></el-table-column>
+        <el-table-column prop="bank_amount" label="永豐入帳金額" align="right"><template v-slot="scope">{{ formatCurrency(scope.row.bank_amount)}} </template></el-table-column>
+        <el-table-column prop="amount" label="系統入帳金額" align="right" ><template v-slot="scope">{{ formatCurrency(scope.row.amount)}} </template></el-table-column>
         <el-table-column label="操作">
       <template v-slot="scope">
       <div class="action-icons">

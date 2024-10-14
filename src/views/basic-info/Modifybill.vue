@@ -212,8 +212,8 @@ methods:{
   if (this.form.state == 2) {
     result = selectedRows.map(row => ({
       license_plate: row.license_plate,
-      OldCustomerId: this.customerId, // 客戶代號
-      NewCustomerId: this.form.customerId, // 假設你有一個叫 cuscustomerId 的字段
+      oldCustomerId: this.customerId, // 客戶代號
+      newCustomerId: this.form.customerId, // 假設你有一個叫 cuscustomerId 的字段
       account_sortId: row.account_sortId, // 帳單代號
       mode: this.form.state,
       date:this.form.date

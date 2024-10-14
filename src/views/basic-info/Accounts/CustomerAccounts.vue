@@ -43,8 +43,8 @@
         <el-table-column prop="station_name" label="加油站"  width="150"/>
         <el-table-column prop="card_number" label="卡號"  width="250"/>
         <el-table-column prop="fuel_volume" label="油量" width="100" />
-        <el-table-column prop="reference_price" label="參考單價"  width="100"/>
-        <el-table-column prop="reference_amount" label="參考金額" width="100" />
+        <el-table-column prop="reference_price" label="參考單價" align="right"  width="100"/>
+        <el-table-column prop="reference_amount" label="參考金額" align="right" width="100" />
       </el-table>
       </el-form-item>
       <el-form-item label="銀行未核銷" class="section-header" >
@@ -63,10 +63,7 @@
     <el-table-column prop="account" label="虛擬帳號" width="200" />
     <el-table-column prop="credit_card_data" label="交易時間" />
     
-    <!-- 金額使用格式化 -->
-    <el-table-column prop="amount" label="金額">
-      <template v-slot="scope">{{ formatAmount(scope.row.amount) }}</template>
-    </el-table-column>
+   
     
     <!-- 可編輯的 account_new -->
     <el-table-column prop="account_new" label="正確帳號">
@@ -80,6 +77,10 @@
       <template v-slot="scope">
         <el-input v-model="scope.row.correct" v-if="isEditable"></el-input>
       </template>
+    </el-table-column>
+     <!-- 金額使用格式化 -->
+     <el-table-column prop="amount" label="金額" align="right">
+      <template v-slot="scope">{{ formatAmount(scope.row.amount) }}</template>
     </el-table-column>
     <el-table-column label="操作">
           <template v-slot="scope">
