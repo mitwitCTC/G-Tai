@@ -216,6 +216,7 @@ methods:{
       newCustomerId: this.form.customerId, // 假設你有一個叫 cuscustomerId 的字段
       account_sortId: row.account_sortId, // 帳單代號
       mode: this.form.state,
+      message:row.license_plate,
       date:this.form.date
     }));
   } else if (this.form.state == 3) {
@@ -224,27 +225,28 @@ methods:{
       customerId: this.customerId, // 客戶代號
       account_sortId: row.account_sortId, // 帳單代號
       mode: this.form.state,
+      message:row.license_plate,
       date:this.form.date
     }));
   }
   console.log(JSON.stringify(result)); // 將結果打印到控制台
-  await axios.post('http://122.116.23.30:3345/main/transformation',result)
-      .then(response => {
-          if(response.data.returnCode==0){
-            this.$message({
-              message: '更新成功',
-              type: 'success'
-            });
-          }
-        })
-        .catch(error => {
-          // 處理錯誤
-            this.$message({
-              message: '系統有誤',
-              type: 'error'
-            });
-          console.error('API request failed:', error);
-        });
+  // await axios.post('http://122.116.23.30:3345/main/transformation',result)
+  //     .then(response => {
+  //         if(response.data.returnCode==0){
+  //           this.$message({
+  //             message: '更新成功',
+  //             type: 'success'
+  //           });
+  //         }
+  //       })
+  //       .catch(error => {
+  //         // 處理錯誤
+  //           this.$message({
+  //             message: '系統有誤',
+  //             type: 'error'
+  //           });
+  //         console.error('API request failed:', error);
+  //       });
   this.form = {};
   this.dialogpage=false
 },

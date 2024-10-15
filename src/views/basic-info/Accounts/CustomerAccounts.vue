@@ -52,13 +52,8 @@
   
   <el-table :data="errbank" style="width: 100%" v-loading="loading">
     
-    <!-- 可編輯的 customerId -->
-    <el-table-column prop="customerId" label="客代" width="200">
-      <template v-slot="scope">
-        <el-input v-model="scope.row.customerId" maxlength=8  v-if="isEditable"></el-input>
-      </template>
-    </el-table-column>
-    
+
+    <el-table-column prop="customerId" label="客代" width="200" />
     <el-table-column prop="bank" label="入帳來源" width="200" />
     <el-table-column prop="account" label="虛擬帳號" width="200" />
     <el-table-column prop="credit_card_data" label="交易時間" />
@@ -85,7 +80,7 @@
     <el-table-column label="操作">
           <template v-slot="scope">
               <el-button type="warning" @click="Edit(scope.row)" v-if="!isEditable">修改</el-button>
-              <el-button type="success" @click="Edit(scope.row)" v-if="isEditable">儲存</el-button>
+              <el-button type="success" @click="Save(scope.row)" v-if="isEditable">儲存</el-button>
           </template>
        </el-table-column>
   </el-table>
@@ -195,8 +190,37 @@ created() {
     },
     Edit(){
       this.isEditable = !this.isEditable;
+    },
+    async Save(row){
+      this.isEditable = !this.isEditable;
+      const postData ={
+        id:row.id,
+        account :row.account_new,
+        correct:row.correct
+      }
+      console.log(JSON.stringify(postData))
+      if(!row.account_new){
+        this.$message({
+              message: '正確帳號不得為空',
+              type: 'error'
+            });
+            return
+      }
+      await axios.post('http://122.116.23.30:3345/finance/updateTBBAccount',postData)
+        .then(response => {
+          if(response.data.returnCode==0){
+            this.$message({
+              message: '修改成功',
+              type: 'success'
+            });
+            this.getselectData();
+          }
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
     }
-
   }
 }
 </script>
