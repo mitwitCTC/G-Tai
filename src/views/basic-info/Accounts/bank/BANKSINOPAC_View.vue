@@ -5,6 +5,29 @@
       <BreadCrumb/>
   </div>
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
+  <el-select 
+              v-model="search.customerName" 
+              placeholder="輸入客戶名稱/客代"
+              filterable
+              :clearable="true"
+              style="width: 225px; margin-left: 20px; " 
+            >
+              <!-- 使用 cusdata 直接顯示每個字符串 -->
+              <el-option
+                v-for="item in cusdata"
+                :key="item"
+                :label="item"
+                :value="item.substring(0, 8)"  
+              ></el-option>
+              </el-select>
+    <el-date-picker 
+                v-model="search.account_date" 
+                type="date" 
+                format="YYYY-MM-DD" 
+                value-format="YYYY-MM-DD" 
+                placeholder="選擇日期"
+                style="width: 225px;margin-left: 20px;">
+              </el-date-picker>
   <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
         <el-table-column prop="invoice" label="收款單號"></el-table-column> 
@@ -26,13 +49,13 @@
     </el-table>
     <div class="pagination-container">
       <div class="pagination-info">
-      Showing {{ startItem }} to {{ endItem }} of {{ BankData.length }}
+      Showing {{ startItem }} to {{ endItem }} of {{ filteredBankData.length }}
     </div>
       <el-pagination
         @current-change="handlePageChange"
         :current-page="currentPage"
         :page-size="pageSize"
-        :total="BankData.length"
+        :total="filteredBankData.length"
         layout="prev, pager, next, jumper"
         class="pagination"
       />
@@ -64,7 +87,7 @@
               filterable
               :clearable="true"
               style="width: 300px; " 
-              @change="getdata" 
+              @change="getdata(1)" 
             >
               <!-- 使用 cusdata 直接顯示每個字符串 -->
               <el-option
@@ -169,6 +192,8 @@
         amount:0
        },
       BankData:[],
+      search:{},
+      cusdata:[],
       currentPage:1,
       pageSize:10,
       lastInvoiceNumber: 1,
@@ -177,26 +202,55 @@
       isDiscountCard: false // 是否顯示"手續費優惠卡號"提示
     };
   },
-  created() {
-    this.getcusdata()
-    this.getselectData();
+  async created() {
+    const today = new Date();
+    this.form.account_date = this.formatDate(today);
+    this.form.credit_card_data = this.getNextBusinessDay();
+    await this.getcusdata()
+    await this.getselectData();
   },
   computed: {
-    
+    filteredBankData() {
+      return this.BankData.filter(item => {
+        const matchesCustomerName = this.search.customerName
+          ? item.customerId=== this.search.customerName
+          : true;
+        const matchesAccountDate = this.formatDateROC(this.search.account_date)
+          ? item.account_date === this.formatDateROC(this.search.account_date)
+          : true;
+        return matchesCustomerName && matchesAccountDate;
+      });
+    },
     paginatedData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.BankData.slice(start, end);
+      return this.filteredBankData.slice(start, end);
     },
     startItem() {
       return (this.currentPage - 1) * this.pageSize + 1;
     },
     endItem() {
-      return Math.min(this.currentPage * this.pageSize, this.BankData.length);
+      return Math.min(this.currentPage * this.pageSize, this.filteredBankData.length);
     }
   },
   methods: {
-   
+    getNextBusinessDay() {
+      let date = new Date(); // 獲取當前日期
+      date.setDate(date.getDate() + 1); // 加 1 天
+
+      // 判斷是否是週末（0 = 週日, 6 = 週六），假日跳過
+      while (date.getDay() === 0 || date.getDay() === 6) {
+        date.setDate(date.getDate() + 1); // 繼續加 1 天
+      }
+      // 格式化日期並返回
+      return this.formatDate(date);
+    },
+    formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份從0開始，因此要加1
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
     formatamount(){
       if(!this.form.account){
         this.form.credit_amount=''
@@ -256,6 +310,7 @@
         this.bigdate = this.currentDate; // 更新bigdate為當前日期
         this.bigNo = '001'; // 重置流水號為001
         this.form.invoice = `G${this.bigdate}${this.bigNo}`;
+        this.bigNo = '000'; // 重置流水號為001
       }
       
     },
@@ -455,8 +510,8 @@ return formattedDate;
     async getcusdata(){
       await axios.get('http://122.116.23.30:3345/main/selectCustomer')
       .then(response => {
-          this.cusdata=response.data.data
-          this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
+          this.cusdatas=response.data.data
+          this.cusdata = this.cusdatas.map(item => `${item.cus_code} ${item.cus_name}`);
         })
         .catch(error => {
           // 處理錯誤
@@ -467,7 +522,8 @@ return formattedDate;
           console.error('API request failed:', error);
         });
     },
-    getdata(){
+    getdata(type){
+      if(type==1){
       this.form.credit_amount=''
       this.form.handling_fee=0
       this.form.bank_amount=0
@@ -517,6 +573,7 @@ return formattedDate;
           console.error('API request failed:', error);
         });
      }
+    }
     
   },
   }

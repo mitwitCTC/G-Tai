@@ -9,7 +9,7 @@
     <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
         <el-table-column prop="job_title" label="職稱"></el-table-column>
-        <el-table-column prop="gender" label="性別"></el-table-column>
+        <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
         <el-table-column prop="name" label="姓名"></el-table-column>
         <el-table-column prop="mobile" label="手機/電話"></el-table-column>
         <el-table-column prop="mail" label="E-MAIL"></el-table-column>
@@ -44,12 +44,12 @@
           <el-form-item label="職稱">
              <el-input v-model="form.job_title" ></el-input>
           </el-form-item>
-          <el-form-item label="性別">
+          <!-- <el-form-item label="性別">
             <el-select v-model="form.gender" placeholder="選擇性別">
             <el-option label="男" :value="'男'"></el-option>
             <el-option label="女" :value="'女'"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
           <el-form-item label="姓名">
             <el-input v-model="form.name" ></el-input>
           </el-form-item>

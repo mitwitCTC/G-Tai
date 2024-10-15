@@ -155,9 +155,9 @@
       </el-form-item>
       <el-form-item label="合約狀態">
         <el-select v-model="cus_form.contract_status" placeholder="選擇合約狀態">
-          <el-option label="啟用" :value="'N'"></el-option>
+          <el-option label="未解約" :value="'N'"></el-option>
           <el-option label="暫停" :value="'S'"></el-option>
-          <el-option label="終止" :value="'Y'"></el-option>
+          <el-option label="解約" :value="'Y'"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="營登地址">
@@ -248,12 +248,12 @@
         <el-form-item label="職稱">
           <el-input v-model="rowData.job_title" ></el-input>
         </el-form-item>
-        <el-form-item label="性別">
+        <!-- <el-form-item label="性別">
           <el-select v-model="rowData.gender" placeholder="選擇性別">
           <el-option label="男" :value="'男'"></el-option>
           <el-option label="女" :value="'女'"></el-option>
         </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="姓名">
           <el-input v-model="rowData.name" ></el-input>
         </el-form-item>
@@ -361,7 +361,7 @@
         <el-form-item label="車牌號碼">
           <el-input v-model="rowData.license_plate" ></el-input>
         </el-form-item>
-        <el-form-item label="車輛型態">
+        <!-- <el-form-item label="車輛型態">
           <el-select v-model="rowData.vehicle_type" placeholder="選擇車輛型態">
             <el-option label="大巴" :value="'1'"></el-option>
             <el-option label="中巴" :value="'2'"></el-option>
@@ -369,7 +369,7 @@
             <el-option label="油罐卡" :value="'4'"></el-option>
             <el-option label="臨時卡" :value="'5'"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="油品名稱">
           <el-select v-model="rowData.product_name" placeholder="選擇油品">
             <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>

@@ -35,9 +35,9 @@
     <el-form-item label="產業類別">
       <el-input v-model="cus_form.industry" :formatter="formatIndustry" readonly></el-input>
     </el-form-item>
-    <el-form-item label="預估月加油量">
+    <!-- <el-form-item label="預估月加油量">
       <el-input v-model="cus_form.est_fuel_volume" readonly></el-input>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item label="公司電話">
       <el-input v-model="cus_form.phone" readonly></el-input>
     </el-form-item>
@@ -60,37 +60,37 @@
       <el-input v-model="cus_form.contract_start" readonly></el-input>
     </el-form-item>
     <el-form-item label="停油寬限額度">
-      <el-input v-model="cus_form.fuel_grace_limit" readonly></el-input>
+      <el-input v-model="cus_form.fuel_grace_limit" :value="formatCurrency(cus_form.fuel_grace_limit)" readonly></el-input>
     </el-form-item>
-    <el-form-item label="公司統編">
+    <!-- <el-form-item label="公司統編">
       <el-input v-model="cus_form.vat_number" readonly></el-input>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item label="合約日期(迄)">
       <el-input v-model="cus_form.contract_end" readonly></el-input>
     </el-form-item>
     <el-form-item label="低水位通知">
-      <el-input v-model="cus_form.low_balance_notice" readonly></el-input>
+      <el-input v-model="cus_form.low_balance_notice":value="formatCurrency(cus_form.low_balance_notice)" readonly></el-input>
     </el-form-item>
-    <el-form-item label="公司抬頭">
+    <!-- <el-form-item label="公司抬頭">
       <el-input v-model="cus_form.company_title" readonly></el-input>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item label="簽呈日期">
       <el-input v-model="cus_form.submission_date" readonly></el-input>
     </el-form-item>
     <el-form-item label="匯款日期">
       <el-input v-model="cus_form.remittance_date" readonly></el-input>
     </el-form-item>
-    <el-form-item label="油價簡訊電話">
+    <!-- <el-form-item label="油價簡訊電話">
       <el-input v-model="cus_form.fuel_sms_phone" readonly></el-input>
-    </el-form-item>
-    <el-form-item label="油價簡訊選項">
+    </el-form-item> -->
+    <!-- <el-form-item label="油價簡訊選項">
       <el-input v-model="cus_form.fuel_sms_option" readonly></el-input>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item label="餘額不足訊息電話">
       <el-input v-model="cus_form.balance_sms_phone" readonly></el-input>
     </el-form-item>
     <el-form-item label="合約狀態">
-      <el-input :value="cus_form.contract_status == 'N' ? '啟用' : (cus_form.contract_status == 'Y' ? '停用' : (cus_form.contract_status == 'S' ? '暫停' : '未知'))"
+      <el-input :value="cus_form.contract_status == 'N' ? '未解約' : (cus_form.contract_status == 'Y' ? '解約' : (cus_form.contract_status == 'S' ? '暫停' : '未知'))"
       readonly 
       ></el-input>
     </el-form-item>
@@ -133,15 +133,15 @@
     <el-form-item label="簽約業務" v-if="this.salesmenData">
       <el-input :value="getEmployeeName(cus_form.contract_sales)"   readonly></el-input>
     </el-form-item>
-    <el-form-item label="業務備註" class="large-textbox">
+    <!-- <el-form-item label="業務備註" class="large-textbox">
       <el-input v-model="cus_form.sales_notes" type="textarea" readonly></el-input>
-    </el-form-item>
+    </el-form-item> -->
   </el-row>
 
   <!-- 設定方式&備註 -->
-  <el-row style="margin-bottom: 20px">
+  <!-- <el-row style="margin-bottom: 20px"> -->
     <!-- 設定方式 (多選框) -->
-    <el-form-item label="設定方式">
+    <!-- <el-form-item label="設定方式">
       <el-checkbox-group v-model="cus_form.config_method" disabled >
         <el-checkbox :value="1">銀行定存</el-checkbox>
         <el-checkbox :value="2">現金</el-checkbox>
@@ -151,12 +151,12 @@
         <el-checkbox :value="6">無擔保</el-checkbox>
         <el-checkbox :value="7">其他</el-checkbox>
       </el-checkbox-group>
-    </el-form-item>
+    </el-form-item> -->
     <!-- 設定方式備註 -->
-    <el-form-item label="設定方式備註" class="large-textbox">
+    <!-- <el-form-item label="設定方式備註" class="large-textbox">
       <el-input v-model="cus_form.config_notes" type="textarea" readonly></el-input>
     </el-form-item>
-  </el-row>
+  </el-row> -->
   <!-- 信用卡收取手續費 -->
   <el-row style="margin-bottom: 20px">
     <el-form-item label="信用卡手續費收取">
@@ -820,6 +820,7 @@ created() {
       const employee = this.salesmenData.find(item => item.employee_id == responsible.responsible_person);
       return employee == null ? '' : (employee ? employee.employee_name : '未知員工');
     },
+    
   }
 };
 </script>

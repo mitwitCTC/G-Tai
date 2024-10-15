@@ -6,10 +6,10 @@
       <BreadCrumb :isSpecialPage="true" />
     </div>
     <el-button type="warning" @click="dialog = true">新增卡片資訊</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4>車牌號碼:<h4>{{this.license_plate}}</h4></h5></div>
-    <el-table :data="vehicles" style="width: 100%">
+    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4>帳單名稱:<h4>{{this.acc_name}}</h4>車牌號碼:<h4>{{this.license_plate}}</h4></h5></div>
+    <el-table :data="vehicles" style="width: 100%" v-loading="loading">
       <el-table-column prop="card_number" label="卡號" width="200" />
-      <el-table-column prop="card_type" label="卡片類別" width="150" />
+      <el-table-column prop="card_type" label="卡片類別" width="150" :formatter="format" />
       <el-table-column prop="upload_time" label="上傳中油時間" width="150" />
       <el-table-column prop="upload_reason" label="上傳中油原因" width="150" />
       <el-table-column prop="card_arrival_date" label="到卡日期" width="150" />
@@ -25,9 +25,7 @@
         </template>
     </el-table-column>
     </el-table>
-    <div class="pagination-info">
-        Showing 1 to 0 of 0
-      </div>
+   
     <!-- 新增車籍卡片資訊 -->
     <el-dialog title="新增車籍卡片資訊" v-model="dialog" width="50%" :close-on-click-modal="false">
         <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
@@ -96,6 +94,7 @@
 import ListBar from '@/components/ListBar.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import axios from 'axios';
+import { toRaw } from 'vue'; // 引入 `toRaw` 函數
 
 export default {
   components: {
@@ -104,6 +103,7 @@ export default {
   },
   data() {
     return {
+      loading:false,
       dialog:false,
       form:{
         vehicleId:'',
@@ -115,22 +115,54 @@ export default {
       },
       cus_code:'',
       cus_name:'',
+      acc_name:'',
       vehicles: [],
+      bills:[],
+      type: {
+        '1': '尿素',
+        '2': '汽油',
+      } ,
       
     };
   },
-  created() {
+  async created() {
     this.cus_code=(this.$route.query.cus_code);
     this.cus_name=(this.$route.query.cus_name);
     this.license_plate=(this.$route.query.license_plate);
     this.vehicleId=(this.$route.query.vehicleId);
     this.form.vehicleId=this.vehicleId
     this.getselectData();
+    await this.getbillselectData();
+    this.acc_name = this.formatName(this.$route.query.acc_name);
+    
   },
   computed: {
    
   },
   methods: {
+    async getbillselectData() {
+      const postData = {
+      customerId:this.cus_code,
+      };
+      await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+        .then(response => {
+          this.bills = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
+    formatName(account_sortId) {
+    // 使用 find 方法找到對應的 account_sortId
+    const account = this.bills.find(item => item.account_sortId == account_sortId);
+    // 如果找到返回 acc_name，否則返回 '未知名稱'
+    return account ? account.acc_name : '未知名稱';
+  },
+    format(card_type) {
+      const type = toRaw(card_type);
+      return this.type[type.card_type.toString()] || '未知';
+    },
     savePass() {
       const req = this.form;
       // 發送 POST 請求
@@ -172,13 +204,14 @@ export default {
         });
     },
     async getselectData() {
+      this.loading = true;
       const postData = {
       vehicleId:this.vehicleId,
     };
       await axios.post('http://122.116.23.30:3345/main/searchCard',postData)
         .then(response => {
           this.vehicles = response.data.data;
-          console.log(this.vehicles)
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤

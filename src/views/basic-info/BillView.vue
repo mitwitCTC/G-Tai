@@ -9,7 +9,7 @@
     <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
     <div class="table-container">
       <el-table :data="currentPageData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="account_sortId" label="帳單編號" width="150" />
+        <!-- <el-table-column prop="account_sortId" label="帳單編號" width="150" /> -->
         <el-table-column prop="acc_name" label="帳單名稱" width="200" />
         <el-table-column prop="use_number" label="開立統編" width="150" />
         <el-table-column prop="recipient_name" label="收件人姓名" width="300" />
@@ -48,9 +48,9 @@
       </el-form>
       <el-table :data="currentPageData2" style="width: 100%" v-loading="loading">
         <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
-        <el-table-column prop="license_plate" label="車牌號碼" width="300" />
-        <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" />
-        <el-table-column prop="product_name" label="油品名稱"  width="350" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
+        <el-table-column prop="license_plate" label="車牌號碼" width="450" />
+        <!-- <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" /> -->
+        <el-table-column prop="product_name" label="油品名稱"  width="500" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
             <div class="action-icons">
@@ -84,12 +84,40 @@
           <el-form-item label="帳單名稱">
             <el-input v-model="billform.acc_name" ></el-input>
           </el-form-item>
-          <el-form-item label="開立統編">
+          <!-- <el-form-item label="開立統編">
             <el-input v-model="billform.use_number" ></el-input>
-          </el-form-item>
-          <el-form-item label="發票開立人名稱">
+          </el-form-item> -->
+          <el-form-item label="開立統編">
+          <el-select  v-model="billform.use_number"
+          filterable
+          allow-create
+          clearable
+          placeholder="請選擇或輸入統編">
+            <el-option
+              v-for="bill in uniqueBills"
+              :key="bill.account_sortId "
+              :label="bill.use_number"
+              :value="bill.use_number "
+          ></el-option>
+          </el-select>
+        </el-form-item>
+          <!-- <el-form-item label="發票開立人名稱">
             <el-input v-model="billform.invoice_name" ></el-input>
-          </el-form-item>
+          </el-form-item> -->
+          <el-form-item label="發票開立人名稱">
+          <el-select  v-model="billform.invoice_name"
+          filterable
+          allow-create
+          clearable
+          placeholder="請輸入開立人姓名">
+            <el-option
+              v-for="bill in uniqueNameBills"
+              :key="bill.account_sortId "
+              :label="bill.invoice_name"
+              :value="bill.invoice_name "
+          ></el-option>
+          </el-select>
+        </el-form-item>
           <el-form-item label="帳單寄送方式">
           <el-select v-model="billform.billing_method" placeholder="選擇方式">
             <el-option label="MAIL" :value="1"></el-option>
@@ -111,8 +139,22 @@
         <el-form-item label="收件人姓名">
           <el-input v-model="billform.recipient_name" ></el-input>
         </el-form-item>
-        <el-form-item label="帳單聯絡人">
+        <!-- <el-form-item label="帳單聯絡人">
          <el-input v-model="billform.acc_contact" ></el-input>
+        </el-form-item> -->
+        <el-form-item label="帳單聯絡人">
+          <el-select  v-model="billform.acc_contact"
+          filterable
+          allow-create
+          clearable
+          placeholder="請輸入開立人姓名">
+            <el-option
+              v-for="bill in uniqueNameBills"
+              :key="bill.account_sortId "
+              :label="bill.invoice_name"
+              :value="bill.invoice_name "
+          ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="對帳單備註資訊" style="width: 1000px">
           <el-input v-model="billform.statement_notes" type="textarea" ></el-input>
@@ -147,7 +189,7 @@
         <el-form-item label="車牌號碼">
           <el-input v-model="form.license_plate" maxlength="8" ></el-input>
         </el-form-item>
-        <el-form-item label="車輛型態">
+        <!-- <el-form-item label="車輛型態">
           <el-select v-model="form.vehicle_type" placeholder="選擇車輛型態">
             <el-option label="大巴" :value="1"></el-option>
             <el-option label="中巴" :value="2"></el-option>
@@ -155,7 +197,7 @@
             <el-option label="油罐卡" :value="4"></el-option>
             <el-option label="臨時卡" :value="5"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="油品名稱">
           <el-select v-model="form.product_name" placeholder="選擇油品">
             <el-option
@@ -293,8 +335,31 @@ export default {
         );
       });
     },
+    uniqueBills() {
+      const seen = new Set();
+      return this.bills.filter(bill => {
+        // 只保留第一次出現的 account_sortId
+        if (!seen.has(bill.use_number)) {
+          seen.add(bill.use_number);
+          return true;
+        }
+        return false;
+      });
+    },
+    uniqueNameBills() {
+      const seen = new Set();
+      return this.bills.filter(bill => {
+        // 只保留第一次出現的 account_sortId
+        if (!seen.has(bill.invoice_name)) {
+          seen.add(bill.invoice_name);
+          return true;
+        }
+        return false;
+      });
+    },
   },
   methods: {
+    
     async getbillselectData() {
       this.loading = true;
       const postData = {
@@ -303,6 +368,9 @@ export default {
       await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
           this.bills = response.data.data;
+          this.bills = response.data.data.sort((a, b) => {
+          return a.acc_name.localeCompare(b.acc_name, 'zh-Hans-TW-u-kn-true');
+        });
           this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
@@ -579,7 +647,8 @@ export default {
           cus_name:this.cus_name,
           cus_code:this.cus_code,
           license_plate:row.license_plate,
-          vehicleId:row.vehicleId
+          vehicleId:row.vehicleId,
+          acc_name:row.account_sortId
         }
       });
     },

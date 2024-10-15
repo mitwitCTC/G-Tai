@@ -17,18 +17,36 @@
       </el-form>
 
       <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="cus_code" label="客戶代號" width="100"></el-table-column>
-        <el-table-column prop="cus_name" label="客戶名稱" width="250"></el-table-column>
+        <!-- <el-table-column prop="cus_code" label="客戶代號" width="100"></el-table-column>
+        <el-table-column prop="cus_name" label="客戶名稱" width="250"></el-table-column> -->
+        <el-table-column prop="cus_code" label="客戶代號" width="100">
+          <template v-slot="scope">
+            <span @click="viewDetails(scope.row)" style="cursor: pointer; color: blue;">
+              {{ scope.row.cus_code }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="cus_name" label="客戶名稱" width="250">
+          <template v-slot="scope">
+            <span @click="viewDetails(scope.row)" style="cursor: pointer; color: blue;">
+              {{ scope.row.cus_name }}
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column prop="vat_number" label="統編" width="150"></el-table-column>
-        <el-table-column prop="region" label="區域" :formatter="formatRegion" width="150"></el-table-column>
+        <el-table-column prop="front_pwd" label="密碼"  width="150"></el-table-column>
+        <el-table-column prop="submission_date" label="簽呈日期"  width="150"></el-table-column>
+        <el-table-column prop="" label="當月用油公升" width="150"></el-table-column>
+        <el-table-column prop="" label="當月餘額金額" width="200"></el-table-column>
+        <!-- <el-table-column prop="region" label="區域" :formatter="formatRegion" width="150"></el-table-column>
         <el-table-column prop="industry" label="產業類別" :formatter="formatIndustry" width="150"></el-table-column>
         <el-table-column prop="est_fuel_volume" label="預估月加油量" width="150"></el-table-column>
-        <el-table-column prop="phone" label="公司電話" width="200"></el-table-column>
+        <el-table-column prop="phone" label="公司電話" width="200"></el-table-column> -->
         <!-- 操作列 -->
     <el-table-column label="操作">
       <template v-slot="scope">
         <div class="action-icons">
-          <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
+          <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
           <i class="fas fa-edit " @click="editItem(scope.row)"></i>
           <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
           <el-button type="primary" @click="onContact(scope.row)">聯絡人</el-button>
@@ -188,9 +206,9 @@
         </el-form-item>
         <el-form-item label="合約狀態">
           <el-select v-model="form.contract_status" placeholder="選擇合約狀態">
-            <el-option label="啟用" :value="'N'"></el-option>
+            <el-option label="未解約" :value="'N'"></el-option>
             <el-option label="暫停" :value="'S'"></el-option>
-            <el-option label="終止" :value="'Y'"></el-option>
+            <el-option label="解約" :value="'Y'"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="營登地址" >

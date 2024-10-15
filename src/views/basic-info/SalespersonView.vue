@@ -6,7 +6,7 @@
   </div>
     <el-button type="success" style="margin: 10px;" @click="dialog = true">新增員工</el-button>
     <div class="table-container">
-      <el-table :data="currentPageData" style="width: 100%">
+      <el-table :data="currentPageData" style="width: 100%" v-loading="loading">
         <el-table-column prop="employee_id" label="員工編號"  />
         <el-table-column prop="employee_name" label="員工姓名"  />
         <el-table-column prop="job_title" label="職稱" />
@@ -94,6 +94,7 @@ export default {
   },
   data() {
     return {
+      loading:false,
       dialog: false,
       filters: {
         salesperson: ''
@@ -163,6 +164,7 @@ export default {
         });
     },
     async getselectData() {
+      this.loading = true;  // 開始加載
     try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get('http://122.116.23.30:3345/main/selectSalesman');
@@ -171,7 +173,9 @@ export default {
         this.selses=salesmanData;
     } catch (error) {
         console.error('Error fetching customer data:', error);
-    }
+    }finally {
+        this.loading = false;  // 請求完成後關閉加載狀態
+      }
   },
   handlePageChange(page) {
       this.currentPage = page;
