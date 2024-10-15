@@ -177,9 +177,9 @@
   </el-form-item>
   <!--查詢所有list-->
   <!--帳單list-->
-  <el-form-item label="帳單資訊" class="section-header" v-if="this.rowType==='1'">
+  <el-form-item label="帳單資訊" class="section-header" v-if="this.rowType==='1'" >
     <div class="table-container">
-        <el-table :data="bills" style="width: 100%; "  >
+        <el-table :data="bills" style="width: 100%; " v-loading="loading" >
           <el-table-column prop="account_sortId" label="帳單編號" width="150" />
           <el-table-column prop="acc_name" label="帳單名稱" width="250" />
           <el-table-column prop="use_number" label="開立統編" width="100" />
@@ -192,7 +192,7 @@
     <!--車籍list-->
     <el-form-item label="車籍資訊" class="section-header" v-if="this.rowType==='1'">
     <div class="table-container">
-      <el-table :data="currentPageData2" style="width: 100%">
+      <el-table :data="currentPageData2" style="width: 100%" v-loading="loading">
         <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
         <el-table-column prop="license_plate" label="車牌號碼" width="200" />
         <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" />
@@ -223,7 +223,7 @@
     
     <el-form-item label="折讓資訊" class="section-header" v-if="this.rowType==='1'">
     <div class="table-container">
-      <el-table :data="DiscountData" style="width: 100%">
+      <el-table :data="DiscountData" style="width: 100%" v-loading="loading">
       <el-table-column prop="product_name" label="油品名稱"  width="300" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
       <el-table-column prop="supplier_name" label="廠商名稱" width="500" />
       <el-table-column prop="discount_float" label="折讓" width="250" />
@@ -234,7 +234,7 @@
     <!--聯絡人list-->
     <el-form-item label="聯絡人資訊" class="section-header" v-if="this.rowType==='1'">
       <div class="table-container">
-      <el-table :data="contact" style="width: 100%">
+      <el-table :data="contact" style="width: 100%" v-loading="loading">
         <el-table-column prop="job_title" label="職稱" width="150"></el-table-column>
         <el-table-column prop="gender" label="性別" width="100"></el-table-column>
         <el-table-column prop="name" label="姓名" width="250"></el-table-column>
@@ -460,6 +460,7 @@ export default {
   },
 data() {
   return {
+    loading:false,
     currentPage2:1,
     pageSize: 10,
     invoice:'',
@@ -680,12 +681,14 @@ created() {
   },
   methods:{
     async getcontactselectData() {
+      this.loading = true;  // 開始加載
       const postData = {
       customerId:this.cus_code,
       };
       await axios.post('http://122.116.23.30:3345/main/searchContact',postData)
         .then(response => {
           this.contact = response.data.data;
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤
@@ -693,12 +696,14 @@ created() {
         });
   },
     async getdiscountselectData() {
+      this.loading = true;  // 開始加載
       const postData = {
       customerId:this.cus_code,
       };
       await axios.post('http://122.116.23.30:3345/main/searchDiscount',postData)
         .then(response => {
           this.DiscountData = response.data.data;
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤
@@ -706,9 +711,11 @@ created() {
         });
   },
   async getproduct_name() {
+    this.loading = true;  // 開始加載
       await axios.get('http://122.116.23.30:3345/main/selectProduct')
         .then(response => {
           this.productMap = response.data.data;
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤
@@ -716,12 +723,14 @@ created() {
         });
     },
     async getvehiclesselectData() {
+      this.loading = true;  // 開始加載
       const postData = {
       customerId:this.cus_code,
       };
       await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
         .then(response => {
           this.vehicles = response.data.data;
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤
@@ -729,6 +738,7 @@ created() {
         });
     },
     async getbillselectData() {
+      this.loading = true;  // 開始加載
       const postData = {
       customerId:this.cus_code,
       };
@@ -736,6 +746,7 @@ created() {
         .then(response => {
           this.bills = response.data.data;
           console.log(JSON.stringify(this.bills))
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤

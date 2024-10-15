@@ -8,7 +8,7 @@
     <el-button type="success" @click="dialogBill = true">新增帳單資料</el-button>
     <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
     <div class="table-container">
-      <el-table :data="currentPageData" style="width: 100%">
+      <el-table :data="currentPageData" style="width: 100%" v-loading="loading">
         <el-table-column prop="account_sortId" label="帳單編號" width="150" />
         <el-table-column prop="acc_name" label="帳單名稱" width="200" />
         <el-table-column prop="use_number" label="開立統編" width="150" />
@@ -46,7 +46,7 @@
         </el-form-item>
         <el-button type="warning" @click="dialog = true">新增車籍</el-button>
       </el-form>
-      <el-table :data="currentPageData2" style="width: 100%">
+      <el-table :data="currentPageData2" style="width: 100%" v-loading="loading">
         <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
         <el-table-column prop="license_plate" label="車牌號碼" width="300" />
         <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" />
@@ -192,6 +192,7 @@ export default {
   },
   data() {
     return {
+      loading:false,
       cus_code:'',
       cus_name:'',
       dialogBill: false,
@@ -295,12 +296,14 @@ export default {
   },
   methods: {
     async getbillselectData() {
+      this.loading = true;
       const postData = {
       customerId:this.cus_code,
       };
       await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
           this.bills = response.data.data;
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤
@@ -318,12 +321,14 @@ export default {
         });
     },
     async getselectData() {
+      this.loading = true;
       const postData = {
       customerId:this.cus_code,
       };
       await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
         .then(response => {
           this.vehicles = response.data.data;
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤

@@ -6,7 +6,7 @@
   </div>
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
   <div class="table-container">
-      <el-table :data="paginatedData" style="width: 100%">
+      <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
         <el-table-column prop="id" label="序號"></el-table-column> 
         <el-table-column prop="customerId" label="客戶代號"></el-table-column>
         <el-table-column prop="bank" label="銀行"></el-table-column>
@@ -143,6 +143,7 @@
     },
   data() {
     return {
+      loading:false,
       dialog: false,
       form:{
         amount:''
@@ -248,11 +249,12 @@
         });
     }, 
     async getselectData() {
-     
+      this.loading = true;  // 開始加載
       await axios.get('http://122.116.23.30:3345/finance/selectTBB')
         .then(response => {
           this.BankData = response.data.data;
           this.BankData.sort((a, b) => b.id - a.id);
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤

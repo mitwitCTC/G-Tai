@@ -20,11 +20,11 @@
      </div> 
     <el-form-item label="核銷狀態" class="section-header">
   <div class="table-container">
-    <el-table :data="cpcData" style="flex: 1; margin-right: 20px;">
+    <el-table :data="cpcData" style="flex: 1; margin-right: 20px;" v-loading="loading">
       <el-table-column prop="data_source" label="中油核銷" ></el-table-column>
       <el-table-column prop="count" label="數量"></el-table-column>
     </el-table>
-    <el-table :data="bankData" style="flex: 1;">
+    <el-table :data="bankData" style="flex: 1;" v-loading="loading">
       <el-table-column prop="bank" label="銀行" ></el-table-column>
       <el-table-column prop="count" label="數量" ></el-table-column>
     </el-table>
@@ -32,7 +32,7 @@
 </el-form-item>
 
       <!-- 顯示表格 -->
-      <el-form-item label="中油未核銷" class="section-header" >
+      <el-form-item label="中油未核銷" class="section-header"  >
         <el-button type="primary" @click="onContact(1)">核銷</el-button>
         <el-table :data="errcpc" style="width: 100%" v-loading="loading">
         <el-table-column prop="customerId" label="客代" width="100" />

@@ -13,7 +13,7 @@
   <br>
   <el-button type="primary" @click="dialog=true" style="margin-top: 20px;">新增</el-button>
   <!-- <input type="file" @change="handleFileChange" /> -->
-  <el-table :data="paginatedDiscount" style="width: 100%">
+  <el-table :data="paginatedDiscount" style="width: 100%" v-loading="loading">
       <el-table-column prop="cpc_account" label="中油帳號"  width="100" />
       <el-table-column prop="customerId" label="客戶編號"  width="100" />
       <el-table-column prop="cus_name" label="客戶名稱" width="300" />
@@ -161,6 +161,7 @@ export default {
   },
   data() {
     return {
+      loading:false,
       dialog:false,
       cus_code:'',
       cus_name:'',
@@ -258,10 +259,12 @@ export default {
       }
     },
     async getRecorded(){
+      this.loading = true;  // 開始加載
        const response= await axios.get('http://122.116.23.30:3345/main/getRecordedVehicle')
         try{
             this.Recorded = response.data.data;  // 更新 Recorded
             this.filteredRecorded = this.Recorded;  // 設置 filteredRecorded 為 Recorded 的內容
+            this.loading = false;  // 請求完成後關閉加載狀態
         }
          catch(error){
           this.$message({

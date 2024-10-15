@@ -7,7 +7,7 @@
     <el-button type="primary" @click="dialog = true">新增聯絡人</el-button>
     <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
     <div class="table-container">
-      <el-table :data="paginatedData" style="width: 100%">
+      <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
         <el-table-column prop="job_title" label="職稱"></el-table-column>
         <el-table-column prop="gender" label="性別"></el-table-column>
         <el-table-column prop="name" label="姓名"></el-table-column>
@@ -89,6 +89,7 @@ export default {
 
   data() {
     return {
+      loading:false,
       cus_code:'',
       cus_name:'',
       dialog: false,
@@ -128,12 +129,14 @@ export default {
   },
   methods: {
     async getselectData() {
+      this.loading = true;  // 開始加載
       const postData = {
       customerId:this.cus_code,
       };
       await axios.post('http://122.116.23.30:3345/main/searchContact',postData)
         .then(response => {
           this.contact = response.data.data;
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤

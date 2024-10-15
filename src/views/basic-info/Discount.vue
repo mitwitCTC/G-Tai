@@ -7,7 +7,7 @@
     </div>
     <el-button type="danger" @click="dialog = true">新增折讓</el-button>
     <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
-    <el-table :data="paginatedDiscount" style="width: 100%">
+    <el-table :data="paginatedDiscount" style="width: 100%" v-loading="loading">
       <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="300" />
       <el-table-column prop="supplier_name" label="廠商名稱" width="500" />
       <el-table-column prop="discount_float" label="折讓" width="250" />
@@ -95,6 +95,7 @@ export default {
   },
   data() {
     return {
+      loading:false,
       dialog:false,
       cus_code:'',
       cus_name:'',
@@ -153,12 +154,14 @@ export default {
   },
   methods: {
     async getselectData() {
+      this.loading = true;
       const postData = {
       customerId:this.cus_code,
       };
       await axios.post('http://122.116.23.30:3345/main/searchDiscount',postData)
         .then(response => {
           this.DiscountData = response.data.data;
+          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤

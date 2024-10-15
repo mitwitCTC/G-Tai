@@ -16,7 +16,7 @@
         </el-form-item>
       </el-form>
 
-      <el-table :data="paginatedData" style="width: 100%">
+      <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
         <el-table-column prop="cus_code" label="客戶代號" width="100"></el-table-column>
         <el-table-column prop="cus_name" label="客戶名稱" width="250"></el-table-column>
         <el-table-column prop="vat_number" label="統編" width="150"></el-table-column>
@@ -301,6 +301,7 @@ export default {
   },
   data() {
     return {
+      loading: false,  // 加載狀態
       dialog: false,
       search: {
         customerName: ''
@@ -385,6 +386,7 @@ export default {
     },
     async getselectData() {
     try {
+      this.loading = true;  // 開始加載
         // 發送 GET 請求到指定的 API
         const response = await axios.get('http://122.116.23.30:3345/main/selectCustomer');
         const customerData = response.data.data; // 取得資料中的第一個元素
@@ -392,7 +394,9 @@ export default {
         this.customers=customerData;
     } catch (error) {
         console.error('Error fetching customer data:', error);
-    }
+    } finally {
+        this.loading = false;  // 請求完成後關閉加載狀態
+      }
   },
   savePass() {
     if(!this.form.config_method){

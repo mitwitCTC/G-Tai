@@ -6,7 +6,7 @@
   </div>
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
   <div class="table-container">
-      <el-table :data="paginatedData" style="width: 100%">
+      <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
         <el-table-column prop="invoice" label="收款單號"></el-table-column> 
         <el-table-column prop="customerId" label="客戶代號"></el-table-column>
         <el-table-column prop="account_date" label="刷卡日期"></el-table-column>
@@ -155,6 +155,7 @@
     },
   data() {
     return {
+      loading:false,
       dialog: false,
       biginvoice:'',
       bigdate:'',
@@ -342,7 +343,7 @@
         });
     }, 
     async getselectData() {
-     
+      this.loading = true;  // 開始加載
       await axios.get('http://122.116.23.30:3345/finance/selectSINOPAC')
         .then(response => {
           this.BankData = response.data.data;
@@ -356,6 +357,7 @@
       this.bigdate=this.biginvoice.substring(1, 7);
       this.bigNo=this.biginvoice.substring(7);
       console.log("日期"+this.bigdate +"流水號"+ this.bigNo)
+      this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤
