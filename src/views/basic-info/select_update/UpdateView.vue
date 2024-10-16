@@ -11,16 +11,16 @@
   <h2 v-else-if="this.rowType === '9'">永豐資料編輯</h2>
 </div>
 <div class="page-title">
-  <h5 v-if="this.rowType != '1' & this.rowType !== '6' & this.rowType !== '7'& this.rowType !== '9'"  >
+  <h5 v-if="this.rowType != '1' & this.rowType !== '6' & this.rowType !== '7'& this.rowType !== '9'& this.rowType !== '5'"  >
     客戶代號:<h4>{{ this.cus_code }}</h4>
     客戶名稱:<h4>{{ this.cus_name }}</h4>
   </h5>
 </div>
 <div class="page-title">
-  <h5 v-if="this.rowType ==='7'" >
+  <h5 v-if="this.rowType ==='7'||this.rowType ==='5' "  >
     客戶代號:<h4>{{ this.cus_code }}</h4>
     客戶名稱:<h4>{{ this.cus_name }}</h4>
-    車牌號碼:<h4>{{this.license_plate}}</h4>
+    車牌號碼:<h4>{{this.rowData.license_plate}}</h4>
   </h5>
 </div>
   <div>
@@ -358,9 +358,9 @@
           ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="車牌號碼">
+        <!-- <el-form-item label="車牌號碼">
           <el-input v-model="rowData.license_plate" maxlength="9" ></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <!-- <el-form-item label="車輛型態">
           <el-select v-model="rowData.vehicle_type" placeholder="選擇車輛型態">
             <el-option label="大巴" :value="'1'"></el-option>
@@ -741,16 +741,16 @@ mounted() {
           console.error('Error:', error);
         });
     }else if(this.rowType==='5'){
-      await this.getVehicle();
-      console.log("發送客戶車籍API")
-      this.rowData.license_plate = this.rowData.license_plate.trim();
-      if (this.licens.includes(this.rowData.license_plate)) {
-        this.$message({
-              message: '此車牌已登入',
-              type: 'error'
-            });
-            return
-      } 
+      // await this.getVehicle();
+      // console.log("發送客戶車籍API")
+      // this.rowData.license_plate = this.rowData.license_plate.trim();
+      // if (this.licens.includes(this.rowData.license_plate)) {
+      //   this.$message({
+      //         message: '此車牌已登入',
+      //         type: 'error'
+      //       });
+      //       return
+      // } 
       const req = this.rowData;
       axios.post('http://122.116.23.30:3345/main/updateVehicle', req)
         .then(response => {
