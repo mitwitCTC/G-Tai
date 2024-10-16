@@ -102,13 +102,24 @@
         <el-form-item label="車輛異動-因素">
             <el-input v-model="form.vehicle_change_reason" ></el-input>
         </el-form-item>
-        <el-form-item label="上傳中油原因">
+        <!-- <el-form-item label="上傳中油原因">
           <el-select v-model="form.upload_reason" placeholder="選擇原因">
             <el-option label="新增" :value="'新增'"></el-option>
             <el-option label="停用" :value="'停用'"></el-option>
             <el-option label="遺失" :value="'遺失'"></el-option>
             <el-option label="故障" :value="'故障'"></el-option>
             <el-option label="原卡復油" :value="'原卡復油'"></el-option>
+          </el-select>
+        </el-form-item> -->
+        <el-form-item label="上傳中油原因">
+          <el-select v-model="form.upload_reason" placeholder="選擇原因">
+            <!-- 如果 this.form.state == 1，則顯示 "新增" 選項 -->
+            <el-option v-if="form.state == 1" label="新增" :value="'新增'"></el-option>
+            <!-- 其他選項固定顯示 -->
+            <el-option v-if="form.state != 1" label="停用" :value="'停用'"></el-option>
+            <el-option v-if="form.state != 1" label="遺失" :value="'遺失'"></el-option>
+            <el-option v-if="form.state != 1" label="故障" :value="'故障'"></el-option>
+            <el-option v-if="form.state != 1" label="原卡復油" :value="'原卡復油'"></el-option>
           </el-select>
         </el-form-item>
       </el-row>
@@ -124,8 +135,9 @@
     </el-form>
     <template v-slot:footer>
       <div class="dialog-footer">
+        <el-button type="success" @click="savePass(2)">送出並儲存</el-button>
         <el-button @click="handleClear">取消</el-button>
-        <el-button type="primary" @click="savePass">送出</el-button>
+        <el-button type="primary" @click="savePass(1)">送出</el-button>
     </div>
     </template>
   </el-dialog>
@@ -333,7 +345,9 @@ export default {
         }
       }
       if (!vehicleFound) {
+        this.form.card_number=''
         this.form.state = 1; // 資料庫裡沒有此車號，設置狀態為 1
+        this.form.upload_reason='新增'
         console.log("資料庫沒有車號，新增" + this.form.state);
         return
       } else {
@@ -554,7 +568,8 @@ export default {
             console.error('Error during export to Excel:', error);
           }
 },
-    savePass() {
+    savePass(type) {
+      
       this.form.customerId=this.form.cus_code
       this.form.status=this.form.state
       this.form.createTime=""
@@ -586,9 +601,16 @@ export default {
               message: '新增成功',
               type: 'success'
             });
+            if(type==1){
+            console.log("清空")
             this.form = {};
             // 關閉對話框
             this.dialog = false;
+          }else if(type==2){
+          console.log("儲存不清空")
+          this.form.license_plate=''
+          this.form.card_number=''
+          }
             // 刷新數據
             this.getRecorded();
           }

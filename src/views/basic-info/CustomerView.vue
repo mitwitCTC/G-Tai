@@ -36,8 +36,8 @@
         <el-table-column prop="vat_number" label="統編" width="150"></el-table-column>
         <el-table-column prop="front_pwd" label="密碼"  width="150"></el-table-column>
         <el-table-column prop="submission_date" label="簽呈日期"  width="150"></el-table-column>
-        <el-table-column prop="" label="當月用油公升" width="150"></el-table-column>
-        <el-table-column prop="" label="當月餘額金額" width="200"></el-table-column>
+        <el-table-column prop="month_gas" label="當月用油公升" width="150"></el-table-column>
+        <el-table-column prop="month_balance" label="當月餘額金額" width="200"></el-table-column>
         <!-- <el-table-column prop="region" label="區域" :formatter="formatRegion" width="150"></el-table-column>
         <el-table-column prop="industry" label="產業類別" :formatter="formatIndustry" width="150"></el-table-column>
         <el-table-column prop="est_fuel_volume" label="預估月加油量" width="150"></el-table-column>
