@@ -187,7 +187,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="車牌號碼">
-          <el-input v-model="form.license_plate" maxlength="8" ></el-input>
+          <el-input v-model="form.license_plate" maxlength="9" ></el-input>
         </el-form-item>
         <!-- <el-form-item label="車輛型態">
           <el-select v-model="form.vehicle_type" placeholder="選擇車輛型態">
@@ -449,6 +449,7 @@ export default {
         });
     }, 
     savePass() {
+      this.form.license_plate = this.form.license_plate.trim();
       if (this.licens.includes(this.form.license_plate)) {
         this.$message({
               message: '此車牌已登入',
@@ -457,7 +458,6 @@ export default {
             this.form.license_plate=''
             return
       } 
-      this.form.license_plate = this.form.license_plate.trim();
       const req = this.form;
       //發送 POST 請求
       axios.post('http://122.116.23.30:3345/main/createVehicle', req)

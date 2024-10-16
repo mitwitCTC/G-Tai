@@ -359,7 +359,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="車牌號碼">
-          <el-input v-model="rowData.license_plate" ></el-input>
+          <el-input v-model="rowData.license_plate" maxlength="9" ></el-input>
         </el-form-item>
         <!-- <el-form-item label="車輛型態">
           <el-select v-model="rowData.vehicle_type" placeholder="選擇車輛型態">
@@ -510,6 +510,7 @@ data() {
     cus_code:'',
     cus_name:'',
     license_plate:'',
+    licens:[],
     rowData:{
       updateTime:''
     },
@@ -542,7 +543,7 @@ mounted() {
     //     console.error('API request failed:', error);
     //   });
   },
-created() {
+  created() {
   this.cus_code = (this.$route.query.cus_code);
   this.cus_name = (this.$route.query.cus_name);
   this.account_sortId  = (this.$route.query.account_sortId );
@@ -636,7 +637,7 @@ created() {
       return employee ? employee.employee_name : '未知員工'; // 找到返回名字，找不到返回 "未知員工"
     },
 
-    onConfirmEdit(){
+    async onConfirmEdit(){
       if (this.rowType==='1') {
       console.log("發送客戶修改API")
       this.cus_form.updateTime='';
@@ -740,8 +741,16 @@ created() {
           console.error('Error:', error);
         });
     }else if(this.rowType==='5'){
+      await this.getVehicle();
       console.log("發送客戶車籍API")
       this.rowData.license_plate = this.rowData.license_plate.trim();
+      if (this.licens.includes(this.rowData.license_plate)) {
+        this.$message({
+              message: '此車牌已登入',
+              type: 'error'
+            });
+            return
+      } 
       const req = this.rowData;
       axios.post('http://122.116.23.30:3345/main/updateVehicle', req)
         .then(response => {
@@ -874,6 +883,16 @@ created() {
         });
       }
     },
+    async getVehicle(){
+      await axios.get('http://122.116.23.30:3345/main/selectVehicle')
+        .then(response => {
+          this.licens = response.data.data.map(item => item.license_plate)
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    }
   }
 }
 </script>
