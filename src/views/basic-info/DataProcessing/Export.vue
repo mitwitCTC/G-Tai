@@ -28,7 +28,7 @@
 
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
       <el-row style="margin-bottom: 20px">
-         <el-form-item label="客戶編號">
+         <el-form-item label="*客戶編號">
           <!-- <el-input v-model="form.cus_code" @input="getdata" maxlength="8"></el-input> -->
         <el-select 
           v-model="form.cus_code" 
@@ -47,12 +47,12 @@
           ></el-option>
           </el-select>
         </el-form-item> 
-        <el-form-item label="客戶名稱">
+        <el-form-item label="*客戶名稱">
             <el-input v-model="form.cus_name" readonly ></el-input>
         </el-form-item>
       </el-row>
       <el-row style="margin-bottom: 20px">
-        <el-form-item label="帳單組別">
+        <el-form-item label="*帳單組別">
         <el-select v-model="form.account_sortId" placeholder="選擇帳單">
           <el-option
           v-for="bill in bills"
@@ -62,10 +62,10 @@
           ></el-option>
         </el-select>
       </el-form-item>
-        <el-form-item label="車號">
+        <el-form-item label="*車號">
             <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="8"></el-input>
         </el-form-item>
-        <el-form-item label="選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4" >
+        <el-form-item label="*選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4" >
           <el-select v-model="form.state" placeholder="選擇狀態">
             <el-option label="刪除" :value="4"></el-option>
             <el-option label="改卡號" :value="2"></el-option>
@@ -73,7 +73,7 @@
         </el-form-item>
       </el-row>
       <el-row style="margin-bottom: 20px">
-        <el-form-item label="卡號" v-if="this.form.state!=1">
+        <el-form-item label="*卡號" v-if="this.form.state!=1">
             <el-select v-model="form.card_number" placeholder="選擇卡號">
           <el-option
           v-for="card in cards"
@@ -83,14 +83,14 @@
           ></el-option>
         </el-select>
         </el-form-item>
-        <el-form-item label="中油帳號">
+        <el-form-item label="*中油帳號">
           <el-select v-model="form.cpc_account" placeholder="選擇帳號">
             <el-option label="TT6112060" :value="'TT6112060'"></el-option>
             <el-option label="TT6112061" :value="'TT6112061'"></el-option>
             <el-option label="42993157(諾瓦帳號)" :value="'42993157'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="油品">
+        <el-form-item label="*油品">
           <el-select v-model="form.product_name" placeholder="選擇油品">
             <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
             <!-- <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
@@ -111,7 +111,7 @@
             <el-option label="原卡復油" :value="'原卡復油'"></el-option>
           </el-select>
         </el-form-item> -->
-        <el-form-item label="上傳中油原因">
+        <el-form-item label="*上傳中油原因">
           <el-select v-model="form.upload_reason" placeholder="選擇原因">
             <!-- 如果 this.form.state == 1，則顯示 "新增" 選項 -->
             <el-option v-if="form.state == 1" label="新增" :value="'新增'"></el-option>
@@ -123,7 +123,7 @@
           </el-select>
         </el-form-item>
       </el-row>
-      <el-form-item label="狀態">
+      <el-form-item label="*狀態">
           <el-select v-model="form.state" placeholder="狀態" disabled=true >
             <el-option label="狀態" :value="0"></el-option>
             <el-option label="判斷結果：1.新增" :value="1"></el-option>
@@ -569,7 +569,13 @@ export default {
           }
 },
     savePass(type) {
-      
+      if((!this.form.cus_code)||(!this.form.name)||(!this.form.account_sortId)||(!this.form.license_plate)||(!this.form.state)||(!this.form.upload_reason)||(!this.form.product_name)||(!this.form.cpc_account)){
+        this.$message({
+              message: '必填欄位不得為空',
+              type: 'error'
+        });
+        return
+      }
       this.form.customerId=this.form.cus_code
       this.form.status=this.form.state
       this.form.createTime=""
