@@ -126,6 +126,9 @@
       </div>
     </template>
   </el-dialog>
+  <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false">
+  <!-- 這裡是你的表單或內容 -->
+  </el-dialog>
     <div style="margin-bottom: 50px;"></div>
   </div>
 </template>
@@ -144,6 +147,7 @@ data() {
     dialogpage:false,
     currentPage: 1,
     pageSize: 10,
+    isLoading: false,
     customerId:'',
     acc_name:'',
     bills:[],
@@ -230,23 +234,25 @@ methods:{
     }));
   }
   console.log(JSON.stringify(result)); // 將結果打印到控制台
-  // await axios.post('http://122.116.23.30:3345/main/transformation',result)
-  //     .then(response => {
-  //         if(response.data.returnCode==0){
-  //           this.$message({
-  //             message: '更新成功',
-  //             type: 'success'
-  //           });
-  //         }
-  //       })
-  //       .catch(error => {
-  //         // 處理錯誤
-  //           this.$message({
-  //             message: '系統有誤',
-  //             type: 'error'
-  //           });
-  //         console.error('API request failed:', error);
-  //       });
+  this.isLoading = true; // 請求開始，顯示 loading 標示
+  await axios.post('http://122.116.23.30:3345/main/transformation',result)
+      .then(response => {
+          if(response.data.returnCode==0){
+            this.$message({
+              message: '更新成功',
+              type: 'success'
+            });
+          }
+          this.isLoading = false; // 無論成功還是失敗，隱藏 loading 標示
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
   this.form = {};
   this.dialogpage=false
 },
@@ -284,8 +290,8 @@ methods:{
     this.form.cus=''
     this.dialogpage=true
       // 將勾選的資料組合成字串，每個勾選項目換行
-      const combinedData = selectedRows.map(row => 
-        `車號:${row.license_plate}、帳單名稱: ${row.acc_name}、統編: ${row.use_number}、抬頭: ${row.invoice_name}`
+      const combinedData = selectedRows.map((row, index) => 
+        `${index + 1}.車號:${row.license_plate}、帳單名稱: ${row.acc_name}、統編: ${row.use_number}、抬頭: ${row.invoice_name}`
       ).join('\n------------\n');
       // 更新 form.cus
       this.form.cus = combinedData;
