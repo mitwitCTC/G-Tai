@@ -569,7 +569,7 @@ export default {
           }
 },
     savePass(type) {
-      if((!this.form.cus_code)||(!this.form.name)||(!this.form.account_sortId)||(!this.form.license_plate)||(!this.form.state)||(!this.form.upload_reason)||(!this.form.product_name)||(!this.form.cpc_account)){
+      if((!this.form.cus_code)||(!this.form.cus_name)||(!this.form.account_sortId)||(!this.form.license_plate)||(!this.form.state)||(!this.form.upload_reason)||(!this.form.product_name)||(!this.form.cpc_account)){
         this.$message({
               message: '必填欄位不得為空',
               type: 'error'
