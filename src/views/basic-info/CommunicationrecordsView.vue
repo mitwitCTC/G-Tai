@@ -4,6 +4,9 @@
   <div>
     <BreadCrumb :isSpecialPage="true"/>
   </div>
+  <div>
+    <button @click="sendEmail">發送郵件</button>
+  </div>
 </template>
 
 <script>

@@ -220,6 +220,31 @@
       />
     </div>
     </el-form-item>
+    <el-form-item label="中油當月資訊" class="section-header" v-if="this.rowType==='1'">
+    <div class="table-container">
+      <el-table :data="currentPageData" style="width: 100%" v-loading="loading">
+      <el-table-column prop="trade_time" label="交易日期時間"  width="200" ></el-table-column>
+      <el-table-column prop="license_plate" label="車牌號碼" width="200" />
+      <el-table-column prop="fuel_type" label="油品" width="200" />
+      <el-table-column prop="station_name" label="加油站名稱"  width="350" />
+      <el-table-column prop="fuel_volume" label="油量"  width="200" />
+      <el-table-column prop="reference_price" label="參考單價"  width="200" />
+    </el-table>
+      </div>
+      <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ startItem }} to {{ endItem }} of {{ cpc.length }}
+      </div>
+      <el-pagination
+        @current-change="handlePageChange"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        :total="cpc.length"
+        layout="prev, pager, next, jumper"
+        class="pagination"
+      />
+    </div>
+    </el-form-item>
     
     <el-form-item label="折讓資訊" class="section-header" v-if="this.rowType==='1'">
     <div class="table-container">
@@ -462,6 +487,7 @@ data() {
   return {
     loading:false,
     currentPage2:1,
+    currentPage:1,
     pageSize: 10,
     invoice:'',
     salesmenData:[],
@@ -572,6 +598,7 @@ data() {
        created:''
     },
     SinopacBank:{},
+    cpc:[]
     
   };
 },
@@ -592,6 +619,20 @@ computed: {
       const end = this.currentPage2 * this.pageSize;
       return Math.min(end, this.vehicles.length);
     },
+    currentPageData() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.cpc.slice(start, end);
+    },
+    // 計算當前頁面顯示的起始和結束項目
+    startItem() {
+      const start = (this.currentPage - 1) * this.pageSize + 1;
+      return Math.min(start, this.cpc.length);
+    },
+    endItem() {
+      const end = this.currentPage * this.pageSize;
+      return Math.min(end, this.cpc.length);
+    },
    
   },
 mounted() {
@@ -599,7 +640,7 @@ mounted() {
     axios.get('http://122.116.23.30:3345/main/selectSalesman')
       .then(response => {
         this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
-        console.log("API Data:", this.salesmenData);
+       
       })
       .catch(error => {
         // 處理錯誤
@@ -632,11 +673,13 @@ created() {
           // 處理錯誤
           console.error('API request failed:', error);
         });
+        this.getcpc();
         this.getbillselectData()
         this.getvehiclesselectData()
         this.getdiscountselectData()
         this.getcontactselectData()
         this.getproduct_name();
+        
     }else if(this.rowType==='3'){
       const postData = {
         account_sortId :this.account_sortId,
@@ -662,7 +705,6 @@ created() {
     axios.post('http://122.116.23.30:3345/finance/searchSINOPAC',postData)
         .then(response => {
           this.SinopacBank = response.data.data[0];
-          console.log(JSON.stringify(this.SinopacBank))
           //客戶名稱
           axios.post('http://122.116.23.30:3345/main/searchCustomer',postData2)
         .then(response => {
@@ -688,7 +730,7 @@ created() {
       await axios.post('http://122.116.23.30:3345/main/searchContact',postData)
         .then(response => {
           this.contact = response.data.data;
-          this.loading = false;  // 請求完成後關閉加載狀態
+         
         })
         .catch(error => {
           // 處理錯誤
@@ -703,7 +745,7 @@ created() {
       await axios.post('http://122.116.23.30:3345/main/searchDiscount',postData)
         .then(response => {
           this.DiscountData = response.data.data;
-          this.loading = false;  // 請求完成後關閉加載狀態
+         
         })
         .catch(error => {
           // 處理錯誤
@@ -715,6 +757,27 @@ created() {
       await axios.get('http://122.116.23.30:3345/main/selectProduct')
         .then(response => {
           this.productMap = response.data.data;
+        
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
+    async getcpc() {
+    this.loading = true;  // 開始加載
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0'); // 確保月份為兩位數
+    const formattedDate = `${year}-${month}`;
+    const postdata={
+      date:formattedDate,
+      customerId:this.cus_code
+    }
+    console.log("CPC"+JSON.stringify(postdata))
+      await axios.post('http://122.116.23.30:3346/main/balanceInquiry',postdata)
+        .then(response => {
+          this.cpc = response.data.data;
           this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
@@ -730,7 +793,6 @@ created() {
       await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
         .then(response => {
           this.vehicles = response.data.data;
-          this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
           // 處理錯誤
@@ -745,8 +807,7 @@ created() {
       await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
           this.bills = response.data.data;
-          console.log(JSON.stringify(this.bills))
-          this.loading = false;  // 請求完成後關閉加載狀態
+          
         })
         .catch(error => {
           // 處理錯誤
@@ -797,6 +858,9 @@ created() {
     },
     handlePageChange2(page) {
       this.currentPage2 = page;
+    },
+    handlePageChange(page) {
+      this.currentPage = page;
     },
     formatbilling_method(billing_method) {
       const rawproduct = toRaw(billing_method);
