@@ -156,6 +156,7 @@
         class="pagination"
       />
     </div>
+    <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false"></el-dialog>
 </template>
 
 <script>
@@ -173,6 +174,7 @@ export default {
   },
   data() {
     return {
+      isLoading:false,
       loading:false,
       dialog:false,
       cus_code:'',
@@ -335,6 +337,7 @@ export default {
       //1.先找全部車牌 有就判斷 沒就新增
       this.vehicleId='';
       let vehicleFound = false;
+      this.isLoading = true; // 請求開始，顯示 loading 標示
       this.form.state = "判斷中...";
       const response = await axios.get('http://122.116.23.30:3345/main/selectVehicle');
       this.allVehicle = response.data.data;
@@ -344,6 +347,7 @@ export default {
           break; // 如果找到匹配車牌，退出循環
         }
       }
+      this.isLoading = false; // 請求開始，顯示 loading 標示
       if (!vehicleFound) {
         this.form.card_number=''
         this.form.state = 1; // 資料庫裡沒有此車號，設置狀態為 1
