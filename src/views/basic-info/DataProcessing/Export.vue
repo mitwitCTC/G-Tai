@@ -387,6 +387,7 @@ export default {
 
     getdata(){
       this.form.card_number = '';
+      this.form.account_sortId = '';
       this.form.license_plate = '';
       this.form.acc_name = '';
       this.form.state = 0;
