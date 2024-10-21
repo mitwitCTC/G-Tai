@@ -102,9 +102,9 @@
       <el-form-item label="停油寬限額度">
         <el-input v-model="cus_form.fuel_grace_limit"></el-input>
       </el-form-item>
-      <!-- <el-form-item label="公司統編">
+      <el-form-item label="公司統編">
         <el-input v-model="cus_form.vat_number"></el-input>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="合約日期(迄)">
         <el-date-picker
           v-model="cus_form.contract_end"

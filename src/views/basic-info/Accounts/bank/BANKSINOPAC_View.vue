@@ -104,15 +104,52 @@
           </el-row>
          
           <el-row style="margin-bottom: 20px">
-            <el-form-item label="*刷卡卡號">
+            <!-- <el-form-item label="*刷卡卡號">
             <el-input v-model="form.account"  @input="formatCardNumber" ></el-input>
-          </el-form-item>
+          </el-form-item> -->
+          <el-form-item label="*刷卡卡號">
+            <el-select 
+              v-model="form.account" 
+              placeholder="輸入刷卡卡號"
+              filterable
+              :clearable="true"
+              :allow-create="true" 
+              style="width: 300px;" 
+              @change="formatCardNumber" 
+            >
+              <!-- 使用 cusdata 直接顯示每個字符串 -->
+              <el-option
+                v-for="item in uniquecard"
+                :key="item"
+                :label="item.account"
+                :value="item.account"  
+              ></el-option>
+              </el-select>
+            </el-form-item> 
           <el-form-item label="*刷卡金額">
             <el-input v-model="form.credit_amount" @input="formatamount"></el-input>
           </el-form-item>
-          <el-form-item label="發卡銀行">
+          <!-- <el-form-item label="發卡銀行">
             <el-input v-model="form.issuing_bank" ></el-input>
-          </el-form-item>
+          </el-form-item> -->
+          <el-form-item label="發卡銀行">
+            <el-select 
+              v-model="form.issuing_bank" 
+              placeholder="輸入發卡銀行"
+              filterable
+              :allow-create="true" 
+              :clearable="true"
+              style="width: 300px; " 
+            >
+              <!-- 使用 cusdata 直接顯示每個字符串 -->
+              <el-option
+                v-for="item in uniquecard"
+                :key="item"
+                :label="item.issuing_bank"
+                :value="item.issuing_bank"  
+              ></el-option>
+              </el-select>
+            </el-form-item> 
           <el-form-item label="刷卡日期">
             <el-date-picker 
                 v-model="form.account_date" 
@@ -164,6 +201,7 @@
           </div>
         </template>
       </el-dialog>
+      <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false"></el-dialog>
       </div>
 </template>
 
@@ -178,6 +216,7 @@
     },
   data() {
     return {
+      isLoading:false,
       loading:false,
       dialog: false,
       biginvoice:'',
@@ -194,6 +233,7 @@
       BankData:[],
       search:{},
       cusdata:[],
+      card:[],
       currentPage:1,
       pageSize:10,
       lastInvoiceNumber: 1,
@@ -210,6 +250,17 @@
     await this.getselectData();
   },
   computed: {
+    uniquecard() {
+      const seen = new Set();
+      return this.card.filter(card => {
+        // 只保留第一次出現
+        if (!seen.has(card.issuing_bank)) {
+          seen.add(card.issuing_bank);
+          return true;
+        }
+        return false;
+      });
+    },
     filteredBankData() {
       return this.BankData.filter(item => {
         const matchesCustomerName = this.search.customerName
@@ -315,7 +366,6 @@
       
     },
     dialogopen(){
-     
       this.currentDate = this.getCurrentDate(); // 生成当前日期格式
       const nextNo = ('00' + (parseInt(this.bigNo) + 1)).slice(-3);
       // 顯示新的流水號
@@ -534,6 +584,7 @@ return formattedDate;
         customerId:this.form.customerId,
       };
      if(this.form.customerId.length==8){
+      this.isLoading = true;
       this.form.cus_name='查詢中..'
       console.log(JSON.stringify(postData))
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
@@ -572,10 +623,25 @@ return formattedDate;
             });
           console.error('API request failed:', error);
         });
+        axios.post('http://122.116.23.30:3345/finance/selectCreditCard',postData)
+        .then(response => {
+            this.card = response.data.data;
+            this.isLoading = false;
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統錯誤',
+              type: 'error'
+            });
+            this.isLoading = false;
+          console.error('API request failed:', error);
+        });
+
      }
     }
-    
   },
+  
   }
  };
   </script>

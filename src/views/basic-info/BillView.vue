@@ -514,12 +514,12 @@ export default {
             this.form.license_plate = '';
             this.form.account_sortId = '';
             this.form.product_name = '';
-            this.getselectData();
             // 關閉對話框
             this.dialog = false;
           }else if(type==2){
           console.log("儲存不清空")
           }
+          this.getselectData();
           } else {
             // 處理非 0 成功代碼
             this.$message({
