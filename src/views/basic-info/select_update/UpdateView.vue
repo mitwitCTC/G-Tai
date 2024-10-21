@@ -68,9 +68,9 @@
           <el-option label="19.綜合工商" :value="19"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="預估月加油量">
+      <!-- <el-form-item label="預估月加油量">
         <el-input v-model="cus_form.est_fuel_volume"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="公司電話">
         <el-input v-model="cus_form.phone"></el-input>
       </el-form-item>
@@ -102,9 +102,9 @@
       <el-form-item label="停油寬限額度">
         <el-input v-model="cus_form.fuel_grace_limit"></el-input>
       </el-form-item>
-      <el-form-item label="公司統編">
+      <!-- <el-form-item label="公司統編">
         <el-input v-model="cus_form.vat_number"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="合約日期(迄)">
         <el-date-picker
           v-model="cus_form.contract_end"
@@ -118,9 +118,9 @@
       <el-form-item label="低水位通知">
         <el-input v-model="cus_form.low_balance_notice"></el-input>
       </el-form-item>
-      <el-form-item label="公司抬頭">
+      <!-- <el-form-item label="公司抬頭">
         <el-input v-model="cus_form.company_title"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="簽呈日期">
         <el-date-picker
           v-model="cus_form.submission_date"
@@ -141,15 +141,15 @@
           style="width: 300px;">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="油價簡訊電話">
+      <!-- <el-form-item label="油價簡訊電話">
         <el-input v-model="cus_form.fuel_sms_phone"></el-input>
-      </el-form-item>
-      <el-form-item label="油價簡訊選項">
+      </el-form-item> -->
+      <!-- <el-form-item label="油價簡訊選項">
         <el-select v-model="cus_form.fuel_sms_option" placeholder="選擇交易模式">
           <el-option label="Y" :value="'Y'"></el-option>
           <el-option label="N" :value="'N'"></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="餘額不足訊息電話">
         <el-input v-model="cus_form.balance_sms_phone"></el-input>
       </el-form-item>
@@ -204,14 +204,14 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="業務備註" class="large-textbox">
+      <!-- <el-form-item label="業務備註" class="large-textbox">
         <el-input v-model="cus_form.sales_notes" type="textarea"></el-input>
-      </el-form-item>
+      </el-form-item> -->
     </el-row>
     <!-- 設定方式&備註 -->
-    <el-row style="margin-bottom: 20px">
+    <!-- <el-row style="margin-bottom: 20px"> -->
       <!-- 設定方式 (多選框) -->
-      <el-form-item label="設定方式">
+      <!-- <el-form-item label="設定方式">
         <el-checkbox-group v-model="cus_form.config_method">
           <el-checkbox :label="1">銀行定存</el-checkbox>
           <el-checkbox :label="2">現金</el-checkbox>
@@ -221,12 +221,12 @@
           <el-checkbox :label="6">無擔保</el-checkbox>
           <el-checkbox :label="7">其他</el-checkbox>
         </el-checkbox-group>
-      </el-form-item>
+      </el-form-item> -->
       <!-- 設定方式備註 -->
-      <el-form-item label="設定方式備註" class="large-textbox">
+      <!-- <el-form-item label="設定方式備註" class="large-textbox">
         <el-input v-model="cus_form.config_notes" type="textarea"></el-input>
-      </el-form-item>
-    </el-row>
+      </el-form-item> -->
+    <!-- </el-row> -->
     <!-- 信用卡收取手續費 -->
     <el-row style="margin-bottom: 20px">
     <el-form-item label="信用卡手續費收取">
@@ -239,6 +239,14 @@
       <el-input v-model="cus_form.card_handling" ></el-input>
     </el-form-item> -->
     </el-row>
+    <el-row style="margin-bottom: 20px">
+    <el-form-item label="當月用油公升">
+      <el-input v-model="cus_form.month_gas" ></el-input>
+    </el-form-item>
+    <el-form-item label="當月餘額金額">
+      <el-input v-model="cus_form.month_balance" ></el-input>
+    </el-form-item>
+  </el-row>
     </el-form-item>
     
 
@@ -317,33 +325,20 @@
 
     <!-- 折讓資料 -->
     <el-form-item label="折讓資料" class="section-header" v-if="this.rowType==='4'" >
-      <el-form-item label="油品">
+      <el-form-item label="產品名稱">
           <el-select v-model="rowData.product_name" placeholder="選擇油品">
-            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
-            <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
-            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option>
-            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
-            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
+            <el-option
+              v-for="id in productMap"
+              :key="id.id"
+              :label="id.className"
+              :value="id.classId"
+          ></el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item label="廠商名稱" >
-          <el-input v-model="rowData.supplier_name" readonly></el-input>
         </el-form-item>
         <el-form-item label="折讓">
           <el-input v-model="rowData.discount_float" ></el-input>
         </el-form-item>
-        <el-form-item label="負責業務">
-        <el-select v-model="rowData.responsible_person" placeholder="選擇業務">
-          <el-option
-          v-for="salesman in salesmenData"
-          :key="salesman.employee_id"
-          :label="salesman.employee_name"
-          :value="salesman.employee_id"
-          ></el-option>
-        </el-select>
-      </el-form-item>
     </el-form-item>
-    
     
 
     <!-- 車籍資料 -->
@@ -370,15 +365,16 @@
             <el-option label="臨時卡" :value="'5'"></el-option>
           </el-select>
         </el-form-item> -->
-        <el-form-item label="油品名稱">
+        <el-form-item label="產品名稱">
           <el-select v-model="rowData.product_name" placeholder="選擇油品">
-            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
-            <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
-            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option>
-            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
-            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
+            <el-option
+              v-for="id in productMap"
+              :key="id.id"
+              :label="id.className"
+              :value="id.classId"
+          ></el-option>
           </el-select>
-      </el-form-item>
+        </el-form-item>
     </el-form-item>
 
     <!-- 員工資料 -->
@@ -511,6 +507,7 @@ data() {
     cus_name:'',
     license_plate:'',
     licens:[],
+    productMap:[],
     rowData:{
       updateTime:''
     },
@@ -589,6 +586,7 @@ mounted() {
           console.error('API request failed:', error);
         });
     }else if(this.rowType==='4'){
+      this.getproduct_name();
       axios.get('http://122.116.23.30:3345/main/selectSalesman')
       .then(response => {
         this.salesmenData = response.data.data;
@@ -598,6 +596,7 @@ mounted() {
       });
       this.rowData = JSON.parse(this.$route.query.rowData);
     }else if(this.rowType=='5'){
+      this.getproduct_name();
       const postData = {
       customerId:this.cus_code,
     };
@@ -892,7 +891,17 @@ mounted() {
           // 處理錯誤
           console.error('API request failed:', error);
         });
-    }
+    },
+    async getproduct_name() {
+      await axios.get('http://122.116.23.30:3345/main/selectProduct')
+        .then(response => {
+          this.productMap = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
   }
 }
 </script>

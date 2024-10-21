@@ -57,7 +57,7 @@ export default {
 }
 
 /* 对非桌面设备显示消息，隐藏内容 */
-@media (max-width: 1024px) {
+@media (max-width: 950px) {
   .non-desktop-message {
     display: block;
   }

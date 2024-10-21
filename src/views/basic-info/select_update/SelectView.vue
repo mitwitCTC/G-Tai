@@ -167,6 +167,14 @@
     </el-form-item> -->
   </el-row>
   <el-row style="margin-bottom: 20px">
+    <el-form-item label="當月用油公升">
+      <el-input v-model="cus_form.month_gas" readonly></el-input>
+    </el-form-item>
+    <el-form-item label="當月餘額金額">
+      <el-input v-model="cus_form.month_balance" readonly></el-input>
+    </el-form-item>
+  </el-row>
+  <el-row style="margin-bottom: 20px">
     <el-form-item label="建立時間">
       <el-input v-model="cus_form.createTime" readonly></el-input>
     </el-form-item>

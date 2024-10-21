@@ -119,9 +119,9 @@
             <el-option label="綜合工商" :value="19"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="預估月加油量">
+        <!-- <el-form-item label="預估月加油量">
           <el-input v-model="form.est_fuel_volume" ></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="公司電話">
           <el-input v-model="form.phone" ></el-input>
         </el-form-item>
@@ -153,9 +153,9 @@
         <el-form-item label="停油寬限額度">
           <el-input v-model="form.fuel_grace_limit" ></el-input>
         </el-form-item>
-        <el-form-item label="*公司統編">
+        <!-- <el-form-item label="*公司統編">
           <el-input v-model="form.vat_number" maxlength=10 ></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="合約日期(迄)">
           <el-date-picker 
           v-model="form.contract_end" 
@@ -169,9 +169,9 @@
         <el-form-item label="低水位通知">
           <el-input v-model="form.low_balance_notice" ></el-input>
         </el-form-item>
-        <el-form-item label="公司抬頭">
+        <!-- <el-form-item label="公司抬頭">
           <el-input v-model="form.company_title" ></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="簽呈日期">
           <el-date-picker 
           v-model="form.submission_date" 
@@ -192,15 +192,15 @@
           style="width: 300px;">
         </el-date-picker>
         </el-form-item>
-        <el-form-item label="油價簡訊電話">
+        <!-- <el-form-item label="油價簡訊電話">
           <el-input v-model="form.fuel_sms_phone" ></el-input>
-        </el-form-item>
-        <el-form-item label="油價簡訊選項">
+        </el-form-item> -->
+        <!-- <el-form-item label="油價簡訊選項">
           <el-select v-model="form.fuel_sms_option" placeholder="選擇交易模式">
             <el-option label="Y" :value="'Y'"></el-option>
             <el-option label="N" :value="'N'"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="餘額不足訊息電話">
           <el-input v-model="form.balance_sms_phone" ></el-input>
         </el-form-item>
@@ -255,14 +255,13 @@
           ></el-option>
           </el-select>
         </el-form-item>
-      <el-form-item label="業務備註" class="large-textbox">
+      <!-- <el-form-item label="業務備註" class="large-textbox">
         <el-input v-model="form.sales_notes" type="textarea" ></el-input>
-      </el-form-item>
+      </el-form-item> -->
     </el-row>
       <!-- 設定方式&備註 -->
-    <el-row style="margin-bottom: 20px">
-      <!-- 設定方式 (多選框) -->
-      <el-form-item label="設定方式">
+     <el-row style="margin-bottom: 20px">
+      <!--<el-form-item label="設定方式">
         <el-checkbox-group v-model="form.config_method" >
           <el-checkbox :label="1">銀行定存</el-checkbox>
           <el-checkbox :label="2">現金</el-checkbox>
@@ -272,11 +271,11 @@
           <el-checkbox :label="6">無擔保</el-checkbox>
           <el-checkbox :label="7">其他</el-checkbox>
         </el-checkbox-group>
-    </el-form-item>
+    </el-form-item> -->
     <!-- 設定方式備註 -->
-    <el-form-item label="設定方式備註" class="large-textbox">
+    <!-- <el-form-item label="設定方式備註" class="large-textbox">
       <el-input v-model="form.config_notes" type="textarea" ></el-input>
-    </el-form-item>
+    </el-form-item> -->
     <!-- 信用卡收取手續費 -->
     <el-row style="margin-bottom: 20px">
     <el-form-item label="信用卡手續費收取">

@@ -63,7 +63,7 @@
         </el-select>
       </el-form-item>
         <el-form-item label="*車號">
-            <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="8"></el-input>
+            <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="11"></el-input>
         </el-form-item>
         <el-form-item label="*選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4" >
           <el-select v-model="form.state" placeholder="選擇狀態">
@@ -327,11 +327,7 @@ export default {
     customerId: this.form.cus_code,
   };
 
-  if (
-    this.form.license_plate.length === 6 ||
-    this.form.license_plate.length === 7 ||
-    this.form.license_plate.length === 8
-  ) {
+  if (this.form.license_plate.length >= 5 && this.form.license_plate.length <= 11) {
     
     try {
       //1.先找全部車牌 有就判斷 沒就新增
@@ -586,21 +582,15 @@ export default {
       this.form.createTime=""
       this.form.card_create_date=""
       this.form.deleteTime=""
-      if(this.form.product_name=="0006"){
-        //柴油 
+      if(this.form.product_name=="0017"){
+        //尿素
         this.form.card_type="1"
+      }else if(this.form.product_name=="0006"){
+        //柴油 
+        this.form.card_type="2"
       }else if(this.form.product_name=="0001"){
         //汽油 
-        this.form.card_type="2"
-      }else if(this.form.product_name=="0005"){
-        //酒精汽油 
         this.form.card_type="3"
-      }else if(this.form.product_name=="0009"){
-        //不限 
-        this.form.card_type="4"
-      }else if(this.form.product_name=="0017"){
-        //尿素 
-        this.form.card_type="5"
       }
       const postData=this.form
       axios.post('http://122.116.23.30:3345/main/recordedVehicle',postData)

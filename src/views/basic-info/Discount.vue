@@ -8,10 +8,10 @@
     <el-button type="danger" @click="dialog = true">新增折讓</el-button>
     <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
     <el-table :data="paginatedDiscount" style="width: 100%" v-loading="loading">
-      <el-table-column prop="product_name" label="油品名稱" :formatter="formatProduct" width="300" />
-      <el-table-column prop="supplier_name" label="廠商名稱" width="500" />
+      <el-table-column prop="product_name" label="產品名稱" :formatter="formatProduct" width="300" />
+      <!-- <el-table-column prop="supplier_name" label="廠商名稱" width="500" /> -->
       <el-table-column prop="discount_float" label="折讓" width="250" />
-      <el-table-column prop="responsible_person" label="負責業務" :formatter="getEmployeeName" width="300" />
+      <!-- <el-table-column prop="responsible_person" label="負責業務" :formatter="getEmployeeName" width="300" /> -->
       <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
@@ -23,27 +23,28 @@
       </el-table-column>
     </el-table>
     <!-- 新增折讓 -->
- <el-dialog title="新增折讓" v-model="dialog" width="25%" :close-on-click-modal="false">
+ <el-dialog title="新增折讓" v-model="dialog" width="50%" :close-on-click-modal="false">
   <el-row style="margin-bottom: 20px">
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
-      <el-form-item label="油品">
+      <el-form-item label="產品名稱">
           <el-select v-model="form.product_name" placeholder="選擇油品">
-            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
-            <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
-            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option>
-            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
-            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
+            <el-option
+              v-for="id in productMap"
+              :key="id.id"
+              :label="id.className"
+              :value="id.classId"
+          ></el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item label="廠商名稱">
+      </el-form-item>
+        <!-- <el-form-item label="廠商名稱">
         <el-select v-model="form.supplier_name" placeholder="選擇廠商">
           <el-option label="台灣中油股份有限公司" :value="'台灣中油股份有限公司'" ></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
         <el-form-item label="折讓">
           <el-input v-model="form.discount_float" @input="validateFloat" ></el-input>
         </el-form-item>
-        <el-form-item label="負責業務">
+        <!-- <el-form-item label="負責業務">
         <el-select v-model="form.responsible_person" placeholder="選擇業務">
           <el-option
           v-for="salesman in salesmenData"
@@ -52,7 +53,7 @@
           :value="salesman.employee_id"
           ></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
     </el-form>
   </el-row>
     <template v-slot:footer>
@@ -102,13 +103,7 @@ export default {
       rowData:[],
       DiscountData: [],
       salesmenData:[],
-      productMap:{
-        "0001": "0001 95無鉛汽油",
-        "0002": "0002 92無鉛汽油",
-        "0005": "0005 98無鉛汽油",
-        "0006": "0006 超級柴油",
-        "0017": "0017 尿素溶液"
-      },
+      productMap:[],
       form:{
         customerId:'',
         discount_float:0
@@ -122,7 +117,7 @@ export default {
     this.cus_name = (this.$route.query.cus_name);
     this.form.customerId = this.cus_code;
     this.getselectData();
-    
+    this.getproduct_name();
   },
   mounted() {
     // 發送 API 請求以獲取業務資料
@@ -153,6 +148,16 @@ export default {
     },
   },
   methods: {
+    async getproduct_name() {
+      await axios.get('http://122.116.23.30:3345/main/selectProduct')
+        .then(response => {
+          this.productMap = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
     async getselectData() {
       this.loading = true;
       const postData = {
@@ -220,8 +225,13 @@ export default {
       this.currentPage = page;
     },
     formatProduct(product_name) {
-      const rawproduct = toRaw(product_name);
-      return this.productMap[rawproduct.product_name] || '未知';
+      if (!this.productMap || this.productMap.length === 0) {
+        return '正在加載...';
+      }
+      // 使用 find 方法找到對應的 employee_name
+      const responsible = toRaw(product_name);
+      const employee = this.productMap.find(item => item.classId == responsible.product_name);
+      return employee == null ? '' : (employee ? employee.className : '未知');
     },
     getEmployeeName(responsible_person) {
       // 如果 salesmenData 仍為空，則返回空或其他提示

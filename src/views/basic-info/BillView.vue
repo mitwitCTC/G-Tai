@@ -50,7 +50,7 @@
         <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
         <el-table-column prop="license_plate" label="車牌號碼" width="450" />
         <!-- <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" /> -->
-        <el-table-column prop="product_name" label="油品名稱"  width="500" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
+        <el-table-column prop="product_name" label="產品名稱"  width="500" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
             <div class="action-icons">
@@ -61,6 +61,7 @@
           </template>
        </el-table-column>
     </el-table>
+    <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false"></el-dialog>
     <div class="pagination-container">
       <div class="pagination-info">
         Showing {{ startItem2 }} to {{ endItem2 }} of {{ filteredData.length }}
@@ -137,7 +138,18 @@
           </el-select>
         </el-form-item>
         <el-form-item label="收件人姓名">
-          <el-input v-model="billform.recipient_name" ></el-input>
+          <el-select  v-model="billform.recipient_name"
+          filterable
+          allow-create
+          clearable
+          placeholder="請輸入開立人姓名">
+            <el-option
+              v-for="name in contact"
+              :key="name.contactId "
+              :label="name.name"
+              :value="name.name "
+          ></el-option>
+          </el-select>
         </el-form-item>
         <!-- <el-form-item label="帳單聯絡人">
          <el-input v-model="billform.acc_contact" ></el-input>
@@ -149,10 +161,10 @@
           clearable
           placeholder="請輸入開立人姓名">
             <el-option
-              v-for="bill in uniqueNameBills"
-              :key="bill.account_sortId "
-              :label="bill.invoice_name"
-              :value="bill.invoice_name "
+              v-for="name in contact"
+              :key="name.contactId "
+              :label="name.name"
+              :value="name.name "
           ></el-option>
           </el-select>
         </el-form-item>
@@ -187,7 +199,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="車牌號碼">
-          <el-input v-model="form.license_plate" maxlength="9" ></el-input>
+          <el-input v-model="form.license_plate" maxlength="11" ></el-input>
         </el-form-item>
         <!-- <el-form-item label="車輛型態">
           <el-select v-model="form.vehicle_type" placeholder="選擇車輛型態">
@@ -198,7 +210,7 @@
             <el-option label="臨時卡" :value="5"></el-option>
           </el-select>
         </el-form-item> -->
-        <el-form-item label="油品名稱">
+        <el-form-item label="產品名稱">
           <el-select v-model="form.product_name" placeholder="選擇油品">
             <el-option
               v-for="id in productMap"
@@ -212,8 +224,9 @@
         </el-form>
           <template v-slot:footer>
           <div  class="dialog-footer">
+            <el-button type="success" @click="savePass(2)">送出並儲存</el-button>
             <el-button @click="dialog = false">取消</el-button>
-            <el-button type="primary" @click="savePass">送出</el-button>
+            <el-button type="primary" @click="savePass(1)">送出</el-button>
           </div>
         </template>
       </el-dialog>
@@ -234,7 +247,9 @@ export default {
   },
   data() {
     return {
+      isLoading:false,
       loading:false,
+      contact:[],
       cus_code:'',
       cus_name:'',
       dialogBill: false,
@@ -293,6 +308,7 @@ export default {
     this.getselectData();
     this.getproduct_name();
     this.getVehicle();
+    this.getcontact();
   },
   computed: {
     //1為帳單資料 2為車籍資料
@@ -359,7 +375,19 @@ export default {
     },
   },
   methods: {
-    
+    async getcontact() {
+      const postData = {
+      customerId:this.cus_code,
+      };
+      await axios.post('http://122.116.23.30:3345/main/searchContact',postData)
+        .then(response => {
+          this.contact = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
     async getbillselectData() {
       this.loading = true;
       const postData = {
@@ -448,7 +476,16 @@ export default {
           console.error('Error:', error);
         });
     }, 
-    savePass() {
+    savePass(type) {
+      if((!this.form.license_plate)||(!this.form.account_sortId)||(!this.form.product_name))
+      {
+        this.$message({
+              message: '欄位不可為空',
+              type: 'error'
+            });
+            this.form.license_plate=''
+            return
+      }
       this.form.license_plate = this.form.license_plate.trim();
       if (this.licens.includes(this.form.license_plate)) {
         this.$message({
@@ -458,24 +495,31 @@ export default {
             this.form.license_plate=''
             return
       } 
+      this.isLoading = true; // 請求開始，顯示 loading 標示
       const req = this.form;
       //發送 POST 請求
       axios.post('http://122.116.23.30:3345/main/createVehicle', req)
         .then(response => {
           console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode === 0) {
+            this.isLoading = false;
             // 成功提示
             this.$message({
               message: '新增成功',
               type: 'success'
             });
-            this.license_plate = '';
-            this.vehicle_type = '';
-            this.product_name = '';
+            this.getVehicle();
+            if(type==1){
+            console.log("清空")
+            this.form.license_plate = '';
+            this.form.account_sortId = '';
+            this.form.product_name = '';
+            this.getselectData();
             // 關閉對話框
             this.dialog = false;
-            // 刷新數據
-            this.getselectData();
+          }else if(type==2){
+          console.log("儲存不清空")
+          }
           } else {
             // 處理非 0 成功代碼
             this.$message({
@@ -485,6 +529,7 @@ export default {
           }
         })
         .catch(error => {
+          this.isLoading = false;
           // 發生錯誤時，顯示錯誤提示
           this.$message({
             message: '新增失敗，伺服器錯誤',

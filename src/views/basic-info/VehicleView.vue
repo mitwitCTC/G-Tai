@@ -36,7 +36,8 @@
             <el-form-item label="卡片類別">
               <el-select v-model="form.card_type" placeholder="選擇卡片類別">
                 <el-option label="1.尿素" :value="1"></el-option>
-                <el-option label="2.汽油" :value="2"></el-option>
+                <el-option label="2.柴油" :value="2"></el-option>
+                <el-option label="3.汽油" :value="3"></el-option>
               </el-select>
             </el-form-item>
             <!-- <el-form-item label="上傳中油日期">
@@ -120,7 +121,8 @@ export default {
       bills:[],
       type: {
         '1': '尿素',
-        '2': '汽油',
+        '2': '柴油',
+        '3': '汽油',
       } ,
       
     };
