@@ -8,11 +8,20 @@
     
     <div>
       <el-form :inline="true" :model="search" class="demo-form-inline">
-        <el-form-item label="客戶名稱/客戶代號/統編">
+        <el-form-item label="客戶名稱/客戶代號/統編" v-if="!search.customerV">
           <el-input v-model="search.customerName" placeholder="輸入客戶名稱/客戶代號/統編/" style="width: 225px;"></el-input>
         </el-form-item>
+        <el-form-item label="車牌" v-if="!search.customerName">
+          <el-input v-model="search.customerV" placeholder="輸入車牌" style="width: 225px;"></el-input>
+        </el-form-item>
         <el-form-item>
-          <el-button type="success" @click="dialog = true">新增客戶</el-button>
+          <el-button type="success" @click="dialog = true" v-if="!search.customerV">新增客戶</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="success" @click=searchV(1) v-if="search.customerV">尋找</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button  @click=searchV(0) v-if="search.customerV">清除</el-button>
         </el-form-item>
       </el-form>
 
@@ -321,9 +330,11 @@ export default {
       loading: false,  // 加載狀態
       dialog: false,
       search: {
-        customerName: ''
+        customerName: '',
+        customerV:''
       },
       customers:[],
+      customers2:[],
       industryMap: {
         '1': '食品飲料',
         '6': '營建土木工程',
@@ -347,12 +358,15 @@ export default {
         cus_name:''
       },
       salesmenData:[],
+      Vehicle:[],
+      Vehicle2:[],
       currentPage: 1,
       pageSize: 10
     };
   },
   created() {
     this.getselectData();
+    this.getVehicle();
   },
   computed: {
 
@@ -360,17 +374,17 @@ export default {
     // 計算當前頁面顯示的起始和結束項目
     startItem() {
       const start = (this.currentPage - 1) * this.pageSize + 1;
-      return Math.min(start, this.customers.length);
+      return Math.min(start, this.customers2.length);
     },
     endItem() {
       const end = this.currentPage * this.pageSize;
-      return Math.min(end, this.customers.length);
+      return Math.min(end, this.customers2.length);
     },
      // 過濾搜尋後的資料
      filteredData() {
       const searchTerm = this.search.customerName.trim().toLowerCase();
 
-      return this.customers.filter(item => {
+      return this.customers2.filter(item => {
         const cusCode = item.cus_code ? item.cus_code.toLowerCase() : '';
         const cusName = item.cus_name ? item.cus_name.toLowerCase() : '';
         const vatNumber = item.vat_number ? item.vat_number.toLowerCase() : '';
@@ -390,6 +404,17 @@ export default {
     }
   },
   methods: {
+    searchV(type){
+      if(type==0){
+        this.getselectData();
+        this.search.customerV=''
+      }else if(type==1){
+        this.Vehicle2 = this.Vehicle.filter(vehicle => vehicle.license_plate === this.search.customerV);
+        const vehicleCustomerIds = this.Vehicle2.map(vehicle => vehicle.customerId);
+        // 过滤 this.customers，保留那些 cus_code 存在于 vehicleCustomerIds 数组中的项
+        this.customers2 = this.customers.filter(customer => vehicleCustomerIds.includes(customer.cus_code));
+      }
+    },
     handlePageChange(page) {
       this.currentPage = page;
     },
@@ -406,14 +431,24 @@ export default {
       this.loading = true;  // 開始加載
         // 發送 GET 請求到指定的 API
         const response = await axios.get('http://122.116.23.30:3345/main/selectCustomer');
-        const customerData = response.data.data; // 取得資料中的第一個元素
+        const customerData = response.data.data; 
         // 將資料放入 customers 陣列中
         this.customers=customerData;
+        this.customers2=this.customers
     } catch (error) {
         console.error('Error fetching customer data:', error);
     } finally {
         this.loading = false;  // 請求完成後關閉加載狀態
       }
+  },
+  async getVehicle() {
+    try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.get('http://122.116.23.30:3345/main/selectVehicle');
+        this.Vehicle= response.data.data;;
+    } catch (error) {
+        console.error('Error fetching customer data:', error);
+    } 
   },
   savePass() {
     if(!this.form.config_method){

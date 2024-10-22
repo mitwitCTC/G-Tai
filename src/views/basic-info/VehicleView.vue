@@ -219,6 +219,7 @@ export default {
         .catch(error => {
           // 處理錯誤
           console.error('API request failed:', error);
+          this.loading = false;  // 請求完成後關閉加載狀態
         });
   },
    
