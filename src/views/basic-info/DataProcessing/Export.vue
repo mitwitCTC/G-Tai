@@ -69,6 +69,7 @@
           <el-select v-model="form.state" placeholder="選擇狀態">
             <el-option label="刪除" :value="4"></el-option>
             <el-option label="改卡號" :value="2"></el-option>
+            <el-option label="原卡復油" :value="5"></el-option>
           </el-select>
         </el-form-item>
       </el-row>
@@ -290,7 +291,8 @@ export default {
     },
     async getcard(){
         const postvehicleId = {
-              vehicleId:this.vehicleId
+              vehicleId:this.vehicleId,
+              status:2
         };
         const response = await axios.post('http://122.116.23.30:3345/main/searchCard',postvehicleId)
         try {
