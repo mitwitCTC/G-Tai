@@ -46,7 +46,7 @@
         <el-table-column prop="account_sortId" label="帳單代號" width="150"></el-table-column>
         <el-table-column prop="acc_name" label="帳單名稱" width="350"></el-table-column>
         <el-table-column prop="use_number" label="統編" :formatter="formatRegion" width="150"></el-table-column>
-        <el-table-column prop="invoice_name" label="抬頭" :formatter="formatIndustry" ></el-table-column>
+        <el-table-column prop="invoice_name" label="抬頭" ></el-table-column>
       </el-table>
       <div class="pagination-container">
       <div class="pagination-info">

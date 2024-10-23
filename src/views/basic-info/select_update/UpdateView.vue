@@ -58,19 +58,32 @@
         </el-select>
       </el-form-item>
       <el-form-item label="產業類別">
-        <el-select v-model="cus_form.industry" placeholder="選擇產業類別">
-          <el-option label="1.食品飲料" :value="1"></el-option>
-          <el-option label="6.營建土木工程" :value="6"></el-option>
-          <el-option label="9.大眾運輸" :value="9"></el-option>
-          <el-option label="11.物流倉儲" :value="11"></el-option>
-          <el-option label="12.礦業土石" :value="12"></el-option>
-          <el-option label="13.資訊科技" :value="13"></el-option>
-          <el-option label="19.綜合工商" :value="19"></el-option>
-        </el-select>
-      </el-form-item>
-      <!-- <el-form-item label="預估月加油量">
+          <el-select v-model="cus_form.industry" placeholder="選擇產業類別">
+            <el-option label="1.食品飲料" :value="1"></el-option>
+            <el-option label="2.傢飾傢俱家電" :value="2"></el-option>
+            <el-option label="3.石油化學" :value="3"></el-option>
+            <el-option label="4.五金製造" :value="4"></el-option>
+            <el-option label="5.電力機械" :value="5"></el-option>
+            <el-option label="6.營建土木工程" :value="6"></el-option>
+            <el-option label="7.紙業製造" :value="7"></el-option>
+            <el-option label="8.金屬製造" :value="8"></el-option>
+            <el-option label="9.大眾運輸" :value="9"></el-option>
+            <el-option label="10橡膠塑膠" :value="10"></el-option>
+            <el-option label="11.物流倉儲" :value="11"></el-option>
+            <el-option label="12.物流倉儲" :value="12"></el-option>
+            <el-option label="13.資訊科技" :value="13"></el-option>
+            <el-option label="14.環境衛生" :value="14"></el-option>
+            <el-option label="15.傳播類" :value="15"></el-option>
+            <el-option label="16.生技醫療" :value="16"></el-option>
+            <el-option label="17.電子科技" :value="17"></el-option>
+            <el-option label="18.食品飲料" :value="18"></el-option>
+            <el-option label="19.綜合工商" :value="19"></el-option>
+            <el-option label="20.汽機車買賣維修" :value="20"></el-option>
+          </el-select>
+        </el-form-item>
+      <el-form-item label="預估月加油量">
         <el-input v-model="cus_form.est_fuel_volume"></el-input>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="公司電話">
         <el-input v-model="cus_form.phone"></el-input>
       </el-form-item>
@@ -118,9 +131,9 @@
       <el-form-item label="低水位通知">
         <el-input v-model="cus_form.low_balance_notice"></el-input>
       </el-form-item>
-      <!-- <el-form-item label="公司抬頭">
+      <el-form-item label="公司抬頭">
         <el-input v-model="cus_form.company_title"></el-input>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="簽呈日期">
         <el-date-picker
           v-model="cus_form.submission_date"
@@ -141,15 +154,15 @@
           style="width: 300px;">
         </el-date-picker>
       </el-form-item>
-      <!-- <el-form-item label="油價簡訊電話">
+      <el-form-item label="油價簡訊電話">
         <el-input v-model="cus_form.fuel_sms_phone"></el-input>
-      </el-form-item> -->
-      <!-- <el-form-item label="油價簡訊選項">
+      </el-form-item>
+      <el-form-item label="油價簡訊選項">
         <el-select v-model="cus_form.fuel_sms_option" placeholder="選擇交易模式">
           <el-option label="Y" :value="'Y'"></el-option>
           <el-option label="N" :value="'N'"></el-option>
         </el-select>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="餘額不足訊息電話">
         <el-input v-model="cus_form.balance_sms_phone"></el-input>
       </el-form-item>
@@ -204,9 +217,9 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <!-- <el-form-item label="業務備註" class="large-textbox">
+      <el-form-item label="業務備註" class="large-textbox">
         <el-input v-model="cus_form.sales_notes" type="textarea"></el-input>
-      </el-form-item> -->
+      </el-form-item>
     </el-row>
     <!-- 設定方式&備註 -->
     <!-- <el-row style="margin-bottom: 20px"> -->
@@ -225,8 +238,8 @@
       <!-- 設定方式備註 -->
       <!-- <el-form-item label="設定方式備註" class="large-textbox">
         <el-input v-model="cus_form.config_notes" type="textarea"></el-input>
-      </el-form-item> -->
-    <!-- </el-row> -->
+      </el-form-item> 
+    </el-row> -->
     <!-- 信用卡收取手續費 -->
     <el-row style="margin-bottom: 20px">
     <el-form-item label="信用卡手續費收取">
@@ -247,6 +260,33 @@
       <el-input v-model="cus_form.month_balance" ></el-input>
     </el-form-item>
   </el-row>
+    <!-- <el-form-item label="設定方式備註" style="width: 1000px;margin-bottom: 20px;" v-if="cus_form.transaction_mode==2">
+      <el-input v-model="cus_form.config_notes" type="textarea"  readonly></el-input>
+    </el-form-item> -->
+    <el-form-item label="設定方式" class="section-header" v-if="this.cus_form.transaction_mode==2" >
+      <el-form-item label="銀行定存" >
+          <el-input v-model="cus_form.one" ></el-input>
+      </el-form-item>
+      <el-form-item label="現金" >
+          <el-input v-model="cus_form.two" ></el-input>
+      </el-form-item>
+      <el-form-item label="支票" >
+          <el-input v-model="cus_form.three" ></el-input>
+      </el-form-item>
+      <el-form-item label="商業本票" >
+          <el-input v-model="cus_form.four" ></el-input>
+      </el-form-item>
+      <el-form-item label="銀行保證" >
+          <el-input v-model="cus_form.five" ></el-input>
+      </el-form-item>
+      <el-form-item label="無擔保" >
+          <el-input v-model="cus_form.six" ></el-input>
+      </el-form-item>
+      <el-form-item label="其它" >
+          <el-input v-model="cus_form.seven" ></el-input>
+      </el-form-item>
+    </el-form-item>
+     
     </el-form-item>
     
 
@@ -475,7 +515,7 @@
           </el-form-item>
           </el-row>
     </el-form-item>
-    <el-button type="primary" @click="onConfirmEdit">確認修改</el-button>
+    <el-button type="primary" @click="onConfirmEdit()">確認修改</el-button>
     <el-form-item label="" class="section-white" >
   </el-form-item>
   </el-form>
@@ -512,7 +552,7 @@ data() {
       updateTime:''
     },
     cus_form: {
-      
+      config_method:[0]
     },
     SinopacBank:{},
     bills_form:{},
@@ -558,15 +598,27 @@ mounted() {
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
           this.cus_form = response.data.data[0];
-          if (this.cus_form.config_method) {
-          if (typeof this.cus_form.config_method === 'string') {
-            // 将 "1,2" 转换为 [1, 2]
-            this.cus_form.config_method = this.cus_form.config_method.split(',').map(Number);
-          }
-        } else {
-        // 如果 config_method 是 null 或 undefined，则设置为空数组
-        this.cus_form.config_method = [];
+          const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
+          const matches = this.cus_form.config_notes.match(pattern);
+          if (matches && matches.length === 8) {
+            this.cus_form.one= matches[1],   // 銀行定存
+            this.cus_form.two= matches[2],   // 現金
+            this.cus_form.three= matches[3], // 支票
+            this.cus_form.four= matches[4],  // 商業本票
+            this.cus_form.five= matches[5],  // 銀行保證
+            this.cus_form.six= matches[6],   // 無擔保
+            this.cus_form.seven= matches[7]  // 其它
         }
+          // console.log(JSON.stringify(this.cus_form.config_notes))
+        //   if (this.cus_form.config_method) {
+        //   if (typeof this.cus_form.config_method === 'string') {
+        //     // 将 "1,2" 转换为 [1, 2]
+        //     this.cus_form.config_method = this.cus_form.config_method.split(',').map(Number);
+        //   }
+        // } else {
+        // // 如果 config_method 是 null 或 undefined，则设置为空数组
+        // this.cus_form.config_method = [];
+        // }
         })
         .catch(error => {
           // 處理錯誤
@@ -640,7 +692,13 @@ mounted() {
       if (this.rowType==='1') {
       console.log("發送客戶修改API")
       this.cus_form.updateTime='';
-      const req = this.cus_form;
+      if(this.cus_form.transaction_mode=='2'){
+      this.cus_form.config_notes = `銀行定存: ${this.cus_form.one || ''}, 現金: ${this.cus_form.two || ''}, 支票: ${this.cus_form.three || ''}, 商業本票: ${this.cus_form.four || ''}, 銀行保證: ${this.cus_form.five || ''}, 無擔保: ${this.cus_form.six || ''}, 其它: ${this.cus_form.seven || ''}`;
+    }else{
+      this.cus_form.config_notes=''
+    }
+    this.cus_form.config_method=[0]
+    const req = this.cus_form;
       axios.post('http://122.116.23.30:3345/main/updateCustomer', req)
         .then(response => {
           console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據

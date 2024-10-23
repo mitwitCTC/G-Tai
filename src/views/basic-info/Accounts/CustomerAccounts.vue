@@ -199,7 +199,7 @@ created() {
         correct:row.correct
       }
       console.log(JSON.stringify(postData))
-      if(!row.account_new){
+      if((!row.account_new)||(!row.correct)){
         this.$message({
               message: '正確帳號不得為空',
               type: 'error'

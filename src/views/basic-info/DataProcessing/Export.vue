@@ -92,7 +92,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="*油品">
-          <el-select v-model="form.product_name" placeholder="選擇油品">
+          <el-select v-model="form.product_name" placeholder="選擇油品" @change="ProcardType()">
             <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
             <!-- <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
             <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option> -->
@@ -231,6 +231,19 @@ export default {
     },
   },
   methods: {
+    ProcardType(){
+      if(this.form.product_name=="0017"){
+        //尿素
+        this.form.card_type="1"
+      }else if(this.form.product_name=="0006"){
+        //柴油 
+        this.form.card_type="2"
+      }else if(this.form.product_name=="0001"){
+        //汽油 
+        this.form.card_type="3"
+      }
+      console.log(this.form.card_type)
+    },
     handleClear() {
     this.dialog=false
     this.form = {};
@@ -292,7 +305,8 @@ export default {
     async getcard(){
         const postvehicleId = {
               vehicleId:this.vehicleId,
-              status:2
+              status:2,
+              card_type:this.form.card_type
         };
         const response = await axios.post('http://122.116.23.30:3345/main/searchCard',postvehicleId)
         try {

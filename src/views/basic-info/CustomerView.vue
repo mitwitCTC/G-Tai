@@ -119,18 +119,31 @@
         </el-form-item>
         <el-form-item label="產業類別">
           <el-select v-model="form.industry" placeholder="選擇產業類別">
-            <el-option label="食品飲料" :value="1"></el-option>
-            <el-option label="營建土木工程" :value="6"></el-option>
-            <el-option label="大眾運輸" :value="9"></el-option>
-            <el-option label="物流倉儲" :value="11"></el-option>
-            <el-option label="礦業土石" :value="12"></el-option>
-            <el-option label="資訊科技" :value="13"></el-option>
-            <el-option label="綜合工商" :value="19"></el-option>
+            <el-option label="1.食品飲料" :value="1"></el-option>
+            <el-option label="2.傢飾傢俱家電" :value="2"></el-option>
+            <el-option label="3.石油化學" :value="3"></el-option>
+            <el-option label="4.五金製造" :value="4"></el-option>
+            <el-option label="5.電力機械" :value="5"></el-option>
+            <el-option label="6.營建土木工程" :value="6"></el-option>
+            <el-option label="7.紙業製造" :value="7"></el-option>
+            <el-option label="8.金屬製造" :value="8"></el-option>
+            <el-option label="9.大眾運輸" :value="9"></el-option>
+            <el-option label="10橡膠塑膠" :value="10"></el-option>
+            <el-option label="11.物流倉儲" :value="11"></el-option>
+            <el-option label="12.物流倉儲" :value="12"></el-option>
+            <el-option label="13.資訊科技" :value="13"></el-option>
+            <el-option label="14.環境衛生" :value="14"></el-option>
+            <el-option label="15.傳播類" :value="15"></el-option>
+            <el-option label="16.生技醫療" :value="16"></el-option>
+            <el-option label="17.電子科技" :value="17"></el-option>
+            <el-option label="18.食品飲料" :value="18"></el-option>
+            <el-option label="19.綜合工商" :value="19"></el-option>
+            <el-option label="20.汽機車買賣維修" :value="20"></el-option>
           </el-select>
         </el-form-item>
-        <!-- <el-form-item label="預估月加油量">
+        <el-form-item label="預估月加油量">
           <el-input v-model="form.est_fuel_volume" ></el-input>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="公司電話">
           <el-input v-model="form.phone" ></el-input>
         </el-form-item>
@@ -178,9 +191,9 @@
         <el-form-item label="低水位通知">
           <el-input v-model="form.low_balance_notice" ></el-input>
         </el-form-item>
-        <!-- <el-form-item label="公司抬頭">
+        <el-form-item label="公司抬頭">
           <el-input v-model="form.company_title" ></el-input>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="簽呈日期">
           <el-date-picker 
           v-model="form.submission_date" 
@@ -201,15 +214,15 @@
           style="width: 300px;">
         </el-date-picker>
         </el-form-item>
-        <!-- <el-form-item label="油價簡訊電話">
+        <el-form-item label="油價簡訊電話">
           <el-input v-model="form.fuel_sms_phone" ></el-input>
-        </el-form-item> -->
-        <!-- <el-form-item label="油價簡訊選項">
-          <el-select v-model="form.fuel_sms_option" placeholder="選擇交易模式">
+        </el-form-item>
+        <el-form-item label="油價簡訊選項">
+          <el-select v-model="form.fuel_sms_option" placeholder="選擇模式">
             <el-option label="Y" :value="'Y'"></el-option>
             <el-option label="N" :value="'N'"></el-option>
           </el-select>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="餘額不足訊息電話">
           <el-input v-model="form.balance_sms_phone" ></el-input>
         </el-form-item>
@@ -264,13 +277,12 @@
           ></el-option>
           </el-select>
         </el-form-item>
-      <!-- <el-form-item label="業務備註" class="large-textbox">
+      <el-form-item label="業務備註" class="large-textbox">
         <el-input v-model="form.sales_notes" type="textarea" ></el-input>
-      </el-form-item> -->
+      </el-form-item>
     </el-row>
-      <!-- 設定方式&備註 -->
-     <el-row style="margin-bottom: 20px">
-      <!--<el-form-item label="設定方式">
+    
+      <!-- <el-form-item label="設定方式">
         <el-checkbox-group v-model="form.config_method" >
           <el-checkbox :label="1">銀行定存</el-checkbox>
           <el-checkbox :label="2">現金</el-checkbox>
@@ -280,13 +292,13 @@
           <el-checkbox :label="6">無擔保</el-checkbox>
           <el-checkbox :label="7">其他</el-checkbox>
         </el-checkbox-group>
-    </el-form-item> -->
+    </el-form-item>  -->
     <!-- 設定方式備註 -->
-    <!-- <el-form-item label="設定方式備註" class="large-textbox">
+     <!-- <el-form-item label="設定方式備註" class="large-textbox">
       <el-input v-model="form.config_notes" type="textarea" ></el-input>
     </el-form-item> -->
-    <!-- 信用卡收取手續費 -->
-    <el-row style="margin-bottom: 20px">
+     <!-- 信用卡收取手續費 -->
+     <el-row style="margin-bottom: 20px">
     <el-form-item label="信用卡手續費收取">
           <el-select v-model="form.card_other_fee" placeholder="選擇是否收取">
             <el-option label="0.不收取" :value="'0'"></el-option>
@@ -297,14 +309,41 @@
       <el-input v-model="form.card_handling" ></el-input>
     </el-form-item> -->
     </el-row>
-  </el-row>
+    <el-form-item label="設定方式" class="section-header" v-if="this.form.transaction_mode==2" >
+      <el-form-item label="銀行定存" >
+          <el-input v-model="form.one" ></el-input>
+      </el-form-item>
+      <el-form-item label="現金" >
+          <el-input v-model="form.two" ></el-input>
+      </el-form-item>
+      <el-form-item label="支票" >
+          <el-input v-model="form.three" ></el-input>
+      </el-form-item>
+      <el-form-item label="商業本票" >
+          <el-input v-model="form.four" ></el-input>
+      </el-form-item>
+      <el-form-item label="銀行保證" >
+          <el-input v-model="form.five" ></el-input>
+      </el-form-item>
+      <el-form-item label="無擔保" >
+          <el-input v-model="form.six" ></el-input>
+      </el-form-item>
+      <el-form-item label="其它" >
+          <el-input v-model="form.seven" ></el-input>
+      </el-form-item>
+    </el-form-item>
+   
     </el-form>
-    <template v-slot:footer>
-<div  class="dialog-footer">
+    <!-- <template v-slot:footer>
+    <div  class="dialog-footer">
       <el-button @click="dialog = false">取消</el-button>
       <el-button type="primary" @click="savePass">送出</el-button>
     </div>
-</template>
+</template> -->
+<div class="dialog-footer">
+  <el-button @click="dialog = false">取消</el-button>
+  <el-button type="primary" @click="savePass()">送出</el-button>
+</div>
   </el-dialog>
 
     </div>
@@ -337,12 +376,25 @@ export default {
       customers2:[],
       industryMap: {
         '1': '食品飲料',
+        '2': '傢飾傢俱家電',
+        '3': '石油化學',
+        '4': '五金製造',
+        '5': '電力機械',
         '6': '營建土木工程',
+        '7': '紙業製造',
+        '8': '金屬製造',
         '9': '大眾運輸',
+        '10': '橡膠塑膠',
         '11': '物流倉儲',
         '12': '礦業土石',
         '13': '資訊科技',
-        '19': '綜合工商'
+        '14': '文教類',
+        '15': '傳播類',
+        '16': '環境衛生',
+        '17': '生技醫療',
+        '18': '電子科技',
+        '19': '綜合工商',
+        '20': '汽機車買賣維修',
       } ,// 產業類別對應的映射
       regionMap: {
         '1': '北、北、基、宜',
@@ -355,7 +407,7 @@ export default {
       form: {
         createTime:'',
         cus_code:'',
-        cus_name:''
+        cus_name:'',
       },
       salesmenData:[],
       Vehicle:[],
@@ -451,9 +503,17 @@ export default {
     } 
   },
   savePass() {
+    
     if(!this.form.config_method){
       this.form.config_method=[0]
     }
+
+    if(this.form.transaction_mode==2){
+      this.form.config_notes = `銀行定存: ${this.form.one || ''}, 現金: ${this.form.two || ''}, 支票: ${this.form.three || ''}, 商業本票: ${this.form.four || ''}, 銀行保證: ${this.form.five || ''}, 無擔保: ${this.form.six || ''}, 其它: ${this.form.seven || ''}`;
+    }else{
+      this.form.config_notes=''
+    }
+
     if(this.form.createTime){
       this.form.createTime = this.form.createTime.trim();
     }
@@ -467,7 +527,7 @@ export default {
             });
         return
       }
-      console.log(JSON.stringify(req))
+      console.log("req"+JSON.stringify(req))
       axios.post('http://122.116.23.30:3345/main/createCustomer', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {

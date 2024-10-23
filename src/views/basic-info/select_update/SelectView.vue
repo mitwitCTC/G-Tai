@@ -26,6 +26,9 @@
     <el-form-item label="負責業務" v-if="this.salesmenData">
       <el-input :value="getEmployeeName(cus_form.salesmanId)"  readonly></el-input>
     </el-form-item>
+    <!-- <el-form-item label="負責業務" v-if="this.salesmenData">
+      <el-input :value="cus_form.salesmanId"  readonly></el-input>
+    </el-form-item> -->
     <el-form-item label="虛擬帳號">
       <el-input v-model="cus_form.virtual_account" readonly></el-input>
     </el-form-item>
@@ -35,9 +38,9 @@
     <el-form-item label="產業類別">
       <el-input v-model="cus_form.industry" :formatter="formatIndustry" readonly></el-input>
     </el-form-item>
-    <!-- <el-form-item label="預估月加油量">
+    <el-form-item label="預估月加油量">
       <el-input v-model="cus_form.est_fuel_volume" readonly></el-input>
-    </el-form-item> -->
+    </el-form-item>
     <el-form-item label="公司電話">
       <el-input v-model="cus_form.phone" readonly></el-input>
     </el-form-item>
@@ -71,21 +74,21 @@
     <el-form-item label="低水位通知">
       <el-input v-model="cus_form.low_balance_notice":value="formatCurrency(cus_form.low_balance_notice)" readonly></el-input>
     </el-form-item>
-    <!-- <el-form-item label="公司抬頭">
+    <el-form-item label="公司抬頭">
       <el-input v-model="cus_form.company_title" readonly></el-input>
-    </el-form-item> -->
+    </el-form-item>
     <el-form-item label="簽呈日期">
       <el-input v-model="cus_form.submission_date" readonly></el-input>
     </el-form-item>
     <el-form-item label="匯款日期">
       <el-input v-model="cus_form.remittance_date" readonly></el-input>
     </el-form-item>
-    <!-- <el-form-item label="油價簡訊電話">
+    <el-form-item label="油價簡訊電話">
       <el-input v-model="cus_form.fuel_sms_phone" readonly></el-input>
-    </el-form-item> -->
-    <!-- <el-form-item label="油價簡訊選項">
+    </el-form-item> 
+     <el-form-item label="油價簡訊選項">
       <el-input v-model="cus_form.fuel_sms_option" readonly></el-input>
-    </el-form-item> -->
+    </el-form-item>
     <el-form-item label="餘額不足訊息電話">
       <el-input v-model="cus_form.balance_sms_phone" readonly></el-input>
     </el-form-item>
@@ -133,13 +136,13 @@
     <el-form-item label="簽約業務" v-if="this.salesmenData">
       <el-input :value="getEmployeeName(cus_form.contract_sales)"   readonly></el-input>
     </el-form-item>
-    <!-- <el-form-item label="業務備註" class="large-textbox">
+    <el-form-item label="業務備註" class="large-textbox">
       <el-input v-model="cus_form.sales_notes" type="textarea" readonly></el-input>
-    </el-form-item> -->
+    </el-form-item>
   </el-row>
 
   <!-- 設定方式&備註 -->
-  <!-- <el-row style="margin-bottom: 20px"> -->
+
     <!-- 設定方式 (多選框) -->
     <!-- <el-form-item label="設定方式">
       <el-checkbox-group v-model="cus_form.config_method" disabled >
@@ -153,10 +156,8 @@
       </el-checkbox-group>
     </el-form-item> -->
     <!-- 設定方式備註 -->
-    <!-- <el-form-item label="設定方式備註" class="large-textbox">
-      <el-input v-model="cus_form.config_notes" type="textarea" readonly></el-input>
-    </el-form-item>
-  </el-row> -->
+    
+
   <!-- 信用卡收取手續費 -->
   <el-row style="margin-bottom: 20px">
     <el-form-item label="信用卡手續費收取">
@@ -174,6 +175,32 @@
       <el-input v-model="cus_form.month_balance" readonly></el-input>
     </el-form-item>
   </el-row>
+  <!-- <el-form-item label="設定方式" style="width: 1000px;margin-bottom: 20px;" v-if="cus_form.transaction_mode==2">
+      <el-input v-model="cus_form.config_notes" type="textarea"  readonly></el-input>
+    </el-form-item> -->
+    <el-form-item label="設定方式" class="section-header" v-if="this.cus_form.transaction_mode==2" >
+      <el-form-item label="銀行定存" >
+          <el-input v-model="cus_form.one" readonly></el-input>
+      </el-form-item>
+      <el-form-item label="現金" >
+          <el-input v-model="cus_form.two" readonly ></el-input>
+      </el-form-item>
+      <el-form-item label="支票" >
+          <el-input v-model="cus_form.three" readonly ></el-input>
+      </el-form-item>
+      <el-form-item label="商業本票" >
+          <el-input v-model="cus_form.four" readonly ></el-input>
+      </el-form-item>
+      <el-form-item label="銀行保證" >
+          <el-input v-model="cus_form.five" readonly ></el-input>
+      </el-form-item>
+      <el-form-item label="無擔保" >
+          <el-input v-model="cus_form.six" readonly ></el-input>
+      </el-form-item>
+      <el-form-item label="其它" >
+          <el-input v-model="cus_form.seven" readonly ></el-input>
+      </el-form-item>
+    </el-form-item>
   <el-row style="margin-bottom: 20px">
     <el-form-item label="建立時間">
       <el-input v-model="cus_form.createTime" readonly></el-input>
@@ -260,7 +287,7 @@
       <el-table-column prop="product_name" label="油品名稱"  width="300" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
       <el-table-column prop="supplier_name" label="廠商名稱" width="500" />
       <el-table-column prop="discount_float" label="折讓" width="250" />
-      <el-table-column prop="responsible_person" label="負責業務" :formatter="getEmployeeName" width="300" />
+      <el-table-column prop="responsible_person" label="負責業務" :formatter="getListEmployeeName" width="300" />
     </el-table>
       </div>
     </el-form-item>
@@ -512,13 +539,26 @@ data() {
         "5": "臨時卡"
       },
     industryMap: {
-        '1': '1.食品飲料',
-        '6': '6.營建土木工程',
-        '9': '9.大眾運輸',
-        '11': '11.物流倉儲',
-        '12': '12.礦業土石',
-        '13': '13.資訊科技',
-        '19': '19.綜合工商'
+        '1': '食品飲料',
+        '2': '傢飾傢俱家電',
+        '3': '石油化學',
+        '4': '五金製造',
+        '5': '電力機械',
+        '6': '營建土木工程',
+        '7': '紙業製造',
+        '8': '金屬製造',
+        '9': '大眾運輸',
+        '10': '橡膠塑膠',
+        '11': '物流倉儲',
+        '12': '礦業土石',
+        '13': '資訊科技',
+        '14': '文教類',
+        '15': '傳播類',
+        '16': '環境衛生',
+        '17': '生技醫療',
+        '18': '電子科技',
+        '19': '綜合工商',
+        '20': '汽機車買賣維修',
       } ,// 產業類別對應的映射
       regionMap: {
         '1': '1.北、北、基、宜',
@@ -645,21 +685,14 @@ computed: {
   },
 mounted() {
     // 發送 API 請求以獲取業務資料
-    axios.get('http://122.116.23.30:3345/main/selectSalesman')
-      .then(response => {
-        this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
-       
-      })
-      .catch(error => {
-        // 處理錯誤
-        console.error('API request failed:', error);
-      });
+   
   },
-created() {
+async created() {
   this.cus_code = (this.$route.query.cus_code);
   this.cus_name = (this.$route.query.cus_name);
   this.account_sortId  = (this.$route.query.account_sortId );
   this.invoice=(this.$route.query.invoice );
+  
   if (this.rowType==='1') {
       const postData = {
         cus_code:this.cus_code,
@@ -667,20 +700,35 @@ created() {
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
           this.cus_form = response.data.data[0];
-          if (this.cus_form.config_method) {
-            if (typeof this.cus_form.config_method === 'string') {
-              // 将 "1,2" 转换为 [1, 2]
-              this.cus_form.config_method = this.cus_form.config_method.split(',').map(Number);
-            }
-          } else {
-          // 如果 config_method 是 null 或 undefined，则设置为空数组
-          this.cus_form.config_method = [];
+          console.log("業務"+this.cus_form.salesmanId)
+          if(this.cus_form.transaction_mode=='2'){
+            const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
+            const matches = this.cus_form.config_notes.match(pattern);
+          if (matches && matches.length === 8) {
+            this.cus_form.one= matches[1],   // 銀行定存
+            this.cus_form.two= matches[2],   // 現金
+            this.cus_form.three= matches[3], // 支票
+            this.cus_form.four= matches[4],  // 商業本票
+            this.cus_form.five= matches[5],  // 銀行保證
+            this.cus_form.six= matches[6],   // 無擔保
+            this.cus_form.seven= matches[7]  // 其它
           }
+        }
+          // if (this.cus_form.config_method) {
+          //   if (typeof this.cus_form.config_method === 'string') {
+          //     // 将 "1,2" 转换为 [1, 2]
+          //     this.cus_form.config_method = this.cus_form.config_method.split(',').map(Number);
+          //   }
+          // } else {
+          // // 如果 config_method 是 null 或 undefined，则设置为空数组
+          // this.cus_form.config_method = [];
+          // }
         })
         .catch(error => {
           // 處理錯誤
           console.error('API request failed:', error);
         });
+        this.getsalesman();
         this.getcpc();
         this.getbillselectData()
         this.getvehiclesselectData()
@@ -730,6 +778,16 @@ created() {
     }
   },
   methods:{
+    async getsalesman() {
+     await axios.get('http://122.116.23.30:3345/main/selectSalesman')
+      .then(response => {
+        this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
+      })
+      .catch(error => {
+        // 處理錯誤
+        console.error('API request failed:', error);
+      });
+    },
     async getcontactselectData() {
       this.loading = true;  // 開始加載
       const postData = {
@@ -882,7 +940,7 @@ created() {
       const product = this.productMap.find(item => item.classId == product_name);
       return product == null ? '' : (product ? product.className : '未知名稱');
     },
-    getEmployeeName(responsible_person) {
+    getListEmployeeName(responsible_person) {
       // 如果 salesmenData 仍為空，則返回空或其他提示
       if (!this.salesmenData || this.salesmenData.length === 0) {
         return '正在加載...';
