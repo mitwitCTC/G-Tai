@@ -62,7 +62,7 @@
     <el-form-item label="合約日期(起)">
       <el-input v-model="cus_form.contract_start" readonly></el-input>
     </el-form-item>
-    <el-form-item label="停油寬限額度">
+    <el-form-item label="停油寬限額度" v-if="this.cus_form.transaction_mode==1">
       <el-input v-model="cus_form.fuel_grace_limit" :value="formatCurrency(cus_form.fuel_grace_limit)" readonly></el-input>
     </el-form-item>
     <el-form-item label="公司統編">
@@ -71,7 +71,7 @@
     <el-form-item label="合約日期(迄)">
       <el-input v-model="cus_form.contract_end" readonly></el-input>
     </el-form-item>
-    <el-form-item label="低水位通知">
+    <el-form-item label="低水位通知" v-if="this.cus_form.transaction_mode==1">
       <el-input v-model="cus_form.low_balance_notice":value="formatCurrency(cus_form.low_balance_notice)" readonly></el-input>
     </el-form-item>
     <el-form-item label="公司抬頭">
@@ -80,7 +80,7 @@
     <el-form-item label="簽呈日期">
       <el-input v-model="cus_form.submission_date" readonly></el-input>
     </el-form-item>
-    <el-form-item label="匯款日期">
+    <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
       <el-input v-model="cus_form.remittance_date" readonly></el-input>
     </el-form-item>
     <el-form-item label="油價簡訊電話">
@@ -89,7 +89,7 @@
      <el-form-item label="油價簡訊選項">
       <el-input v-model="cus_form.fuel_sms_option" readonly></el-input>
     </el-form-item>
-    <el-form-item label="餘額不足訊息電話">
+    <el-form-item label="餘額不足訊息電話" v-if="this.cus_form.transaction_mode==1">
       <el-input v-model="cus_form.balance_sms_phone" readonly></el-input>
     </el-form-item>
     <el-form-item label="合約狀態">

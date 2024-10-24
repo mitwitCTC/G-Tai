@@ -172,7 +172,7 @@
           style="width: 300px;">
         </el-date-picker>
         </el-form-item>
-        <el-form-item label="停油寬限額度">
+        <el-form-item label="停油寬限額度" v-if="this.form.transaction_mode==1">
           <el-input v-model="form.fuel_grace_limit" ></el-input>
         </el-form-item>
         <el-form-item label="*公司統編">
@@ -188,7 +188,7 @@
           style="width: 300px;">
         </el-date-picker>
         </el-form-item>
-        <el-form-item label="低水位通知">
+        <el-form-item label="低水位通知" v-if="this.form.transaction_mode==1">
           <el-input v-model="form.low_balance_notice" ></el-input>
         </el-form-item>
         <el-form-item label="公司抬頭">
@@ -204,7 +204,7 @@
           style="width: 300px;">
         </el-date-picker>
         </el-form-item>
-        <el-form-item label="匯款日期">
+        <el-form-item label="匯款日期" v-if="this.form.transaction_mode==2">
           <el-date-picker 
           v-model="form.remittance_date" 
           type="date" 
@@ -223,7 +223,7 @@
             <el-option label="N" :value="'N'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="餘額不足訊息電話">
+        <el-form-item label="餘額不足訊息電話" v-if="this.form.transaction_mode==1">
           <el-input v-model="form.balance_sms_phone" ></el-input>
         </el-form-item>
         <el-form-item label="合約狀態">
@@ -408,6 +408,13 @@ export default {
         createTime:'',
         cus_code:'',
         cus_name:'',
+        one: '',   // 銀行定存
+        two: '',   // 現金
+        three: '', // 支票
+        four: '',  // 商業本票
+        five: '',  // 銀行保證
+        six: '',   // 無擔保
+        seven: ''  // 其它
       },
       salesmenData:[],
       Vehicle:[],
@@ -509,7 +516,7 @@ export default {
     }
 
     if(this.form.transaction_mode==2){
-      this.form.config_notes = `銀行定存: ${this.form.one || ''}, 現金: ${this.form.two || ''}, 支票: ${this.form.three || ''}, 商業本票: ${this.form.four || ''}, 銀行保證: ${this.form.five || ''}, 無擔保: ${this.form.six || ''}, 其它: ${this.form.seven || ''}`;
+      this.form.config_notes = `銀行定存: ${this.form.one ? this.form.one : '0'}, 現金: ${this.form.two ? this.form.two : '0'}, 支票: ${this.form.three ? this.form.three : '0'}, 商業本票: ${this.form.four ? this.form.four : '0'}, 銀行保證: ${this.form.five ? this.form.five : '0'}, 無擔保: ${this.form.six ? this.form.six : '0'}, 其它: ${this.form.seven ? this.form.seven : '0'}`;
     }else{
       this.form.config_notes=''
     }

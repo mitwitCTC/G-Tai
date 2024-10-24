@@ -112,7 +112,7 @@
           style="width: 300px;">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="停油寬限額度">
+      <el-form-item label="停油寬限額度" v-if="this.cus_form.transaction_mode==1">
         <el-input v-model="cus_form.fuel_grace_limit"></el-input>
       </el-form-item>
       <el-form-item label="公司統編">
@@ -128,7 +128,7 @@
           style="width: 300px;">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="低水位通知">
+      <el-form-item label="低水位通知" v-if="this.cus_form.transaction_mode==1">
         <el-input v-model="cus_form.low_balance_notice"></el-input>
       </el-form-item>
       <el-form-item label="公司抬頭">
@@ -144,7 +144,7 @@
           style="width: 300px;">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="匯款日期">
+      <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
         <el-date-picker
           v-model="cus_form.remittance_date"
           type="date"
@@ -163,7 +163,7 @@
           <el-option label="N" :value="'N'"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="餘額不足訊息電話">
+      <el-form-item label="餘額不足訊息電話" v-if="this.cus_form.transaction_mode==1">
         <el-input v-model="cus_form.balance_sms_phone"></el-input>
       </el-form-item>
       <el-form-item label="合約狀態">
@@ -693,7 +693,7 @@ mounted() {
       console.log("發送客戶修改API")
       this.cus_form.updateTime='';
       if(this.cus_form.transaction_mode=='2'){
-      this.cus_form.config_notes = `銀行定存: ${this.cus_form.one || ''}, 現金: ${this.cus_form.two || ''}, 支票: ${this.cus_form.three || ''}, 商業本票: ${this.cus_form.four || ''}, 銀行保證: ${this.cus_form.five || ''}, 無擔保: ${this.cus_form.six || ''}, 其它: ${this.cus_form.seven || ''}`;
+        this.cus_form.config_notes = `銀行定存: ${this.cus_form.one ? this.cus_form.one : '0'}, 現金: ${this.cus_form.two ? this.cus_form.two : '0'}, 支票: ${this.cus_form.three ? this.cus_form.three : '0'}, 商業本票: ${this.cus_form.four ? this.cus_form.four : '0'}, 銀行保證: ${this.cus_form.five ? this.cus_form.five : '0'}, 無擔保: ${this.cus_form.six ? this.cus_form.six : '0'}, 其它: ${this.cus_form.seven ? this.cus_form.seven : '0'}`;
     }else{
       this.cus_form.config_notes=''
     }

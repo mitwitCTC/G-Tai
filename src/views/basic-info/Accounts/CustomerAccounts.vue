@@ -47,45 +47,89 @@
         <el-table-column prop="reference_amount" label="參考金額" align="right" width="100" />
       </el-table>
       </el-form-item>
+
       <el-form-item label="銀行未核銷" class="section-header" >
-  <el-button type="primary" @click="onContact(2)">核銷</el-button>
-  
-  <el-table :data="errbank" style="width: 100%" v-loading="loading">
-    
+        <el-button type="primary" @click="onContact(2)">核銷</el-button>
+        <el-table :data="errbank" style="width: 100%" v-loading="loading">
+          <el-table-column prop="customerId" label="客代" width="200" />
+          <el-table-column prop="bank" label="入帳來源" width="200" />
+          <el-table-column prop="account" label="虛擬帳號" width="200" />
+          <el-table-column prop="account_time" label="交易時間" />   
+           <!-- 可編輯的 account_new -->
+          <el-table-column prop="account_new" label="正確帳號">
+            <template v-slot="scope">
+              <el-input v-model="scope.row.account_new"maxlength=14 v-if="editingRow === scope.row"></el-input>
+            </template>
+          </el-table-column> 
+          <!-- 可編輯的 correct -->
+          <el-table-column prop="correct" label="不核銷原因">
+            <template v-slot="scope">
+              <el-input v-model="scope.row.correct"v-if="editingRow === scope.row"></el-input>
+            </template>
+          </el-table-column>
+          <!-- 金額使用格式化 -->
+          <el-table-column prop="amount" label="金額" align="right">
+            <template v-slot="scope">{{ formatAmount(scope.row.amount) }}</template>
+          </el-table-column>
+          <el-table-column label="操作">
+                <template v-slot="scope">
+                    <el-button type="warning" @click="Edit(scope.row)"  v-if="editingRow !== scope.row">修改</el-button>
+                    <el-button type="success" @click="Save(scope.row)" v-if="editingRow === scope.row">儲存</el-button>
+                </template>
+          </el-table-column>
+        </el-table>
+      </el-form-item>
 
-    <el-table-column prop="customerId" label="客代" width="200" />
-    <el-table-column prop="bank" label="入帳來源" width="200" />
-    <el-table-column prop="account" label="虛擬帳號" width="200" />
-    <el-table-column prop="credit_card_data" label="交易時間" />
-    
-   
-    
-    <!-- 可編輯的 account_new -->
-    <el-table-column prop="account_new" label="正確帳號">
-      <template v-slot="scope">
-        <el-input v-model="scope.row.account_new"maxlength=14 v-if="isEditable"></el-input>
-      </template>
-    </el-table-column>
-    
-    <!-- 可編輯的 correct -->
-    <el-table-column prop="correct" label="不核銷原因">
-      <template v-slot="scope">
-        <el-input v-model="scope.row.correct" v-if="isEditable"></el-input>
-      </template>
-    </el-table-column>
-     <!-- 金額使用格式化 -->
-     <el-table-column prop="amount" label="金額" align="right">
-      <template v-slot="scope">{{ formatAmount(scope.row.amount) }}</template>
-    </el-table-column>
-    <el-table-column label="操作">
-          <template v-slot="scope">
-              <el-button type="warning" @click="Edit(scope.row)" v-if="!isEditable">修改</el-button>
-              <el-button type="success" @click="Save(scope.row)" v-if="isEditable">儲存</el-button>
-          </template>
-       </el-table-column>
-  </el-table>
-</el-form-item>
+      <el-form-item label="銀行已核銷" class="section-header" >
+       
+        <el-select 
+          v-model="customerId" 
+          placeholder="輸入客戶名稱/客代"
+          filterable
+          :clearable="true"
+          style="width: 300px; margin-right:20px;" 
+          @change="getdata()" 
+        >
+          <!-- 使用 cusdata 直接顯示每個字符串 -->
+        <el-option
+            v-for="item in cusdata"
+            :key="item"
+            :label="item"
+            :value="item.split(' ')[0]"  
+          ></el-option>
+          </el-select>
 
+
+        <el-table :data="isDiscount" style="width: 100%" v-loading="loading">
+          <el-table-column prop="customerId" label="客代" width="200" />
+          <el-table-column prop="bank" label="入帳來源" width="200" />
+          <el-table-column prop="account" label="虛擬帳號" width="200" />
+          <el-table-column prop="account_time" label="交易時間" />   
+           <!-- 可編輯的 account_new -->
+          <el-table-column prop="account_new" label="正確帳號">
+            <template v-slot="scope">
+              <el-input v-model="scope.row.account_new"maxlength=14 v-if="isEditable === scope.row"></el-input>
+            </template>
+          </el-table-column> 
+          <!-- 可編輯的 correct -->
+          <el-table-column prop="correct" label="修改原因">
+            <template v-slot="scope">
+              <el-input v-model="scope.row.correct" v-if="isEditable === scope.row"></el-input>
+            </template>
+          </el-table-column>
+          <!-- 金額使用格式化 -->
+          <el-table-column prop="amount" label="金額" align="right">
+            <template v-slot="scope">{{ formatAmount(scope.row.amount) }}</template>
+          </el-table-column>
+          <el-table-column label="操作">
+                <template v-slot="scope">
+                    <el-button type="warning" @click="isEdit(scope.row)" v-if="isEditable !== scope.row">修改</el-button>
+                    <el-button type="success" @click="isSave(scope.row)" v-if="isEditable === scope.row">儲存</el-button>
+                </template>
+          </el-table-column>
+        </el-table>
+      </el-form-item>
+      <div style="margin-bottom: 100px;"></div>
 </template>
 
 <script>
@@ -99,19 +143,56 @@ export default {
   },
 data() {
   return {
+    editingRow: null,  // 追踪正在編輯的行
     loading: false,  // 加載狀態
     selectedDate: null ,
-    isEditable: false, // 控制是否可以編輯的布爾變量
+    isEditable: null, // 控制是否可以編輯的布爾變量
     cpcData: [],  // 用來儲存來自 "cpc_dataCount" 的資料
     bankData: [],  // 用來儲存來自 "bank_dataCount" 的資料
+    customerId:'',
     errcpc:[],
-    errbank:[]
+    errbank:[],
+    cusdata:[],
+    isDiscount:[]
   };
 },
 created() {
    this.getselectData();
+   this.getcusdata();
  },
   methods:{
+    async getdata(){
+      const postData={
+        customerId :this.customerId
+      }
+      await axios.post('http://122.116.23.30:3345/finance/searchReconciledTBB',postData)
+      .then(response => {
+          this.isDiscount=response.data.data
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+    },
+    async getcusdata(){
+      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      .then(response => {
+          this.cusdata=response.data.data
+          this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
+        })
+        .catch(error => {
+          // 處理錯誤
+            this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        });
+    },
     DateBeforeToday(date) {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // 將時間設置為當天午夜
@@ -162,9 +243,10 @@ created() {
         .then(response => {
           if(response.data.returnCode==0){
             this.$message({
-              message: '中油資料已核銷：'+response.data.data,
+              message: '中油資料已核銷',
               type: 'success'
             });
+            this.getselectData();
           }
         })
         .catch(error => {
@@ -176,9 +258,10 @@ created() {
         .then(response => {
           if(response.data.returnCode==0){
             this.$message({
-              message: '銀行資料已核銷：'+response.data.data,
+              message: '銀行資料已核銷',
               type: 'success'
             });
+            this.getselectData();
           }
         })
         .catch(error => {
@@ -188,24 +271,24 @@ created() {
       }
       
     },
-    Edit(){
-      this.isEditable = !this.isEditable;
+    Edit(row){
+      this.editingRow = row;  // 設置當前正在編輯
     },
     async Save(row){
-      this.isEditable = !this.isEditable;
+      
       const postData ={
         id:row.id,
         account :row.account_new,
         correct:row.correct
       }
-      console.log(JSON.stringify(postData))
       if((!row.account_new)||(!row.correct)){
         this.$message({
-              message: '正確帳號不得為空',
+              message: '欄位不得為空',
               type: 'error'
             });
             return
       }
+      this.editingRow = null; // 取消編輯狀態
       await axios.post('http://122.116.23.30:3345/finance/updateTBBAccount',postData)
         .then(response => {
           if(response.data.returnCode==0){
@@ -220,7 +303,41 @@ created() {
           // 處理錯誤
           console.error('API request failed:', error);
         });
-    }
+    },
+    isEdit(row){
+      this.isEditable = row;
+    },
+    async isSave(row){
+      
+      const postData ={
+        id:row.id,
+        account :row.account_new,
+        correct:row.correct
+      }
+      if((!row.account_new)||(!row.correct)){
+        this.$message({
+              message: '欄位不得為空',
+              type: 'error'
+            });
+            return
+      }
+      this.isEditable=null
+      await axios.post('http://122.116.23.30:3345/finance/updateReconciledTBB',postData)
+        .then(response => {
+          if(response.data.returnCode==0){
+            this.$message({
+              message: '修改成功',
+              type: 'success'
+            });
+            this.getdata()
+            this.getselectData();
+          }
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+    },
   }
 }
 </script>
