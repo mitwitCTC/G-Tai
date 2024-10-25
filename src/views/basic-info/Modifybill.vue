@@ -361,7 +361,7 @@ methods:{
       const postData={
         customerId:customerId
       }
-      await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
+      await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
       .then(response => {
           this.formbills=response.data.data
         })
