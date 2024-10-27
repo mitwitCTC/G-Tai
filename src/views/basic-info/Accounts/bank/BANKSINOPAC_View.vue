@@ -243,9 +243,6 @@
     };
   },
   async created() {
-    const today = new Date();
-    this.form.account_date = this.formatDate(today);
-    this.form.credit_card_data = this.getNextBusinessDay();
     await this.getcusdata()
     await this.getselectData();
   },
@@ -366,6 +363,9 @@
       
     },
     dialogopen(){
+      const today = new Date();
+      this.form.account_date = this.formatDate(today);
+      this.form.credit_card_data = this.getNextBusinessDay();
       this.currentDate = this.getCurrentDate(); // 生成当前日期格式
       const nextNo = ('00' + (parseInt(this.bigNo) + 1)).slice(-3);
       // 顯示新的流水號
@@ -426,6 +426,7 @@
             this.form.account_time='',
             this.form.amount = '';
             this.form.remark = '';
+            this.card=[]
             // 關閉對話框
             this.dialog = false;
             // 刷新數據

@@ -116,20 +116,20 @@ methods: {
         data: processedData
       };
       console.log('送出的資料:', JSON.stringify(jsonData));
-      //  await axios.post('http://122.116.23.30:3345/main/importCPCfile',jsonData)
-      //   try {
-      //      this.$message({
-      //          message: '新增成功',
-      //         type: 'success'
-      //       });
-      //   }
-      //   catch{
-      //     this.$message({
-      //         message: '系統有誤',
-      //         type: 'error'
-      //       });
-      //     console.error('API request failed:', error);
-      //   }
+       await axios.post('http://122.116.23.30:3345/main/importCPCfile',jsonData)
+        try {
+           this.$message({
+               message: '新增成功',
+              type: 'success'
+            });
+        }
+        catch{
+          this.$message({
+              message: '系統有誤',
+              type: 'error'
+            });
+          console.error('API request failed:', error);
+        }
     },
     clearExcelData() {
       this.headers =[];
