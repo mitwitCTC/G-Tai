@@ -62,6 +62,15 @@
           ></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="*油品">
+          <el-select v-model="form.product_name" placeholder="選擇油品" @change="ProcardType()">
+            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
+            <!-- <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
+            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option> -->
+            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
+            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="*車號">
             <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="11"></el-input>
         </el-form-item>
@@ -91,15 +100,7 @@
             <el-option label="42993157(諾瓦帳號)" :value="'42993157'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="*油品">
-          <el-select v-model="form.product_name" placeholder="選擇油品" @change="ProcardType()">
-            <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
-            <!-- <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
-            <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option> -->
-            <el-option label="0006 超級柴油" :value="'0006'"></el-option>
-            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
-          </el-select>
-        </el-form-item>
+        
         <el-form-item label="車輛異動-因素">
             <el-input v-model="form.vehicle_change_reason" ></el-input>
         </el-form-item>
@@ -232,6 +233,7 @@ export default {
   },
   methods: {
     ProcardType(){
+      this.form.license_plate=''
       if(this.form.product_name=="0017"){
         //尿素
         this.form.card_type="1"
@@ -336,12 +338,21 @@ export default {
    },
     
   async getVehicle() {
+    if(!this.form.product_name){
+      this.form.license_plate=''
+      this.$message({
+              message: '請先選擇油品，再輸入車號',
+              type: 'error'
+            });
+      return
+    }
   this.form.card_number = '';
   this.form.license_plate = this.form.license_plate.trim();
   
   const postData = {
     customerId: this.form.cus_code,
   };
+  
 
   if (this.form.license_plate.length >= 5 && this.form.license_plate.length <= 11) {
     
