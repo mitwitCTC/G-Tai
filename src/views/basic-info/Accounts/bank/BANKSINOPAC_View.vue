@@ -143,7 +143,7 @@
             >
               <!-- 使用 cusdata 直接顯示每個字符串 -->
               <el-option
-                v-for="item in uniquecard"
+                v-for="item in uniquebank"
                 :key="item"
                 :label="item.issuing_bank"
                 :value="item.issuing_bank"  
@@ -248,6 +248,17 @@
   },
   computed: {
     uniquecard() {
+      const seen = new Set();
+      return this.card.filter(card => {
+        // 只保留第一次出現
+        if (!seen.has(card.account)) {
+          seen.add(card.account);
+          return true;
+        }
+        return false;
+      });
+    },
+    uniquebank() {
       const seen = new Set();
       return this.card.filter(card => {
         // 只保留第一次出現

@@ -110,26 +110,27 @@ methods: {
       license_plate: row['車號'],
       card_number: row['卡號'],
       custodian: row['管理單位'],
-      product_name: row['油品別'] ? row['油品別'].substring(0, 4) : ''
+      product_name: row['油品別'] ? row['油品別'].substring(0, 4) : '',
+      card_arrival_date:row['製卡日期']
     }));
       const jsonData = {
         data: processedData
       };
       console.log('送出的資料:', JSON.stringify(jsonData));
-       await axios.post('http://122.116.23.30:3345/main/importCPCfile',jsonData)
-        try {
-           this.$message({
-               message: '新增成功',
-              type: 'success'
-            });
-        }
-        catch{
-          this.$message({
-              message: '系統有誤',
-              type: 'error'
-            });
-          console.error('API request failed:', error);
-        }
+      //  await axios.post('http://122.116.23.30:3345/main/importCPCfile',jsonData)
+      //   try {
+      //      this.$message({
+      //          message: '新增成功',
+      //         type: 'success'
+      //       });
+      //   }
+      //   catch{
+      //     this.$message({
+      //         message: '系統有誤',
+      //         type: 'error'
+      //       });
+      //     console.error('API request failed:', error);
+      //   }
     },
     clearExcelData() {
       this.headers =[];
