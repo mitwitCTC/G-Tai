@@ -107,12 +107,19 @@ methods: {
     async submitData() {
       const selectedData = this.excelData.filter(row => row.selected);
       const processedData = selectedData.map(row => ({
-      license_plate: row['車號'],
-      card_number: row['卡號'],
-      custodian: row['管理單位'],
-      product_name: row['油品別'] ? row['油品別'].substring(0, 4) : '',
-      card_arrival_date:row['製卡日期']
-    }));
+        license_plate: row['車號'],
+        card_number: row['卡號'],
+        custodian: row['管理單位'],
+        product_name: row['油品別'] ? row['油品別'].substring(0, 4) : '',
+        card_arrival_date: row['製卡日期']
+        ? `${String(row['製卡日期']).slice(0, 4)}-${String(row['製卡日期']).slice(4, 6)}-${String(row['製卡日期']).slice(6, 8)}`
+        : '',
+        card_type: row['油品別'] && row['油品別'].substring(0, 4) === "0017" ? "1" :
+                   row['油品別'] && row['油品別'].substring(0, 4) === "0006" ? "2" :
+                   row['油品別'] && row['油品別'].substring(0, 4) === "0001" ? "3" : "",
+        upload_time:'',
+
+      }));
       const jsonData = {
         data: processedData
       };
