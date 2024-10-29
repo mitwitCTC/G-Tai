@@ -52,16 +52,6 @@
         </el-form-item>
       </el-row>
       <el-row style="margin-bottom: 20px">
-        <el-form-item label="*帳單組別">
-        <el-select v-model="form.account_sortId" placeholder="選擇帳單">
-          <el-option
-          v-for="bill in bills"
-          :key="bill.account_sortId "
-          :label="bill.acc_name+'(開立統編：'+bill.use_number+')'"
-          :value="bill.account_sortId "
-          ></el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item label="*油品">
           <el-select v-model="form.product_name" placeholder="選擇油品" @change="ProcardType()">
             <el-option label="0001 95無鉛汽油" :value="'0001'"></el-option>
@@ -74,13 +64,23 @@
         <el-form-item label="*車號">
             <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="11"></el-input>
         </el-form-item>
-        <el-form-item label="*選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4" >
+        <el-form-item label="*選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4 ||this.form.state==5" >
           <el-select v-model="form.state" placeholder="選擇狀態">
             <el-option label="刪除" :value="4"></el-option>
             <el-option label="改卡號" :value="2"></el-option>
             <el-option label="原卡復油" :value="5"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="*帳單組別">
+        <el-select v-model="form.account_sortId" placeholder="選擇帳單">
+          <el-option
+          v-for="bill in bills"
+          :key="bill.account_sortId "
+          :label="bill.acc_name+'(開立統編：'+bill.use_number+')'"
+          :value="bill.account_sortId "
+          ></el-option>
+        </el-select>
+      </el-form-item>
       </el-row>
       <el-row style="margin-bottom: 20px">
         <el-form-item label="*卡號" v-if="this.form.state!=1">
@@ -118,10 +118,10 @@
             <!-- 如果 this.form.state == 1，則顯示 "新增" 選項 -->
             <el-option v-if="form.state == 1" label="新增" :value="'新增'"></el-option>
             <!-- 其他選項固定顯示 -->
-            <el-option v-if="form.state != 1" label="停用" :value="'停用'"></el-option>
-            <el-option v-if="form.state != 1" label="遺失" :value="'遺失'"></el-option>
-            <el-option v-if="form.state != 1" label="故障" :value="'故障'"></el-option>
-            <el-option v-if="form.state != 1" label="原卡復油" :value="'原卡復油'"></el-option>
+            <el-option v-if="(form.state != 1)&(form.state != 5)" label="停用" :value="'停用'"></el-option>
+            <el-option v-if="(form.state != 1)&(form.state != 5)" label="遺失" :value="'遺失'"></el-option>
+            <el-option v-if="(form.state != 1)&(form.state != 5)" label="故障" :value="'故障'"></el-option>
+            <el-option v-if="form.state == 5" label="原卡復油" :value="'原卡復油'"></el-option>
           </el-select>
         </el-form-item>
       </el-row>
@@ -132,6 +132,7 @@
             <el-option label="判斷結果：2.更改卡號" :value="2"></el-option>
             <el-option label="判斷結果：3.改客戶" :value="3"></el-option>
             <el-option label="判斷結果：4.刪除卡片" :value="4"></el-option>
+            <el-option label="判斷結果：5.原卡復油" :value="5"></el-option>
           </el-select>
         </el-form-item>
     </el-form>
@@ -183,6 +184,7 @@ export default {
       cus_name:'',
       vehicleId:'',
       cpc_account:'',
+      accId:'',
       rowData:[],
       DiscountData: [],
       salesmenData:[],
@@ -323,17 +325,27 @@ export default {
           console.error('API request failed:', error);
         }
     },
-    async getPlate(){
+    async getPlate(type){
       const postvehicleId = {
         license_plate :this.form.license_plate
       };
       const response= await axios.post('http://122.116.23.30:3345/main/searchPlate',postvehicleId)
-      try{
-        this.vehicleId=response.data.data[0].vehicleId
-        console.log("車號ID:"+ this.vehicleId)
-      }
-      catch (error) {
-        console.error('取得車牌ID失敗:', error);
+      if(type==1){
+          try{
+          this.vehicleId=response.data.data[0].vehicleId
+          this.accId=response.data.data[0].account_sortId
+          console.log("車號ID:"+ this.vehicleId)
+        }
+        catch (error) {
+          console.error('取得車牌ID失敗:', error);
+        }
+      }else if(type==2){
+        if((this.form.state!=3)&&(this.form.state!=1)){
+          this.form.account_sortId=this.accId
+          console.log("帳單ID:"+ this.accId)
+        }else {
+          this.form.account_sortId=''
+        }
       }
    },
     
@@ -378,10 +390,11 @@ export default {
         console.log("資料庫沒有車號，新增" + this.form.state);
         return
       } else {
+        this.form.upload_reason=''
         console.log("資料庫已有車號，繼續下一步");
       }
       //有車號 就找車號ID
-      await this.getPlate();
+      await this.getPlate(1);
       //有ID 找卡號
       await this.getcard();
       //2.資料庫有資料 判斷現在輸入的客戶 下是否有此車 有就繼續判斷4.刪除或2.改卡號 沒有就是3.轉客戶
@@ -401,6 +414,7 @@ export default {
         this.form.state = ''; // 客戶有此車牌，判斷刪除或改卡號
         console.log("客戶下已有此車號，請選擇操作：" + this.form.state);
       }
+      await this.getPlate(2);// 判斷狀態是否要卡號
     } catch (error) {
       this.$message({
         message: '系統有誤',
@@ -641,6 +655,11 @@ export default {
           }
             // 刷新數據
             this.getRecorded();
+          }else{
+            this.$message({
+              message: '系統錯誤',
+              type: 'error'
+            });
           }
         })
         .catch(error => {

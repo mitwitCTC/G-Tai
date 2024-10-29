@@ -598,16 +598,33 @@ mounted() {
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
           this.cus_form = response.data.data[0];
-          const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
-          const matches = this.cus_form.config_notes.match(pattern);
-          if (matches && matches.length === 8) {
-            this.cus_form.one= matches[1],   // 銀行定存
-            this.cus_form.two= matches[2],   // 現金
-            this.cus_form.three= matches[3], // 支票
-            this.cus_form.four= matches[4],  // 商業本票
-            this.cus_form.five= matches[5],  // 銀行保證
-            this.cus_form.six= matches[6],   // 無擔保
-            this.cus_form.seven= matches[7]  // 其它
+        //   const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
+        //   const matches = this.cus_form.config_notes.match(pattern);
+        //   if (matches && matches.length === 8) {
+        //     this.cus_form.one= matches[1],   // 銀行定存
+        //     this.cus_form.two= matches[2],   // 現金
+        //     this.cus_form.three= matches[3], // 支票
+        //     this.cus_form.four= matches[4],  // 商業本票
+        //     this.cus_form.five= matches[5],  // 銀行保證
+        //     this.cus_form.six= matches[6],   // 無擔保
+        //     this.cus_form.seven= matches[7]  // 其它
+        // }
+        this.cus_form.config_notes = this.cus_form.config_notes.replace(/(\d),(\d)/g, "$1|$2");
+
+        const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
+
+        const match = this.cus_form.config_notes.match(pattern);
+
+        if (match) {
+          // 將 "|" 換回逗號
+          const processedValues = match.slice(1).map(value => value.replace(/\|/g, ","));
+            this.cus_form.one= processedValues[0],   // 銀行定存
+            this.cus_form.two= processedValues[1],   // 現金
+            this.cus_form.three= processedValues[2], // 支票
+            this.cus_form.four= processedValues[3],  // 商業本票
+            this.cus_form.five= processedValues[4],  // 銀行保證
+            this.cus_form.six= processedValues[5],   // 無擔保
+            this.cus_form.seven= processedValues[6]  // 其它
         }
           // console.log(JSON.stringify(this.cus_form.config_notes))
         //   if (this.cus_form.config_method) {

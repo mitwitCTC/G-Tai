@@ -45,8 +45,8 @@
         <el-table-column prop="vat_number" label="統編" width="150"></el-table-column>
         <el-table-column prop="front_pwd" label="密碼"  width="200"></el-table-column>
         <el-table-column prop="submission_date" label="簽呈日期"  width="175"></el-table-column>
-        <el-table-column prop="month_gas" label="當月用油公升" width="125"></el-table-column>
-        <el-table-column prop="month_balance" label="當月餘額金額" width="125"></el-table-column>
+        <el-table-column prop="month_gas" label="當月用油公升" width="110"></el-table-column>
+        <el-table-column prop="month_balance" label="當月餘額金額" width="110"></el-table-column>
         <!-- <el-table-column prop="region" label="區域" :formatter="formatRegion" width="150"></el-table-column>
         <el-table-column prop="industry" label="產業類別" :formatter="formatIndustry" width="150"></el-table-column>
         <el-table-column prop="est_fuel_volume" label="預估月加油量" width="150"></el-table-column>
@@ -61,6 +61,7 @@
           <el-button type="primary" @click="onContact(scope.row)">聯絡人</el-button>
           <el-button type="success" @click="onBill(scope.row)">帳單</el-button>
           <el-button type="danger" @click="onDiscount(scope.row)">折讓</el-button>
+          <el-button type="info" @click="onConnact(scope.row)">前端連結</el-button>
         </div>
       </template>
     </el-table-column>
@@ -345,7 +346,7 @@
   <el-button type="primary" @click="savePass()">送出</el-button>
 </div>
   </el-dialog>
-
+  <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false"/>
     </div>
   </div>
 </template>
@@ -366,6 +367,7 @@ export default {
   },
   data() {
     return {
+      isLoading:false,
       loading: false,  // 加載狀態
       dialog: false,
       search: {
@@ -419,6 +421,7 @@ export default {
       salesmenData:[],
       Vehicle:[],
       Vehicle2:[],
+      onConnacts:[],
       currentPage: 1,
       pageSize: 10
     };
@@ -463,6 +466,54 @@ export default {
     }
   },
   methods: {
+    async onConnact(row){
+      const postData={
+        cus_code:row.cus_code
+      }
+      await axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+        .then(response => {
+          this.onConnacts = response.data.data[0];
+          this.getConnact();
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+      this.$message({
+              message: '即將完成',
+            });
+    },
+    async getConnact(){
+      const postData={
+        vat_number:this.onConnacts.vat_number,
+        front_pwd:this.onConnacts.front_pwd,
+      }
+      await axios.post('http://122.116.23.30:3346/main/login',postData)
+        .then(response => {
+          if(response.data.data[0].contract_status=='Y'){
+            this.$message({
+              message: '該用戶已停用，不可登入',
+              type: 'error'
+            });
+            this.onConnacts=[]
+            return
+          }else{
+            console.log(JSON.stringify(response.data.data[0]))
+            const url = `http://122.116.23.30:3346/main/login`;
+            window.open(url, '_blank');
+            this.onConnacts=[]
+          }
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+          this.$message({
+              message: '系統錯誤',
+              type: 'error'
+            });
+            this.onConnacts=[]
+        });
+    },
     searchV(type){
       if(type==0){
         this.getselectData();
@@ -535,6 +586,7 @@ export default {
         return
       }
       console.log("req"+JSON.stringify(req))
+      this.isLoading=true
       axios.post('http://122.116.23.30:3345/main/createCustomer', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
@@ -543,6 +595,7 @@ export default {
               message: '新增成功',
               type: 'success'
             });
+            this.isLoading=false
             this.form = {};
             this.dialog = false
             this.getselectData();
@@ -552,6 +605,7 @@ export default {
               message: '新增失敗',
               type: 'error'
             });
+            this.isLoading=false
           }
         })
         .catch(error => {
@@ -560,6 +614,7 @@ export default {
             message: '新增失敗，伺服器錯誤',
             type: 'error'
           });
+          this.isLoading=false
           console.error('Error:', error);
         });
     },
