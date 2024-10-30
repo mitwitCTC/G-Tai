@@ -618,6 +618,13 @@ export default {
         });
         return
       }
+      if (this.form.state !== 1 && !this.form.card_number) {
+        toolbarhis.$message({
+          message: '必填欄位不得為空',
+          type: 'error'
+        });
+        return;
+      }
       this.form.customerId=this.form.cus_code
       this.form.status=this.form.state
       this.form.createTime=""

@@ -218,10 +218,15 @@
         <el-form-item label="油價簡訊電話">
           <el-input v-model="form.fuel_sms_phone" ></el-input>
         </el-form-item>
-        <el-form-item label="油價簡訊選項">
+        <el-form-item label="餘額不足簡訊方式" v-if="this.form.transaction_mode==1">
           <el-select v-model="form.fuel_sms_option" placeholder="選擇模式">
-            <el-option label="Y" :value="'Y'"></el-option>
-            <el-option label="N" :value="'N'"></el-option>
+            <!-- <el-option label="Y" :value="'Y'"></el-option>
+            <el-option label="N" :value="'N'"></el-option> -->
+            <el-option label="1:手機簡訊" :value="'1'"></el-option>
+            <el-option label="2:官Line" :value="'2'"></el-option>
+            <el-option label="3:手機簡訊+官Line" :value="'3'"></el-option>
+            <el-option label="4:私line" :value="'4'"></el-option>
+            <el-option label="5:其他" :value="'5'"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="餘額不足訊息電話" v-if="this.form.transaction_mode==1">
