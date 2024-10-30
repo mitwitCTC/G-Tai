@@ -144,7 +144,7 @@
           style="width: 300px;">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
+      <!-- <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
         <el-date-picker
           v-model="cus_form.remittance_date"
           type="date"
@@ -153,7 +153,10 @@
           placeholder="選擇日期"
           style="width: 300px;">
         </el-date-picker>
-      </el-form-item>
+      </el-form-item> -->
+      <el-form-item label="款項繳費期限(日)" v-if="this.cus_form.transaction_mode==2">
+          <el-input v-model="cus_form.remittance_date"  ></el-input>
+        </el-form-item>
       <el-form-item label="油價簡訊電話">
         <el-input v-model="cus_form.fuel_sms_phone"></el-input>
       </el-form-item>

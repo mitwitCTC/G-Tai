@@ -64,10 +64,10 @@
         <el-form-item label="*車號">
             <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="11"></el-input>
         </el-form-item>
-        <el-form-item label="*選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4 ||this.form.state==5" >
-          <el-select v-model="form.state" placeholder="選擇狀態">
-            <el-option label="刪除" :value="4"></el-option>
-            <el-option label="改卡號" :value="2"></el-option>
+        <el-form-item label="*選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4 ||this.form.state==5"  >
+          <el-select v-model="form.state" placeholder="選擇狀態" @change="getstate">
+            <el-option label="刪除(停用)" :value="4"></el-option>
+            <el-option label="改卡號(故障、遺失)" :value="2"></el-option>
             <el-option label="原卡復油" :value="5"></el-option>
           </el-select>
         </el-form-item>
@@ -118,9 +118,9 @@
             <!-- 如果 this.form.state == 1，則顯示 "新增" 選項 -->
             <el-option v-if="form.state == 1" label="新增" :value="'新增'"></el-option>
             <!-- 其他選項固定顯示 -->
-            <el-option v-if="(form.state != 1)&(form.state != 5)" label="停用" :value="'停用'"></el-option>
-            <el-option v-if="(form.state != 1)&(form.state != 5)" label="遺失" :value="'遺失'"></el-option>
-            <el-option v-if="(form.state != 1)&(form.state != 5)" label="故障" :value="'故障'"></el-option>
+            <el-option v-if="(form.state == 4)" label="停用" :value="'停用'"></el-option>
+            <el-option v-if="(form.state != 1)&(form.state != 5)&(form.state != 4)" label="遺失" :value="'遺失'"></el-option>
+            <el-option v-if="(form.state != 1)&(form.state != 5)&(form.state != 4)" label="故障" :value="'故障'"></el-option>
             <el-option v-if="form.state == 5" label="原卡復油" :value="'原卡復油'"></el-option>
           </el-select>
         </el-form-item>
@@ -234,6 +234,15 @@ export default {
     },
   },
   methods: {
+    getstate(){
+      if(this.form.state==4){
+        this.form.upload_reason='停用'
+      }else if(this.form.state==5){
+        this.form.upload_reason='原卡複油'
+      }else{
+        this.form.upload_reason=''
+      }
+    },
     ProcardType(){
       this.form.license_plate=''
       if(this.form.product_name=="0017"){
@@ -625,6 +634,7 @@ export default {
         });
         return;
       }
+      this.isLoading = true; // 請求開始，顯示 loading 標示
       this.form.customerId=this.form.cus_code
       this.form.status=this.form.state
       this.form.createTime=""
@@ -650,6 +660,7 @@ export default {
               message: '新增成功',
               type: 'success'
             });
+            this.isLoading = false;
             if(type==1){
             console.log("清空")
             this.form = {};
@@ -667,6 +678,7 @@ export default {
               message: '系統錯誤',
               type: 'error'
             });
+            this.isLoading = false;
           }
         })
         .catch(error => {
@@ -676,6 +688,7 @@ export default {
               message: '請確認客戶代號是否有誤',
               type: 'error'
             });
+            this.isLoading = false;
           console.error('API request failed:', error);
         });
     }, 

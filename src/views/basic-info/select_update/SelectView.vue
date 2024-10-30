@@ -80,9 +80,12 @@
     <el-form-item label="簽呈日期">
       <el-input v-model="cus_form.submission_date" readonly></el-input>
     </el-form-item>
-    <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
+    <!-- <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
       <el-input v-model="cus_form.remittance_date" readonly></el-input>
-    </el-form-item>
+    </el-form-item> -->
+    <el-form-item label="款項繳費期限(日)" v-if="this.cus_form.transaction_mode==2">
+          <el-input v-model="cus_form.remittance_date" readonly></el-input>
+        </el-form-item>
     <el-form-item label="油價簡訊電話">
       <el-input v-model="cus_form.fuel_sms_phone" readonly></el-input>
     </el-form-item> 
