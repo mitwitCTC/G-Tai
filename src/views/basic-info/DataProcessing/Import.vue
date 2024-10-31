@@ -14,7 +14,7 @@
       <el-table-column prop="cpc_account" label="中油帳號"  width="150" />
       <el-table-column prop="vehicleId" label="車號" width="300"><template v-slot="scope">{{ formatName(scope.row.vehicleId)}} </template></el-table-column>
       <el-table-column prop="card_type" label="卡片類別" :formatter="product_method" width="150" />
-      <el-table-column prop="cupload_reason" label="上傳中油原因"  width="300" />
+      <el-table-column prop="cupload_reason" label="上傳中油原因"  width="200" />
       <el-table-column prop="vehicle_change_reason" label="車輛異動因素"  width="300" />
       <el-table-column prop="card_create_date" label="建檔時間"  width="300" />
     </el-table>

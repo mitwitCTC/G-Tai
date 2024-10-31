@@ -487,9 +487,9 @@ export default {
           // 處理錯誤
           console.error('API request failed:', error);
         });
-      this.$message({
-              message: '即將完成',
-            });
+      // this.$message({
+      //         message: '即將完成',
+      //       });
     },
     async getConnact(){
       const postData={
@@ -506,8 +506,16 @@ export default {
             this.onConnacts=[]
             return
           }else{
+            const cca = btoa(postData.vat_number)
+            const dwp = btoa(postData.front_pwd)
             console.log(JSON.stringify(response.data.data[0]))
-            const url = `http://122.116.23.30:3346/main/login`;
+            // 將物件轉成字串，然後使用 btoa 編碼
+
+            // 拼接完整的 URL
+            const url = `http://122.116.23.30:3346/#/login?cca=${cca}&dwp=${dwp}`;
+
+            // 開啟新分頁
+            console.log('url:'+url)
             window.open(url, '_blank');
             this.onConnacts=[]
           }
