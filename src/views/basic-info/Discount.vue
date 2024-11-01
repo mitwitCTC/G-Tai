@@ -10,17 +10,17 @@
     <el-table :data="paginatedDiscount" style="width: 100%" v-loading="loading">
       <el-table-column prop="product_name" label="產品名稱" :formatter="formatProduct" width="300" />
       <!-- <el-table-column prop="supplier_name" label="廠商名稱" width="500" /> -->
-      <el-table-column prop="discount_float" label="折讓" width="250" />
+      <el-table-column prop="discount_float" label="折讓"  />
       <!-- <el-table-column prop="responsible_person" label="負責業務" :formatter="getEmployeeName" width="300" /> -->
-      <el-table-column label="操作">
+      <!-- <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
-            <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
+            <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
             <i class="fas fa-edit " @click="editItem(scope.row)"></i>
-            <!-- <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i> -->
+            <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
           </div>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
     <!-- 新增折讓 -->
  <el-dialog title="新增折讓" v-model="dialog" width="50%" :close-on-click-modal="false">
@@ -42,7 +42,7 @@
         </el-select>
       </el-form-item> -->
         <el-form-item label="折讓">
-          <el-input v-model="form.discount_float" @input="validateFloat" ></el-input>
+          <el-input v-model="form.discount_float" @input="validateFloat"  ></el-input>
         </el-form-item>
         <!-- <el-form-item label="負責業務">
         <el-select v-model="form.responsible_person" placeholder="選擇業務">

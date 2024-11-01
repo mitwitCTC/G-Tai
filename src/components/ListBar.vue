@@ -10,10 +10,10 @@
       </button>
       <div class="collapse" :class="{ show: !isBasicInfoCollapsed }" id="collapseExample1">
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/customer')">客戶資料維護</button>
-        <!-- <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/communication-records')">通訊紀錄維護</button> -->
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button>
-        <!-- <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">供應商資料維護</button> -->
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/modifybill')">切換客代帳號</button>
+        <!-- <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">更改客戶折讓</button> -->
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/discountrecords')">更改客戶折讓</button>
       </div>
       <button class="btn btn-light w-100 text-start" @click="toggleData">
         {{ isData ? '大批管理客戶資料⭢' : '大批管理客戶資料⭢' }}

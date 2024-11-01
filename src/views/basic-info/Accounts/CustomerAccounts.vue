@@ -5,7 +5,7 @@
       <BreadCrumb/>
   </div>
   <div>
-      <el-form-item label="查詢核銷狀態">
+      <el-form-item label="查詢結轉日">
           <el-date-picker
           v-model="selectedDate"
           type="date"

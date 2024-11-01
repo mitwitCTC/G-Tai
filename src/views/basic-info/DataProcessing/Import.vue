@@ -119,7 +119,6 @@ computed: {
       const response= await axios.get('http://122.116.23.30:3345/main/selectVehicle ')
           try{
           this.vehicle=response.data.data
-          console.log("車號ID:"+JSON.stringify( this.vehicle))
         }
         catch (error) {
           console.error('取得車牌ID失敗:', error);

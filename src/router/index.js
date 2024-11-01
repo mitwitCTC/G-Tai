@@ -70,9 +70,9 @@ const router = createRouter({
           }
         },
         {
-          path: 'communication-records',
-          name: '通訊記錄維護',
-          component: () => import('@/views/basic-info/CommunicationrecordsView.vue'),
+          path: 'discountrecords',
+          name: '更改客戶折讓',
+          component: () => import('@/views/basic-info/discountrecords.vue'),
           meta: {
             title: '通訊記錄',
             breadcrumb: '通訊記錄',
