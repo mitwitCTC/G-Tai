@@ -656,7 +656,6 @@ mounted() {
       axios.post('http://122.116.23.30:3345/main/viewAccount_sort',postData)
         .then(response => {
           this.bills_form = response.data.data[0];
-          console.log("個別帳單"+JSON.stringify(this.bills_form))
         })
         .catch(error => {
           // 處理錯誤
@@ -680,7 +679,6 @@ mounted() {
       axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
         .then(response => {
           this.bills_form = response.data.data;
-            console.log("帳單一覽"+JSON.stringify(this.bills_form))
             this.rowData = JSON.parse(this.$route.query.rowData)
         })
         .catch(error => {
@@ -697,7 +695,6 @@ mounted() {
   methods:{
     handleSalesmanChange(newValue) {
       // Check if the new value is different from the old one
-      console.log("newValue"+newValue)
       if (newValue == '') {
         // If no value selected, delete salesmanId
         delete this.cus_form.salesmanId;
@@ -715,7 +712,6 @@ mounted() {
 
     async onConfirmEdit(){
       if (this.rowType==='1') {
-      console.log("發送客戶修改API")
       this.cus_form.updateTime='';
       if(this.cus_form.transaction_mode=='2'){
         this.cus_form.config_notes = `銀行定存: ${this.cus_form.one ? this.cus_form.one : '0'}, 現金: ${this.cus_form.two ? this.cus_form.two : '0'}, 支票: ${this.cus_form.three ? this.cus_form.three : '0'}, 商業本票: ${this.cus_form.four ? this.cus_form.four : '0'}, 銀行保證: ${this.cus_form.five ? this.cus_form.five : '0'}, 無擔保: ${this.cus_form.six ? this.cus_form.six : '0'}, 其它: ${this.cus_form.seven ? this.cus_form.seven : '0'}`;
@@ -726,7 +722,6 @@ mounted() {
     const req = this.cus_form;
       axios.post('http://122.116.23.30:3345/main/updateCustomer', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
             this.$message({
@@ -755,12 +750,10 @@ mounted() {
           console.error('Error:', error);
         });
     }else if(this.rowType==='3'){
-      console.log("發送客戶帳單API")
       this.bills_form.updateTime='';
       const req = this.bills_form;
       axios.post('http://122.116.23.30:3345/main/updateAccount_sort', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
             this.$message({
@@ -790,11 +783,9 @@ mounted() {
         });
 
     }else if(this.rowType==='4'){
-      console.log("發送客戶折讓API")
       const req = this.rowData;
       axios.post('http://122.116.23.30:3345/main/updateDiscount', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
             this.$message({
@@ -836,7 +827,6 @@ mounted() {
       const req = this.rowData;
       axios.post('http://122.116.23.30:3345/main/updateVehicle', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
             this.$message({
@@ -865,11 +855,10 @@ mounted() {
           console.error('Error:', error);
         });
       }else if(this.rowType==='7'){
-      console.log("發送客戶車籍卡片API")
       const req = this.rowData;
       axios.post('http://122.116.23.30:3345/main/updateCard', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
             this.$message({
@@ -898,11 +887,10 @@ mounted() {
           console.error('Error:', error);
         });
       }else if(this.rowType==='2'){
-      console.log("發送客戶聯絡人API")
+
       const req = this.rowData;
       axios.post('http://122.116.23.30:3345/main/updateContact', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
             this.$message({
@@ -931,11 +919,9 @@ mounted() {
           console.error('Error:', error);
         });
       }else if(this.rowType==='6'){
-      console.log("發送員工API")
       const req = this.rowData;
       axios.post('http://122.116.23.30:3345/main/updateSalesman', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
             this.$message({
