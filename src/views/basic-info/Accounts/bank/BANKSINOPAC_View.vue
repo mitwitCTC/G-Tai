@@ -381,7 +381,6 @@
       const nextNo = ('00' + (parseInt(this.bigNo) + 1)).slice(-3);
       // 顯示新的流水號
       this.form.invoice = `G${this.bigdate}${nextNo}`;
-      console.log("顯示的新的流水號: " + this.form.invoice);
       this.generateInvoice();
       this.dialog=true;
     },
@@ -392,14 +391,11 @@
     savePass() {
       if (this.form.credit_card_data) {
       this.form.credit_card_data = this.formatDateROC(this.form.credit_card_data);
-      console.log('Credit Card Data:', this.form.credit_card_data);
     }
     if (this.form.account_date) {
       
       this.form.account_date = this.formatDateROC(this.form.account_date);
-      console.log('Account Date:', this.form.account_date);
       this.form.account_time = this.form.account_date;
-      console.log('Account TIME:', this.form.account_time);
     }
      
     if(!this.form.customerId||!this.form.cus_name||!this.form.account||!this.form.credit_amount ){
@@ -410,11 +406,10 @@
             return
     }
       const req = this.form;
-      console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
+
       //發送 POST 請求
       axios.post('http://122.116.23.30:3345/finance/createSINOPAC', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
@@ -473,7 +468,6 @@
       this.biginvoice = maxInvoiceData.invoice;
       this.bigdate=this.biginvoice.substring(1, 7);
       this.bigNo=this.biginvoice.substring(7);
-      console.log("日期"+this.bigdate +"流水號"+ this.bigNo)
       this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
@@ -485,7 +479,6 @@
       this.currentPage = page;
     },
     viewDetails(row) {
-      console.log('View details for:', row);
       this.$router.push({ 
         path: 'SelectView',
         query: {
@@ -498,7 +491,6 @@
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
-      console.log('Delete item:', row);
       const postData ={
         id:row.id,
         delete_time:''
@@ -598,7 +590,6 @@ return formattedDate;
      if(this.form.customerId.length==8){
       this.isLoading = true;
       this.form.cus_name='查詢中..'
-      console.log(JSON.stringify(postData))
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
             this.form.cus_name = response.data.data[0].cus_name;

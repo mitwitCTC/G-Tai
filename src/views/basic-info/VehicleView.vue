@@ -170,8 +170,6 @@ export default {
       // 發送 POST 請求
       axios.post('http://122.116.23.30:3345/main/createCard', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
-
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
@@ -224,7 +222,6 @@ export default {
   },
    
     editItem(row) {
-      console.log('Edit item:', row);
       this.$router.push({ 
         path: 'UpdateView',
         query: {
@@ -242,12 +239,10 @@ export default {
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
-      console.log('Delete item:', row);
       const req = {
         card_relationIid:row.card_relationIid,
         deleteTime:''
       };
-      console.log('Delete item:', req);
       await axios.post('http://122.116.23.30:3345/main/deleteCard', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {

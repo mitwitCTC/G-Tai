@@ -53,7 +53,6 @@ data() {
   },
   methods: {
     editSupplier(supplier) {
-      console.log('编辑供應商:', supplier);
       // 在这里添加编辑供應商的逻辑
     }
   }

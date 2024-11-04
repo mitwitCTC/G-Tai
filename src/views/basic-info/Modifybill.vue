@@ -233,7 +233,6 @@ methods:{
       date:this.form.date
     }));
   }
-  console.log(JSON.stringify(result)); // 將結果打印到控制台
   this.isLoading = true; // 請求開始，顯示 loading 標示
   await axios.post('http://122.116.23.30:3345/main/transformation',result)
       .then(response => {
@@ -424,10 +423,8 @@ methods:{
     await this.processBills(this.form.customerId, true);
     if(this.form.customerId===this.customerId){
       this.form.state=3
-      console.log("切帳單")
     }else{
       this.form.state=2
-      console.log("切客戶")
     }
   }
 },

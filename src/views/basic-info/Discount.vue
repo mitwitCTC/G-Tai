@@ -124,7 +124,6 @@ export default {
     axios.get('http://122.116.23.30:3345/main/selectSalesman')
       .then(response => {
         this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
-        console.log("API Data:", this.salesmenData);
       })
       .catch(error => {
         // 處理錯誤
@@ -178,8 +177,6 @@ export default {
       // 發送 POST 請求
       axios.post('http://122.116.23.30:3345/main/createDiscount', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
-
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
@@ -244,7 +241,6 @@ export default {
       return employee == null ? '' : (employee ? employee.employee_name : '未知員工');
     },
     editItem(row) {
-      console.log('Edit item:', row);
       this.$router.push({ 
         path: 'UpdateView',
         query: {
@@ -261,13 +257,11 @@ export default {
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
-      console.log('Delete item:', row);
       const req = {
         discountId:row.discountId,
         updated:'',
         deleteTime:''
       };
-      console.log('Delete item:', JSON.stringify(req));
       await axios.post('http://122.116.23.30:3345/main/deleteDiscount', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {

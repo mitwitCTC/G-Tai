@@ -188,9 +188,9 @@ computed: {
           });
            // console.log 出有重複的車號
   if (duplicates.size > 0) {
-    console.log('重複的車號有:', Array.from(duplicates));
+
   } else {
-    console.log('沒有重複的車號');
+
   }
         };
         reader.readAsArrayBuffer(file); // 讀取檔案為 ArrayBuffer 格式
@@ -215,7 +215,6 @@ computed: {
       const jsonData = {
         data: processedData
       };
-      console.log('送出的資料:', JSON.stringify(jsonData));
        await axios.post('http://122.116.23.30:3345/main/importCPCfile',jsonData)
        .then(response => {
         if ( response.data.returnCode === 0) {

@@ -713,7 +713,6 @@ async created() {
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
           this.cus_form = response.data.data[0];
-          console.log("業務"+this.cus_form.salesmanId)
           if(this.cus_form.transaction_mode=='2'){
           //   const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
           //   const matches = this.cus_form.config_notes.match(pattern);
@@ -870,7 +869,6 @@ async created() {
       date:formattedDate,
       customerId:this.cus_code
     }
-    console.log("CPC"+JSON.stringify(postdata))
       await axios.post('http://122.116.23.30:3346/main/balanceInquiry',postdata)
         .then(response => {
           this.cpc = response.data.data;
@@ -941,7 +939,6 @@ async created() {
       return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
     },
     onVehicle(row) {
-      console.log('View details for:', row);
       this.$router.push({ 
         path: 'vehicle',
         query: {

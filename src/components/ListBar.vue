@@ -68,8 +68,6 @@ const isData = ref(true);
 const goTo = (path) => {
   if (route.path !== path) {
     router.push(path);
-  } else {
-    console.log('已在當前路徑，無須前往');
   }
 };
 
@@ -88,7 +86,6 @@ const toggleData = () => {
 
 const logout = () => {
   // 登出邏輯，例如清除token，重定向到登入頁面等
-  console.log('登出');
   router.push('/login'); // 假設登出後重定向到登入頁面
 };
 </script>

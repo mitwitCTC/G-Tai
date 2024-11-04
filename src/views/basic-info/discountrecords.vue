@@ -152,7 +152,6 @@ methods:{
   this.dialogpage=false
 },
   editItem(row) {
-      console.log('Edit item:', row);
       this.form.customerId=row.customerId
       this.form.product_name=row.product_name
       this.form.discount_float=row.discount_float

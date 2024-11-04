@@ -149,7 +149,6 @@ export default {
       // 發送 POST 請求
       axios.post('http://122.116.23.30:3345/main/createContact', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
@@ -192,7 +191,6 @@ export default {
     },
   
     editItem(row) {
-      console.log('Edit item:', row);
       this.$router.push({ 
         path: 'UpdateView',
         query: {

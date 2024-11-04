@@ -599,7 +599,6 @@ export default {
             });
         return
       }
-      console.log("req"+JSON.stringify(req))
       this.isLoading=true
       axios.post('http://122.116.23.30:3345/main/createCustomer', req)
         .then(response => {
@@ -642,7 +641,6 @@ export default {
       });
     },
     editItem(row) {
-      console.log('Edit item:', row);
       this.$router.push({ 
         path: 'UpdateView',
         query: {
@@ -654,13 +652,11 @@ export default {
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
-      console.log('Delete item:', row);
       const req = {
         customerId:row.customerId,
         updated:'',
         deleteTime:''
       };
-      console.log('Delete item:', req);
       await axios.post('http://122.116.23.30:3345/main/deleteCustomer', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
@@ -689,7 +685,6 @@ export default {
       }
     },
     onContact(row) {
-      console.log('View details for:', row);
       this.$router.push({ 
         path: 'contact',
         query: {
@@ -699,7 +694,6 @@ export default {
       });
     },
     onBill(row) {
-      console.log('View details for:', row);
       this.$router.push({ 
         path: 'bill',
         query: {
@@ -710,7 +704,6 @@ export default {
     },
     
     onDiscount(row) {
-      console.log('View details for:', row);
       this.$router.push({ 
         path: 'discount',
         query: {

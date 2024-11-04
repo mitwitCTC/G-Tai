@@ -255,7 +255,6 @@ export default {
         //汽油 
         this.form.card_type="3"
       }
-      console.log(this.form.card_type)
     },
     handleClear() {
     this.dialog=false
@@ -324,7 +323,6 @@ export default {
         const response = await axios.post('http://122.116.23.30:3345/main/searchCard',postvehicleId)
         try {
           this.cards=response.data.data
-          console.log("cards"+JSON.stringify(this.cards))
         }
         catch{
           this.$message({
@@ -343,7 +341,6 @@ export default {
           try{
           this.vehicleId=response.data.data[0].vehicleId
           this.accId=response.data.data[0].account_sortId
-          console.log("車號ID:"+ this.vehicleId)
         }
         catch (error) {
           console.error('取得車牌ID失敗:', error);
@@ -351,7 +348,6 @@ export default {
       }else if(type==2){
         if((this.form.state!=3)&&(this.form.state!=1)){
           this.form.account_sortId=this.accId
-          console.log("帳單ID:"+ this.accId)
         }else {
           this.form.account_sortId=''
         }
@@ -396,11 +392,9 @@ export default {
         this.form.card_number=''
         this.form.state = 1; // 資料庫裡沒有此車號，設置狀態為 1
         this.form.upload_reason='新增'
-        console.log("資料庫沒有車號，新增" + this.form.state);
         return
       } else {
         this.form.upload_reason=''
-        console.log("資料庫已有車號，繼續下一步");
       }
       //有車號 就找車號ID
       await this.getPlate(1);
@@ -418,10 +412,8 @@ export default {
       }
       if (!customerHasVehicle) {
         this.form.state = 3; // 客戶下沒有此車，但資料庫有，3.轉客戶
-        console.log("客戶下沒有此車，但資料庫有，轉客戶：" + this.form.state);
       } else {
         this.form.state = ''; // 客戶有此車牌，判斷刪除或改卡號
-        console.log("客戶下已有此車號，請選擇操作：" + this.form.state);
       }
       await this.getPlate(2);// 判斷狀態是否要卡號
     } catch (error) {
@@ -448,7 +440,6 @@ export default {
       this.form.cus_name=''
      if(this.form.cus_code.length==8){
       this.form.cus_name='查詢中..'
-      console.log(JSON.stringify(postData))
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
             this.form.cus_name = response.data.data[0].cus_name;
@@ -518,8 +509,7 @@ export default {
               return result;
             };
             const dataChunks = chunkArray(this.result, rowsPerFile); // 將 result 資料按 20 筆一組進行拆分
-            console.log("dataChunks"+JSON.stringify(dataChunks))
-            console.log(dataChunks.length)
+ 
             for (let fileIndex = 0; fileIndex < dataChunks.length; fileIndex++) {
               const chunk = dataChunks[fileIndex];
             // 讀取 Excel 文件
@@ -653,7 +643,6 @@ export default {
       const postData=this.form
       axios.post('http://122.116.23.30:3345/main/recordedVehicle',postData)
         .then(response => {
-          console.log(JSON.stringify(postData)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
@@ -662,12 +651,10 @@ export default {
             });
             this.isLoading = false;
             if(type==1){
-            console.log("清空")
             this.form = {};
             // 關閉對話框
             this.dialog = false;
           }else if(type==2){
-          console.log("儲存不清空")
           this.form.license_plate=''
           this.form.card_number=''
           }

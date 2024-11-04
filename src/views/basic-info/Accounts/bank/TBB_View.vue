@@ -205,11 +205,9 @@
             return
     }
       const req = this.form;
-      console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
       // //發送 POST 請求
       axios.post('http://122.116.23.30:3345/finance/createTBB', req)
         .then(response => {
-          console.log(JSON.stringify(req)); // 在請求成功後輸出請求數據
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
@@ -268,7 +266,6 @@
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
-      console.log('Delete item:', row);
       const postData ={
         id:row.id,
         delete_time:''
@@ -347,7 +344,6 @@
       };
      if(this.form.customerId.length==8){
       this.form.cus_name='查詢中..'
-      console.log(JSON.stringify(postData))
       axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
         .then(response => {
             this.form.cus_name = response.data.data[0].cus_name;

@@ -202,7 +202,6 @@ export default {
       });
     },
     deleteItem(row) {
-      console.log('Delete item:', row);
     },
   }
 };
