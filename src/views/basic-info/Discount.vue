@@ -28,12 +28,17 @@
     <el-form :model="form" label-width="120px" > <!-- 统一標籤寬度 -->
       <el-form-item label="產品名稱">
           <el-select v-model="form.product_name" placeholder="選擇油品">
+            <template v-if="product && product.length > 0">
             <el-option
-              v-for="id in productMap"
+              v-for="id in product"
               :key="id.id"
               :label="id.className"
               :value="id.classId"
-          ></el-option>
+            ></el-option>
+          </template>
+          <template v-else>
+            <el-option :label="'全部油品折讓均已登入'" :disabled="true"></el-option>
+          </template>
           </el-select>
       </el-form-item>
         <!-- <el-form-item label="廠商名稱">
@@ -63,6 +68,7 @@
     </div>
     </template>
   </el-dialog>
+  <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false"></el-dialog>
 
 
     <div class="pagination-container">
@@ -96,6 +102,7 @@ export default {
   },
   data() {
     return {
+      isLoading:false,
       loading:false,
       dialog:false,
       cus_code:'',
@@ -103,6 +110,7 @@ export default {
       rowData:[],
       DiscountData: [],
       salesmenData:[],
+      product:[],//篩選沒有重複出現的
       productMap:[],
       form:{
         customerId:'',
@@ -112,11 +120,11 @@ export default {
       pageSize: 10
     };
   },
-  created() {
+  async created() {
     this.cus_code = (this.$route.query.cus_code);
     this.cus_name = (this.$route.query.cus_name);
     this.form.customerId = this.cus_code;
-    this.getselectData();
+    await this.getselectData();
     this.getproduct_name();
   },
   mounted() {
@@ -147,17 +155,25 @@ export default {
     },
   },
   methods: {
+    getitem(){
+      let discountProductNames = new Set(this.DiscountData.map(item => item.product_name));
+      this.product = this.product.filter(
+      item => !discountProductNames.has(item.classId)
+      );
+    },
     async getproduct_name() {
       await axios.get('http://122.116.23.30:3345/main/selectProduct')
         .then(response => {
           this.productMap = response.data.data;
+          this.product=this.productMap
+          this.getitem();
         })
         .catch(error => {
           // 處理錯誤
           console.error('API request failed:', error);
         });
     },
-    async getselectData() {
+    async getselectData(type) {
       this.loading = true;
       const postData = {
       customerId:this.cus_code,
@@ -166,13 +182,24 @@ export default {
         .then(response => {
           this.DiscountData = response.data.data;
           this.loading = false;  // 請求完成後關閉加載狀態
+          if(type==1){
+            this.getitem();
+          }
         })
         .catch(error => {
           // 處理錯誤
           console.error('API request failed:', error);
         });
   },
-  savePass() {
+  async savePass() {
+    if((!this.form.discount_float)||(!this.form.product_name)){
+      this.$message({
+              message: '欄位不得為空',
+              type: 'error'
+            });
+            return
+    }
+    this.isLoading = true;
       const req = this.form;
       // 發送 POST 請求
       axios.post('http://122.116.23.30:3345/main/createDiscount', req)
@@ -194,13 +221,15 @@ export default {
             this.dialog = false;
 
             // 刷新數據
-            this.getselectData();
+            this.getselectData(1);
+            this.isLoading = false;
           } else {
             // 處理非 0 成功代碼
             this.$message({
               message: '新增失敗',
               type: 'error'
             });
+            this.isLoading = false;
           }
         })
         .catch(error => {
@@ -209,6 +238,7 @@ export default {
             message: '新增失敗，伺服器錯誤',
             type: 'error'
           });
+          this.isLoading = false;
           console.error('Error:', error);
         });
     }, 

@@ -459,11 +459,26 @@
       await axios.get('http://122.116.23.30:3345/finance/selectSINOPAC')
         .then(response => {
           this.BankData = response.data.data;
-          this.BankData.sort((a, b) => b.invoice.localeCompare(a.invoice));
-           // 找出最大 invoice 的數據
+          // this.BankData.sort((a, b) => b.invoice.localeCompare(a.invoice));
+          //  // 找出最大 invoice 的數據
+          // const maxInvoiceData = this.BankData.reduce((max, item) => {
+          //   return (item.invoice > max.invoice) ? item : max;
+          // } , this.BankData[0]);
+          
+          // 排序 BankData，確保 invoice 值不為空
+          this.BankData.sort((a, b) => {
+              const aInvoice = a.invoice || ''; // 為 null 或 undefined 提供空字符串
+              const bInvoice = b.invoice || '';
+              return bInvoice.localeCompare(aInvoice);
+          });
+
+          // 使用 reduce 找出最大 invoice 的數據，忽略 null 或 undefined 的情況
           const maxInvoiceData = this.BankData.reduce((max, item) => {
-            return (item.invoice > max.invoice) ? item : max;
-          } , this.BankData[0]);
+              if (item.invoice && (!max.invoice || item.invoice > max.invoice)) {
+                  return item;
+              }
+              return max;
+          }, this.BankData[0] || {}); // 預設為空對象，避免 this.BankData 為空時報錯
     // 將最大的 invoice 值賦給變量
       this.biginvoice = maxInvoiceData.invoice;
       this.bigdate=this.biginvoice.substring(1, 7);
@@ -473,6 +488,7 @@
         .catch(error => {
           // 處理錯誤
           console.error('API request failed:', error);
+          this.loading = false;
         });
   },
      handlePageChange(page) {
