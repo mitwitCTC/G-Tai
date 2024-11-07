@@ -129,7 +129,7 @@ methods:{
     date:this.form.newdate
   } 
   this.isLoading = true; // 請求開始，顯示 loading 標示
-  await axios.post('http://122.116.23.30:3345/main/modificationDiscount',postData)
+  await axios.post('http://122.116.23.30:3347/main/modificationDiscount',postData)
       .then(response => {
           if(response.data.returnCode==0){
             this.$message({
@@ -159,7 +159,7 @@ methods:{
     },
 
   async getproduct_name() {
-      await axios.get('http://122.116.23.30:3345/main/selectProduct')
+      await axios.get('http://122.116.23.30:3347/main/selectProduct')
         .then(response => {
           this.productMap = response.data.data;
         })
@@ -178,7 +178,7 @@ methods:{
       return employee == null ? '' : (employee ? employee.className : '未知');
   },
   async getcusdata(){
-      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
       .then(response => {
           this.cusdata=response.data.data
           this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
@@ -198,7 +198,7 @@ methods:{
       const postData = {
       customerId:this.customerId,
       };
-      await axios.post('http://122.116.23.30:3345/main/searchDiscount',postData)
+      await axios.post('http://122.116.23.30:3347/main/searchDiscount',postData)
         .then(response => {
           this.DiscountData = response.data.data;
           this.loading = false;  // 請求完成後關閉加載狀態

@@ -234,7 +234,7 @@ methods:{
     }));
   }
   this.isLoading = true; // 請求開始，顯示 loading 標示
-  await axios.post('http://122.116.23.30:3345/main/transformation',result)
+  await axios.post('http://122.116.23.30:3347/main/transformation',result)
       .then(response => {
           if(response.data.returnCode==0){
             this.$message({
@@ -307,7 +307,7 @@ methods:{
       }
     },
   async getaccdata(){
-      await axios.get('http://122.116.23.30:3345/main/selectAccount_sort')
+      await axios.get('http://122.116.23.30:3347/main/selectAccount_sort')
       .then(response => {
           this.accountdata=response.data.data
           
@@ -322,7 +322,7 @@ methods:{
         });
   },
   async getcusdata(){
-      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
       .then(response => {
           this.cusdata=response.data.data
           this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
@@ -340,7 +340,7 @@ methods:{
       const postData={
         customerId:customerId
       }
-      await axios.post('http://122.116.23.30:3345/main/searchVehicle',postData)
+      await axios.post('http://122.116.23.30:3347/main/searchVehicle',postData)
       .then(response => {
           this.bills=response.data.data
           this.bills = response.data.data.sort((a, b) => {
@@ -360,7 +360,7 @@ methods:{
       const postData={
         customerId:customerId
       }
-      await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+      await axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
       .then(response => {
           this.formbills=response.data.data
         })

@@ -408,7 +408,7 @@
       const req = this.form;
 
       //發送 POST 請求
-      axios.post('http://122.116.23.30:3345/finance/createSINOPAC', req)
+      axios.post('http://122.116.23.30:3347/finance/createSINOPAC', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -456,7 +456,7 @@
     }, 
     async getselectData() {
       this.loading = true;  // 開始加載
-      await axios.get('http://122.116.23.30:3345/finance/selectSINOPAC')
+      await axios.get('http://122.116.23.30:3347/finance/selectSINOPAC')
         .then(response => {
           this.BankData = response.data.data;
           // this.BankData.sort((a, b) => b.invoice.localeCompare(a.invoice));
@@ -511,7 +511,7 @@
         id:row.id,
         delete_time:''
       };
-      await axios.post('http://122.116.23.30:3345/finance/deleteSINOPAC',postData)
+      await axios.post('http://122.116.23.30:3347/finance/deleteSINOPAC',postData)
         .then(response => {
           if(response.data.returnCode==0){
             this.$message({
@@ -559,7 +559,7 @@ return formattedDate;
   //       cus_code:customerId,
   //     };
   //     console.log(JSON.stringify(postData))
-  //     axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+  //     axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
   //       .then(response => {
   //           this.form.cus_name = response.data.data[0].cus_name;
   //           this.form.card_other_fee=response.data.data[0].card_other_fee;
@@ -578,7 +578,7 @@ return formattedDate;
       return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
     },
     async getcusdata(){
-      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
       .then(response => {
           this.cusdatas=response.data.data
           this.cusdata = this.cusdatas.map(item => `${item.cus_code} ${item.cus_name}`);
@@ -606,7 +606,7 @@ return formattedDate;
      if(this.form.customerId.length==8){
       this.isLoading = true;
       this.form.cus_name='查詢中..'
-      axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+      axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
         .then(response => {
             this.form.cus_name = response.data.data[0].cus_name;
             this.form.card_other_fee=response.data.data[0].card_other_fee;
@@ -622,7 +622,7 @@ return formattedDate;
         });
      } 
      if(this.form.cus_name){
-      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+      axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
         .then(response => {
             this.bills = response.data.data;
             if(!this.bills.length){
@@ -642,7 +642,7 @@ return formattedDate;
             });
           console.error('API request failed:', error);
         });
-        axios.post('http://122.116.23.30:3345/finance/selectCreditCard',postData)
+        axios.post('http://122.116.23.30:3347/finance/selectCreditCard',postData)
         .then(response => {
             this.card = response.data.data;
             this.isLoading = false;

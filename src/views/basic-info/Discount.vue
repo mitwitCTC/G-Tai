@@ -129,7 +129,7 @@ export default {
   },
   mounted() {
     // 發送 API 請求以獲取業務資料
-    axios.get('http://122.116.23.30:3345/main/selectSalesman')
+    axios.get('http://122.116.23.30:3347/main/selectSalesman')
       .then(response => {
         this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
       })
@@ -162,7 +162,7 @@ export default {
       );
     },
     async getproduct_name() {
-      await axios.get('http://122.116.23.30:3345/main/selectProduct')
+      await axios.get('http://122.116.23.30:3347/main/selectProduct')
         .then(response => {
           this.productMap = response.data.data;
           this.product=this.productMap
@@ -178,7 +178,7 @@ export default {
       const postData = {
       customerId:this.cus_code,
       };
-      await axios.post('http://122.116.23.30:3345/main/searchDiscount',postData)
+      await axios.post('http://122.116.23.30:3347/main/searchDiscount',postData)
         .then(response => {
           this.DiscountData = response.data.data;
           this.loading = false;  // 請求完成後關閉加載狀態
@@ -202,7 +202,7 @@ export default {
     this.isLoading = true;
       const req = this.form;
       // 發送 POST 請求
-      axios.post('http://122.116.23.30:3345/main/createDiscount', req)
+      axios.post('http://122.116.23.30:3347/main/createDiscount', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -292,7 +292,7 @@ export default {
         updated:'',
         deleteTime:''
       };
-      await axios.post('http://122.116.23.30:3345/main/deleteDiscount', req)
+      await axios.post('http://122.116.23.30:3347/main/deleteDiscount', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示

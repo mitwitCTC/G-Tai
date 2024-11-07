@@ -146,7 +146,7 @@ export default {
       const postData = {
       customerId:this.cus_code,
       };
-      await axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+      await axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
         .then(response => {
           this.bills = response.data.data;
         })
@@ -168,7 +168,7 @@ export default {
     savePass() {
       const req = this.form;
       // 發送 POST 請求
-      axios.post('http://122.116.23.30:3345/main/createCard', req)
+      axios.post('http://122.116.23.30:3347/main/createCard', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -209,7 +209,7 @@ export default {
       vehicleId:this.vehicleId,
       status:1
     };
-      await axios.post('http://122.116.23.30:3345/main/searchCard',postData)
+      await axios.post('http://122.116.23.30:3347/main/searchCard',postData)
         .then(response => {
           this.vehicles = response.data.data;
           this.loading = false;  // 請求完成後關閉加載狀態
@@ -243,7 +243,7 @@ export default {
         card_relationIid:row.card_relationIid,
         deleteTime:''
       };
-      await axios.post('http://122.116.23.30:3345/main/deleteCard', req)
+      await axios.post('http://122.116.23.30:3347/main/deleteCard', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示

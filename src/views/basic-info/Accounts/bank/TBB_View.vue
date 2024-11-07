@@ -206,7 +206,7 @@
     }
       const req = this.form;
       // //發送 POST 請求
-      axios.post('http://122.116.23.30:3345/finance/createTBB', req)
+      axios.post('http://122.116.23.30:3347/finance/createTBB', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -248,7 +248,7 @@
     }, 
     async getselectData() {
       this.loading = true;  // 開始加載
-      await axios.get('http://122.116.23.30:3345/finance/selectTBB')
+      await axios.get('http://122.116.23.30:3347/finance/selectTBB')
         .then(response => {
           this.BankData = response.data.data;
           this.BankData.sort((a, b) => b.id - a.id);
@@ -270,7 +270,7 @@
         id:row.id,
         delete_time:''
       };
-      await axios.post('http://122.116.23.30:3345/finance/deleteTBB',postData)
+      await axios.post('http://122.116.23.30:3347/finance/deleteTBB',postData)
         .then(response => {
           if(response.data.returnCode==0){
             this.$message({
@@ -304,7 +304,7 @@
   //       cus_code:customerId,
   //     };
   //     console.log(JSON.stringify(postData))
-  //     axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+  //     axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
   //       .then(response => {
   //           this.form.cus_name = response.data.data[0].cus_name;
   //       })
@@ -322,7 +322,7 @@
       return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
     },
     async getcusdata(){
-      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
       .then(response => {
           this.cusdata=response.data.data
           this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
@@ -344,7 +344,7 @@
       };
      if(this.form.customerId.length==8){
       this.form.cus_name='查詢中..'
-      axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+      axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
         .then(response => {
             this.form.cus_name = response.data.data[0].cus_name;
         })
@@ -359,7 +359,7 @@
         });
      } 
      if(this.form.cus_name){
-      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+      axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
         .then(response => {
             this.bills = response.data.data;
             if(!this.bills.length){

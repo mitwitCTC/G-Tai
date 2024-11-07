@@ -570,7 +570,7 @@ data() {
 },
 mounted() {
     // // 在頁面加載時發送 API 請求
-    // axios.get('http://122.116.23.30:3345/main/selectSalesman')
+    // axios.get('http://122.116.23.30:3347/main/selectSalesman')
     //   .then(response => {
     //     this.salesmenData = response.data.data; // 將 API 回傳的數據存入 salesmenData
     //     if (this.cus_form.contract_sales || this.cus_form.salesmanId) {
@@ -593,7 +593,7 @@ mounted() {
   this.cus_name = (this.$route.query.cus_name);
   this.account_sortId  = (this.$route.query.account_sortId );
   if (this.rowType==='1') {
-    axios.get('http://122.116.23.30:3345/main/selectSalesman')
+    axios.get('http://122.116.23.30:3347/main/selectSalesman')
       .then(response => {
         this.salesmenData = response.data.data;
       })
@@ -603,7 +603,7 @@ mounted() {
       const postData = {
         cus_code:this.cus_code,
       };
-      axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+      axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
         .then(response => {
           this.cus_form = response.data.data[0];
         //   const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
@@ -653,7 +653,7 @@ mounted() {
       const postData = {
           account_sortId :this.account_sortId,
       };
-      axios.post('http://122.116.23.30:3345/main/viewAccount_sort',postData)
+      axios.post('http://122.116.23.30:3347/main/viewAccount_sort',postData)
         .then(response => {
           this.bills_form = response.data.data[0];
         })
@@ -663,7 +663,7 @@ mounted() {
         });
     }else if(this.rowType==='4'){
       this.getproduct_name();
-      axios.get('http://122.116.23.30:3345/main/selectSalesman')
+      axios.get('http://122.116.23.30:3347/main/selectSalesman')
       .then(response => {
         this.salesmenData = response.data.data;
       })
@@ -676,7 +676,7 @@ mounted() {
       const postData = {
       customerId:this.cus_code,
     };
-      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+      axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
         .then(response => {
           this.bills_form = response.data.data;
             this.rowData = JSON.parse(this.$route.query.rowData)
@@ -720,7 +720,7 @@ mounted() {
     }
     this.cus_form.config_method=[0]
     const req = this.cus_form;
-      axios.post('http://122.116.23.30:3345/main/updateCustomer', req)
+      axios.post('http://122.116.23.30:3347/main/updateCustomer', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
@@ -752,7 +752,7 @@ mounted() {
     }else if(this.rowType==='3'){
       this.bills_form.updateTime='';
       const req = this.bills_form;
-      axios.post('http://122.116.23.30:3345/main/updateAccount_sort', req)
+      axios.post('http://122.116.23.30:3347/main/updateAccount_sort', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
@@ -784,7 +784,7 @@ mounted() {
 
     }else if(this.rowType==='4'){
       const req = this.rowData;
-      axios.post('http://122.116.23.30:3345/main/updateDiscount', req)
+      axios.post('http://122.116.23.30:3347/main/updateDiscount', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
@@ -825,7 +825,7 @@ mounted() {
       //       return
       // } 
       const req = this.rowData;
-      axios.post('http://122.116.23.30:3345/main/updateVehicle', req)
+      axios.post('http://122.116.23.30:3347/main/updateVehicle', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
@@ -856,7 +856,7 @@ mounted() {
         });
       }else if(this.rowType==='7'){
       const req = this.rowData;
-      axios.post('http://122.116.23.30:3345/main/updateCard', req)
+      axios.post('http://122.116.23.30:3347/main/updateCard', req)
         .then(response => {
 
           if (response.status === 200 && response.data.returnCode == 0) {
@@ -889,7 +889,7 @@ mounted() {
       }else if(this.rowType==='2'){
 
       const req = this.rowData;
-      axios.post('http://122.116.23.30:3345/main/updateContact', req)
+      axios.post('http://122.116.23.30:3347/main/updateContact', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
@@ -920,7 +920,7 @@ mounted() {
         });
       }else if(this.rowType==='6'){
       const req = this.rowData;
-      axios.post('http://122.116.23.30:3345/main/updateSalesman', req)
+      axios.post('http://122.116.23.30:3347/main/updateSalesman', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode == 0) {
             // 成功提示
@@ -952,7 +952,7 @@ mounted() {
       }
     },
     async getVehicle(){
-      await axios.get('http://122.116.23.30:3345/main/selectVehicle')
+      await axios.get('http://122.116.23.30:3347/main/selectVehicle')
         .then(response => {
           this.licens = response.data.data.map(item => item.license_plate)
         })
@@ -962,7 +962,7 @@ mounted() {
         });
     },
     async getproduct_name() {
-      await axios.get('http://122.116.23.30:3345/main/selectProduct')
+      await axios.get('http://122.116.23.30:3347/main/selectProduct')
         .then(response => {
           this.productMap = response.data.data;
         })

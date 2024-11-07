@@ -478,7 +478,7 @@ export default {
       const postData={
         cus_code:row.cus_code
       }
-      await axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+      await axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
         .then(response => {
           this.onConnacts = response.data.data[0];
           this.getConnact();
@@ -554,7 +554,7 @@ export default {
     try {
       this.loading = true;  // 開始加載
         // 發送 GET 請求到指定的 API
-        const response = await axios.get('http://122.116.23.30:3345/main/selectCustomer');
+        const response = await axios.get('http://122.116.23.30:3347/main/selectCustomer');
         const customerData = response.data.data; 
         // 將資料放入 customers 陣列中
         this.customers=customerData;
@@ -568,7 +568,7 @@ export default {
   async getVehicle() {
     try {
         // 發送 GET 請求到指定的 API
-        const response = await axios.get('http://122.116.23.30:3345/main/selectVehicle');
+        const response = await axios.get('http://122.116.23.30:3347/main/selectVehicle');
         this.Vehicle= response.data.data;;
     } catch (error) {
         console.error('Error fetching customer data:', error);
@@ -600,7 +600,7 @@ export default {
         return
       }
       this.isLoading=true
-      axios.post('http://122.116.23.30:3345/main/createCustomer', req)
+      axios.post('http://122.116.23.30:3347/main/createCustomer', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -657,7 +657,7 @@ export default {
         updated:'',
         deleteTime:''
       };
-      await axios.post('http://122.116.23.30:3345/main/deleteCustomer', req)
+      await axios.post('http://122.116.23.30:3347/main/deleteCustomer', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -715,7 +715,7 @@ export default {
   },
   mounted() {
     // 在頁面加載時發送 API 請求
-      axios.get('http://122.116.23.30:3345/main/selectSalesman')
+      axios.get('http://122.116.23.30:3347/main/selectSalesman')
       .then(response => {
         this.salesmenData = response.data.data; // 將 API 回傳的數據存入 salesmenData
       })

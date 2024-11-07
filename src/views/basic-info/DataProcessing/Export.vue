@@ -261,7 +261,7 @@ export default {
     this.form = {};
   },
     async getcusdata(){
-      await axios.get('http://122.116.23.30:3345/main/selectCustomer')
+      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
       .then(response => {
           this.cusdata=response.data.data
           this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
@@ -292,7 +292,7 @@ export default {
         cpc_account:this.cpc_account
       }
       try {
-        const response = await axios.post('http://122.116.23.30:3345/main/generateCPCfile', time);
+        const response = await axios.post('http://122.116.23.30:3347/main/generateCPCfile', time);
         this.result = response.data.data;
       } catch (error) {
         console.error("API 請求失敗：" + error);
@@ -300,7 +300,7 @@ export default {
     },
     async getRecorded(){
       this.loading = true;  // 開始加載
-       const response= await axios.get('http://122.116.23.30:3345/main/getRecordedVehicle')
+       const response= await axios.get('http://122.116.23.30:3347/main/getRecordedVehicle')
         try{
             this.Recorded = response.data.data;  // 更新 Recorded
             this.filteredRecorded = this.Recorded;  // 設置 filteredRecorded 為 Recorded 的內容
@@ -320,7 +320,7 @@ export default {
               status:2,
               card_type:this.form.card_type
         };
-        const response = await axios.post('http://122.116.23.30:3345/main/searchCard',postvehicleId)
+        const response = await axios.post('http://122.116.23.30:3347/main/searchCard',postvehicleId)
         try {
           this.cards=response.data.data
         }
@@ -336,7 +336,7 @@ export default {
       const postvehicleId = {
         license_plate :this.form.license_plate
       };
-      const response= await axios.post('http://122.116.23.30:3345/main/searchPlate',postvehicleId)
+      const response= await axios.post('http://122.116.23.30:3347/main/searchPlate',postvehicleId)
       if(type==1){
           try{
           this.vehicleId=response.data.data[0].vehicleId
@@ -379,7 +379,7 @@ export default {
       let vehicleFound = false;
       this.isLoading = true; // 請求開始，顯示 loading 標示
       this.form.state = "判斷中...";
-      const response = await axios.get('http://122.116.23.30:3345/main/selectVehicle');
+      const response = await axios.get('http://122.116.23.30:3347/main/selectVehicle');
       this.allVehicle = response.data.data;
       for (const vehicle of this.allVehicle) {
         if (vehicle.license_plate === this.form.license_plate) {
@@ -401,7 +401,7 @@ export default {
       //有ID 找卡號
       await this.getcard();
       //2.資料庫有資料 判斷現在輸入的客戶 下是否有此車 有就繼續判斷4.刪除或2.改卡號 沒有就是3.轉客戶
-      const cus_response = await axios.post('http://122.116.23.30:3345/main/searchVehicle', postData);
+      const cus_response = await axios.post('http://122.116.23.30:3347/main/searchVehicle', postData);
       this.Vehicle = cus_response.data.data;
       let customerHasVehicle = false;
       for (const vehicle of this.Vehicle) {
@@ -440,7 +440,7 @@ export default {
       this.form.cus_name=''
      if(this.form.cus_code.length==8){
       this.form.cus_name='查詢中..'
-      axios.post('http://122.116.23.30:3345/main/searchCustomer',postData)
+      axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
         .then(response => {
             this.form.cus_name = response.data.data[0].cus_name;
         })
@@ -455,7 +455,7 @@ export default {
         });
      } 
      if(this.form.cus_name){
-      axios.post('http://122.116.23.30:3345/main/searchAccount_sort',postData)
+      axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
         .then(response => {
             this.bills = response.data.data;
             if(!this.bills.length){
@@ -641,7 +641,7 @@ export default {
         this.form.card_type="3"
       }
       const postData=this.form
-      axios.post('http://122.116.23.30:3345/main/recordedVehicle',postData)
+      axios.post('http://122.116.23.30:3347/main/recordedVehicle',postData)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
