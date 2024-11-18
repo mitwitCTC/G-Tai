@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import AccessControl from '@/views/basic-info/AccessControl.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -140,16 +141,26 @@ const router = createRouter({
             isSpecialPage: false
           }
         },
+        // {
+        //   path: 'AccessControl',
+        //   name: '綁定',
+        //   component: () => import('@/views/basic-info/AccessControl.vue'),
+        //   meta: {
+        //     title: '供應權限管理商資料',
+        //     breadcrumb: '供應權限管理商資料',
+        //     isSpecialPage: false
+        //   }
+        // },
         {
-          path: 'AccessControl',
-          name: '權限管理',
-          component: () => import('@/views/basic-info/AccessControl.vue'),
-          meta: {
-            title: '供應權限管理商資料',
-            breadcrumb: '供應權限管理商資料',
-            isSpecialPage: false
-          }
-        },
+        path: 'AccessControl',
+        name: '綁定',
+        component: AccessControl,
+        meta: {
+          title: '供應權限管理商資料',
+          breadcrumb: '供應權限管理商資料',
+          isSpecialPage: false
+        }
+      },
         {
           path: 'SelectView',
           name: '客戶資料查詢',

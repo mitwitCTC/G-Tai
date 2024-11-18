@@ -1012,7 +1012,6 @@ async created() {
   border-radius: 10px; /* 圆角 */
   padding: 10px; /* 内边距 */
   margin-bottom: 10px; /* 项目之间的间距 */
-
 }
 .section-white {
   margin-top: 50px;

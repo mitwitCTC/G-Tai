@@ -11,7 +11,7 @@
   </el-select>
   <el-button @click="exportToExcel">匯出</el-button>
   <br>
-  <el-button type="primary" @click="dialog=true" style="margin-top: 20px;">新增</el-button>
+  <el-button type="primary" @click="dialogtrue()" style="margin-top: 20px;">新增</el-button>
   <!-- <input type="file" @change="handleFileChange" /> -->
   <el-table :data="paginatedDiscount" style="width: 100%" v-loading="loading">
       <el-table-column prop="cpc_account" label="中油帳號"  width="100" />
@@ -64,14 +64,14 @@
         <el-form-item label="*車號">
             <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="11"></el-input>
         </el-form-item>
-        <el-form-item label="*選擇狀態"v-if="this.form.state===''||this.form.state==2||this.form.state==4 ||this.form.state==5"  >
+        <el-form-item label="*選擇狀態" v-if="this.form.state==''||this.form.state==2||this.form.state==4 ||this.form.state==5"  >
           <el-select v-model="form.state" placeholder="選擇狀態" @change="getstate">
             <el-option label="刪除(停用)" :value="4"></el-option>
-            <el-option label="改卡號(故障、遺失)" :value="2"></el-option>
+            <el-option label="改卡號(故障、遺失、停用)" :value="2"></el-option>
             <el-option label="原卡復油" :value="5"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="*帳單組別">
+        <!-- <el-form-item label="*帳單組別">
         <el-select v-model="form.account_sortId" placeholder="選擇帳單">
           <el-option
           v-for="bill in bills"
@@ -80,7 +80,23 @@
           :value="bill.account_sortId "
           ></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
+      <el-form-item label="*帳單組別">
+      <el-select 
+          v-model="form.account_sortId" 
+          placeholder="輸入統編"
+          filterable
+          :clearable="true"
+          style="width: 300px; margin-right:20px;" 
+        >
+          <el-option
+          v-for="bill in bills"
+          :key="bill.account_sortId "
+          :label="bill.acc_name+'(開立統編：'+bill.use_number+')'"
+          :value="bill.account_sortId "
+          ></el-option>
+          </el-select>
+        </el-form-item> 
       </el-row>
       <el-row style="margin-bottom: 20px">
         <el-form-item label="*卡號" v-if="this.form.state!=1">
@@ -114,11 +130,13 @@
           </el-select>
         </el-form-item> -->
         <el-form-item label="*上傳中油原因">
-          <el-select v-model="form.upload_reason" placeholder="選擇原因">
+          <el-select v-model="form.upload_reason" placeholder="選擇原因" :disabled="form.state == 4 || form.state == 1"  @change="filterRecorded2">
             <!-- 如果 this.form.state == 1，則顯示 "新增" 選項 -->
             <el-option v-if="form.state == 1" label="新增" :value="'新增'"></el-option>
             <!-- 其他選項固定顯示 -->
-            <el-option v-if="(form.state == 4)" label="停用" :value="'停用'"></el-option>
+            <el-option v-if="form.state == 4" label="停用" :value="'停用'"></el-option>
+            <el-option v-if="(form.state != 1)&(form.state != 5)" label="改客戶(原卡號停用)" :value="'停用'"></el-option>
+            <el-option v-if="(form.state != 1)&(form.state != 5)&(form.state != 4)" label="改客戶(原卡號沿用)" :value="'改客戶(原卡號沿用)'"></el-option>
             <el-option v-if="(form.state != 1)&(form.state != 5)&(form.state != 4)" label="遺失" :value="'遺失'"></el-option>
             <el-option v-if="(form.state != 1)&(form.state != 5)&(form.state != 4)" label="故障" :value="'故障'"></el-option>
             <el-option v-if="form.state == 5" label="原卡復油" :value="'原卡復油'"></el-option>
@@ -133,6 +151,7 @@
             <el-option label="判斷結果：3.改客戶" :value="3"></el-option>
             <el-option label="判斷結果：4.刪除卡片" :value="4"></el-option>
             <el-option label="判斷結果：5.原卡復油" :value="5"></el-option>
+            <el-option label="判斷結果：6.改客戶(原卡號沿用)" :value="6"></el-option>
           </el-select>
         </el-form-item>
     </el-form>
@@ -203,7 +222,7 @@ export default {
         "0017": "0017 尿素溶液"
       },
       form:{
-        state:0,
+        state:'',
         deleteTime:''
       },
       currentPage: 1,
@@ -235,6 +254,14 @@ export default {
   },
   methods: {
     getstate(){
+    if(!this.form.license_plate){
+      this.form.state=''
+      this.$message({
+              message: '請先輸入車牌號碼',
+              type: 'error'
+            });
+            return
+    }
       if(this.form.state==4){
         this.form.upload_reason='停用'
       }else if(this.form.state==5){
@@ -281,6 +308,18 @@ export default {
       } else {
         // 如果沒有選擇特定的帳號，顯示所有資料
         this.filteredRecorded = this.Recorded;
+      }
+      if(this.form.upload_reason=='改客戶(原卡號沿用)'){
+        this.form.state=6
+      }else{
+        this.form.state=3
+      }
+    },
+    filterRecorded2() {
+      if(this.form.upload_reason=='改客戶(原卡號沿用)'){
+        this.form.state=6
+      }else{
+        this.form.state=3
       }
     },
     handlePageChange(page) {
@@ -432,7 +471,7 @@ export default {
       this.form.account_sortId = '';
       this.form.license_plate = '';
       this.form.acc_name = '';
-      this.form.state = 0;
+      this.form.state = '';
       const postData = {
         cus_code:this.form.cus_code,
         customerId:this.form.cus_code,
@@ -597,11 +636,6 @@ export default {
                       message: '匯出成功',
                       type: 'success'
               });
-              setTimeout(() => {
-            // 重整網頁
-            window.location.reload();
-            }, 3000); // 5000 毫秒即為5秒
-
               this.getRecorded();
             };
           
@@ -641,6 +675,7 @@ export default {
         this.form.card_type="3"
       }
       const postData=this.form
+      console.log(JSON.stringify(postData))
       axios.post('http://122.116.23.30:3347/main/recordedVehicle',postData)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
@@ -682,10 +717,12 @@ export default {
     
     handlePageChange(page) {
       this.currentPage = page;
-    },
-
-  },
- 
+    }, 
+    dialogtrue(){
+    this.dialog=true
+    this.bills=[]
+  }
+  }
 };
 </script>
 

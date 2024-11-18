@@ -1,12 +1,17 @@
 <template>
-  <div class="container-fluid">
-    <div class="non-desktop-message">只支援解析度1024px電腦瀏覽</div>
+  <div v-if="!isAccessControlPage" class="container-fluid">
+    <div  class="non-desktop-message" >只支援解析度1024px電腦瀏覽</div>
     <div class="content">
       <RouterView />
       <TheFooter class="footer">
       </TheFooter>
     </div>
   </div>
+
+  <div v-if="isAccessControlPage" >
+      <RouterView />
+  </div>
+  
 </template>
 
 <script>
@@ -20,6 +25,12 @@ export default {
       text: "首頁 ",
     };
   },
+  computed: {
+    // 檢查當前路由是否為 /AccessControl
+    isAccessControlPage() {
+      return this.$route.path === '/basic-info/AccessControl';
+    }
+  }
 };
 </script>
 
