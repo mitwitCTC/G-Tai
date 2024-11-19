@@ -450,6 +450,7 @@
             <el-option label="1.尿素" :value="'1'"></el-option>
             <el-option label="2.柴油" :value="'2'"></el-option>
             <el-option label="3.汽油" :value="'3'"></el-option>
+            <el-option label="4.諾瓦尿素" :value="'4'"></el-option>
           </el-select>
         </el-form-item>
             <el-form-item label="上傳中油原因">

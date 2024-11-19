@@ -12,7 +12,7 @@
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/customer')">客戶資料維護</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/modifybill')">切換客代帳號</button>
-        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">測試匯出</button>
+        <!-- <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/supplier')">測試匯出</button> -->
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/discountrecords')">更改客戶折讓</button>
       </div>
       <button class="btn btn-light w-100 text-start" @click="toggleData">

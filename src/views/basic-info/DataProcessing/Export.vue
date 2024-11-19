@@ -64,11 +64,12 @@
         <el-form-item label="*車號">
             <el-input v-model="form.license_plate" @input="getVehicle"  maxlength="11"></el-input>
         </el-form-item>
-        <el-form-item label="*選擇狀態" v-if="this.form.state==''||this.form.state==2||this.form.state==4 ||this.form.state==5"  >
+        <el-form-item label="*選擇狀態" v-if="this.form.state==''||this.form.state==2||this.form.state==4 ||this.form.state==5 ||this.form.state==7" >
           <el-select v-model="form.state" placeholder="選擇狀態" @change="getstate">
             <el-option label="刪除(停用)" :value="4"></el-option>
             <el-option label="改卡號(故障、遺失、停用)" :value="2"></el-option>
             <el-option label="原卡復油" :value="5"></el-option>
+            <el-option label="新增卡別" :value="7"></el-option>
           </el-select>
         </el-form-item>
         <!-- <el-form-item label="*帳單組別">
@@ -99,7 +100,7 @@
         </el-form-item> 
       </el-row>
       <el-row style="margin-bottom: 20px">
-        <el-form-item label="*卡號" v-if="this.form.state!=1">
+        <el-form-item label="*卡號" v-if="this.form.state !== 1 && this.form.state !== 7">
             <el-select v-model="form.card_number" placeholder="選擇卡號">
           <el-option
           v-for="card in cards"
@@ -130,9 +131,9 @@
           </el-select>
         </el-form-item> -->
         <el-form-item label="*上傳中油原因">
-          <el-select v-model="form.upload_reason" placeholder="選擇原因" :disabled="form.state == 4 || form.state == 1"  @change="filterRecorded2">
+          <el-select v-model="form.upload_reason" placeholder="選擇原因" :disabled="form.state == 4 || form.state == 1 || form.state == 7"  @change="filterRecorded2">
             <!-- 如果 this.form.state == 1，則顯示 "新增" 選項 -->
-            <el-option v-if="form.state == 1" label="新增" :value="'新增'"></el-option>
+            <el-option v-if="form.state == 1 ||form.state == 7 " label="新增" :value="'新增'"></el-option>
             <!-- 其他選項固定顯示 -->
             <el-option v-if="form.state == 4" label="停用" :value="'停用'"></el-option>
             <el-option v-if="(form.state != 1)&(form.state != 5)" label="改客戶(原卡號停用)" :value="'停用'"></el-option>
@@ -152,6 +153,7 @@
             <el-option label="判斷結果：4.刪除卡片" :value="4"></el-option>
             <el-option label="判斷結果：5.原卡復油" :value="5"></el-option>
             <el-option label="判斷結果：6.改客戶(原卡號沿用)" :value="6"></el-option>
+            <el-option label="判斷結果：7.新增卡別" :value="7"></el-option>
           </el-select>
         </el-form-item>
     </el-form>
@@ -266,6 +268,9 @@ export default {
         this.form.upload_reason='停用'
       }else if(this.form.state==5){
         this.form.upload_reason='原卡複油'
+      }else if(this.form.state==7){
+        this.form.upload_reason='新增'
+        this.form.card_number = '';
       }else{
         this.form.upload_reason=''
       }
@@ -651,8 +656,8 @@ export default {
         });
         return
       }
-      if (this.form.state !== 1 && !this.form.card_number) {
-        toolbarhis.$message({
+      if (this.form.state !== 1 &&this.form.state !== 7 && !this.form.card_number) {
+        this.$message({
           message: '必填欄位不得為空',
           type: 'error'
         });

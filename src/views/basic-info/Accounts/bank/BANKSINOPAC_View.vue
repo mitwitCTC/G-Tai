@@ -32,6 +32,7 @@
       <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
         <el-table-column prop="invoice" label="收款單號"></el-table-column> 
         <el-table-column prop="customerId" label="客戶代號"></el-table-column>
+        <el-table-column prop="cus_name" label="客戶名稱"width="350"></el-table-column>
         <el-table-column prop="account_date" label="刷卡日期"></el-table-column>
         <el-table-column prop="issuing_bank" label="發卡銀行"></el-table-column>
         <el-table-column prop="credit_amount" label="刷卡金額" align="right"  ><template v-slot="scope">{{ formatCurrency(scope.row.credit_amount)}} </template></el-table-column>
@@ -483,6 +484,16 @@
       this.biginvoice = maxInvoiceData.invoice;
       this.bigdate=this.biginvoice.substring(1, 7);
       this.bigNo=this.biginvoice.substring(7);
+      this.BankData.forEach((bankItem) => {
+          const matchingCustomer = this.cusdatas.find((cusItem) => cusItem.cus_code === bankItem.customerId);
+          if (matchingCustomer) {
+            // 新增 cus_name 到 BankData 中
+            bankItem.cus_name = matchingCustomer.cus_name;
+          } else {
+            // 如果沒找到，可以選擇設置為空值或其他提示
+            bankItem.cus_name = '未知客戶';
+          }
+        });
       this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {

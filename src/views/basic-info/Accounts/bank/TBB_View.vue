@@ -7,8 +7,9 @@
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
   <div class="table-container">
       <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="id" label="序號"></el-table-column> 
-        <el-table-column prop="customerId" label="客戶代號"></el-table-column>
+        <el-table-column prop="id" label="序號" width="100"></el-table-column> 
+        <el-table-column prop="customerId" label="客戶代號" width="100"></el-table-column>
+        <el-table-column prop="cus_name" label="客戶名稱"width="350"></el-table-column>
         <el-table-column prop="bank" label="銀行"></el-table-column>
         <el-table-column prop="account_date" label="入帳日"></el-table-column>
         <el-table-column prop="account_time" label="交易時間"></el-table-column>
@@ -83,14 +84,16 @@
             <el-option label="台企匯款" :value="'0'"></el-option>
             <el-option label="支票" :value="'3'"></el-option>
             <el-option label="現金" :value="'5'"></el-option>
+            <el-option label="其它" :value="'6'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="*銀行來源" v-if="this.form.trading_model==='4'||this.form.trading_model==='0'||this.form.trading_model==='3'||this.form.trading_model==='5'">
+        <el-form-item label="*銀行來源" v-if="this.form.trading_model==='4'||this.form.trading_model==='0'">
           <el-select v-model="form.bank" placeholder="選擇銀行來源" style=" width: 250px;" disabled="true">
             <el-option label="永豐" :value="'永豐匯款'"></el-option>
             <el-option label="台企" :value="'台企'"></el-option>
             <el-option label="支票" :value="'支票'"></el-option>
             <el-option label="現金" :value="'現金'"></el-option>
+            <el-option label="其它" :value="'其它'"></el-option>
           </el-select>
         </el-form-item>
             <el-form-item label="*台企虛擬帳號" v-if="this.form.trading_model==='0'" >
@@ -102,7 +105,7 @@
           <el-form-item label="*支票號碼" v-if="this.form.trading_model==='3'" >
               <el-input v-model="form.account" ></el-input>
           </el-form-item>
-          <el-form-item label="統一編號" >
+          <el-form-item label="統一編號" v-if="this.form.trading_model!=3 && this.form.trading_model!=5&& this.form.trading_model!=6"  >
               <el-input v-model="form.taxId" maxlength="9"></el-input>
           </el-form-item>
           <el-form-item :label="form.trading_model === '3' ? '*到期日' : '*入帳日'">
@@ -149,11 +152,13 @@
         amount:''
        },
       BankData:[],
+      cusData:[],
       currentPage:1,
       pageSize:10,
     };
   },
-  created() {
+  async created() {
+    await this.getcus()
     this.getcusdata()
     this.getselectData();
   },
@@ -178,9 +183,14 @@
     } else if(this.form.trading_model == '0'){
       this.form.bank='台企'
     }else if(this.form.trading_model == '3'){
+      this.form.taxId=''
       this.form.bank='支票'
     }else if(this.form.trading_model == '5'){
+      this.form.taxId=''
       this.form.bank='現金'
+    }else if(this.form.trading_model == '6'){
+      this.form.taxId=''
+      this.form.bank='其它'
     }
   },
    
@@ -190,7 +200,7 @@
     
     savePass() {
     if (!this.form.customerId || !this.form.cus_name || 
-    (!this.form.account && (this.form.trading_model !== '4'&&this.form.trading_model !== '5'))) { 
+    (!this.form.account && (this.form.trading_model !== '4'&&this.form.trading_model !== '5'&&this.form.trading_model !== '6'))) { 
       this.$message({
         message: '必填欄位不可為空',
         type: 'error'
@@ -205,7 +215,7 @@
             return
     }
       const req = this.form;
-      // //發送 POST 請求
+      //發送 POST 請求
       axios.post('http://122.116.23.30:3347/finance/createTBB', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
@@ -246,12 +256,32 @@
           console.error('Error:', error);
         });
     }, 
+    async getcus() {
+      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
+        .then(response => {
+          this.cusData = response.data.data;
+        })
+        .catch(error => {
+          // 處理錯誤
+          console.error('API request failed:', error);
+        });
+  },
     async getselectData() {
       this.loading = true;  // 開始加載
       await axios.get('http://122.116.23.30:3347/finance/selectTBB')
         .then(response => {
           this.BankData = response.data.data;
-          this.BankData.sort((a, b) => b.id - a.id);
+          this.BankData.forEach((bankItem) => {
+          const matchingCustomer = this.cusData.find((cusItem) => cusItem.cus_code === bankItem.customerId);
+          if (matchingCustomer) {
+            // 新增 cus_name 到 BankData 中
+            bankItem.cus_name = matchingCustomer.cus_name;
+          } else {
+            // 如果沒找到，可以選擇設置為空值或其他提示
+            bankItem.cus_name = '未知客戶';
+          }
+        });
+          this.BankData.sort((a, b) => b.account_date - a.account_date);
           this.loading = false;  // 請求完成後關閉加載狀態
         })
         .catch(error => {
@@ -358,28 +388,28 @@
           console.error('API request failed:', error);
         });
      } 
-     if(this.form.cus_name){
-      axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
-        .then(response => {
-            this.bills = response.data.data;
-            if(!this.bills.length){
-              this.$message({
-              message: '查無帳單資訊',
-              type: 'error'
-            });
-            return;
-            }
-        })
-        .catch(error => {
-          // 處理錯誤
-            this.form.cus_name=''
-            this.$message({
-              message: '系統錯誤',
-              type: 'error'
-            });
-          console.error('API request failed:', error);
-        });
-     }
+    //  if(this.form.cus_name){
+    //   axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
+    //     .then(response => {
+    //         this.bills = response.data.data;
+    //         if(!this.bills.length){
+    //           this.$message({
+    //           message: '查無帳單資訊',
+    //           type: 'error'
+    //         });
+    //         return;
+    //         }
+    //     })
+    //     .catch(error => {
+    //       // 處理錯誤
+    //         this.form.cus_name=''
+    //         this.$message({
+    //           message: '系統錯誤',
+    //           type: 'error'
+    //         });
+    //       console.error('API request failed:', error);
+    //     });
+    //  }
   },
   }
  };

@@ -13,6 +13,8 @@
         <el-table-column prop="name" label="姓名"></el-table-column>
         <el-table-column prop="mobile" label="手機/電話"></el-table-column>
         <el-table-column prop="mail" label="E-MAIL"></el-table-column>
+        <el-table-column prop="messageNotify" label="訊息通知" :formatter="format"></el-table-column>
+        <el-table-column prop="billNotify" label="帳單通知" :formatter="format2"></el-table-column>
         <el-table-column prop="notes" label="備註"></el-table-column>
         <el-table-column label="操作">
         <template v-slot="scope">
@@ -53,16 +55,38 @@
           <el-form-item label="姓名">
             <el-input v-model="form.name" ></el-input>
           </el-form-item>
-          <el-form-item label="電話/手機">
-            <el-input v-model="form.mobile" ></el-input>
-          </el-form-item>
-          <el-form-item label="E-MAIL">
-            <el-input v-model="form.mail" ></el-input>
-          </el-form-item>
           <el-form-item label="備註">
             <el-input v-model="form.notes" ></el-input>
           </el-form-item>
-          </el-row>
+        </el-row>
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="訊息通知" >
+            <el-select v-model="form.messageNotify" placeholder="選擇" @change="FileChange">
+              <el-option label="無" :value="'0'"></el-option>
+              <el-option label="手機" :value="'1'"></el-option>
+              <el-option label="line" :value="'2'"></el-option>
+              <el-option label="mail" :value="'3'"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="帳單通知" >
+            <el-select v-model="form.billNotify" placeholder="選擇"  @change="FileChange">
+              <el-option label="無" :value="'0'"></el-option>
+              <el-option label="寄送" :value="'1'"></el-option>
+              <el-option label="line" :value="'2'"></el-option>
+              <el-option label="mail" :value="'3'"></el-option>
+            </el-select>
+        </el-form-item>
+      </el-row>
+      <el-row style="margin-bottom: 20px">
+          <el-form-item label="E-MAIL" v-if="ismail">
+            <el-input v-model="form.mail" ></el-input>
+          </el-form-item>
+          <el-form-item label="電話/手機" v-if="ismobile">
+            <el-input v-model="form.mobile" ></el-input>
+          </el-form-item>
+        </el-row>
+         
+          
         </el-form>
         <template v-slot:footer>
           <div  class="dialog-footer">
@@ -79,6 +103,7 @@ import ListBar from '@/components/ListBar.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import TablePaginated from '@/components/TablePaginated.vue';
 import axios from 'axios';
+import { toRaw } from 'vue';
 
 export default {
   components: {
@@ -89,6 +114,8 @@ export default {
 
   data() {
     return {
+      ismobile:false,
+      ismail:false,
       loading:false,
       cus_code:'',
       cus_name:'',
@@ -103,6 +130,18 @@ export default {
         mail:'',
         notes:''
       },
+      type: {
+        '0': '無',
+        '1': '手機',
+        '2': 'Line',
+        '3': 'Mail',
+      } ,
+      type2: {
+        '0': '無',
+        '1': '寄送',
+        '2': 'Line',
+        '3': 'Mail',
+      } ,
       currentPage: 1,
       pageSize: 10
     };
@@ -128,6 +167,26 @@ export default {
     }
   },
   methods: {
+    format(messageNotify) {
+      const type = toRaw(messageNotify);
+      return this.type[type.messageNotify] || '未知';
+    },
+    format2(billNotify) {
+      const type = toRaw(billNotify);
+      return this.type2[type.billNotify] || '未知';
+    },
+    FileChange(){
+      if(this.form.messageNotify=='3'||this.form.billNotify=='3'){
+        this.ismail=true
+      }else{
+        this.ismail=false
+      }
+      if(this.form.messageNotify=='1'){
+        this.ismobile=true
+      }else{
+        this.ismobile=false
+      }
+    },
     async getselectData() {
       this.loading = true;  // 開始加載
       const postData = {

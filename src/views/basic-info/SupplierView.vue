@@ -57,12 +57,12 @@ data() {
   methods: {
    
     // 匯出 Excel
-    async exportToExcel() {
+    async exportToExcel2() {
           try {
             // 確保資料先完成取得
             const workbook = new ExcelJS.Workbook();
             const fr = new FileReader();
-            const response = await fetch(new URL('@/assets/儲值對帳單總表.xlsx', import.meta.url).href); // 從 URL 載入模板檔案
+            const response = await fetch(new URL('@/assets/對帳單明細.xlsx', import.meta.url).href); // 從 URL 載入模板檔案
             const data = await response.blob(); // 轉為 Blob
             fr.readAsArrayBuffer(data);
 
@@ -71,29 +71,39 @@ data() {
               await workbook.xlsx.load(ev.target.result);
               const worksheet = workbook.worksheets[0]; // 取得第一個工作表
               
-              //表頭
-              const today = new Date();
-              const yearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-              
+            
               
               //公司資訊
-              let rowstitle=[['期別：'],['公司名稱：樂客遊覽車股份有限公司'],['發票抬頭：樂客遊覽車股份有限公司'],['帳單組別：樂客遊覽車股份有限公司']];
+              let rowstitle=[['10'],['公司名稱：樂客遊覽車股份有限公司'],['發票抬頭：樂客遊覽車股份有限公司'],['帳單組別：樂客遊覽車股份有限公司']];
               rowstitle.forEach((row, index) => {
               worksheet.getCell(`A${1 + index}`).value = row[0]; // 將每一行的第一列資料放入指定儲存格
               });
 
             // 儲值
-            const data = ['113/11', '35000', '50000', '120000','120000'];
+            // const data = ['113/11', '35000', '50000', '120000','120000'];
+            // worksheet.getCell('A7').value = data[0];
+            // worksheet.getCell('B7').value = data[1];
+            // worksheet.getCell('C7').value = data[2];
+            // worksheet.getCell('E7').value = data[3];
+            // worksheet.getCell('G7').value = data[4];
+            // worksheet.getCell('B7').value = parseFloat(data[1]); // 千分位格式
+            // worksheet.getCell('C7').value = parseFloat(data[3]); // 千分位格式
+            // worksheet.getCell('E7').value = parseFloat(data[1]); // 千分位格式
+            // worksheet.getCell('G7').value = parseFloat(data[3]); // 千分位格式
+            // worksheet.getCell('B7').numFmt = '#,##0'; // 千分位格式
+            // worksheet.getCell('C7').numFmt = '#,##0'; // 千分位格式
+            // worksheet.getCell('E7').numFmt = '#,##0'; // 千分位格式
+            // worksheet.getCell('G7').numFmt = '#,##0'; // 千分位格式
+
+             // 月結
+             const data = ['嗨', '35000', '50000', '120000'];
             worksheet.getCell('A7').value = data[0];
-            worksheet.getCell('B7').value = data[1];
-            worksheet.getCell('C7').value = data[2];
-            worksheet.getCell('E7').value = data[3];
-            worksheet.getCell('G7').value = data[4];
-            worksheet.getCell('B7').value = parseFloat(data[1]); // 千分位格式
+            worksheet.getCell('C7').value = data[1];
+            worksheet.getCell('E7').value = data[2];
+            worksheet.getCell('G7').value = data[3];
             worksheet.getCell('C7').value = parseFloat(data[3]); // 千分位格式
             worksheet.getCell('E7').value = parseFloat(data[1]); // 千分位格式
             worksheet.getCell('G7').value = parseFloat(data[3]); // 千分位格式
-            worksheet.getCell('B7').numFmt = '#,##0'; // 千分位格式
             worksheet.getCell('C7').numFmt = '#,##0'; // 千分位格式
             worksheet.getCell('E7').numFmt = '#,##0'; // 千分位格式
             worksheet.getCell('G7').numFmt = '#,##0'; // 千分位格式
@@ -367,6 +377,52 @@ data() {
               };
             }
       
+          
+              // 保存到新的文件
+              const newFileName = '明細測試.xlsx';
+              const buffer = await workbook.xlsx.writeBuffer();
+
+              // 生成下載鏈接並觸發下載
+              const blob = new Blob([buffer], { type: 'application/octet-stream' });
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = newFileName;
+              link.click();
+            } 
+              this.$message({
+                      message: '匯出成功',
+                      type: 'success'
+            });
+          } catch (error) {
+            console.error('Error during export to Excel:', error);
+          }
+},
+ // 匯出 Excel
+ async exportToExcel2() {
+          try {
+            // 確保資料先完成取得
+            const workbook = new ExcelJS.Workbook();
+            const fr = new FileReader();
+            const response = await fetch(new URL('@/assets/對帳單明細.xlsx', import.meta.url).href); // 從 URL 載入模板檔案
+            const data = await response.blob(); // 轉為 Blob
+            fr.readAsArrayBuffer(data);
+
+            // 當 FileReader 完成後，讀取 Excel 並進行修改
+            fr.onload = async (ev) => {
+              await workbook.xlsx.load(ev.target.result);
+              const worksheet = workbook.worksheets[0]; // 取得第一個工作表
+              
+              //表頭
+              const today = new Date();
+              const yearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+              
+              
+              //公司資訊
+              let rowstitle=[['1'],['公司名稱：樂客遊覽車股份有限公司'],['發票抬頭：樂客遊覽車股份有限公司'],['帳單組別：樂客遊覽車股份有限公司']];
+              rowstitle.forEach((row, index) => {
+              worksheet.getCell(`B${1 + index}`).value = row[0]; // 將每一行的第一列資料放入指定儲存格
+              });
+
           
               // 保存到新的文件
               const newFileName = '明細測試.xlsx';

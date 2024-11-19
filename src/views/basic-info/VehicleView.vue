@@ -5,7 +5,7 @@
     <div>
       <BreadCrumb :isSpecialPage="true" />
     </div>
-    <el-button type="warning" @click="dialog = true">新增卡片資訊</el-button>
+    <!-- <el-button type="warning" @click="dialog = true">新增卡片資訊</el-button> -->
     <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4>帳單名稱:<h4>{{this.acc_name}}</h4>車牌號碼:<h4>{{this.license_plate}}</h4></h5></div>
     <el-table :data="vehicles" style="width: 100%" v-loading="loading">
       <el-table-column prop="card_number" label="卡號" width="200" />
@@ -38,6 +38,7 @@
                 <el-option label="1.尿素" :value="1"></el-option>
                 <el-option label="2.柴油" :value="2"></el-option>
                 <el-option label="3.汽油" :value="3"></el-option>
+                <el-option label="4.諾瓦尿素" :value="4"></el-option>
               </el-select>
             </el-form-item>
             <!-- <el-form-item label="上傳中油日期">
@@ -123,6 +124,7 @@ export default {
         '1': '尿素',
         '2': '柴油',
         '3': '汽油',
+        '4': '諾瓦尿素',
       } ,
       
     };
