@@ -413,8 +413,6 @@ data() {
               const worksheet = workbook.worksheets[0]; // 取得第一個工作表
               
               //表頭
-              const today = new Date();
-              const yearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
               
               
               //公司資訊
@@ -422,7 +420,50 @@ data() {
               rowstitle.forEach((row, index) => {
               worksheet.getCell(`B${1 + index}`).value = row[0]; // 將每一行的第一列資料放入指定儲存格
               });
+              const data = [
+                ["436-G6", "2024/10/05 19:08:52", "亞柏仁武", "超級柴油", 27.7, 150.00, 1.5, 4155, 3930, 132],
+                ["436-G6", "2024/10/05 19:08:52", "亞柏仁武", "超級柴油", 27.7, 150.00, 1.5, 4155, 3930, 132],
+                ["436-G6", "2024/10/05 19:08:52", "亞柏仁武", "超級柴油", 27.7, 150.00, 1.5, 4155, 3930, 132]
+              ];
 
+              // 起始行
+              let startRow = 7;
+
+              data.forEach((rowData, rowIndex) => {
+                rowData.forEach((cellData, colIndex) => {
+                  const cellAddress = `${String.fromCharCode(65 + colIndex)}${startRow + rowIndex}`;
+                  const cell = worksheet.getCell(cellAddress);
+                  cell.value = cellData; // 將數據插入單元格
+                });
+              });
+              const lastRowNum = worksheet.lastRow ? worksheet.lastRow.number + 1 : 1; // 若無資料，從第 1 行開始
+
+              // 合併儲存格 A-C
+              worksheet.mergeCells(`A${lastRowNum}:C${lastRowNum}`);
+
+              // 設定合併儲存格的樣式和框線
+              const mergedCell = worksheet.getCell(`A${lastRowNum}`);
+              mergedCell.value = "小計"; // 可根據需求修改內容
+              mergedCell.alignment = { horizontal: 'center', vertical: 'middle' }; // 居中對齊
+              mergedCell.font = { bold: true }; // 粗體（可選）
+
+              // 設定框線
+              mergedCell.border = {
+                top: { style: 'thin' },         // 細線
+                bottom: { style: 'medium' },    // 正常下框線
+              };
+              // 設定 A-J 的框線
+              const startCol = 'A'; // 開始列
+              const endCol = 'J';   // 結束列
+
+              for (let col = startCol.charCodeAt(0); col <= endCol.charCodeAt(0); col++) {
+                const cellAddress = `${String.fromCharCode(col)}${lastRowNum}`;
+                const cell = worksheet.getCell(cellAddress);
+                cell.border = {
+                  top: { style: 'thin' },         // 細線
+                  bottom: { style: 'medium' },    // 正常下框線
+                };
+              }
           
               // 保存到新的文件
               const newFileName = '明細測試.xlsx';

@@ -64,7 +64,7 @@
             <el-select v-model="form.messageNotify" placeholder="選擇" @change="FileChange">
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="手機" :value="'1'"></el-option>
-              <el-option label="line" :value="'2'"></el-option>
+              <!-- <el-option label="line" :value="'2'"></el-option> -->
               <el-option label="mail" :value="'3'"></el-option>
             </el-select>
         </el-form-item>
@@ -72,7 +72,7 @@
             <el-select v-model="form.billNotify" placeholder="選擇"  @change="FileChange">
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="寄送" :value="'1'"></el-option>
-              <el-option label="line" :value="'2'"></el-option>
+              <!-- <el-option label="line" :value="'2'"></el-option> -->
               <el-option label="mail" :value="'3'"></el-option>
             </el-select>
         </el-form-item>
