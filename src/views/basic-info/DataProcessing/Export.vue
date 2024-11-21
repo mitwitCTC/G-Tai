@@ -67,7 +67,7 @@
         <el-form-item label="*選擇狀態" v-if="this.form.state==''||this.form.state==2||this.form.state==4 ||this.form.state==5 ||this.form.state==7" >
           <el-select v-model="form.state" placeholder="選擇狀態" @change="getstate">
             <el-option label="刪除(停用)" :value="4"></el-option>
-            <el-option label="改卡號(故障、遺失、停用)" :value="2"></el-option>
+            <el-option label="改卡號(故障、遺失)" :value="2"></el-option>
             <el-option label="原卡復油" :value="5"></el-option>
             <el-option label="新增卡別" :value="7"></el-option>
           </el-select>
@@ -131,15 +131,15 @@
           </el-select>
         </el-form-item> -->
         <el-form-item label="*上傳中油原因">
-          <el-select v-model="form.upload_reason" placeholder="選擇原因" :disabled="form.state == 4 || form.state == 1 || form.state == 7"  @change="filterRecorded2">
+          <el-select v-model="form.upload_reason" placeholder="選擇原因" :disabled="form.state == 4 || form.state == 1 || form.state == 5|| form.state == 7"  @change="filterRecorded2">
             <!-- 如果 this.form.state == 1，則顯示 "新增" 選項 -->
             <el-option v-if="form.state == 1 ||form.state == 7 " label="新增" :value="'新增'"></el-option>
             <!-- 其他選項固定顯示 -->
             <el-option v-if="form.state == 4" label="停用" :value="'停用'"></el-option>
-            <el-option v-if="(form.state != 1)&(form.state != 5)" label="改客戶(原卡號停用)" :value="'停用'"></el-option>
-            <el-option v-if="(form.state != 1)&(form.state != 5)&(form.state != 4)" label="改客戶(原卡號沿用)" :value="'改客戶(原卡號沿用)'"></el-option>
-            <el-option v-if="(form.state != 1)&(form.state != 5)&(form.state != 4)" label="遺失" :value="'遺失'"></el-option>
-            <el-option v-if="(form.state != 1)&(form.state != 5)&(form.state != 4)" label="故障" :value="'故障'"></el-option>
+            <el-option v-if="form.state == 3||form.state == 6" label="改客戶(原卡號停用)" :value="'停用'"></el-option>
+            <el-option v-if="form.state == 3||form.state == 6" label="改客戶(原卡號沿用)" :value="'改客戶(原卡號沿用)'"></el-option>
+            <el-option v-if="form.state == 2" label="遺失" :value="'遺失'"></el-option>
+            <el-option v-if="form.state == 2" label="故障" :value="'故障'"></el-option>
             <el-option v-if="form.state == 5" label="原卡復油" :value="'原卡復油'"></el-option>
           </el-select>
         </el-form-item>
@@ -149,7 +149,7 @@
             <el-option label="狀態" :value="0"></el-option>
             <el-option label="判斷結果：1.新增" :value="1"></el-option>
             <el-option label="判斷結果：2.更改卡號" :value="2"></el-option>
-            <el-option label="判斷結果：3.改客戶" :value="3"></el-option>
+            <el-option label="判斷結果：3.改客戶(原卡號停用)" :value="3"></el-option>
             <el-option label="判斷結果：4.刪除卡片" :value="4"></el-option>
             <el-option label="判斷結果：5.原卡復油" :value="5"></el-option>
             <el-option label="判斷結果：6.改客戶(原卡號沿用)" :value="6"></el-option>
@@ -267,7 +267,7 @@ export default {
       if(this.form.state==4){
         this.form.upload_reason='停用'
       }else if(this.form.state==5){
-        this.form.upload_reason='原卡複油'
+        this.form.upload_reason='原卡復油'
       }else if(this.form.state==7){
         this.form.upload_reason='新增'
         this.form.card_number = '';
@@ -577,23 +577,28 @@ export default {
                 rowstitle=[['']]
               }
               // 處理資料，生成每一行的數據
-              const rowsData = chunk.map((data, index) => [
-                index + 1, // 流水號
-                data.license_plate, // 假設 vehicleId 是車牌
-                data.product_name === '0006' ? 'V' : '', // 超級柴油
-                data.product_name === '0001' ? 'V' : '', // 無鉛汽油
-                data.product_name === '0005' ? 'V' : '', // 酒精汽油
-                data.product_name === '0009' ? 'V' : '', // 不限油品
-                data.product_name === '0017' ? 'V' : '', // 尿素溶液
-                data.upload_reason === '新增' ? 'V' : '', // 新增
-                data.upload_reason === '停用' ? 'V' : '', // 停用
-                data.upload_reason === '遺失' ? 'V' : '', // 遺失
-                data.upload_reason === '故障' ? 'V' : '', // 故障
-                data.upload_reason === '原卡復油' ? 'V' : '', // 原卡復油
-                data.customerId, // 保管單位
-                data.custodian.substring(8, 12), // 公司名稱 (取第9~12個字)
-                data.card_number //備註
-              ]);
+              const rowsData = chunk.map((data, index) => {
+                // 判斷是否是新增，若是則將 card_number 設為空字串
+                const cardNumber = data.upload_reason === '新增' ? '' : data.card_number;
+
+                return [
+                  index + 1, // 流水號
+                  data.license_plate, // 假設 vehicleId 是車牌
+                  data.product_name === '0006' ? 'V' : '', // 超級柴油
+                  data.product_name === '0001' ? 'V' : '', // 無鉛汽油
+                  data.product_name === '0005' ? 'V' : '', // 酒精汽油
+                  data.product_name === '0009' ? 'V' : '', // 不限油品
+                  data.product_name === '0017' ? 'V' : '', // 尿素溶液
+                  data.upload_reason === '新增' ? 'V' : '', // 新增
+                  data.upload_reason === '停用' ? 'V' : '', // 停用
+                  data.upload_reason === '遺失' ? 'V' : '', // 遺失
+                  data.upload_reason === '故障' ? 'V' : '', // 故障
+                  data.upload_reason === '原卡復油' ? 'V' : '', // 原卡復油
+                  data.customerId, // 保管單位
+                  data.custodian.substring(8, 12), // 公司名稱 (取第9~12個字)
+                  cardNumber // 備註
+                ];
+              });
               worksheet.addTable({
                 name: 'table名稱', // 表格的名稱
                 ref: 'C1', 

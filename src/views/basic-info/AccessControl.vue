@@ -137,13 +137,31 @@ methods: {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
-              message: '綁定成功',
+              message: '您已綁定成功,謝謝您的配合',
               type: 'success'
             });
           }else if(response.status === 200 && response.data.returnCode === -1){
              // 成功提示
              this.$message({
               message: '此帳號已綁定兩人,如有問題,請聯絡客服',
+              type: 'error'
+            });
+          }else if(response.status === 200 && response.data.returnCode === -3){
+             // 成功提示
+             this.$message({
+              message: '綁定失敗，查無此客戶',
+              type: 'error'
+            });
+          }else if(response.status === 200 && response.data.returnCode === -4){
+             // 成功提示
+             this.$message({
+              message: 'LINE 綁定失敗，查無此LINE好友資訊',
+              type: 'error'
+            });
+          }else if(response.status === 200 && response.data.returnCode === -5){
+             // 成功提示
+             this.$message({
+              message: 'LINE 綁定失敗，您已綁定，如有問題，請聯絡客服',
               type: 'error'
             });
           }

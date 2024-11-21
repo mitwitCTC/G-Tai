@@ -43,8 +43,8 @@
       <el-form :inline="true" :model="search" class="demo-form-inline">
         <el-form-item label="搜尋車牌號碼">
           <el-input v-model="search.license_plate" placeholder="輸入車牌號碼" style="width: 225px;"></el-input>
-        </el-form-item>
-        <el-button type="warning" @click="dialog = true">新增車籍</el-button>
+        </el-form-item> 
+        <!-- <el-button type="warning" @click="dialog = true">新增車籍</el-button> -->
       </el-form>
       <el-table :data="currentPageData2" style="width: 100%" v-loading="loading">
         <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
