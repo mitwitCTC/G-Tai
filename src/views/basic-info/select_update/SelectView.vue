@@ -89,7 +89,7 @@
     <el-form-item label="油價簡訊電話">
       <el-input v-model="cus_form.fuel_sms_phone" readonly></el-input>
     </el-form-item> 
-     <el-form-item label="餘額不足簡訊方式" v-if="this.cus_form.transaction_mode==1" >
+     <!-- <el-form-item label="餘額不足簡訊方式" v-if="this.cus_form.transaction_mode==1" >
       <el-input
     :value="
       cus_form.fuel_sms_option === '1' ? '手機簡訊' :
@@ -104,7 +104,7 @@
     </el-form-item>
     <el-form-item label="餘額不足訊息電話" v-if="this.cus_form.transaction_mode==1">
       <el-input v-model="cus_form.balance_sms_phone" readonly></el-input>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item label="合約狀態">
       <el-input :value="cus_form.contract_status == 'N' ? '未解約' : (cus_form.contract_status == 'Y' ? '解約' : (cus_form.contract_status == 'S' ? '暫停' : '未知'))"
       readonly 

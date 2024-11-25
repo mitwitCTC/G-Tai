@@ -82,7 +82,7 @@
             <el-input v-model="form.mail" ></el-input>
           </el-form-item>
           <el-form-item label="電話/手機" v-if="ismobile">
-            <el-input v-model="form.mobile" ></el-input>
+            <el-input v-model="form.mobile" @input="validatePhone" maxlength="10" ></el-input>
           </el-form-item>
         </el-row>
          
@@ -167,6 +167,10 @@ export default {
     }
   },
   methods: {
+    validatePhone(value) {
+  // 僅保留數字，限制最大長度 10
+  this.form.mobile = value.replace(/\D/g, '').slice(0, 10);
+},
     format(messageNotify) {
       const type = toRaw(messageNotify);
       return this.type[type.messageNotify] || '未知';

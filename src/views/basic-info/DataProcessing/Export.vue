@@ -323,6 +323,8 @@ export default {
     filterRecorded2() {
       if(this.form.upload_reason=='改客戶(原卡號沿用)'){
         this.form.state=6
+      }else if(this.form.upload_reason=='故障'||this.form.upload_reason=='遺失'){
+        this.form.state=2
       }else{
         this.form.state=3
       }

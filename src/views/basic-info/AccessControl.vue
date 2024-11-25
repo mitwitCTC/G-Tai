@@ -42,7 +42,7 @@
     <el-form label-width="80px">
         <!-- 手機 輸入框 -->
         <el-form-item label="手機號碼" v-if="selectedOption2 === '1'">
-            <el-input v-model="phone" placeholder="請輸入手機號碼"></el-input>
+            <el-input v-model="phone" placeholder="請輸入手機號碼"  @input="validatePhone" maxlength="10" ></el-input>
         </el-form-item>
         <!-- Email 輸入框 -->
         <el-form-item label="Email" v-if="selectedOption2 === '3'">
@@ -75,6 +75,10 @@ data() {
   };
 },
 methods: {
+  validatePhone(value) {
+  // 僅保留數字，限制最大長度 10
+  this.phone = value.replace(/\D/g, '').slice(0, 10);
+},
   handleOptionChange() {
       if (this.selectedOption !== '3') {
         this.email = ''; // 清空 Email
