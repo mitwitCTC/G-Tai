@@ -92,12 +92,12 @@ const router = createRouter({
         },
         {
           path: 'supplier',
-          name: '供應商資料維護',
+          name: '結帳列印',
           component: () => import('@/views/basic-info/SupplierView.vue'),
           meta: {
-            title: '供應商資料',
-            breadcrumb: '供應商資料',
-            isSpecialPage: true
+            title: '結帳列印',
+            breadcrumb: '結帳列印',
+            isAccountsPage: true
           }
         },
         {
@@ -123,12 +123,12 @@ const router = createRouter({
         },
         {
           path: 'SalesControl',
-          name: '銷售管理',
+          name: '通知客戶管理',
           component: () => import('@/views/basic-info/SalesControl.vue'),
           meta: {
-            title: '銷售管理',
-            breadcrumb: '銷售管理',
-            isSpecialPage: false
+            title: '通知客戶管理',
+            breadcrumb: '通知客戶管理',
+            isSpecialPage: true
           }
         },
         {
