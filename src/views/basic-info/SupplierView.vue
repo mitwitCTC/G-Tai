@@ -17,6 +17,7 @@
           value-format="YYYY-MM"
           placeholder="請選擇帳單期別"
           style="margin-right: 10px"
+          @change="clink()"
         />
         <!-- 發送方式的下拉框 -->
         <el-select
@@ -33,6 +34,7 @@
           placeholder="請選擇匯出項目"
           style="width: 150px; margin-right: 10px"
           v-if="this.selectedSendMode == '1'"
+          @change="APIData()"
         >
           <el-option label="總表" value="1" />
           <el-option label="明細" value="2" />
@@ -40,12 +42,22 @@
         <el-button type="success" @click="exportAll">匯出</el-button>
       </div>
     </el-form-item>
+    <div class="pagination-info">
+      共{{ this.groupContact.length }}位客戶，共{{
+        this.cus_data2.length
+      }}位查詢客戶資料成功，共取得{{ this.Account.length }}筆帳單資料
+    </div>
+    <div class="pagination-info" v-if="this.select">
+      去除無資料帳單，剩餘{{ this.cus_message.length }}筆需匯出
+    </div>
+
+    <!-- <div class="pagination-info">共顯示{{ this.cus_message.length }}筆資料</div> -->
     <el-form-item label="需列印客戶" class="section-header">
       <div class="table-container">
         <el-table :data="cus_message" style="width: 100%">
           <el-table-column prop="account_sortId" label="帳單編號" width="150" />
           <el-table-column prop="customerId" label="客戶代號" width="150" />
-          <el-table-column prop="cusName" label="客戶名稱" width="300" />
+          <el-table-column prop="cus_name" label="客戶名稱" width="300" />
           <el-table-column
             prop="transaction_mode"
             label="交易模式"
@@ -62,6 +74,7 @@
     width="15%"
     title="請稍後..."
     :close-on-click-modal="false"
+    :show-close="false"
   />
 </template>
 
@@ -82,38 +95,226 @@ export default {
       search_month: "",
       selectedSendMode: "",
       cus_message: [
-        {
-          account_sortId: "658",
-          customerId: "G2200060",
-          cusName: "世發通運有限公司",
-          transaction_mode: "1", //交易模式
-          invoice_name: "世發通運有限公司", //發票抬頭
-          acc_name: "世發通運有限公司", //帳單名稱
-        },
-        {
-          account_sortId: "713",
-          customerId: "G2200002",
-          cusName: "詮瑞福物流股份有限公司",
-          transaction_mode: "2", //交易模式
-          invoice_name: "詮瑞福物流股份有限公司", //發票抬頭
-          acc_name: "詮瑞福物流股份有限公司", //帳單名稱
-        },
-        {
-          account_sortId: "1352",
-          customerId: "G2200002",
-          cusName: "紘鼎開發工程有限公司",
-          transaction_mode: "2", //交易模式
-          invoice_name: "紘鼎開發工程有限公司", //發票抬頭
-          acc_name: "紘鼎開發工程有限公司", //帳單名稱
-        },
+        // {
+        //   account_sortId: "658",
+        //   customerId: "G2200060",
+        //   cusName: "世發通運有限公司",
+        //   transaction_mode: "1", //交易模式
+        //   invoice_name: "世發通運有限公司", //發票抬頭
+        //   acc_name: "世發通運有限公司", //帳單名稱
+        // },
+        // {
+        //   account_sortId: "713",
+        //   customerId: "G2200002",
+        //   cusName: "詮瑞福物流股份有限公司",
+        //   transaction_mode: "2", //交易模式
+        //   invoice_name: "詮瑞福物流股份有限公司", //發票抬頭
+        //   acc_name: "詮瑞福物流股份有限公司", //帳單名稱
+        // },
+        // {
+        //   account_sortId: "1352",
+        //   customerId: "G2200002",
+        //   cusName: "紘鼎開發工程有限公司",
+        //   transaction_mode: "2", //交易模式
+        //   invoice_name: "紘鼎開發工程有限公司", //發票抬頭
+        //   acc_name: "紘鼎開發工程有限公司", //帳單名稱
+        // },
       ],
       response: [],
       Balance: [],
       collateral: [],
       Details: [],
+      AllContact: [], //所有聯絡人
+      groupContact: [], //去除重複 且須列印客戶
+      cus_data2: [], //所有客戶的姓名 交易模式
+      Account: [],//{"account_sortId":806,"customerId":"G2200739","invoice_name":"廣獲企業股份有限公司","acc_name":"廣獲企業股份有限公司"},{"account_sortId":732,"customerId":"G2100006","invoice_name":"今齊物流有限公司","acc_name":"今齊物流有限公司"}
     };
   },
+  created() {
+    this.getselectContact();
+  },
   methods: {
+    clink() {
+      (this.selectedSendMode = ""), (this.select = "");
+    },
+    async APIData() {
+      this.isLoading = true;
+      if (this.select == 1) {
+        console.log("總表");
+        try {
+          for (let i = 0; i < this.Account.length; i++) {
+            const selectcus = this.Account[i];
+            const postdata = {
+              date: this.search_month,
+              customerId: selectcus.customerId,
+              account_sortId: selectcus.account_sortId,
+            };
+
+            try {
+              const response = await axios.post(
+                "http://122.116.23.30:3346/main/accountStatement",
+                postdata
+              );
+
+              // 如果查不到資料，移除該項目
+              if (
+                response.data.data.details.length == 0 &&
+                response.data.data.product.length == 0 &&
+                response.data.data.cardIssuanceFee.length == 0
+              ) {
+                this.Account.splice(i, 1);
+                i--; // 刪除元素後，將索引減少，保證遍歷不會漏掉下一個元素
+              }
+            } catch (error) {
+              console.error("請求錯誤:", error);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching customer data:", error);
+        } finally {
+          if (this.Account.length > 0) {
+            await this.matchdata();
+          }
+          this.isLoading = false;
+        }
+      } else if (this.select == 2) {
+        try {
+          for (let i = 0; i < this.Account.length; i++) {
+            const selectcus = this.Account[i];
+            const postdata = {
+              date: this.search_month,
+              customerId: selectcus.customerId,
+              account_sortId: selectcus.account_sortId,
+            };
+
+            try {
+              const response = await axios.post(
+                "http://122.116.23.30:3346/main/accountDetails",
+                postdata
+              );
+              // 如果查不到資料，移除該項目
+              if (response.data.data.length == 0) {
+                this.Account.splice(i, 1);
+                i--; // 刪除元素後，將索引減少，保證遍歷不會漏掉下一個元素
+              }
+            } catch (error) {
+              console.error("請求錯誤:", error);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching customer data:", error);
+        } finally {
+          if (this.Account.length > 0) {
+            await this.matchdata();
+          }
+          this.isLoading = false;
+        }
+      }
+    },
+    async matchdata() {
+      for (const account of this.Account) {
+        const customerId = account.customerId;
+
+        // 找到與 Account 的 customerId 對應的 cus_data2
+        const cusData = this.cus_data2.find(
+          (cus) => cus.cus_code === customerId
+        );
+
+        if (cusData) {
+          // 創建一個新的物件，將 Account 和 cus_data2 的資料合併
+          const newAccountData = {
+            ...account, // 保留 Account 的原始資料
+            cus_name: cusData.cus_name, // 新增 cus_name
+            transaction_mode: cusData.transaction_mode, // 新增 transaction_mode
+          };
+          // 把新資料加入 cus_message 陣列
+          this.cus_message.push(newAccountData);
+        }
+      }
+    },
+    async getAccount() {
+      try {
+        for (const selectcus of this.groupContact) {
+          const postdata = {
+            customerId: selectcus.customerId,
+          };
+          const response = await axios.post(
+            "http://122.116.23.30:3347/main/searchAccount_sort",
+            postdata
+          );
+          for (let x = 0; x < response.data.data.length; x++) {
+            this.Account.push({
+              account_sortId: response.data.data[x].account_sortId,
+              customerId: response.data.data[x].customerId,
+              invoice_name: response.data.data[x].invoice_name,
+              acc_name: response.data.data[x].acc_name,
+            });
+          }
+         
+        }
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
+    async getcus() {
+      try {
+        for (const selectcus of this.groupContact) {
+          const postdata = {
+            cus_code: selectcus.customerId,
+          };
+          const response = await axios.post(
+            "http://122.116.23.30:3347/main/searchCustomer",
+            postdata
+          );
+          this.cus_data2.push({
+            cus_code: response.data.data[0].cus_code,
+            cus_name: response.data.data[0].cus_name,
+            transaction_mode: response.data.data[0].transaction_mode,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
+    async getselectContact() {
+      try {
+        this.isLoading = true; // 開始加載
+        const response = await axios.get(
+          "http://122.116.23.30:3347/main/selectContact"
+        );
+        this.AllContact = response.data.data; //全部的聯絡人
+        const uniqueCustomerIds = new Set();
+
+        this.groupContact = this.AllContact.filter(
+          (contact) => contact.billNotify === "1"
+        ) // 篩選出 billNotify === '1'
+          .filter((contact) => {
+            if (uniqueCustomerIds.has(contact.customerId)) {
+              return false; // 若 customerId 已存在，過濾掉
+            }
+            uniqueCustomerIds.add(contact.customerId); // 新增至 Set，表示已處理過
+            return true; // 保留該筆資料
+          })
+          .map((contact) => ({
+            customerId: contact.customerId, // 保留 customerId
+            billNotify: contact.billNotify, // 保留 billNotify
+          }));
+        this.groupContact.sort((a, b) => {
+          // 字串排序（假設 customerId 是字串，根據字典順序）
+          return a.customerId.localeCompare(b.customerId);
+        });
+        const cusData = this.getcus();
+        const accountData = this.getAccount();
+
+        // 等待兩者都完成
+        await cusData;
+        await accountData;
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      } finally {
+        this.isLoading = false; // 開始加載
+      }
+    },
     insertSummaryRow(worksheet, rowNum, summaryData) {
       // 插入相關欄位的數據
       worksheet.getCell(`D${rowNum}`).value = summaryData.product_name || ""; // 插入產品名稱
@@ -221,7 +422,7 @@ export default {
           const {
             customerId,
             account_sortId,
-            cusName,
+            cus_name,
             transaction_mode,
             invoice_name,
             acc_name,
@@ -239,7 +440,7 @@ export default {
             await this.expor(
               customerId,
               account_sortId,
-              cusName,
+              cus_name,
               transaction_mode,
               invoice_name,
               acc_name
@@ -247,7 +448,7 @@ export default {
           } catch (error) {
             // 如果某筆資料處理出錯，顯示錯誤訊息
             this.$message({
-              message: `${cusName} 在匯出時發生錯誤`,
+              message: `${cus_name} 在匯出時發生錯誤`,
               type: "error",
             });
             continue; // 繼續處理下一筆資料
@@ -295,7 +496,7 @@ export default {
     async expor(
       customerId,
       account_sortId,
-      cusName,
+      cus_name,
       transaction_mode,
       invoice_name,
       acc_name
@@ -319,7 +520,7 @@ export default {
         } catch (error) {
           console.error("API request failed:", error);
           this.$message({
-            message: `${cusName}_${this.search_month} 匯出失敗（帳單資料獲取錯誤）`,
+            message: `${cus_name}_${this.search_month} 匯出失敗（帳單資料獲取錯誤）`,
             type: "error",
           });
           return; // 停止執行
@@ -335,7 +536,7 @@ export default {
         } catch (error) {
           console.error("API request failed:", error);
           this.$message({
-            message: `${cusName}_${this.search_month} 匯出失敗（${
+            message: `${cus_name}_${this.search_month} 匯出失敗（${
               transaction_mode == 1 ? "月結餘額" : "擔保品資料"
             }獲取錯誤）`,
             type: "error",
@@ -355,7 +556,7 @@ export default {
         } catch (error) {
           console.error("API request failed:", error);
           this.$message({
-            message: `${cusName}_${this.search_month} 匯出失敗（帳單資料獲取錯誤）`,
+            message: `${cus_name}_${this.search_month} 匯出失敗（帳單資料獲取錯誤）`,
             type: "error",
           });
           return; // 停止執行
@@ -364,32 +565,34 @@ export default {
       // 在這裡調用匯出Excel的功能
       try {
         await this.exportToExcel(
-          cusName,
+          cus_name,
           transaction_mode,
           invoice_name,
           acc_name,
-          this.select
+          this.select,
+          customerId
         );
       } catch (error) {
         console.error("匯出Excel失敗:", error);
         this.$message({
-          message: `${cusName} 在匯出時發生錯誤`,
+          message: `${acc_name} 在匯出時發生錯誤`,
           type: "error",
         });
         return; // 停止執行
       }
       // 顯示成功訊息
       this.$message({
-        message: `${cusName} ${this.search_month} 匯出成功`,
+        message: `${this.search_month}_${customerId}_${acc_name}.xlsx 匯出成功`,
         type: "success",
       });
     },
     async exportToExcel(
-      cusName,
+      cus_name,
       transaction_mode,
       invoice_name,
       acc_name,
-      select
+      select,
+      customerId
     ) {
       try {
         // 確保資料先完成取得
@@ -435,7 +638,15 @@ export default {
             const payment_deadline = `每月${this.collateral.remittance_date}日`; //月結繳款期限
             const config_notes = this.collateral.config_notes; //擔保品
             const data4 = this.response.product;
-            const data5 = this.response.cardIssuanceFee
+            const sortOrder = ["超級柴油", "無鉛汽油", "尿素溶液", "諾瓦尿素"];
+
+            // 使用自定義排序邏輯
+            data4.sort((a, b) => {
+              const indexA = sortOrder.indexOf(a.product_name);
+              const indexB = sortOrder.indexOf(b.product_name);
+              return indexA - indexB;
+            });
+            const data5 = this.response.cardIssuanceFee;
             const summary_data = this.response.details.map((row) => [
               formattedMonth,
               row.license_plate,
@@ -448,8 +659,8 @@ export default {
             ]);
             //公司資訊
             let rowstitle = [
-              [`期別：${this.search_month}`],
-              [`公司名稱：${cusName}`],
+              [`帳單期別：${this.search_month}`],
+              [`公司名稱：${cus_name}`],
               [`發票抬頭：${invoice_name}`],
               [`帳單組別：${acc_name}`],
             ];
@@ -525,7 +736,13 @@ export default {
                 const cell = worksheet.getCell(
                   `${String.fromCharCode(col)}${row}`
                 );
-                cell.numFmt = "#,##0";
+                if (col == 68) {
+                  cell.numFmt = "#,##0.00";
+                } else if (col == 72) {
+                  cell.numFmt = "#,##0.00";
+                } else {
+                  cell.numFmt = "#,##0";
+                }
               }
             }
             // 居中對齊
@@ -591,6 +808,7 @@ export default {
               const tableStartRef = `C${lastRowNum + 2 + x}`;
               const cell = worksheet.getCell(tableStartRef);
               cell.value = parseFloat(data4[x].fuel_volume);
+              cell.numFmt = "#,##0.00";
               cell.alignment = { horizontal: "right" };
             }
             //牌價
@@ -635,119 +853,137 @@ export default {
               bottom: { style: "thin", color: { argb: "C0C0C0" } },
               right: { style: "thin", color: { argb: "C0C0C0" } },
             };
-              //製卡資料
-      if (data5.length > 0) {
-        const thelastrow = lastrow + 2
-        const header3 = ['製作日期', '車牌號碼', '車隊卡卡號', '製卡類別', '製卡費用']
-        // 使用 String.fromCharCode() 將列編號轉成字母
+            //製卡資料
+            if (data5.length > 0) {
+              const thelastrow = lastrow + 2;
+              const header3 = [
+                "製作日期",
+                "車牌號碼",
+                "車隊卡卡號",
+                "製卡類別",
+                "製卡費用",
+              ];
+              // 使用 String.fromCharCode() 將列編號轉成字母
 
-        const endRow3 = thelastrow + data5.length // 結束行+標題
+              const endRow3 = thelastrow + data5.length; // 結束行+標題
 
-        for (let row = thelastrow; row <= endRow3; row++) {
-          for (let col = startCol.charCodeAt(0); col <= 71; col++) {
-            const cell = worksheet.getCell(`${String.fromCharCode(col)}${row}`)
-            if (col != 65) {
-              if (col % 2 == 1) {
-                worksheet.mergeCells(
-                  `${String.fromCharCode(col)}${row}:${String.fromCharCode(col + 1)}${row}`
-                )
+              for (let row = thelastrow; row <= endRow3; row++) {
+                for (let col = startCol.charCodeAt(0); col <= 71; col++) {
+                  const cell = worksheet.getCell(
+                    `${String.fromCharCode(col)}${row}`
+                  );
+                  if (col != 65) {
+                    if (col % 2 == 1) {
+                      worksheet.mergeCells(
+                        `${String.fromCharCode(
+                          col
+                        )}${row}:${String.fromCharCode(col + 1)}${row}`
+                      );
+                    }
+                  }
+                  cell.numFmt = "#,##0";
+                  cell.border = {
+                    top: { style: "thin", color: { argb: "C0C0C0" } },
+                    left: { style: "thin", color: { argb: "C0C0C0" } },
+                    bottom: { style: "thin", color: { argb: "C0C0C0" } },
+                    right: { style: "thin", color: { argb: "C0C0C0" } },
+                  };
+                }
               }
-            }
-            cell.numFmt = '#,##0'
-            cell.border = {
-              top: { style: 'thin', color: { argb: 'C0C0C0' } },
-              left: { style: 'thin', color: { argb: 'C0C0C0' } },
-              bottom: { style: 'thin', color: { argb: 'C0C0C0' } },
-              right: { style: 'thin', color: { argb: 'C0C0C0' } }
-            }
-          }
-        }
 
-        // 插入表頭
-        function setCellStyle(cell, value, bold = true, align = 'center', bgColor = 'f2f2f2') {
-          cell.value = value
-          cell.alignment = { horizontal: align }
-          cell.font = { bold: bold }
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: bgColor }
-          }
-        }
-        const getA = worksheet.getCell(`A${thelastrow}`)
-        const getB = worksheet.getCell(`B${thelastrow}`)
-        const getC = worksheet.getCell(`C${thelastrow}`)
-        const getE = worksheet.getCell(`E${thelastrow}`)
-        const getG = worksheet.getCell(`G${thelastrow}`)
-        setCellStyle(getA, header3[0])
-        setCellStyle(getB, header3[1])
-        setCellStyle(getC, header3[2])
-        setCellStyle(getE, header3[3])
-        setCellStyle(getG, header3[4])
-        //製卡資料
-        //製作日期
-        for (let x = 0; x <= data5.length - 1; x++) {
-          const tableStartRef = `A${thelastrow + 1 + x}`
-          const cell = worksheet.getCell(tableStartRef)
-          cell.value = data5[x].credit_amount
-          cell.alignment = { horizontal: 'center' }
-        }
-        //車牌號碼
-        for (let x = 0; x <= data5.length - 1; x++) {
-          const tableStartRef = `B${thelastrow + 1 + x}`
-          const cell = worksheet.getCell(tableStartRef)
-          cell.value = data5[x].bank_amount
-          cell.alignment = { horizontal: 'center' }
-        }
-        //車隊卡卡號
-        for (let x = 0; x <= data5.length - 1; x++) {
-          const tableStartRef = `C${thelastrow + 1 + x}`
-          const cell = worksheet.getCell(tableStartRef)
-          cell.value = data5[x].credit_card_data
-          cell.alignment = { horizontal: 'center' }
-        }
-        //製卡類別
-        for (let x = 0; x <= data5.length - 1; x++) {
-          const tableStartRef = `E${thelastrow + 1 + x}`
-          const cell = worksheet.getCell(tableStartRef)
-          cell.value = data5[x].bank
-          cell.alignment = { horizontal: 'center' }
-        }
-        //製卡費用
-        for (let x = 0; x <= data5.length - 1; x++) {
-          const tableStartRef = `G${thelastrow + 1 + x}`
-          const cell = worksheet.getCell(tableStartRef)
-          cell.value = Number(data5[x].amount)
-          cell.numFmt = '#,##0'
-        }
+              // 插入表頭
+              function setCellStyle(
+                cell,
+                value,
+                bold = true,
+                align = "center",
+                bgColor = "f2f2f2"
+              ) {
+                cell.value = value;
+                cell.alignment = { horizontal: align };
+                cell.font = { bold: bold };
+                cell.fill = {
+                  type: "pattern",
+                  pattern: "solid",
+                  fgColor: { argb: bgColor },
+                };
+              }
+              const getA = worksheet.getCell(`A${thelastrow}`);
+              const getB = worksheet.getCell(`B${thelastrow}`);
+              const getC = worksheet.getCell(`C${thelastrow}`);
+              const getE = worksheet.getCell(`E${thelastrow}`);
+              const getG = worksheet.getCell(`G${thelastrow}`);
+              setCellStyle(getA, header3[0]);
+              setCellStyle(getB, header3[1]);
+              setCellStyle(getC, header3[2]);
+              setCellStyle(getE, header3[3]);
+              setCellStyle(getG, header3[4]);
+              //製卡資料
+              //製作日期
+              for (let x = 0; x <= data5.length - 1; x++) {
+                const tableStartRef = `A${thelastrow + 1 + x}`;
+                const cell = worksheet.getCell(tableStartRef);
+                cell.value = data5[x].credit_amount;
+                cell.alignment = { horizontal: "center" };
+              }
+              //車牌號碼
+              for (let x = 0; x <= data5.length - 1; x++) {
+                const tableStartRef = `B${thelastrow + 1 + x}`;
+                const cell = worksheet.getCell(tableStartRef);
+                cell.value = data5[x].bank_amount;
+                cell.alignment = { horizontal: "center" };
+              }
+              //車隊卡卡號
+              for (let x = 0; x <= data5.length - 1; x++) {
+                const tableStartRef = `C${thelastrow + 1 + x}`;
+                const cell = worksheet.getCell(tableStartRef);
+                cell.value = data5[x].credit_card_data;
+                cell.alignment = { horizontal: "center" };
+              }
+              //製卡類別
+              for (let x = 0; x <= data5.length - 1; x++) {
+                const tableStartRef = `E${thelastrow + 1 + x}`;
+                const cell = worksheet.getCell(tableStartRef);
+                cell.value = data5[x].bank;
+                cell.alignment = { horizontal: "center" };
+              }
+              //製卡費用
+              for (let x = 0; x <= data5.length - 1; x++) {
+                const tableStartRef = `G${thelastrow + 1 + x}`;
+                const cell = worksheet.getCell(tableStartRef);
+                cell.value = Number(data5[x].amount);
+                cell.numFmt = "#,##0";
+              }
 
-        //合計
-        const totalAmount2 = data5.reduce((sum, item) => {
-          // 這裡會加總每個 item 的 amount
-          return sum + parseFloat(item.amount) // 確保 amount 是數字
-        }, 0) // 初始總和是 0
-        const lastrow2 = thelastrow + data5.length + 1
-        worksheet.mergeCells(`A${lastrow2}:F${lastrow2}`)
-        worksheet.mergeCells(`G${lastrow2}:H${lastrow2}`)
-        worksheet.getCell(`A${lastrow2}`).value = '合計'
-        worksheet.getCell(`G${lastrow2}`).value = Number(totalAmount2)
-        worksheet.getCell(`A${lastrow2}`).font = { bold: true }
-        worksheet.getCell(`G${lastrow2}`).font = { bold: true }
-        worksheet.getCell(`A${lastrow2}`).alignment = { horizontal: 'right' }
-        worksheet.getCell(`G${lastrow2}`).numFmt = '#,##0'
-        worksheet.getCell(`A${lastrow2}`).border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' }
-        }
-        worksheet.getCell(`G${lastrow2}`).border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' }
-        }
-      }
+              //合計
+              const totalAmount2 = data5.reduce((sum, item) => {
+                // 這裡會加總每個 item 的 amount
+                return sum + parseFloat(item.amount); // 確保 amount 是數字
+              }, 0); // 初始總和是 0
+              const lastrow2 = thelastrow + data5.length + 1;
+              worksheet.mergeCells(`A${lastrow2}:F${lastrow2}`);
+              worksheet.mergeCells(`G${lastrow2}:H${lastrow2}`);
+              worksheet.getCell(`A${lastrow2}`).value = "合計";
+              worksheet.getCell(`G${lastrow2}`).value = Number(totalAmount2);
+              worksheet.getCell(`A${lastrow2}`).font = { bold: true };
+              worksheet.getCell(`G${lastrow2}`).font = { bold: true };
+              worksheet.getCell(`A${lastrow2}`).alignment = {
+                horizontal: "right",
+              };
+              worksheet.getCell(`G${lastrow2}`).numFmt = "#,##0";
+              worksheet.getCell(`A${lastrow2}`).border = {
+                top: { style: "thin" },
+                left: { style: "thin" },
+                bottom: { style: "thin" },
+                right: { style: "thin" },
+              };
+              worksheet.getCell(`G${lastrow2}`).border = {
+                top: { style: "thin" },
+                left: { style: "thin" },
+                bottom: { style: "thin" },
+                right: { style: "thin" },
+              };
+            }
             // 字型
             worksheet.eachRow((row) => {
               row.eachCell((cell) => {
@@ -800,13 +1036,13 @@ export default {
               };
             }
             // 保存到新的文件
-            newFileName = `${cusName}_${this.search_month}對帳單總表.xlsx`;
+            newFileName = `${this.search_month}總表_${customerId}_${acc_name}.xlsx`;
             buffer = await workbook.xlsx.writeBuffer();
           } else if (select == 2) {
             //公司資訊
             let rowstitle = [
               [this.search_month],
-              [cusName],
+              [cus_name],
               [invoice_name],
               [acc_name],
             ];
@@ -850,6 +1086,15 @@ export default {
                   }`;
                   const cell = worksheet.getCell(cellAddress);
                   cell.value = cellData; // 將數據插入單元格
+                  if (colIndex == 4) {
+                    cell.numFmt = "#,##0.0";
+                  } else if (colIndex == 5) {
+                    cell.numFmt = "#,##0.00";
+                  } else if (colIndex == 6) {
+                    cell.numFmt = "#,##0.0";
+                  } else {
+                    cell.numFmt = "#,##0";
+                  }
                 });
               }
             });
@@ -888,7 +1133,7 @@ export default {
               }
             });
             // 保存到新的文件
-            newFileName = `${cusName}_${this.search_month}對帳單明細.xlsx`;
+            newFileName = `${this.search_month}明細_${customerId}_${acc_name}.xlsx`;
             buffer = await workbook.xlsx.writeBuffer();
           }
 

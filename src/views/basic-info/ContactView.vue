@@ -1,32 +1,55 @@
 <template>
-    <ListBar/>
-    <div class="page-title"><h2>{{ pageTitle }}</h2></div>
-    <div>
-      <BreadCrumb :isSpecialPage="true"/>
-    </div>
-    <el-button type="primary" @click="dialog = true">新增聯絡人</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
-    <div class="table-container">
-      <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="job_title" label="職稱"></el-table-column>
-        <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
-        <el-table-column prop="name" label="姓名"></el-table-column>
-        <el-table-column prop="mobile" label="手機/電話"></el-table-column>
-        <el-table-column prop="mail" label="E-MAIL"></el-table-column>
-        <el-table-column prop="messageNotify" label="訊息通知" :formatter="format"></el-table-column>
-        <el-table-column prop="billNotify" label="帳單通知" :formatter="format2"></el-table-column>
-        <el-table-column prop="notes" label="備註"></el-table-column>
-        <el-table-column label="操作">
+  <ListBar />
+  <div class="page-title">
+    <h2>{{ pageTitle }}</h2>
+  </div>
+  <div>
+    <BreadCrumb :isSpecialPage="true" />
+  </div>
+  <el-button type="primary" @click="dialog = true">新增聯絡人</el-button>
+  <div class="page-title">
+    <h5>
+      客戶代號:
+      <h4>{{ this.cus_code }}</h4>
+      客戶名稱:
+      <h4>{{ this.cus_name }}</h4>
+    </h5>
+  </div>
+  <div class="table-container">
+    <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
+      <el-table-column prop="job_title" label="職稱"></el-table-column>
+      <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
+      <el-table-column prop="name" label="姓名"></el-table-column>
+      <el-table-column prop="mobile" label="手機/電話"></el-table-column>
+      <el-table-column prop="mail" label="聯絡E-MAIL"></el-table-column>
+      <el-table-column
+        prop="isLine"
+        label="是否綁定Line"
+        style="width: 50px"
+        :formatter="format3"
+      ></el-table-column>
+      <el-table-column
+        prop="messageNotify"
+        label="訊息通知"
+        :formatter="format"
+      ></el-table-column>
+      <el-table-column
+        prop="billNotify"
+        label="帳單通知"
+        :formatter="format2"
+      ></el-table-column>
+      <el-table-column prop="notes" label="備註"></el-table-column>
+      <el-table-column label="操作">
         <template v-slot="scope">
-        <div class="action-icons">
-          <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
-          <i class="fas fa-edit " @click="editItem(scope.row)"></i>
-          <!-- <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i> -->
-        </div>
-      </template>
+          <div class="action-icons">
+            <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
+            <i class="fas fa-edit" @click="editItem(scope.row)"></i>
+            <!-- <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i> -->
+          </div>
+        </template>
       </el-table-column>
     </el-table>
-      <div class="pagination-container">
+    <div class="pagination-container">
       <div class="pagination-info">
         Showing {{ startItem }} to {{ endItem }} of {{ contact.length }}
       </div>
@@ -39,12 +62,18 @@
         class="pagination"
       />
     </div>
-      <!-- 新增聯絡人 -->
-      <el-dialog title="新增聯絡人" v-model="dialog" width="50%" :close-on-click-modal="false">
-        <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
-          <el-row style="margin-bottom: 20px">
+    <!-- 新增聯絡人 -->
+    <el-dialog
+      title="新增聯絡人"
+      v-model="dialog"
+      width="50%"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="form" label-width="120px">
+        <!-- 统一標籤寬度 -->
+        <el-row style="margin-bottom: 20px">
           <el-form-item label="職稱">
-             <el-input v-model="form.job_title" ></el-input>
+            <el-input v-model="form.job_title"></el-input>
           </el-form-item>
           <!-- <el-form-item label="性別">
             <el-select v-model="form.gender" placeholder="選擇性別">
@@ -53,57 +82,70 @@
           </el-select>
         </el-form-item> -->
           <el-form-item label="姓名">
-            <el-input v-model="form.name" ></el-input>
+            <el-input v-model="form.name"></el-input>
           </el-form-item>
           <el-form-item label="備註">
-            <el-input v-model="form.notes" ></el-input>
+            <el-input v-model="form.notes"></el-input>
           </el-form-item>
         </el-row>
         <el-row style="margin-bottom: 20px">
-          <el-form-item label="訊息通知" >
-            <el-select v-model="form.messageNotify" placeholder="選擇" @change="FileChange">
+          <el-form-item label="聯絡E-MAIL">
+            <el-input v-model="form.mail"></el-input>
+          </el-form-item>
+          <el-form-item label="電話/手機">
+            <el-input
+              v-model="form.mobile"
+              @input="validatePhone"
+              maxlength="10"
+            ></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="訊息通知">
+            <el-select v-model="form.messageNotify" placeholder="選擇">
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="手機" :value="'1'"></el-option>
               <!-- <el-option label="line" :value="'2'"></el-option> -->
               <el-option label="mail" :value="'3'"></el-option>
             </el-select>
-        </el-form-item>
-        <el-form-item label="帳單通知" >
-            <el-select v-model="form.billNotify" placeholder="選擇"  @change="FileChange">
+          </el-form-item>
+          <el-form-item label="帳單通知">
+            <el-select v-model="form.billNotify" placeholder="選擇">
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="寄送" :value="'1'"></el-option>
               <!-- <el-option label="line" :value="'2'"></el-option> -->
               <el-option label="mail" :value="'3'"></el-option>
             </el-select>
-        </el-form-item>
-      </el-row>
-      <el-row style="margin-bottom: 20px">
-          <el-form-item label="E-MAIL" v-if="ismail">
-            <el-input v-model="form.mail" ></el-input>
-          </el-form-item>
-          <el-form-item label="電話/手機" v-if="ismobile">
-            <el-input v-model="form.mobile" @input="validatePhone" maxlength="10" ></el-input>
           </el-form-item>
         </el-row>
-         
-          
-        </el-form>
-        <template v-slot:footer>
-          <div  class="dialog-footer">
-            <el-button @click="dialog = false">取消</el-button>
-            <el-button type="primary" @click="savePass">送出</el-button>
-          </div>
-        </template>
-      </el-dialog>
-    </div>
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="訊息通知E-MAIL" v-if="form.messageNotify == 3">
+            <el-input v-model="form.messageMail"></el-input>
+          </el-form-item>
+          <el-form-item
+            label="帳單地址/Mail"
+            v-if="form.billNotify == 1 || form.billNotify == 3"
+          >
+            <el-input v-model="form.billMail"></el-input>
+          </el-form-item>
+        </el-row>
+      </el-form>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <el-button @click="dialog = false">取消</el-button>
+          <el-button type="primary" @click="savePass">送出</el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
-import ListBar from '@/components/ListBar.vue';
-import BreadCrumb from '@/components/BreadCrumb.vue';
-import TablePaginated from '@/components/TablePaginated.vue';
-import axios from 'axios';
-import { toRaw } from 'vue';
+import ListBar from "@/components/ListBar.vue";
+import BreadCrumb from "@/components/BreadCrumb.vue";
+import TablePaginated from "@/components/TablePaginated.vue";
+import axios from "axios";
+import { toRaw } from "vue";
 
 export default {
   components: {
@@ -114,46 +156,43 @@ export default {
 
   data() {
     return {
-      ismobile:false,
-      ismail:false,
-      loading:false,
-      cus_code:'',
-      cus_name:'',
+      ismobile: false,
+      ismail: false,
+      loading: false,
+      cus_code: "",
+      cus_name: "",
       dialog: false,
       contact: [],
       form: {
-        customerId:'',
-        job_title:'',
-        gender:'',
-        name:'',
-        mobile:'',
-        mail:'',
-        notes:''
+      createTime:'',
       },
       type: {
-        '0': '無',
-        '1': '手機',
-        '2': 'Line',
-        '3': 'Mail',
-      } ,
+        0: "無",
+        1: "手機",
+        2: "Line",
+        3: "Mail",
+      },
       type2: {
-        '0': '無',
-        '1': '寄送',
-        '2': 'Line',
-        '3': 'Mail',
-      } ,
+        0: "無",
+        1: "寄送",
+        2: "Line",
+        3: "Mail",
+      },
+      type3: {
+        0: "X",
+        1: "V",
+      },
       currentPage: 1,
-      pageSize: 10
+      pageSize: 10,
     };
   },
   created() {
-    this.cus_code = (this.$route.query.cus_code);
-    this.cus_name = (this.$route.query.cus_name);
+    this.cus_code = this.$route.query.cus_code;
+    this.cus_name = this.$route.query.cus_name;
     this.form.customerId = this.cus_code;
     this.getselectData();
-},
+  },
   computed: {
-
     paginatedData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
@@ -164,51 +203,86 @@ export default {
     },
     endItem() {
       return Math.min(this.currentPage * this.pageSize, this.contact.length);
-    }
+    },
   },
   methods: {
     validatePhone(value) {
-  // 僅保留數字，限制最大長度 10
-  this.form.mobile = value.replace(/\D/g, '').slice(0, 10);
-},
+      // 僅保留數字，限制最大長度 10
+      this.form.mobile = value.replace(/\D/g, "").slice(0, 10);
+    },
     format(messageNotify) {
       const type = toRaw(messageNotify);
-      return this.type[type.messageNotify] || '未知';
+      return this.type[type.messageNotify] || "未知";
     },
     format2(billNotify) {
       const type = toRaw(billNotify);
-      return this.type2[type.billNotify] || '未知';
+      return this.type2[type.billNotify] || "未知";
     },
-    FileChange(){
-      if(this.form.messageNotify=='3'||this.form.billNotify=='3'){
-        this.ismail=true
-      }else{
-        this.ismail=false
-      }
-      if(this.form.messageNotify=='1'){
-        this.ismobile=true
-      }else{
-        this.ismobile=false
-      }
+    format3(isLine) {
+      const type = toRaw(isLine);
+      return this.type3[type.isLine] || "未知";
     },
+    // FileChange(){
+    //   if(this.form.messageNotify=='3'||this.form.billNotify=='3'){
+    //     this.ismail=true
+    //   }else{
+    //     this.ismail=false
+    //   }
+    //   if(this.form.messageNotify=='1'){
+    //     this.ismobile=true
+    //   }else{
+    //     this.ismobile=false
+    //   }
+    // },
     async getselectData() {
-      this.loading = true;  // 開始加載
+      this.loading = true; // 開始加載
       const postData = {
-      customerId:this.cus_code,
+        customerId: this.cus_code,
       };
-      await axios.post('http://122.116.23.30:3347/main/searchContact',postData)
-        .then(response => {
+      await axios
+        .post("http://122.116.23.30:3347/main/searchContact", postData)
+        .then((response) => {
           this.contact = response.data.data;
-          this.loading = false;  // 請求完成後關閉加載狀態
+          this.loading = false; // 請求完成後關閉加載狀態
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-          console.error('API request failed:', error);
+          console.error("API request failed:", error);
         });
     },
     savePass() {
       const req = this.form;
-      
+      if (!this.form.name) {
+        this.$message({
+          message: "姓名不可為空",
+          type: "warning",
+        });
+        return;
+      }
+      if (this.form.messageNotify == 1 && !this.form.mobile) {
+        this.$message({
+          message: "簡訊方式通知 手機欄位不可為空",
+          type: "warning",
+        });
+        return;
+      }
+      if (this.form.messageNotify == 3 && !this.form.messageMail) {
+        this.$message({
+          message: "Mail方式通知 訊息通知E-MAIL欄位不可為空",
+          type: "warning",
+        });
+        return;
+      }
+      if (
+        (this.form.billNotify == 1 || this.form.billNotify == 3) &&
+        !this.form.billMail
+      ) {
+        this.$message({
+          message: "寄送/Mail方式通知 帳單地址/Mail欄位不可為空",
+          type: "warning",
+        });
+        return;
+      }
       // 發送 POST 請求
       axios.post('http://122.116.23.30:3347/main/createContact', req)
         .then(response => {
@@ -218,15 +292,9 @@ export default {
               message: '新增成功',
               type: 'success'
             });
-          
-            // 清空表單
-            this.form.job_title = '';
-            this.form.gender = '';
-            this.form.name = '';
-            this.form.mobile = '';
-            this.form.mail = '';
-            this.form.notes = '';
 
+            // 清空表單
+            this.form = '';
             // 關閉對話框
             this.dialog = false;
 
@@ -248,29 +316,28 @@ export default {
           });
           console.error('Error:', error);
         });
-    }, 
+    },
     handlePageChange(page) {
       this.currentPage = page;
     },
-  
+
     editItem(row) {
-      this.$router.push({ 
-        path: 'UpdateView',
+      this.$router.push({
+        path: "UpdateView",
         query: {
-          rowType:'2',
-          cus_code:this.cus_code,
-          cus_name:this.cus_name,
-          rowData: JSON.stringify(row)
-        }
+          rowType: "2",
+          cus_code: this.cus_code,
+          cus_name: this.cus_name,
+          rowData: JSON.stringify(row),
+        },
       });
     },
-    
-  }
+  },
 };
 </script>
 
 <style scoped>
-.el-select{
+.el-select {
   width: 175px;
 }
 .pagination-container {
@@ -293,7 +360,7 @@ export default {
   margin-bottom: 30px;
 }
 .page-title h4 {
-    color: #f5bd04;
+  color: #f5bd04;
 }
 .filters {
   display: flex;
@@ -315,10 +382,10 @@ export default {
   min-width: 900px;
 }
 
-.el-table th, .el-table td {
+.el-table th,
+.el-table td {
   white-space: nowrap;
 }
-
 
 .action-icons {
   display: flex;

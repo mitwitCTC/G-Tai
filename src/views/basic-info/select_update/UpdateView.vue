@@ -378,7 +378,7 @@
             ></el-input>
           </el-form-item>
           <el-form-item label="E-MAIL">
-            <el-input v-model="rowData.mail"></el-input>
+            <el-input v-model="rowData.billMail"></el-input>
           </el-form-item>
           <el-form-item label="備註">
             <el-input v-model="rowData.notes"></el-input>
@@ -1014,35 +1014,36 @@ export default {
           });
       } else if (this.rowType === "2") {
         const req = this.rowData;
-        axios
-          .post("http://122.116.23.30:3347/main/updateContact", req)
-          .then((response) => {
-            if (response.status === 200 && response.data.returnCode == 0) {
-              // 成功提示
-              this.$message({
-                message: "更新成功",
-                type: "success",
-              });
-              // 刷新數據
-              setTimeout(() => {
-                window.history.back();
-              }, 2000); // 3000 毫秒 = 3 秒
-            } else {
-              // 處理非 0 成功代碼
-              this.$message({
-                message: "更新失敗",
-                type: "error",
-              });
-            }
-          })
-          .catch((error) => {
-            // 發生錯誤時，顯示錯誤提示
-            this.$message({
-              message: " 更新失敗，伺服器錯誤",
-              type: "error",
-            });
-            console.error("Error:", error);
-          });
+        console.log(JSON.stringify(req))
+        // axios
+        //   .post("http://122.116.23.30:3347/main/updateContact", req)
+        //   .then((response) => {
+        //     if (response.status === 200 && response.data.returnCode == 0) {
+        //       // 成功提示
+        //       this.$message({
+        //         message: "更新成功",
+        //         type: "success",
+        //       });
+        //       // 刷新數據
+        //       setTimeout(() => {
+        //         window.history.back();
+        //       }, 2000); // 3000 毫秒 = 3 秒
+        //     } else {
+        //       // 處理非 0 成功代碼
+        //       this.$message({
+        //         message: "更新失敗",
+        //         type: "error",
+        //       });
+        //     }
+        //   })
+        //   .catch((error) => {
+        //     // 發生錯誤時，顯示錯誤提示
+        //     this.$message({
+        //       message: " 更新失敗，伺服器錯誤",
+        //       type: "error",
+        //     });
+        //     console.error("Error:", error);
+        //   });
       } else if (this.rowType === "6") {
         const req = this.rowData;
         axios
