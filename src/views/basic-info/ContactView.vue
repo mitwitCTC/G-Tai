@@ -164,7 +164,7 @@ export default {
       dialog: false,
       contact: [],
       form: {
-      createTime:'',
+        createTime: "",
       },
       type: {
         0: "無",
@@ -222,18 +222,7 @@ export default {
       const type = toRaw(isLine);
       return this.type3[type.isLine] || "未知";
     },
-    // FileChange(){
-    //   if(this.form.messageNotify=='3'||this.form.billNotify=='3'){
-    //     this.ismail=true
-    //   }else{
-    //     this.ismail=false
-    //   }
-    //   if(this.form.messageNotify=='1'){
-    //     this.ismobile=true
-    //   }else{
-    //     this.ismobile=false
-    //   }
-    // },
+
     async getselectData() {
       this.loading = true; // 開始加載
       const postData = {
@@ -284,17 +273,18 @@ export default {
         return;
       }
       // 發送 POST 請求
-      axios.post('http://122.116.23.30:3347/main/createContact', req)
-        .then(response => {
+      axios
+        .post("http://122.116.23.30:3347/main/createContact", req)
+        .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
-              message: '新增成功',
-              type: 'success'
+              message: "新增成功",
+              type: "success",
             });
 
             // 清空表單
-            this.form = '';
+            this.form = "";
             // 關閉對話框
             this.dialog = false;
 
@@ -303,18 +293,18 @@ export default {
           } else {
             // 處理非 0 成功代碼
             this.$message({
-              message: '新增失敗',
-              type: 'error'
+              message: "新增失敗",
+              type: "error",
             });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           // 發生錯誤時，顯示錯誤提示
           this.$message({
-            message: '新增失敗，伺服器錯誤',
-            type: 'error'
+            message: "新增失敗，伺服器錯誤",
+            type: "error",
           });
-          console.error('Error:', error);
+          console.error("Error:", error);
         });
     },
     handlePageChange(page) {

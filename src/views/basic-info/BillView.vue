@@ -10,15 +10,16 @@
     <div class="table-container">
       <el-table :data="currentPageData" style="width: 100%" v-loading="loading">
         <!-- <el-table-column prop="account_sortId" label="帳單編號" width="150" /> -->
-        <el-table-column prop="acc_name" label="帳單名稱" width="200" />
-        <el-table-column prop="use_number" label="開立統編" width="150" />
-        <el-table-column prop="recipient_name" label="收件人姓名" width="300" />
+        <el-table-column prop="acc_name" label="帳單名稱" width="400" />
+        <el-table-column prop="use_number" label="開立統編" width="400" />
+        <el-table-column prop="invoice_name" label="開立抬頭" width="400" />
+        <!-- <el-table-column prop="recipient_name" label="收件人姓名" width="300" />
         <el-table-column prop="billing_method" label="寄送方式" :formatter="formatbilling_method"  width="150" />
-        <el-table-column prop="address_email" label="收件地址/Mail"width="300" />
+        <el-table-column prop="address_email" label="收件地址/Mail"width="300" /> -->
         <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
-            <i class="fas fa-eye " @click="viewDetails(scope.row)"></i>
+            <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
             <i class="fas fa-edit " @click="editItem(scope.row)"></i>
             <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
           </div>
@@ -105,12 +106,12 @@
           <!-- <el-form-item label="發票開立人名稱">
             <el-input v-model="billform.invoice_name" ></el-input>
           </el-form-item> -->
-          <el-form-item label="發票開立人名稱">
+          <el-form-item label="發票抬頭">
           <el-select  v-model="billform.invoice_name"
           filterable
           allow-create
           clearable
-          placeholder="請輸入開立人姓名">
+          placeholder="請輸入發票抬頭">
             <el-option
               v-for="bill in uniqueNameBills"
               :key="bill.account_sortId "
@@ -119,7 +120,7 @@
           ></el-option>
           </el-select>
         </el-form-item>
-          <el-form-item label="帳單寄送方式">
+          <!-- <el-form-item label="帳單寄送方式">
           <el-select v-model="billform.billing_method" placeholder="選擇方式">
             <el-option label="MAIL" :value="1"></el-option>
             <el-option label="平信" :value="2"></el-option>
@@ -151,9 +152,9 @@
           ></el-option>
           </el-select>
         </el-form-item>
-        <!-- <el-form-item label="帳單聯絡人">
+        <el-form-item label="帳單聯絡人">
          <el-input v-model="billform.acc_contact" ></el-input>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="帳單聯絡人">
           <el-select  v-model="billform.acc_contact"
           filterable
@@ -173,7 +174,7 @@
         </el-form-item>
         <el-form-item label="對帳單注意事項" style="width: 1000px">
           <el-input v-model="billform.statement_remarks" type="textarea" ></el-input>
-        </el-form-item>
+        </el-form-item> -->
       </el-row>
     </el-form>
     <template v-slot:footer>
@@ -433,6 +434,12 @@ export default {
     },
 
     savePassbill() {
+      if((!this.billform.invoice_name)|| (! this.billform.use_number)||(!this. billform.acc_name)){
+        this.$message({
+              message: '欄位不得為空',
+              type: 'warning'
+            });
+      }
       const req = this.billform;
       //發送 POST 請求
       axios.post('http://122.116.23.30:3347/main/createAccount_sort', req)

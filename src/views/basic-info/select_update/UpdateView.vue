@@ -378,10 +378,44 @@
             ></el-input>
           </el-form-item>
           <el-form-item label="E-MAIL">
-            <el-input v-model="rowData.billMail"></el-input>
+            <el-input v-model="rowData.mail"></el-input>
           </el-form-item>
           <el-form-item label="備註">
             <el-input v-model="rowData.notes"></el-input>
+          </el-form-item>
+        </el-row>
+
+        <el-row style="margin-bottom: 20px; width: 1000px">
+          <el-form-item label="訊息通知">
+            <el-select v-model="rowData.messageNotify" placeholder="選擇">
+              <el-option label="無" :value="'0'"></el-option>
+              <el-option label="手機" :value="'1'"></el-option>
+              <!-- <el-option label="line" :value="'2'"></el-option> -->
+              <el-option label="mail" :value="'3'"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="帳單通知">
+            <el-select v-model="rowData.billNotify" placeholder="選擇">
+              <el-option label="無" :value="'0'"></el-option>
+              <el-option label="寄送" :value="'1'"></el-option>
+              <!-- <el-option label="line" :value="'2'"></el-option> -->
+              <el-option label="mail" :value="'3'"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+
+        <el-row style="margin-bottom: 20px">
+          <el-form-item
+            label="訊息通知E-MAIL"
+            v-if="rowData.messageNotify == 3"
+          >
+            <el-input v-model="rowData.messageMail"></el-input>
+          </el-form-item>
+          <el-form-item
+            label="帳單地址/Mail"
+            v-if="rowData.billNotify == 1 || rowData.billNotify == 3"
+          >
+            <el-input v-model="rowData.billMail"></el-input>
           </el-form-item>
         </el-row>
       </el-form-item>
@@ -401,7 +435,7 @@
         <el-form-item label="發票開立人名稱">
           <el-input v-model="bills_form.invoice_name"></el-input>
         </el-form-item>
-        <el-form-item label="帳單寄送方式">
+        <!-- <el-form-item label="帳單寄送方式">
           <el-select v-model="bills_form.billing_method" placeholder="選擇方式">
             <el-option label="0.不需要" :value="'0'"></el-option>
             <el-option label="1.MAIL" :value="'1'"></el-option>
@@ -445,7 +479,7 @@
               type="textarea"
             ></el-input>
           </el-form-item>
-        </el-row>
+        </el-row> -->
       </el-form-item>
 
       <!-- 折讓資料 -->
@@ -891,7 +925,7 @@ export default {
               });
               // 刷新數據
               setTimeout(() => {
-                window.location.reload();
+                window.history.back();
               }, 2000); // 3000 毫秒 = 3 秒
             } else {
               // 處理非 0 成功代碼
@@ -1013,37 +1047,42 @@ export default {
             console.error("Error:", error);
           });
       } else if (this.rowType === "2") {
+        if (this.rowData.messageNotify != 3) {
+          this.rowData.messageMail = "";
+        }
+        if ((this.rowData.billNotify != 1) && (this.rowData.billNotify != 3)) {
+          this.rowData.billMail = "";
+        }
         const req = this.rowData;
-        console.log(JSON.stringify(req))
-        // axios
-        //   .post("http://122.116.23.30:3347/main/updateContact", req)
-        //   .then((response) => {
-        //     if (response.status === 200 && response.data.returnCode == 0) {
-        //       // 成功提示
-        //       this.$message({
-        //         message: "更新成功",
-        //         type: "success",
-        //       });
-        //       // 刷新數據
-        //       setTimeout(() => {
-        //         window.history.back();
-        //       }, 2000); // 3000 毫秒 = 3 秒
-        //     } else {
-        //       // 處理非 0 成功代碼
-        //       this.$message({
-        //         message: "更新失敗",
-        //         type: "error",
-        //       });
-        //     }
-        //   })
-        //   .catch((error) => {
-        //     // 發生錯誤時，顯示錯誤提示
-        //     this.$message({
-        //       message: " 更新失敗，伺服器錯誤",
-        //       type: "error",
-        //     });
-        //     console.error("Error:", error);
-        //   });
+        axios
+          .post("http://122.116.23.30:3347/main/updateContact", req)
+          .then((response) => {
+            if (response.status === 200 && response.data.returnCode == 0) {
+              // 成功提示
+              this.$message({
+                message: "更新成功",
+                type: "success",
+              });
+              // 刷新數據
+              setTimeout(() => {
+                window.history.back();
+              }, 2000); // 3000 毫秒 = 3 秒
+            } else {
+              // 處理非 0 成功代碼
+              this.$message({
+                message: "更新失敗",
+                type: "error",
+              });
+            }
+          })
+          .catch((error) => {
+            // 發生錯誤時，顯示錯誤提示
+            this.$message({
+              message: " 更新失敗，伺服器錯誤",
+              type: "error",
+            });
+            console.error("Error:", error);
+          });
       } else if (this.rowType === "6") {
         const req = this.rowData;
         axios

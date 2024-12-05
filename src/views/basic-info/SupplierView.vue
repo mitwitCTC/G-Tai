@@ -96,8 +96,8 @@ export default {
       selectedSendMode: "",
       cus_message: [
         // {
-        //   account_sortId: "658",
-        //   customerId: "G2200060",
+        //   account_sortId: "646",
+        //   customerId: "G2200072",
         //   cusName: "世發通運有限公司",
         //   transaction_mode: "1", //交易模式
         //   invoice_name: "世發通運有限公司", //發票抬頭
@@ -120,6 +120,7 @@ export default {
         //   acc_name: "紘鼎開發工程有限公司", //帳單名稱
         // },
       ],
+     DDD:"G2200721",
       response: [],
       Balance: [],
       collateral: [],
@@ -127,7 +128,7 @@ export default {
       AllContact: [], //所有聯絡人
       groupContact: [], //去除重複 且須列印客戶
       cus_data2: [], //所有客戶的姓名 交易模式
-      Account: [],//{"account_sortId":806,"customerId":"G2200739","invoice_name":"廣獲企業股份有限公司","acc_name":"廣獲企業股份有限公司"},{"account_sortId":732,"customerId":"G2100006","invoice_name":"今齊物流有限公司","acc_name":"今齊物流有限公司"}
+      Account: [], //{"account_sortId":806,"customerId":"G2200739","invoice_name":"廣獲企業股份有限公司","acc_name":"廣獲企業股份有限公司"},{"account_sortId":732,"customerId":"G2100006","invoice_name":"今齊物流有限公司","acc_name":"今齊物流有限公司"}
     };
   },
   created() {
@@ -250,7 +251,6 @@ export default {
               acc_name: response.data.data[x].acc_name,
             });
           }
-         
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);
@@ -279,30 +279,35 @@ export default {
     async getselectContact() {
       try {
         this.isLoading = true; // 開始加載
-        const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectContact"
-        );
-        this.AllContact = response.data.data; //全部的聯絡人
-        const uniqueCustomerIds = new Set();
+        // const response = await axios.get(
+        //   "http://122.116.23.30:3347/main/selectContact"
+        // );
+        // this.AllContact = response.data.data; //全部的聯絡人
+        // const uniqueCustomerIds = new Set();
 
-        this.groupContact = this.AllContact.filter(
-          (contact) => contact.billNotify === "1"
-        ) // 篩選出 billNotify === '1'
-          .filter((contact) => {
-            if (uniqueCustomerIds.has(contact.customerId)) {
-              return false; // 若 customerId 已存在，過濾掉
-            }
-            uniqueCustomerIds.add(contact.customerId); // 新增至 Set，表示已處理過
-            return true; // 保留該筆資料
-          })
-          .map((contact) => ({
-            customerId: contact.customerId, // 保留 customerId
-            billNotify: contact.billNotify, // 保留 billNotify
-          }));
-        this.groupContact.sort((a, b) => {
-          // 字串排序（假設 customerId 是字串，根據字典順序）
-          return a.customerId.localeCompare(b.customerId);
-        });
+        // this.groupContact = this.AllContact.filter(
+        //   (contact) => contact.billNotify === "1"
+        // ) // 篩選出 billNotify === '1'
+        //   .filter((contact) => {
+        //     if (uniqueCustomerIds.has(contact.customerId)) {
+        //       return false; // 若 customerId 已存在，過濾掉
+        //     }
+        //     uniqueCustomerIds.add(contact.customerId); // 新增至 Set，表示已處理過
+        //     return true; // 保留該筆資料
+        //   })
+        //   .map((contact) => ({
+        //     customerId: contact.customerId, // 保留 customerId
+        //     billNotify: contact.billNotify, // 保留 billNotify
+        //   }));
+        // this.groupContact.sort((a, b) => {
+        //   // 字串排序（假設 customerId 是字串，根據字典順序）
+        //   return a.customerId.localeCompare(b.customerId);
+        // });
+        //自訂匯出
+        this.groupContact=this.DDD.split(",").map((customerId) => ({ customerId }));
+        console.log(this.groupContact.length);
+        console.log(JSON.stringify(this.groupContact));
+
         const cusData = this.getcus();
         const accountData = this.getAccount();
 
@@ -640,7 +645,7 @@ export default {
             const data4 = this.response.product;
             const sortOrder = ["超級柴油", "無鉛汽油", "尿素溶液", "諾瓦尿素"];
 
-            // 使用自定義排序邏輯
+            // 排序邏輯
             data4.sort((a, b) => {
               const indexA = sortOrder.indexOf(a.product_name);
               const indexB = sortOrder.indexOf(b.product_name);

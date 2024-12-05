@@ -283,6 +283,7 @@ module.exports = ({ sequelize }) => {
                     mobile: req.body.mobile == '' ? null : req.body.mobile,
                     mail: req.body.mail == '' ? null : req.body.mail,
                     //JASON
+                    notes: req.body.notes == '' ? null : req.body.notes,
                     billNotify: req.body.billNotify == '' ? null : req.body.billNotify,
                     billMail: req.body.billMail == '' ? null : req.body.billMail,
                     messageNotify: req.body.messageNotify == '' ? null : req.body.messageNotify,
