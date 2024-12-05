@@ -39,8 +39,14 @@ module.exports = ({ sequelize }) => {
                     attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date'],
                     raw: true
                 })
-                console.log({ returnCode: 0, message: "取得客戶資料", data: customerList })
-                return res.json({ returnCode: 0, message: "取得客戶資料", data: customerList })
+                //Jason
+                const MaxCus_code = await customer.findOne({
+                    order: [['cus_code', 'DESC']],
+                    attributes: ['cus_code'],
+                    raw: true
+                })
+                console.log({ returnCode: 0, message: "取得客戶資料", data: customerList , maxcus_code:MaxCus_code})
+                return res.json({ returnCode: 0, message: "取得客戶資料", data: customerList, maxcus_code:MaxCus_code })
 
             } catch (err) {
                 console.log({ returnCode: 500, message: "系統錯誤", err: err })
