@@ -236,7 +236,8 @@ module.exports = ({ sequelize }) => {
                 console.log(time + ' 查詢客戶聯絡人資料(searchContact)')
                 const contactList = await contact.findAll({
                     where: {
-                        customerId: { [Op.eq]: req.body.customerId }
+                        customerId: { [Op.eq]: req.body.customerId },
+                        deleteTime: { [Op.eq]: '0' }
                     }, raw: true
                 })
                 console.log({ returnCode: 0, message: "查詢客戶聯絡人資料", data: contactList })
