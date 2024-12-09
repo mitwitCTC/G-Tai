@@ -390,7 +390,7 @@
             <el-select v-model="rowData.messageNotify" placeholder="選擇">
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="手機" :value="'1'"></el-option>
-              <!-- <el-option label="line" :value="'2'"></el-option> -->
+              <el-option label="line" :value="'2'"></el-option>
               <el-option label="mail" :value="'3'"></el-option>
             </el-select>
           </el-form-item>
@@ -1061,6 +1061,37 @@ export default {
             });
             return
         }
+        if((req.isLine!='1') && req.messageNotify=='2'){
+          this.$message({
+              message: "帳單通知Line方式 只限定綁定Line客戶使用",
+              type: "error",
+            });
+            return
+        }
+        if (req.messageNotify == 1 && !req.mobile) {
+        this.$message({
+          message: "簡訊方式通知 手機欄位不可為空",
+          type: "warning",
+        });
+        return;
+      }
+      if (req.messageNotify == 3 && !req.messageMail) {
+        this.$message({
+          message: "Mail方式通知 訊息通知E-MAIL欄位不可為空",
+          type: "warning",
+        });
+        return;
+      }
+      if (
+        (req.billNotify == 1 || req.billNotify == 3) &&
+        !req.billMail
+      ) {
+        this.$message({
+          message: "寄送/Mail方式通知 帳單地址/Mail欄位不可為空",
+          type: "warning",
+        });
+        return;
+      }
         axios
           .post("http://122.116.23.30:3347/main/updateContact", req)
           .then((response) => {

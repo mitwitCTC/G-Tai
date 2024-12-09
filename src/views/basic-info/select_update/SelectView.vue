@@ -335,16 +335,16 @@
             <el-table-column
               prop="account_sortId"
               label="帳單編號"
-              width="150"
-            />
-            <el-table-column prop="acc_name" label="帳單名稱" width="250" />
-            <el-table-column prop="use_number" label="開立統編" width="100" />
-            <el-table-column
-              prop="recipient_name"
-              label="收件人姓名"
               width="300"
             />
-            <el-table-column
+            <el-table-column prop="acc_name" label="帳單名稱" width="550" />
+            <el-table-column prop="use_number" label="開立統編" width="500" />
+            <!-- <el-table-column
+              prop="recipient_name"
+              label="收件人姓名"
+              width="400"
+            /> -->
+            <!-- <el-table-column
               prop="billing_method"
               label="寄送方式"
               :formatter="formatbilling_method"
@@ -354,7 +354,7 @@
               prop="address_email"
               label="收件地址/Mail"
               width="400"
-            />
+            /> -->
           </el-table>
         </div>
       </el-form-item>
@@ -477,23 +477,23 @@
             style="width: 100%"
             v-loading="loading"
           >
-            <el-table-column prop="product_name" label="油品名稱" width="300"
+            <el-table-column prop="product_name" label="油品名稱" width="700"
               ><template v-slot="scope"
                 >{{ formatProduct(scope.row.product_name) }}
               </template></el-table-column
             >
-            <el-table-column
+            <!-- <el-table-column
               prop="supplier_name"
               label="廠商名稱"
               width="500"
-            />
-            <el-table-column prop="discount_float" label="折讓" width="250" />
-            <el-table-column
+            /> -->
+            <el-table-column prop="discount_float" label="折讓" width="650" />
+            <!-- <el-table-column
               prop="responsible_person"
               label="負責業務"
               :formatter="getListEmployeeName"
               width="300"
-            />
+            /> -->
           </el-table>
         </div>
       </el-form-item>
@@ -505,7 +505,7 @@
       >
         <div class="table-container">
           <el-table :data="contact" style="width: 100%" v-loading="loading">
-            <el-table-column
+            <!-- <el-table-column
               prop="job_title"
               label="職稱"
               width="150"
@@ -534,6 +534,47 @@
               prop="notes"
               label="備註"
               width="300"
+            ></el-table-column> -->
+            <el-table-column
+              prop="job_title"
+              label="職稱"
+              width="100"
+            ></el-table-column>
+            <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
+            <el-table-column
+              prop="name"
+              label="姓名"
+              width="200"
+            ></el-table-column>
+            <el-table-column
+              prop="mobile"
+              label="手機/電話"
+              width="120"
+            ></el-table-column>
+            <!-- <el-table-column prop="mail" label="聯絡E-MAIL"></el-table-column> -->
+            <el-table-column
+              prop="isLine"
+              label="是否綁定Line"
+              style="width: 50px"
+              :formatter="format3"
+              width="130"
+            ></el-table-column>
+            <el-table-column
+              prop="messageNotify"
+              label="訊息通知"
+              :formatter="format"
+              width="130"
+            ></el-table-column>
+            <el-table-column
+              prop="billNotify"
+              label="帳單通知"
+              :formatter="format2"
+              width="130"
+            ></el-table-column>
+            <el-table-column
+              prop="billMail"
+              label="寄送資訊"
+              width="550"
             ></el-table-column>
           </el-table>
         </div>
@@ -925,6 +966,22 @@ export default {
         updated: "",
         created: "",
       },
+      type: {
+        0: "無",
+        1: "手機",
+        2: "Line",
+        3: "Mail",
+      },
+      type2: {
+        0: "無",
+        1: "寄送",
+        2: "Line",
+        3: "Mail",
+      },
+      type3: {
+        0: "否",
+        1: "是",
+      },
       SinopacBank: {},
       cpc: [],
     };
@@ -1251,6 +1308,18 @@ export default {
         (item) => item.classId == product_name
       );
       return product == null ? "" : product ? product.className : "未知名稱";
+    },
+    format(messageNotify) {
+      const type = toRaw(messageNotify);
+      return this.type[type.messageNotify] || "未知";
+    },
+    format2(billNotify) {
+      const type = toRaw(billNotify);
+      return this.type2[type.billNotify] || "未知";
+    },
+    format3(isLine) {
+      const type = toRaw(isLine);
+      return this.type3[type.isLine] || "未知";
     },
     getListEmployeeName(responsible_person) {
       // 如果 salesmenData 仍為空，則返回空或其他提示

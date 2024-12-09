@@ -113,12 +113,12 @@ const router = createRouter({
         },
         {
           path: 'FinanceManagement',
-          name: '帳務管理',
+          name: '會計傳票',
           component: () => import('@/views/basic-info/FinanceManagement.vue'),
           meta: {
-            title: '帳務管理',
-            breadcrumb: '帳務管理',
-            isSpecialPage: false
+            title: '會計傳票',
+            breadcrumb: '會計傳票',
+            isAccountsPage: true
           }
         },
         {

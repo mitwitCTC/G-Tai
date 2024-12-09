@@ -120,8 +120,8 @@ export default {
         //   acc_name: "紘鼎開發工程有限公司", //帳單名稱
         // },
       ],
-    //  DDD:"G2200072,G2200176,G2200230,G2200260,G2200319,G2200520,G2200608,G2200782,G2200783",
-    DDD:"G2100004,G2200074,G2200192,G2200211,G2200241,G2200266,G2200359,G2200407,G2200576,G2200677",
+      //  DDD:"G2200072,G2200176,G2200230,G2200260,G2200319,G2200520,G2200608,G2200782,G2200783",
+      DDD: "G2100004",
       response: [],
       Balance: [],
       collateral: [],
@@ -140,6 +140,7 @@ export default {
       (this.selectedSendMode = ""), (this.select = "");
     },
     async APIData() {
+      this.cus_message=[]
       this.isLoading = true;
       if (this.select == 1) {
         console.log("總表");
@@ -305,7 +306,9 @@ export default {
         //   return a.customerId.localeCompare(b.customerId);
         // });
         //自訂匯出
-        this.groupContact=this.DDD.split(",").map((customerId) => ({ customerId }));
+        this.groupContact = this.DDD.split(",").map((customerId) => ({
+          customerId,
+        }));
         console.log(this.groupContact.length);
         console.log(JSON.stringify(this.groupContact));
 
@@ -1041,6 +1044,11 @@ export default {
                 right: { style: "thin", color: { argb: "C0C0C0" } }, // 添加銀色細邊框
               };
             }
+            const columnsToAdjust = ["A", "B", "C", "D", "E", "F", "H"]; // 需要調整的欄
+            columnsToAdjust.forEach((col) => {
+              const columnIndex = worksheet.getColumn(col).number; // 取得欄位編號
+              worksheet.getColumn(columnIndex).width = 16; // 設定欄寬，數字可調整
+            });
             // 保存到新的文件
             newFileName = `${this.search_month}總表_${customerId}_${acc_name}.xlsx`;
             buffer = await workbook.xlsx.writeBuffer();
@@ -1138,6 +1146,13 @@ export default {
                 };
               }
             });
+            const columnsToAdjust = ["A","D","H", "I", "J",]; // 需要調整的欄
+            columnsToAdjust.forEach((col) => {
+              const columnIndex = worksheet.getColumn(col).number; // 取得欄位編號
+              worksheet.getColumn(columnIndex).width = 14; // 設定欄寬，數字可調整
+            });
+            worksheet.getColumn(2).width = 22; // 設定B欄寬
+            worksheet.getColumn(3).width = 22; // 設定C欄寬
             // 保存到新的文件
             newFileName = `${this.search_month}明細_${customerId}_${acc_name}.xlsx`;
             buffer = await workbook.xlsx.writeBuffer();
