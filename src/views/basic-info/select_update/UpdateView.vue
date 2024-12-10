@@ -65,9 +65,9 @@
               ></el-option>
             </el-select>
           </el-form-item>
-          <!-- <el-form-item label="虛擬帳號">
-        <el-input v-model="cus_form.virtual_account"></el-input>
-      </el-form-item> -->
+          <el-form-item label="虛擬帳號">
+            <el-input v-model="cus_form.virtual_account"></el-input>
+          </el-form-item>
           <el-form-item label="區域">
             <el-select v-model="cus_form.region" placeholder="選擇區域">
               <el-option label="1.北、北、基、宜" :value="'1'"></el-option>
@@ -311,14 +311,14 @@
       <el-input v-model="cus_form.card_handling" ></el-input>
     </el-form-item> -->
         </el-row>
-        <el-row style="margin-bottom: 20px">
+        <!-- <el-row style="margin-bottom: 20px">
           <el-form-item label="當月用油公升">
             <el-input v-model="cus_form.month_gas"></el-input>
           </el-form-item>
           <el-form-item label="當月餘額金額">
             <el-input v-model="cus_form.month_balance"></el-input>
           </el-form-item>
-        </el-row>
+        </el-row> -->
         <!-- <el-form-item label="設定方式備註" style="width: 1000px;margin-bottom: 20px;" v-if="cus_form.transaction_mode==2">
       <el-input v-model="cus_form.config_notes" type="textarea"  readonly></el-input>
     </el-form-item> -->
@@ -880,6 +880,14 @@ export default {
         } else {
           this.cus_form.config_notes = "";
         }
+        this.cus_form.virtual_account=this.cus_form.virtual_account.trim()
+        if(this.cus_form.virtual_account.length!=14){
+          this.$message({
+                message: "確認虛擬帳戶為14碼",
+                type: "error",
+              });
+              return
+        }
         this.cus_form.config_method = [0];
         const req = this.cus_form;
         axios
@@ -1050,48 +1058,45 @@ export default {
         if (this.rowData.messageNotify != 3) {
           this.rowData.messageMail = "";
         }
-        if ((this.rowData.billNotify != 1) && (this.rowData.billNotify != 3)) {
+        if (this.rowData.billNotify != 1 && this.rowData.billNotify != 3) {
           this.rowData.billMail = "";
         }
         const req = this.rowData;
-        if((req.isLine!='1') && req.billNotify=='2'){
+        if (req.isLine != "1" && req.billNotify == "2") {
           this.$message({
-              message: "帳單通知Line方式 只限定綁定Line客戶使用",
-              type: "error",
-            });
-            return
+            message: "帳單通知Line方式 只限定綁定Line客戶使用",
+            type: "error",
+          });
+          return;
         }
-        if((req.isLine!='1') && req.messageNotify=='2'){
+        if (req.isLine != "1" && req.messageNotify == "2") {
           this.$message({
-              message: "帳單通知Line方式 只限定綁定Line客戶使用",
-              type: "error",
-            });
-            return
+            message: "帳單通知Line方式 只限定綁定Line客戶使用",
+            type: "error",
+          });
+          return;
         }
         if (req.messageNotify == 1 && !req.mobile) {
-        this.$message({
-          message: "簡訊方式通知 手機欄位不可為空",
-          type: "warning",
-        });
-        return;
-      }
-      if (req.messageNotify == 3 && !req.messageMail) {
-        this.$message({
-          message: "Mail方式通知 訊息通知E-MAIL欄位不可為空",
-          type: "warning",
-        });
-        return;
-      }
-      if (
-        (req.billNotify == 1 || req.billNotify == 3) &&
-        !req.billMail
-      ) {
-        this.$message({
-          message: "寄送/Mail方式通知 帳單地址/Mail欄位不可為空",
-          type: "warning",
-        });
-        return;
-      }
+          this.$message({
+            message: "簡訊方式通知 手機欄位不可為空",
+            type: "warning",
+          });
+          return;
+        }
+        if (req.messageNotify == 3 && !req.messageMail) {
+          this.$message({
+            message: "Mail方式通知 訊息通知E-MAIL欄位不可為空",
+            type: "warning",
+          });
+          return;
+        }
+        if ((req.billNotify == 1 || req.billNotify == 3) && !req.billMail) {
+          this.$message({
+            message: "寄送/Mail方式通知 帳單地址/Mail欄位不可為空",
+            type: "warning",
+          });
+          return;
+        }
         axios
           .post("http://122.116.23.30:3347/main/updateContact", req)
           .then((response) => {

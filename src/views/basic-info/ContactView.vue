@@ -17,10 +17,18 @@
   </div>
   <div class="table-container">
     <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
-      <el-table-column prop="job_title" label="職稱" width="100"></el-table-column>
+      <el-table-column
+        prop="job_title"
+        label="職稱"
+        width="100"
+      ></el-table-column>
       <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
       <el-table-column prop="name" label="姓名" width="150"></el-table-column>
-      <el-table-column prop="mobile" label="手機/電話" width="120"></el-table-column>
+      <el-table-column
+        prop="mobile"
+        label="手機/電話"
+        width="120"
+      ></el-table-column>
       <!-- <el-table-column prop="mail" label="聯絡E-MAIL"></el-table-column> -->
       <el-table-column
         prop="isLine"
@@ -41,8 +49,12 @@
         :formatter="format2"
         width="120"
       ></el-table-column>
-      <el-table-column prop="billMail" label="寄送資訊"width="300"></el-table-column>
-      <el-table-column prop="notes" label="備註"width="300"></el-table-column>
+      <el-table-column
+        prop="billMail"
+        label="寄送資訊"
+        width="300"
+      ></el-table-column>
+      <el-table-column prop="notes" label="備註" width="300"></el-table-column>
       <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">

@@ -177,7 +177,9 @@ module.exports = ({ sequelize }) => {
                     updateTime: req.body.updateTime == '' ? time : req.body.updateTime,
                     con_notes: req.body.con_notes,
                     card_other_fee: req.body.card_other_fee == '' ? null : req.body.card_other_fee,
-                    card_handling: req.body.card_handling == '' ? null : req.body.card_handling
+                    card_handling: req.body.card_handling == '' ? null : req.body.card_handling,
+                    //Jason
+                    virtual_account:req.body.virtual_account//虛擬帳戶
                 }, {
                     where: {
                         customerId: { [Op.eq]: req.body.customerId }
@@ -220,7 +222,9 @@ module.exports = ({ sequelize }) => {
                 const time = getDateTime()
                 console.log(time + ' 取得聯絡人資料(selectContact)')
                 // 取得所有聯絡人
-                const contactList = await contact.findAll({ raw: true })
+                const contactList = await contact.findAll({ where: {
+                    deleteTime: { [Op.eq]: '0' }
+                }, raw: true })
                 console.log({ returnCode: 0, message: "取得聯絡人資料", data: contactList })
                 return res.json({ returnCode: 0, message: "取得聯絡人資料", data: contactList })
 
