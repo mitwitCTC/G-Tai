@@ -7,9 +7,7 @@
     <BreadCrumb />
   </div>
   <div class="table-container">
-    <el-button type="primary" @click="openDialog"
-      >新增會計傳票</el-button
-    >
+    <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
     <el-table :data="cus_message" style="width: 100%">
       <el-table-column prop="id" label="傳票號碼" width="150" />
       <el-table-column prop="creatTime" label="傳票日期" width="200" />
@@ -32,55 +30,13 @@
     </el-table>
   </div>
 
-  <el-dialog title="會計傳票" v-model="dialogVisible" width="70%">
-    <!-- 上方會計科目選擇和金額輸入 -->
-    <div style="margin-bottom: 20px">
-      <el-row :gutter="20" align="middle">
-        <!-- 會計科目 -->
-
-        <el-form-item label="會計科目" label-width="80px">
-          <el-select
-            v-model="currentEntry.subject"
-            placeholder="選擇會計科目"
-            style="width: 150px"
-          >
-            <el-option
-              v-for="item in accountSubjects"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-
-        <!-- 金額 -->
-
-        <el-form-item label="金額" label-width="50px">
-          <el-input
-            v-model="currentEntry.amount"
-            placeholder="輸入金額"
-            style="width: 100px"
-          ></el-input>
-        </el-form-item>
-
-        <!-- 借貸方 -->
-
-        <el-form-item label="借貸方" label-width="60px">
-          <el-select
-            v-model="currentEntry.type"
-            placeholder="借/貸"
-            style="width: 100px"
-          >
-            <el-option label="借方" value="debit"></el-option>
-            <el-option label="貸方" value="credit"></el-option>
-          </el-select>
-          <el-button type="primary" @click="addEntry" style="margin-left: 10px">
-            新增
-          </el-button>
-        </el-form-item>
-      </el-row>
-    </div>
-
+  <el-dialog
+    title="會計傳票"
+    v-model="dialogVisible"
+    width="70%"
+    :close-on-click-modal="false"
+    @close="closeDialog"
+  >
     <!-- 借貸兩方 -->
     <div
       style="display: flex; justify-content: space-between; margin-bottom: 20px"
@@ -88,20 +44,49 @@
       <!-- 借方 -->
       <div style="width: 48%">
         <h3>借方</h3>
+        <el-row :gutter="20" align="middle">
+          <el-form-item label="會計科目" label-width="80px">
+            <el-select
+              v-model="debitcurrentEntry.subject"
+              placeholder="選擇會計科目"
+              style="width: 200px"
+            >
+              <el-option
+                v-for="item in debit"
+                :key="item.parkId"
+                :label="item.SubjectsName"
+                :value="item.SubjectsName"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label-width="20px">
+            <el-button type="success" @click="addEntry('debit')">
+              新增
+            </el-button>
+          </el-form-item>
+        </el-row>
         <el-table :data="entries.debit" border>
           <el-table-column prop="subject" label="會計科目"></el-table-column>
-          <el-table-column prop="amount" label="金額"></el-table-column>
+          <el-table-column prop="amount" label="金額" align="right">
+            <template v-slot="scope">
+              <el-input
+                v-model="scope.row.amount"
+                @blur="scope.row.amount = formatAmount(scope.row.amount)"
+                placeholder="輸入金額"
+              ></el-input>
+            </template>
+          </el-table-column>
           <el-table-column label="操作">
-        <template #default="scope">
-          <el-button
-            type="danger"
-            size="mini"
-            @click="removeEntry(scope.$index, 'debit')"
-          >
-            刪除
-          </el-button>
-        </template>
-      </el-table-column>
+            <template #default="scope">
+              <el-button
+                type="danger"
+                size="mini"
+                @click="removeEntry(scope.$index, 'debit')"
+              >
+                刪除
+              </el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <div style="text-align: right; margin-top: 10px">
           <b>借方總金額：</b>{{ totalDebit }}
@@ -111,20 +96,49 @@
       <!-- 貸方 -->
       <div style="width: 48%">
         <h3>貸方</h3>
+        <el-row :gutter="20" align="middle">
+          <el-form-item label="會計科目" label-width="80px">
+            <el-select
+              v-model="creditcurrentEntry.subject"
+              placeholder="選擇會計科目"
+              style="width: 200px"
+            >
+              <el-option
+                v-for="item in credit"
+                :key="item.parkId"
+                :label="item.SubjectsName"
+                :value="item.SubjectsName"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label-width="20px">
+            <el-button type="warning" @click="addEntry('credit')">
+              新增
+            </el-button>
+          </el-form-item>
+        </el-row>
         <el-table :data="entries.credit" border>
           <el-table-column prop="subject" label="會計科目"></el-table-column>
-          <el-table-column prop="amount" label="金額"></el-table-column>
+          <el-table-column prop="amount" label="金額" align="right">
+            <template v-slot="scope">
+              <el-input
+                v-model="scope.row.amount"
+                @blur="scope.row.amount = formatAmount(scope.row.amount)"
+                placeholder="輸入金額"
+              ></el-input>
+            </template>
+          </el-table-column>
           <el-table-column label="操作">
-        <template #default="scope">
-          <el-button
-            type="danger"
-            size="mini"
-            @click="removeEntry(scope.$index, 'credit')"
-          >
-            刪除
-          </el-button>
-        </template>
-      </el-table-column>
+            <template #default="scope">
+              <el-button
+                type="danger"
+                size="mini"
+                @click="removeEntry(scope.$index, 'credit')"
+              >
+                刪除
+              </el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <div style="text-align: right; margin-top: 10px">
           <b>貸方總金額：</b>{{ totalCredit }}
@@ -152,18 +166,18 @@ export default {
   data() {
     return {
       dialogVisible: false, // 控制Dialog顯示
-      accountSubjects: [
-        { label: "現金", value: "cash" },
-        { label: "應收帳款", value: "accounts_receivable" },
-        { label: "應付帳款", value: "accounts_payable" },
-        { label: "存貨", value: "inventory" },
-        { label: "銷貨收入", value: "sales_revenue" },
-        // 更多會計科目...
-      ],
-      currentEntry: {
+      isEditable: null,
+      debit: [],
+      credit: [],
+      debitcurrentEntry: {
+        //借方
         subject: "", // 當前選擇的會計科目
         amount: 0, // 當前輸入的金額
-        type: "", // 當前選擇的類型（借方/貸方）
+      },
+      creditcurrentEntry: {
+        //貸方
+        subject: "", // 當前選擇的會計科目
+        amount: 0, // 當前輸入的金額
       },
       entries: {
         debit: [], // 借方資料
@@ -200,55 +214,98 @@ export default {
       ],
     };
   },
+  created() {
+    this.debitAccount(); //借方項目
+    this.creditAccount(); //貸方項目
+  },
   computed: {
     totalDebit() {
-      return this.entries.debit.reduce(
-        (sum, entry) => sum + Number(entry.amount),
-        0
-      );
+      return this.entries.debit
+        .reduce((sum, entry) => {
+          // 移除千分位逗號，將金額轉換為數字
+          const amount = parseFloat(entry.amount.replace(/,/g, ""));
+          return sum + (isNaN(amount) ? 0 : amount); // 處理可能無效的數據
+        }, 0)
+        .toLocaleString(); // 計算總金額後，格式化為千分位
     },
     totalCredit() {
-      return this.entries.credit.reduce(
-        (sum, entry) => sum + Number(entry.amount),
-        0
-      );
+      return this.entries.credit
+        .reduce((sum, entry) => {
+          // 移除千分位逗號，將金額轉換為數字
+          const amount = parseFloat(entry.amount.replace(/,/g, ""));
+          return sum + (isNaN(amount) ? 0 : amount); // 處理可能無效的數據
+        }, 0)
+        .toLocaleString(); // 計算總金額後，格式化為千分位
     },
   },
   methods: {
+    async debitAccount() {
+      try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.get(
+          "http://122.116.23.30:3347/finance/debitAccount"
+        );
+        this.debit = response.data.data;
+        console.log(JSON.stringify(this.debit));
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
+    async creditAccount() {
+      try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.get(
+          "http://122.116.23.30:3347/finance/creditAccount"
+        );
+        this.credit = response.data.data;
+        console.log(JSON.stringify(this.credit));
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
+
     removeEntry(index, type) {
-    this.entries[type].splice(index, 1); // 刪除對應類型 (debit/credit) 的索引條目
-  },
+      this.entries[type].splice(index, 1); // 刪除對應類型 (debit/credit) 的索引條目
+    },
     openDialog() {
       this.dialogVisible = true;
     },
     closeDialog() {
-      this.dialogVisible = false;
+      (this.entries = {
+        debit: [], // 借方資料
+        credit: [], // 貸方資料
+      }),
+        (this.dialogVisible = false);
     },
-    addEntry() {
-      if (
-        !this.currentEntry.subject ||
-        !this.currentEntry.amount ||
-        !this.currentEntry.type
-      ) {
-        this.$message.error("請完整填寫資料！");
-        return;
-      }
-
-      const newEntry = {
-        subject: this.accountSubjects.find(
-          (item) => item.value === this.currentEntry.subject
-        ).label,
-        amount: this.currentEntry.amount,
-      };
-
-      if (this.currentEntry.type === "debit") {
+    addEntry(Type) {
+      if (Type === "debit") {
+        if (!this.debitcurrentEntry.subject) {
+          this.$message.error("請先選擇會計科目！");
+          return;
+        }
+        const newEntry = {
+          amount: "0",
+          subject: this.debit.find(
+            (item) => item.SubjectsName === this.debitcurrentEntry.subject
+          ).SubjectsName,
+        };
         this.entries.debit.push(newEntry);
-      } else if (this.currentEntry.type === "credit") {
-        this.entries.credit.push(newEntry);
-      }
+        this.debitcurrentEntry = { subject: "", amount: 0 };
+      } else if (Type === "credit") {
+        if (!this.creditcurrentEntry.subject) {
+          this.$message.error("請先選擇會計科目！");
+          return;
+        }
 
-      // 清空當前輸入
-      this.currentEntry = { subject: "", amount: 0, type: "" };
+        const newEntry = {
+          amount: "0",
+          subject: this.credit.find(
+            (item) => item.SubjectsName === this.creditcurrentEntry.subject
+          ).SubjectsName,
+        };
+        this.entries.credit.push(newEntry);
+        this.creditcurrentEntry = { subject: "", amount: 0 };
+      }
     },
     submitForm() {
       if (this.totalDebit !== this.totalCredit) {
@@ -270,7 +327,8 @@ export default {
     },
     resetForm() {
       this.entries = { debit: [], credit: [] };
-      this.currentEntry = { subject: "", amount: 0, type: "" };
+      this.debitcurrentEntry = { subject: "", amount: 0 };
+      this.creditcurrentEntry = { subject: "", amount: 0 };
     },
     viewDetailVehicles(row) {
       this.$router.push({
@@ -295,6 +353,17 @@ export default {
           }),
         },
       });
+    },
+    formatAmount(value) {
+      const amount = parseFloat(value.replace(/,/g, ""));
+      // 將金額字串轉換為數字並移除前導零
+      const num = parseInt(amount, 10);
+      // 如果解析後不是數字，返回空字串
+      if (isNaN(num)) {
+        return "";
+      }
+      // 使用toLocaleString將數字格式化為千分位
+      return num.toLocaleString();
     },
   },
 };

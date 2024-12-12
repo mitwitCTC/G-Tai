@@ -44,6 +44,11 @@
         width="120"
       ></el-table-column>
       <el-table-column
+        prop="messageMail"
+        label="通知Mail"
+        width="200"
+      ></el-table-column>
+      <el-table-column
         prop="billNotify"
         label="帳單通知"
         :formatter="format2"
@@ -51,8 +56,8 @@
       ></el-table-column>
       <el-table-column
         prop="billMail"
-        label="寄送資訊"
-        width="300"
+        label="帳務地址/Mail"
+        width="280"
       ></el-table-column>
       <el-table-column prop="notes" label="備註" width="300"></el-table-column>
       <el-table-column label="操作">
@@ -122,7 +127,7 @@
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="手機" :value="'1'"></el-option>
               <!-- <el-option label="line" :value="'2'"></el-option> -->
-              <el-option label="mail" :value="'3'"></el-option>
+              <el-option label="Mail" :value="'3'"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="帳單通知">
@@ -130,16 +135,16 @@
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="寄送" :value="'1'"></el-option>
               <!-- <el-option label="line" :value="'2'"></el-option> -->
-              <el-option label="mail" :value="'3'"></el-option>
+              <el-option label="Mail" :value="'3'"></el-option>
             </el-select>
           </el-form-item>
         </el-row>
         <el-row style="margin-bottom: 20px">
-          <el-form-item label="訊息通知E-MAIL" v-if="form.messageNotify == 3">
+          <el-form-item label="訊息通知Mail" v-if="form.messageNotify == 3">
             <el-input v-model="form.messageMail"></el-input>
           </el-form-item>
           <el-form-item
-            label="帳單地址/Mail"
+            label="帳務地址/Mail"
             v-if="form.billNotify == 1 || form.billNotify == 3"
           >
             <el-input v-model="form.billMail"></el-input>
@@ -273,7 +278,7 @@ export default {
       }
       if (this.form.messageNotify == 3 && !this.form.messageMail) {
         this.$message({
-          message: "Mail方式通知 訊息通知E-MAIL欄位不可為空",
+          message: "Mail方式通知 訊息通知Mail欄位不可為空",
           type: "warning",
         });
         return;
@@ -283,7 +288,7 @@ export default {
         !this.form.billMail
       ) {
         this.$message({
-          message: "寄送/Mail方式通知 帳單地址/Mail欄位不可為空",
+          message: "寄送/Mail方式通知 帳務地址/Mail欄位不可為空",
           type: "warning",
         });
         return;
@@ -354,7 +359,7 @@ export default {
 }
 .pagination-info {
   margin-right: auto; /* 确保分页信息靠左 */
-  padding-right: 890px; /* 可选: 添加右边距以与分页控件分开 */
+  padding-right: 1090px; /* 可选: 添加右边距以与分页控件分开 */
   white-space: nowrap;
 }
 .pagination {

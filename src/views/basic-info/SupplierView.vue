@@ -123,7 +123,7 @@ export default {
         // },
       ],
       //  DDD:"G2200072,G2200176,G2200230,G2200260,G2200319,G2200520,G2200608,G2200782,G2200783",
-      DDD: "G2200260,G2200520",
+      DDD: "G2200708",
       Statement: [],
       Balance: [],
       collateral: [],
@@ -495,12 +495,14 @@ export default {
 
     async exportTYPE(customerId, account_sortId) {
       // 準備 postData
+      console.log(1);
       const postData = {
         date: this.search_month,
         customerId: customerId,
         account_sortId: account_sortId,
       };
       if (this.select == 1) {
+        console.log("總表");
         // 發送 API 請求獲取帳單資料
         try {
           const response = await axios.post(
@@ -508,6 +510,7 @@ export default {
             postData
           );
           this.Statement = response.data.data;
+          console.log("++" + JSON.stringify(this.Statement));
         } catch (error) {
           console.error("API request failed:", error);
         }
@@ -525,11 +528,11 @@ export default {
           console.error("API request failed:", error);
         }
       }
-
+      console.log("1結束");
     },
     async transactionTYPE(transaction_mode, customerId) {
       // 根據交易模式執行相應操作
-
+      console.log(2);
       try {
         if (transaction_mode == 1) {
           //儲值
@@ -563,7 +566,7 @@ export default {
       } catch (error) {
         console.error("API request failed:", error);
       }
-
+      console.log("2結束");
     },
     async exportToExcel(
       cus_name,
@@ -573,7 +576,7 @@ export default {
       select,
       customerId
     ) {
-
+      console.log(3);
       try {
         // 確保資料先完成取得
         const workbook = new ExcelJS.Workbook();
@@ -631,6 +634,8 @@ export default {
             const indexB = sortOrder.indexOf(b.product_name);
             return indexA - indexB;
           });
+          console.log(JSON.stringify(this.Statement));
+          console.log(JSON.stringify(data4));
           const data5 = this.Statement.cardIssuanceFee;
           const summary_data = this.Statement.details.map((row) => [
             formattedMonth,
@@ -1124,19 +1129,20 @@ export default {
           // 保存到新的文件
           newFileName = `${this.search_month}明細_${customerId}_${acc_name}.xlsx`;
           buffer = await workbook.xlsx.writeBuffer();
-
+        }
           // 生成下載鏈接並觸發下載
           const blob = new Blob([buffer], { type: "application/octet-stream" });
           const link = document.createElement("a");
           link.href = URL.createObjectURL(blob);
           link.download = newFileName;
           link.click();
-        }
+        
         // 顯示成功訊息
         this.$message({
           message: `${this.search_month}_${customerId}_${acc_name}.xlsx 匯出成功`,
           type: "success",
         });
+        console.log("3結束");
       } catch (error) {
         console.error("Error during export to Excel:", error);
       }

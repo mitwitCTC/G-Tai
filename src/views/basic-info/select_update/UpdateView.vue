@@ -391,7 +391,7 @@
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="手機" :value="'1'"></el-option>
               <el-option label="line" :value="'2'"></el-option>
-              <el-option label="mail" :value="'3'"></el-option>
+              <el-option label="Mail" :value="'3'"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="帳單通知">
@@ -399,20 +399,20 @@
               <el-option label="無" :value="'0'"></el-option>
               <el-option label="寄送" :value="'1'"></el-option>
               <el-option label="line" :value="'2'"></el-option>
-              <el-option label="mail" :value="'3'"></el-option>
+              <el-option label="Mail" :value="'3'"></el-option>
             </el-select>
           </el-form-item>
         </el-row>
 
         <el-row style="margin-bottom: 20px">
           <el-form-item
-            label="訊息通知E-MAIL"
+            label="訊息通知Mail"
             v-if="rowData.messageNotify == 3"
           >
             <el-input v-model="rowData.messageMail"></el-input>
           </el-form-item>
           <el-form-item
-            label="帳單地址/Mail"
+            label="帳務地址/Mail"
             v-if="rowData.billNotify == 1 || rowData.billNotify == 3"
           >
             <el-input v-model="rowData.billMail"></el-input>

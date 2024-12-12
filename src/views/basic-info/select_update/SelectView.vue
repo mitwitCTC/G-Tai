@@ -505,77 +505,49 @@
       >
         <div class="table-container">
           <el-table :data="contact" style="width: 100%" v-loading="loading">
-            <!-- <el-table-column
-              prop="job_title"
-              label="職稱"
-              width="150"
-            ></el-table-column>
             <el-table-column
-              prop="gender"
-              label="性別"
-              width="100"
-            ></el-table-column>
-            <el-table-column
-              prop="name"
-              label="姓名"
-              width="250"
-            ></el-table-column>
-            <el-table-column
-              prop="mobile"
-              label="手機/電話"
-              width="250"
-            ></el-table-column>
-            <el-table-column
-              prop="mail"
-              label="E-MAIL"
-              width="300"
-            ></el-table-column>
-            <el-table-column
-              prop="notes"
-              label="備註"
-              width="300"
-            ></el-table-column> -->
-            <el-table-column
-              prop="job_title"
-              label="職稱"
-              width="100"
-            ></el-table-column>
-            <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
-            <el-table-column
-              prop="name"
-              label="姓名"
-              width="200"
-            ></el-table-column>
-            <el-table-column
-              prop="mobile"
-              label="手機/電話"
-              width="120"
-            ></el-table-column>
-            <!-- <el-table-column prop="mail" label="聯絡E-MAIL"></el-table-column> -->
-            <el-table-column
-              prop="isLine"
-              label="是否綁定Line"
-              style="width: 50px"
-              :formatter="format3"
-              width="130"
-            ></el-table-column>
-            <el-table-column
-              prop="messageNotify"
-              label="訊息通知"
-              :formatter="format"
-              width="130"
-            ></el-table-column>
-            <el-table-column
-              prop="billNotify"
-              label="帳單通知"
-              :formatter="format2"
-              width="130"
-            ></el-table-column>
-            <el-table-column
-              prop="billMail"
-              label="寄送資訊"
-              width="550"
-            ></el-table-column>
+        prop="job_title"
+        label="職稱"
+        width="100"
+      ></el-table-column>
+      <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
+      <el-table-column prop="name" label="姓名" width="150"></el-table-column>
+      <el-table-column
+        prop="mobile"
+        label="手機/電話"
+        width="120"
+      ></el-table-column>
+      <!-- <el-table-column prop="mail" label="聯絡E-MAIL"></el-table-column> -->
+      <el-table-column
+        prop="isLine"
+        label="是否綁定Line"
+        style="width: 50px"
+        :formatter="format3"
+        width="120"
+      ></el-table-column>
+      <el-table-column
+        prop="messageNotify"
+        label="訊息通知"
+        :formatter="format"
+        width="90"
+      ></el-table-column>
+      <el-table-column
+        prop="messageMail"
+        label="通知Mail"
+        width="200"
+      ></el-table-column>
+      <el-table-column
+        prop="billNotify"
+        label="帳單通知"
+        :formatter="format2"
+        width="90"
+      ></el-table-column>
+      <el-table-column
+        prop="billMail"
+        label="帳務地址/Mail"
+        width="280"
+      ></el-table-column>
+      <el-table-column prop="notes" label="備註" width="200"></el-table-column>
           </el-table>
         </div>
       </el-form-item>

@@ -149,7 +149,11 @@
           <!-- 统一标签宽度 -->
           <el-row style="margin-bottom: 20px">
             <el-form-item label="*客戶代號">
-              <el-input v-model="form.cus_code" maxlength="8"disabled></el-input>
+              <el-input
+                v-model="form.cus_code"
+                maxlength="8"
+                disabled
+              ></el-input>
             </el-form-item>
             <el-form-item label="*客戶名稱">
               <el-input v-model="form.cus_name"></el-input>
@@ -443,6 +447,154 @@
           <el-button type="primary" @click="savePass()">送出</el-button>
         </div>
       </el-dialog>
+      <!-- 車號查詢 -->
+      <el-dialog
+        :title="dialogTitle"
+        v-model="dialogVehicle"
+        width="90%"
+        :close-on-click-modal="false"
+      >
+        <el-form
+          :model="Vdialog"
+          label-width="155px"
+          style="width: 100%; min-width: 1600px"
+        >
+          <el-row>
+            <el-form-item label="客戶代號">
+              <el-input v-model="Vdialog.cus_code" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="客戶名稱">
+              <el-input v-model="Vdialog.cus_name" disabled></el-input>
+            </el-form-item>
+          </el-row>
+          <!--帳單list-->
+          <el-form-item label="帳單資訊" class="section-header">
+            <div class="table-container">
+              <el-table
+                :data="Vdialog.bills"
+                style="width: 100%"
+                v-loading="loading"
+              >
+                <el-table-column
+                  prop="account_sortId"
+                  label="帳單編號"
+                  width="300"
+                />
+                <el-table-column prop="acc_name" label="帳單名稱" width="550" />
+                <el-table-column
+                  prop="use_number"
+                  label="開立統編"
+                  width="500"
+                />
+              </el-table>
+            </div>
+          </el-form-item>
+          <!--卡號list-->
+          <el-form-item label="卡片資訊" class="section-header">
+            <div class="table-container">
+              <el-table
+                :data="Vdialog.Card"
+                style="width: 100%"
+                v-loading="loading"
+              >
+                <el-table-column prop="card_number" label="卡號" width="200" />
+                <el-table-column
+                  prop="card_type"
+                  label="卡片類別"
+                  width="150"
+                  :formatter="format"
+                />
+                <el-table-column
+                  prop="upload_time"
+                  label="上傳中油時間"
+                  width="150"
+                />
+                <el-table-column
+                  prop="upload_reason"
+                  label="上傳中油原因"
+                  width="150"
+                />
+                <el-table-column
+                  prop="card_arrival_date"
+                  label="到卡日期"
+                  width="150"
+                />
+                <el-table-column
+                  prop="card_stop_date"
+                  label="停卡日期"
+                  width="150"
+                />
+                <el-table-column prop="notes" label="備註" width="200" />
+                <el-table-column
+                  prop="vehicle_change_reason"
+                  label="車輛異動-因素"
+                  width="200"
+                />
+              </el-table>
+            </div>
+          </el-form-item>
+          <!--近三月中油交易紀錄list-->
+          <el-form-item label="近三月中油交易紀錄" class="section-header">
+            <div class="table-container">
+              <div
+                v-if="!Vdialog.Cpc || Vdialog.Cpc.length === 0"
+                class="no-data"
+              >
+                近三個月無交易紀錄
+              </div>
+              <el-table
+                :data="Vdialog.Cpc"
+                style="width: 100%"
+                v-loading="loading"
+                v-if="Vdialog.Cpc.length > 0"
+              >
+                <el-table-column
+                  prop="trade_time"
+                  label="交易日期時間"
+                  width="200"
+                ></el-table-column>
+                <el-table-column
+                  prop="license_plate"
+                  label="車牌號碼"
+                  width="100"
+                />
+                <el-table-column prop="fuel_type" label="油品" width="150" />
+                <el-table-column
+                  prop="station_name"
+                  label="加油站名稱"
+                  width="250"
+                />
+                <el-table-column prop="fuel_volume" label="油量" width="150" />
+                <el-table-column
+                  prop="reference_price"
+                  label="參考單價"
+                  width="150"
+                />
+                <el-table-column
+                  prop="discount_amount"
+                  label="折讓金額"
+                  width="100"
+                  align="right"
+                  ><template v-slot="scope"
+                    >{{ formatCurrency(scope.row.discount_amount) }}
+                  </template></el-table-column
+                >
+                <el-table-column
+                  prop="salesAmount"
+                  label="實收金額"
+                  width="150"
+                  align="right"
+                  ><template v-slot="scope"
+                    >{{ formatCurrency(scope.row.salesAmount) }}
+                  </template></el-table-column
+                >
+                <el-table-column prop="mileage" label="里程數" width="100" />
+              </el-table>
+            </div>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+
       <el-dialog
         v-model="isLoading"
         width="15%"
@@ -472,6 +624,7 @@ export default {
       isLoading: false,
       loading: false, // 加載狀態
       dialog: false,
+      dialogVehicle: false,
       search: {
         customerName: "",
         customerV: "",
@@ -507,6 +660,12 @@ export default {
         4: "雲、嘉、南",
         5: "高、屏、澎",
         6: "花、東",
+      },
+      type: {
+        1: "尿素",
+        2: "柴油",
+        3: "汽油",
+        4: "諾瓦尿素",
       }, // 區域對應的映射
       form: {
         createTime: "",
@@ -525,6 +684,13 @@ export default {
       Vehicle2: [],
       onConnacts: [],
       cus_code: [],
+      Vdialog: {
+        cus_code: "",
+        cus_name: "",
+        bills: [],
+        Card: [],
+        Cpc: [],
+      },
       currentPage: 1,
       pageSize: 10,
     };
@@ -565,7 +731,15 @@ export default {
       const end = start + this.pageSize;
       return this.filteredData.slice(start, end);
     },
+    dialogTitle() {
+      // 確保 Vehicle2 有數據，避免報錯
+      if (this.Vehicle2.length > 0) {
+        return `查詢車號：${this.Vehicle2[0].license_plate}`;
+      }
+      return "此車號查無資料"; // 默認標題
+    },
   },
+
   methods: {
     async onConnact(row) {
       const postData = {
@@ -623,21 +797,123 @@ export default {
           this.onConnacts = [];
         });
     },
-    searchV(type) {
+    async searchV(type) {
       if (type == 0) {
         this.getselectData();
         this.search.customerV = "";
       } else if (type == 1) {
-        this.Vehicle2 = this.Vehicle.filter(
-          (vehicle) => vehicle.license_plate === this.search.customerV
+        try {
+          this.isLoading = true;
+          this.Vehicle2 = this.Vehicle.filter(
+            (vehicle) => vehicle.license_plate === this.search.customerV
+          );
+          if (!this.Vehicle2.length) {
+            this.$message({
+              message: "查無此車輛",
+              type: "warning",
+            });
+            return;
+          }
+          const vehicleCustomerIds = this.Vehicle2.map(
+            (vehicle) => vehicle.customerId
+          );
+          this.Vdialog = this.customers.filter((customer) =>
+            vehicleCustomerIds.includes(customer.cus_code)
+          );
+          this.Vdialog.cus_code = this.Vdialog[0].cus_code;
+          this.Vdialog.cus_name = this.Vdialog[0].cus_name;
+          await this.getAccount_sort(this.Vehicle2[0].account_sortId);
+          await this.searchCard(this.Vehicle2[0].vehicleId);
+          await this.balanceInquiry(
+            this.Vdialog.cus_code,
+            this.search.customerV
+          );
+          this.dialogVehicle = true;
+        } catch {
+          this.$message({
+            message: "系統錯誤",
+            type: "error",
+          });
+        } finally {
+          this.isLoading = false;
+        }
+        // const vehicleCustomerIds = this.Vehicle2.map(
+        //   (vehicle) => vehicle.customerId
+        // );
+        // // 过滤 this.customers，保留那些 cus_code 存在于 vehicleCustomerIds 数组中的项
+        // this.customers2 = this.customers.filter((customer) =>
+        //   vehicleCustomerIds.includes(customer.cus_code)
+        // );
+      }
+    },
+    async getAccount_sort(account_sortId) {
+      const postData = {
+        account_sortId: account_sortId,
+      };
+
+      await axios
+        .post("http://122.116.23.30:3347/main/viewAccount_sort", postData)
+        .then((response) => {
+          this.Vdialog.bills = response.data.data;
+          console.log(JSON.stringify(this.Vdialog.bills));
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+        });
+    },
+    async searchCard(vehicleId) {
+      const postData = {
+        vehicleId: vehicleId,
+        status: 1,
+      };
+
+      await axios
+        .post("http://122.116.23.30:3347/main/searchCard", postData)
+        .then((response) => {
+          this.Vdialog.Card = response.data.data;
+          console.log(JSON.stringify(this.Vdialog.Card));
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+        });
+    },
+    async balanceInquiry(customerId, license_plate) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth(); // 0 為 1 月
+      const postdataList = [];
+
+      // 構建近三個月的日期範圍
+      for (let i = 0; i < 3; i++) {
+        const targetDate = new Date(year, month - i, 1); // 計算每個月的第一天
+        const targetYear = targetDate.getFullYear();
+        const targetMonth = (targetDate.getMonth() + 1)
+          .toString()
+          .padStart(2, "0"); // 確保月份為兩位數
+        postdataList.push({
+          date: `${targetYear}-${targetMonth}`,
+          customerId: customerId,
+        });
+      }
+
+      try {
+        // 並行發送請求
+        const requests = postdataList.map((postdata) =>
+          axios.post("http://122.116.23.30:3346/main/balanceInquiry", postdata)
         );
-        const vehicleCustomerIds = this.Vehicle2.map(
-          (vehicle) => vehicle.customerId
-        );
-        // 过滤 this.customers，保留那些 cus_code 存在于 vehicleCustomerIds 数组中的项
-        this.customers2 = this.customers.filter((customer) =>
-          vehicleCustomerIds.includes(customer.cus_code)
-        );
+
+        const responses = await Promise.all(requests); // 等待所有請求完成
+
+        // 合併所有數據
+        this.Vdialog.Cpc = responses
+          .flatMap((response) => response.data.data)
+          .filter((item) => item.license_plate === license_plate);
+
+        console.log("近三個月數據：", JSON.stringify(this.Vdialog.Cpc));
+      } catch (error) {
+        console.error("API request failed:", error);
       }
     },
     handlePageChange(page) {
@@ -662,8 +938,8 @@ export default {
         // 將資料放入 customers 陣列中
         this.customers = customerData;
         this.customers2 = this.customers;
-        this.maxcus_code=response.data.maxcus_code.cus_code.slice(1)
-        this.form.cus_code="G"+(parseInt(this.maxcus_code)+1)
+        this.maxcus_code = response.data.maxcus_code.cus_code.slice(1);
+        this.form.cus_code = "G" + (parseInt(this.maxcus_code) + 1);
       } catch (error) {
         console.error("Error fetching customer data:", error);
       } finally {
@@ -828,6 +1104,14 @@ export default {
         },
       });
     },
+    format(card_type) {
+      const type = toRaw(card_type);
+      return this.type[type.card_type.toString()] || "未知";
+    },
+    formatCurrency(value) {
+      if (isNaN(value) || value == null || value === "") return "0"; // 處理非數字情況
+      return Number(value).toLocaleString(); // 千分位格式化
+    },
   },
   mounted() {
     // 在頁面加載時發送 API 請求
@@ -844,6 +1128,14 @@ export default {
 </script>
 
 <style scoped>
+.section-header {
+  margin-top: 50px;
+  font-weight: bold;
+  background-color: #f0ecec; /* 浅灰色背景 */
+  border-radius: 10px; /* 圆角 */
+  padding: 10px; /* 内边距 */
+  margin-bottom: 10px; /* 项目之间的间距 */
+}
 .demo-form-inline {
   margin-bottom: 20px;
 }
@@ -891,5 +1183,11 @@ export default {
 h6 {
   color: rgb(255, 0, 0);
   margin-left: 20px;
+}
+.no-data {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  margin-left: 650px;
 }
 </style>
