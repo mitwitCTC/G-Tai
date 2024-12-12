@@ -466,6 +466,9 @@
             <el-form-item label="客戶名稱">
               <el-input v-model="Vdialog.cus_name" disabled></el-input>
             </el-form-item>
+            <el-button type="primary" @click="dialogDetails()" style="margin-left: 20px;">
+              查詢客戶詳情
+            </el-button>
           </el-row>
           <!--帳單list-->
           <el-form-item label="帳單資訊" class="section-header">
@@ -1031,6 +1034,15 @@ export default {
         },
       });
     },
+    dialogDetails() {
+      this.$router.push({
+        path: "SelectView",
+        query: {
+          rowType: "1",
+          cus_code: this.Vdialog.cus_code,
+        },
+      });
+    },
     editItem(row) {
       this.$router.push({
         path: "UpdateView",
@@ -1077,32 +1089,44 @@ export default {
       }
     },
     onContact(row) {
-      this.$router.push({
-        path: "contact",
-        query: {
-          cus_code: row.cus_code,
-          cus_name: row.cus_name,
-        },
-      });
+      // this.$router.push({
+      //   path: "contact",
+      //   query: {
+      //     cus_code: row.cus_code,
+      //     cus_name: row.cus_name,
+      //   },
+      // });
+      const edoc= row.cus_code;
+      const eman= row.cus_name;
+      const url = `http://122.116.23.30:3347/basic-info/contact?cus_code=${edoc}&cus_name=${eman}`
+      window.open(url,"_blank");
     },
     onBill(row) {
-      this.$router.push({
-        path: "bill",
-        query: {
-          cus_code: row.cus_code,
-          cus_name: row.cus_name,
-        },
-      });
+      // this.$router.push({
+      //   path: "bill",
+      //   query: {
+      //     cus_code: row.cus_code,
+      //     cus_name: row.cus_name,
+      //   },
+      // });
+      const edoc= row.cus_code;
+      const eman= row.cus_name;
+      const url = `http://122.116.23.30:3347/basic-info/bill?cus_code=${edoc}&cus_name=${eman}`
+      window.open(url,"_blank");
     },
 
     onDiscount(row) {
-      this.$router.push({
-        path: "discount",
-        query: {
-          cus_code: row.cus_code,
-          cus_name: row.cus_name,
-        },
-      });
+      // this.$router.push({
+      //   path: "discount",
+      //   query: {
+      //     cus_code: row.cus_code,
+      //     cus_name: row.cus_name,
+      //   },
+      // });
+      const edoc= row.cus_code;
+      const eman= row.cus_name;
+      const url = `http://122.116.23.30:3347/basic-info/discount?cus_code=${edoc}&cus_name=${eman}`
+      window.open(url,"_blank");
     },
     format(card_type) {
       const type = toRaw(card_type);
