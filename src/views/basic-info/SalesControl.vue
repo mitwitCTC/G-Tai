@@ -71,6 +71,7 @@
     width="15%"
     title="請稍後..."
     :close-on-click-modal="false"
+    :show-close="false"
   ></el-dialog>
   <div style="margin-bottom: 50px"></div>
 </template>

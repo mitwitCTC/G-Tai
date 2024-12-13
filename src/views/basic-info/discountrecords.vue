@@ -105,6 +105,7 @@
       width="15%"
       title="請稍後..."
       :close-on-click-modal="false"
+      :show-close="false"
     >
       <!-- 這裡是你的表單或內容 -->
     </el-dialog>

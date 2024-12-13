@@ -1,35 +1,50 @@
 <template>
-  <ListBar/>
-  <div class="page-title"><h2>{{ pageTitle }}</h2></div>
+  <ListBar />
+  <div class="page-title">
+    <h2>{{ pageTitle }}</h2>
+  </div>
   <div>
-      <BreadCrumb/>
+    <BreadCrumb />
   </div>
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
   <div class="table-container">
-      <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="id" label="序號" width="100"></el-table-column> 
-        <el-table-column prop="customerId" label="客戶代號" width="100"></el-table-column>
-        <el-table-column prop="cus_name" label="客戶名稱"width="350"></el-table-column>
-        <el-table-column prop="bank" label="銀行"></el-table-column>
-        <el-table-column prop="account_date" label="入帳日"></el-table-column>
-        <el-table-column prop="account_time" label="交易時間"></el-table-column>
-        <el-table-column prop="taxId" label="統一編號"></el-table-column>
-        <el-table-column prop="remark" label="備註"></el-table-column>
-        <el-table-column prop="amount" label="入帳金額" align="right"><template v-slot="scope">{{ formatCurrency(scope.row.amount)}} </template></el-table-column>
-        <el-table-column label="操作">
-      <template v-slot="scope">
-      <div class="action-icons">
-        <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
-        <!-- <i class="fas fa-edit " @click="editItem(scope.row)"></i> -->
-        <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
-      </div>
-      </template>
+    <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
+      <el-table-column prop="id" label="序號" width="100"></el-table-column>
+      <el-table-column
+        prop="customerId"
+        label="客戶代號"
+        width="100"
+      ></el-table-column>
+      <el-table-column
+        prop="cus_name"
+        label="客戶名稱"
+        width="350"
+      ></el-table-column>
+      <el-table-column prop="bank" label="銀行"></el-table-column>
+      <el-table-column prop="account_date" label="交易時間"></el-table-column>
+      <!-- <el-table-column prop="account_date" label="入帳日"></el-table-column> -->
+      <!-- <el-table-column prop="account_time" label="交易時間"></el-table-column> -->
+      <el-table-column prop="taxId" label="統一編號"></el-table-column>
+      <el-table-column prop="remark" label="備註"></el-table-column>
+      <el-table-column prop="amount" label="入帳金額" align="right"
+        ><template v-slot="scope"
+          >{{ formatCurrency(scope.row.amount) }}
+        </template></el-table-column
+      >
+      <el-table-column label="操作">
+        <template v-slot="scope">
+          <div class="action-icons">
+            <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
+            <!-- <i class="fas fa-edit " @click="editItem(scope.row)"></i> -->
+            <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
+          </div>
+        </template>
       </el-table-column>
     </el-table>
     <div class="pagination-container">
       <div class="pagination-info">
-      Showing {{ startItem }} to {{ endItem }} of {{ BankData.length }}
-    </div>
+        Showing {{ startItem }} to {{ endItem }} of {{ BankData.length }}
+      </div>
       <el-pagination
         @current-change="handlePageChange"
         :current-page="currentPage"
@@ -39,12 +54,18 @@
         class="pagination"
       />
     </div>
-    
+
     <!-- 新增資料 -->
-    <el-dialog title="新增資料" v-model="dialog" width="80%" :close-on-click-modal="false">
-        <el-form :model="form" label-width="155px"> <!-- 统一標籤寬度 -->
-          <h6>*為必填欄位</h6>
-          <!-- <el-row style="margin-bottom: 20px">
+    <el-dialog
+      title="新增資料"
+      v-model="dialog"
+      width="80%"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="form" label-width="155px">
+        <!-- 统一標籤寬度 -->
+        <h6>*為必填欄位</h6>
+        <!-- <el-row style="margin-bottom: 20px">
           <el-form-item label="*客戶代號">
              <el-input v-model="form.customerId" ></el-input>
           </el-form-item>
@@ -56,30 +77,35 @@
           </el-form-item>
         </el-row> -->
         <el-row style="margin-bottom: 20px">
-         <el-form-item label="*客戶編號">
-        <el-select 
-          v-model="form.customerId" 
-          placeholder="輸入客戶名稱/客代"
-          filterable
-          :clearable="true"
-          style="width: 300px; margin-right:20px;" 
-          @change="getdata" 
-        >
-          <!-- 使用 cusdata 直接顯示每個字符串 -->
-          <el-option
-            v-for="item in cusdata"
-            :key="item"
-            :label="item"
-            :value="item.split(' ')[0]"  
-          ></el-option>
-          </el-select>
-        </el-form-item> 
-        <el-form-item label="*客戶名稱">
-            <el-input v-model="form.cus_name" readonly ></el-input>
-        </el-form-item>
-      </el-row>
+          <el-form-item label="*客戶編號">
+            <el-select
+              v-model="form.customerId"
+              placeholder="輸入客戶名稱/客代"
+              filterable
+              :clearable="true"
+              style="width: 300px; margin-right: 20px"
+              @change="getdata"
+            >
+              <!-- 使用 cusdata 直接顯示每個字符串 -->
+              <el-option
+                v-for="item in cusdata"
+                :key="item"
+                :label="item"
+                :value="item.split(' ')[0]"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="*客戶名稱">
+            <el-input v-model="form.cus_name" readonly></el-input>
+          </el-form-item>
+        </el-row>
         <el-form-item label="*入帳模式">
-          <el-select v-model="form.trading_model" placeholder="選擇入帳模式" style=" width: 250px;" @change="inputdata" >
+          <el-select
+            v-model="form.trading_model"
+            placeholder="選擇入帳模式"
+            style="width: 250px"
+            @change="inputdata"
+          >
             <el-option label="永豐匯款" :value="'4'"></el-option>
             <el-option label="台企匯款" :value="'0'"></el-option>
             <el-option label="支票" :value="'3'"></el-option>
@@ -87,8 +113,18 @@
             <el-option label="其它" :value="'6'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="*銀行來源" v-if="this.form.trading_model==='4'||this.form.trading_model==='0'">
-          <el-select v-model="form.bank" placeholder="選擇銀行來源" style=" width: 250px;" disabled="true">
+        <el-form-item
+          label="*銀行來源"
+          v-if="
+            this.form.trading_model === '4' || this.form.trading_model === '0'
+          "
+        >
+          <el-select
+            v-model="form.bank"
+            placeholder="選擇銀行來源"
+            style="width: 250px"
+            disabled="true"
+          >
             <el-option label="永豐" :value="'永豐匯款'"></el-option>
             <el-option label="台企" :value="'台企'"></el-option>
             <el-option label="支票" :value="'支票'"></el-option>
@@ -96,74 +132,95 @@
             <el-option label="其它" :value="'其它'"></el-option>
           </el-select>
         </el-form-item>
-            <el-form-item label="*台企虛擬帳號" v-if="this.form.trading_model==='0'" >
-              <el-input v-model="form.account" maxlength="14"></el-input>
-          </el-form-item>
-          <el-form-item label="永豐帳號" v-if="this.form.trading_model==='2'" >
-              <el-input v-model="form.account" ></el-input>
-          </el-form-item>
-          <el-form-item label="*支票號碼" v-if="this.form.trading_model==='3'" >
-              <el-input v-model="form.account" ></el-input>
-          </el-form-item>
-          <el-form-item label="統一編號" v-if="this.form.trading_model!=3 && this.form.trading_model!=5&& this.form.trading_model!=6"  >
-              <el-input v-model="form.taxId" maxlength="9"></el-input>
-          </el-form-item>
-          <el-form-item :label="form.trading_model === '3' ? '*到期日' : '*入帳日'">
+        <el-form-item
+          label="*台企虛擬帳號"
+          v-if="this.form.trading_model === '0'"
+        >
+          <el-input v-model="form.account" maxlength="14"></el-input>
+        </el-form-item>
+        <el-form-item label="永豐帳號" v-if="this.form.trading_model === '2'">
+          <el-input v-model="form.account"></el-input>
+        </el-form-item>
+        <el-form-item label="*支票號碼" v-if="this.form.trading_model === '3'">
+          <el-input v-model="form.account"></el-input>
+        </el-form-item>
+        <el-form-item
+          label="統一編號"
+          v-if="
+            this.form.trading_model != 3 &&
+            this.form.trading_model != 5 &&
+            this.form.trading_model != 6
+          "
+        >
+          <el-input v-model="form.taxId" maxlength="9"></el-input>
+        </el-form-item>
+        <!-- <el-form-item :label="form.trading_model === '3' ? '*到期日' : '*入帳日'">
             <el-input v-model="form.account_date" maxlength="7"></el-input>
             <h6>格式為民國年月日，例:1130101</h6>
-          </el-form-item>
-          <el-form-item label="*交易時間">
+          </el-form-item> -->
+        <el-form-item label="*交易時間">
+          <el-input v-model="form.account_date" maxlength="7"></el-input>
+          <h6>格式為民國年月日，例:1130101</h6>
+        </el-form-item>
+        <el-form-item
+          :label="form.trading_model === '3' ? '到期日' : '入帳日'"
+          v-if="form.trading_model == 3"
+        >
+          <el-input v-model="form.credit_card_data" maxlength="7"></el-input>
+          <h6>格式為民國年月日，例:1130101</h6>
+        </el-form-item>
+        <!-- <el-form-item label="*交易時間">
             <el-input v-model="form.account_time" maxlength="13"></el-input>
             <h6>格式為民國年月日時分秒，例:1130101235959</h6>
-          </el-form-item>
-          <el-form-item label="備註">
-            <el-input v-model="form.remark" ></el-input>
-          </el-form-item>
-          <el-row style="margin-bottom: 20px">
+          </el-form-item> -->
+
+        <el-form-item label="備註">
+          <el-input v-model="form.remark"></el-input>
+        </el-form-item>
+        <el-row style="margin-bottom: 20px">
           <el-form-item label="系統入帳金額">
-            <el-input v-model="form.amount"  ></el-input>
+            <el-input v-model="form.amount"></el-input>
           </el-form-item>
         </el-row>
-        </el-form>
-        <template v-slot:footer>
-          <div  class="dialog-footer">
-            <el-button @click="dialog = false">取消</el-button>
-            <el-button type="primary" @click="savePass">送出</el-button>
-          </div>
-        </template>
-      </el-dialog>
-      </div>
+      </el-form>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <el-button @click="dialog = false">取消</el-button>
+          <el-button type="primary" @click="savePass">送出</el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
-  <script>
-  import ListBar from '@/components/ListBar.vue'
-  import BreadCrumb from '@/components/BreadCrumb.vue';
-  import axios from 'axios';
-  export default {
-    components: {
-      BreadCrumb,
-      ListBar
-    },
+<script>
+import ListBar from "@/components/ListBar.vue";
+import BreadCrumb from "@/components/BreadCrumb.vue";
+import axios from "axios";
+export default {
+  components: {
+    BreadCrumb,
+    ListBar,
+  },
   data() {
     return {
-      loading:false,
+      loading: false,
       dialog: false,
-      form:{
-        amount:''
-       },
-      BankData:[],
-      cusData:[],
-      currentPage:1,
-      pageSize:10,
+      form: {
+        amount: "",
+      },
+      BankData: [],
+      cusData: [],
+      currentPage: 1,
+      pageSize: 10,
     };
   },
   async created() {
-    await this.getcus()
-    this.getcusdata()
+    await this.getcus();
+    this.getcusdata();
     this.getselectData();
   },
   computed: {
-    
     paginatedData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
@@ -174,67 +231,75 @@
     },
     endItem() {
       return Math.min(this.currentPage * this.pageSize, this.BankData.length);
-    }
+    },
   },
   methods: {
     inputdata() {
-    if (this.form.trading_model == '4') {
-      this.form.bank='永豐匯款'
-    } else if(this.form.trading_model == '0'){
-      this.form.bank='台企'
-    }else if(this.form.trading_model == '3'){
-      this.form.taxId=''
-      this.form.bank='支票'
-    }else if(this.form.trading_model == '5'){
-      this.form.taxId=''
-      this.form.bank='現金'
-    }else if(this.form.trading_model == '6'){
-      this.form.taxId=''
-      this.form.bank='其它'
-    }
-  },
-   
-    dialogopen(){
-      this.dialog=true;
+      if (this.form.trading_model == "4") {
+        this.form.bank = "永豐匯款";
+      } else if (this.form.trading_model == "0") {
+        this.form.bank = "台企";
+      } else if (this.form.trading_model == "3") {
+        this.form.taxId = "";
+        this.form.bank = "支票";
+      } else if (this.form.trading_model == "5") {
+        this.form.taxId = "";
+        this.form.bank = "現金";
+      } else if (this.form.trading_model == "6") {
+        this.form.taxId = "";
+        this.form.bank = "其它";
+      }
     },
-    
+
+    dialogopen() {
+      this.dialog = true;
+    },
+
     savePass() {
-    if (!this.form.customerId || !this.form.cus_name || 
-    (!this.form.account && (this.form.trading_model !== '4'&&this.form.trading_model !== '5'&&this.form.trading_model !== '6'))) { 
-      this.$message({
-        message: '必填欄位不可為空',
-        type: 'error'
-      });
-      return;
-    }
-    if(this.form.account_date?.length !== 7 || this.form.account_time?.length !== 13){
-      this.$message({
-              message: '日期或時間格式有錯',
-              type: 'error'
-            });
-            return
-    }
+      if (
+        !this.form.customerId ||
+        !this.form.cus_name ||
+        (!this.form.account &&
+          this.form.trading_model !== "4" &&
+          this.form.trading_model !== "5" &&
+          this.form.trading_model !== "6")
+      ) {
+        this.$message({
+          message: "必填欄位不可為空",
+          type: "error",
+        });
+        return;
+      }
+      if (this.form.account_date?.length !== 7) {
+        this.$message({
+          message: "日期或時間格式有錯",
+          type: "error",
+        });
+        return;
+      }
+      this.form.account_time = String(this.form.account_date) + "000000";
       const req = this.form;
       //發送 POST 請求
-      axios.post('http://122.116.23.30:3347/finance/createTBB', req)
-        .then(response => {
+      axios
+        .post("http://122.116.23.30:3347/finance/createTBB", req)
+        .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
-              message: '新增成功',
-              type: 'success'
+              message: "新增成功",
+              type: "success",
             });
             // 清空表單
-            this.form.customerId = '';
-            this.form.cus_name = '';
-            this.form.trading_model = '';
-            this.form.bank='';
-            this.form.taxId='';
-            this.form.account = '';
-            this.form.account_date = '';
-            this.form.account_time='',
-            this.form.amount = '';
-            this.form.remark = '';
+            this.form.customerId = "";
+            this.form.cus_name = "";
+            this.form.trading_model = "";
+            this.form.bank = "";
+            this.form.taxId = "";
+            this.form.account = "";
+            this.form.account_date = "";
+            (this.form.account_time = ""), (this.form.amount = "");
+            this.form.remark = "";
+            this.form.credit_card_data = "";
             // 關閉對話框
             this.dialog = false;
             // 刷新數據
@@ -242,199 +307,208 @@
           } else {
             // 處理非 0 成功代碼
             this.$message({
-              message: '新增失敗',
-              type: 'error'
+              message: "新增失敗",
+              type: "error",
             });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           // 發生錯誤時，顯示錯誤提示
           this.$message({
-            message: '新增失敗，伺服器錯誤',
-            type: 'error'
+            message: "新增失敗，伺服器錯誤",
+            type: "error",
           });
-          console.error('Error:', error);
+          console.error("Error:", error);
         });
-    }, 
+    },
     async getcus() {
-      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
-        .then(response => {
+      await axios
+        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .then((response) => {
           this.cusData = response.data.data;
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-          console.error('API request failed:', error);
+          console.error("API request failed:", error);
         });
-  },
+    },
     async getselectData() {
-      this.loading = true;  // 開始加載
-      await axios.get('http://122.116.23.30:3347/finance/selectTBB')
-        .then(response => {
+      this.loading = true; // 開始加載
+      await axios
+        .get("http://122.116.23.30:3347/finance/selectTBB")
+        .then((response) => {
           this.BankData = response.data.data;
           this.BankData.forEach((bankItem) => {
-          const matchingCustomer = this.cusData.find((cusItem) => cusItem.cus_code === bankItem.customerId);
-          if (matchingCustomer) {
-            // 新增 cus_name 到 BankData 中
-            bankItem.cus_name = matchingCustomer.cus_name;
-          } else {
-            // 如果沒找到，可以選擇設置為空值或其他提示
-            bankItem.cus_name = '未知客戶';
-          }
-        });
+            const matchingCustomer = this.cusData.find(
+              (cusItem) => cusItem.cus_code === bankItem.customerId
+            );
+            if (matchingCustomer) {
+              // 新增 cus_name 到 BankData 中
+              bankItem.cus_name = matchingCustomer.cus_name;
+            } else {
+              // 如果沒找到，可以選擇設置為空值或其他提示
+              bankItem.cus_name = "未知客戶";
+            }
+          });
           this.BankData.sort((a, b) => b.account_date - a.account_date);
-          this.loading = false;  // 請求完成後關閉加載狀態
+          this.loading = false; // 請求完成後關閉加載狀態
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-          console.error('API request failed:', error);
+          console.error("API request failed:", error);
         });
-  },
-     handlePageChange(page) {
+    },
+    handlePageChange(page) {
       this.currentPage = page;
     },
-    
+
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
-      const postData ={
-        id:row.id,
-        delete_time:''
-      };
-      await axios.post('http://122.116.23.30:3347/finance/deleteTBB',postData)
-        .then(response => {
-          if(response.data.returnCode==0){
-            this.$message({
-              message: '刪除成功',
-              type: 'success'
-            });
+        const postData = {
+          id: row.id,
+          delete_time: "",
+        };
+        await axios
+          .post("http://122.116.23.30:3347/finance/deleteTBB", postData)
+          .then((response) => {
+            if (response.data.returnCode == 0) {
+              this.$message({
+                message: "刪除成功",
+                type: "success",
+              });
               this.getselectData();
-          }
-        })
-        .catch(error => {
-          // 處理錯誤
-          console.error('API request failed:', error);
-        });
+            }
+          })
+          .catch((error) => {
+            // 處理錯誤
+            console.error("API request failed:", error);
+          });
       }
     },
 
-  // SelectCus(){
-  //   if(!this.form.customerId){
-  //     this.$message({
-  //     message: '客戶代號不可為空',
-  //     type: 'error'
-  //     });
-  //     return
-  //   }
-     
-  //     this.form.amount=''
-  //   this.getdata(this.form.customerId = this.form.customerId.trim());
-  // },
-  // getdata(customerId){
-  //   const postData = {
-  //       cus_code:customerId,
-  //     };
-  //     console.log(JSON.stringify(postData))
-  //     axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
-  //       .then(response => {
-  //           this.form.cus_name = response.data.data[0].cus_name;
-  //       })
-  //       .catch(error => {
-  //         // 處理錯誤
-  //           this.$message({
-  //             message: '請確認客戶代號是否有誤',
-  //             type: 'error'
-  //           });
-  //         console.error('API request failed:', error);
-  //       });
-  //   },
+    // SelectCus(){
+    //   if(!this.form.customerId){
+    //     this.$message({
+    //     message: '客戶代號不可為空',
+    //     type: 'error'
+    //     });
+    //     return
+    //   }
+
+    //     this.form.amount=''
+    //   this.getdata(this.form.customerId = this.form.customerId.trim());
+    // },
+    // getdata(customerId){
+    //   const postData = {
+    //       cus_code:customerId,
+    //     };
+    //     console.log(JSON.stringify(postData))
+    //     axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
+    //       .then(response => {
+    //           this.form.cus_name = response.data.data[0].cus_name;
+    //       })
+    //       .catch(error => {
+    //         // 處理錯誤
+    //           this.$message({
+    //             message: '請確認客戶代號是否有誤',
+    //             type: 'error'
+    //           });
+    //         console.error('API request failed:', error);
+    //       });
+    //   },
     formatCurrency(value) {
-      if (!value) return '0';
+      if (!value) return "0";
       return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
     },
-    async getcusdata(){
-      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
-      .then(response => {
-          this.cusdata=response.data.data
-          this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
+    async getcusdata() {
+      await axios
+        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .then((response) => {
+          this.cusdata = response.data.data;
+          this.cusdata = this.cusdata.map(
+            (item) => `${item.cus_code} ${item.cus_name}`
+          );
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-            this.$message({
-              message: '系統有誤',
-              type: 'error'
-            });
-          console.error('API request failed:', error);
+          this.$message({
+            message: "系統有誤",
+            type: "error",
+          });
+          console.error("API request failed:", error);
         });
     },
-    getdata(){
-      this.form.cus_name=''
+    getdata() {
+      this.form.cus_name = "";
       const postData = {
-        cus_code:this.form.customerId,
-        customerId:this.form.customerId,
+        cus_code: this.form.customerId,
+        customerId: this.form.customerId,
       };
-     if(this.form.customerId.length==8){
-      this.form.cus_name='查詢中..'
-      axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
-        .then(response => {
+      if (this.form.customerId.length == 8) {
+        this.form.cus_name = "查詢中..";
+        axios
+          .post("http://122.116.23.30:3347/main/searchCustomer", postData)
+          .then((response) => {
             this.form.cus_name = response.data.data[0].cus_name;
-        })
-        .catch(error => {
-          // 處理錯誤
-            this.form.cus_name=''
+          })
+          .catch((error) => {
+            // 處理錯誤
+            this.form.cus_name = "";
             this.$message({
-              message: '請確認客戶代號是否有誤',
-              type: 'error'
+              message: "請確認客戶代號是否有誤",
+              type: "error",
             });
-          console.error('API request failed:', error);
-        });
-     } 
-    //  if(this.form.cus_name){
-    //   axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
-    //     .then(response => {
-    //         this.bills = response.data.data;
-    //         if(!this.bills.length){
-    //           this.$message({
-    //           message: '查無帳單資訊',
-    //           type: 'error'
-    //         });
-    //         return;
-    //         }
-    //     })
-    //     .catch(error => {
-    //       // 處理錯誤
-    //         this.form.cus_name=''
-    //         this.$message({
-    //           message: '系統錯誤',
-    //           type: 'error'
-    //         });
-    //       console.error('API request failed:', error);
-    //     });
-    //  }
+            console.error("API request failed:", error);
+          });
+      }
+      //  if(this.form.cus_name){
+      //   axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
+      //     .then(response => {
+      //         this.bills = response.data.data;
+      //         if(!this.bills.length){
+      //           this.$message({
+      //           message: '查無帳單資訊',
+      //           type: 'error'
+      //         });
+      //         return;
+      //         }
+      //     })
+      //     .catch(error => {
+      //       // 處理錯誤
+      //         this.form.cus_name=''
+      //         this.$message({
+      //           message: '系統錯誤',
+      //           type: 'error'
+      //         });
+      //       console.error('API request failed:', error);
+      //     });
+      //  }
+    },
   },
-  }
- };
-  </script>
-  
-  <style scoped>
-  h6 {
+};
+</script>
+
+<style scoped>
+h6 {
   color: rgb(255, 0, 0);
   margin-left: 20px;
-  }
-  .el-input{
-    width: 250px;
-  }
-  .el-button{
-    margin-left: 20px;
-  }
-  .page-title {
-    margin-top: 30px; 
-    margin-bottom: 30px; 
-    }
-    .table-container {
-    overflow-x: auto;
-    margin-bottom: 20px;
-  }
-  .pagination-container {
+}
+.el-input {
+  width: 250px;
+}
+.el-button {
+  margin-left: 20px;
+}
+.page-title {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+.pagination-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -457,4 +531,4 @@
   cursor: pointer;
   font-size: 20px; /* 调整图标的大小 */
 }
-  </style>
+</style>

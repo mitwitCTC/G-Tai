@@ -77,6 +77,7 @@
     title="請稍後..."
     :close-on-click-modal="false"
     :show-close="false"
+    
   />
 </template>
 

@@ -62,7 +62,7 @@
           </template>
        </el-table-column>
     </el-table>
-    <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false"></el-dialog>
+    <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false" :show-close="false"></el-dialog>
     <div class="pagination-container">
       <div class="pagination-info">
         Showing {{ startItem2 }} to {{ endItem2 }} of {{ filteredData.length }}

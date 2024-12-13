@@ -271,6 +271,7 @@
     width="15%"
     title="請稍後..."
     :close-on-click-modal="false"
+    :show-close="false"
   ></el-dialog>
 </template>
 
@@ -439,6 +440,7 @@ export default {
           time
         );
         this.result = response.data.data;
+        console.log(JSON.stringify(this.result))
       } catch (error) {
         console.error("API 請求失敗：" + error);
       }
@@ -698,11 +700,11 @@ export default {
               return [
                 index + 1, // 流水號
                 data.license_plate, // 假設 vehicleId 是車牌
-                data.product_name === "0006" ? "V" : "", // 超級柴油
-                data.product_name === "0001" ? "V" : "", // 無鉛汽油
-                data.product_name === "0005" ? "V" : "", // 酒精汽油
-                data.product_name === "0009" ? "V" : "", // 不限油品
-                data.product_name === "0017" ? "V" : "", // 尿素溶液
+                data.card_type === "2" ? "V" : "", // 超級柴油
+                data.card_type === "3" ? "V" : "", // 無鉛汽油
+                data.card_type === "0005" ? "V" : "", // 酒精汽油
+                data.card_type === "0009" ? "V" : "", // 不限油品
+                data.card_type === "1" ? "V" : "", // 尿素溶液
                 data.upload_reason === "新增" ? "V" : "", // 新增
                 data.upload_reason === "停用" ? "V" : "", // 停用
                 data.upload_reason === "遺失" ? "V" : "", // 遺失

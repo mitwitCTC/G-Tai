@@ -453,6 +453,7 @@
         v-model="dialogVehicle"
         width="90%"
         :close-on-click-modal="false"
+        @close="closeDialog"
       >
         <el-form
           :model="Vdialog"
@@ -466,7 +467,11 @@
             <el-form-item label="客戶名稱">
               <el-input v-model="Vdialog.cus_name" disabled></el-input>
             </el-form-item>
-            <el-button type="primary" @click="dialogDetails()" style="margin-left: 20px;">
+            <el-button
+              type="primary"
+              @click="dialogDetails()"
+              style="margin-left: 20px"
+            >
               查詢客戶詳情
             </el-button>
           </el-row>
@@ -545,54 +550,59 @@
               >
                 近三個月無交易紀錄
               </div>
-              <el-table
-                :data="Vdialog.Cpc"
-                style="width: 100%"
-                v-loading="loading"
-                v-if="Vdialog.Cpc.length > 0"
-              >
-                <el-table-column
-                  prop="trade_time"
-                  label="交易日期時間"
-                  width="200"
-                ></el-table-column>
-                <el-table-column
-                  prop="license_plate"
-                  label="車牌號碼"
-                  width="100"
-                />
-                <el-table-column prop="fuel_type" label="油品" width="150" />
-                <el-table-column
-                  prop="station_name"
-                  label="加油站名稱"
-                  width="250"
-                />
-                <el-table-column prop="fuel_volume" label="油量" width="150" />
-                <el-table-column
-                  prop="reference_price"
-                  label="參考單價"
-                  width="150"
-                />
-                <el-table-column
-                  prop="discount_amount"
-                  label="折讓金額"
-                  width="100"
-                  align="right"
-                  ><template v-slot="scope"
-                    >{{ formatCurrency(scope.row.discount_amount) }}
-                  </template></el-table-column
+              <div v-if="Vdialog.Cpc && Vdialog.Cpc.length > 0">
+                <el-table
+                  :data="Vdialog.Cpc"
+                  style="width: 100%"
+                  v-loading="loading"
                 >
-                <el-table-column
-                  prop="salesAmount"
-                  label="實收金額"
-                  width="150"
-                  align="right"
-                  ><template v-slot="scope"
-                    >{{ formatCurrency(scope.row.salesAmount) }}
-                  </template></el-table-column
-                >
-                <el-table-column prop="mileage" label="里程數" width="100" />
-              </el-table>
+                  <el-table-column
+                    prop="trade_time"
+                    label="交易日期時間"
+                    width="200"
+                  ></el-table-column>
+                  <el-table-column
+                    prop="license_plate"
+                    label="車牌號碼"
+                    width="100"
+                  />
+                  <el-table-column prop="fuel_type" label="油品" width="150" />
+                  <el-table-column
+                    prop="station_name"
+                    label="加油站名稱"
+                    width="250"
+                  />
+                  <el-table-column
+                    prop="fuel_volume"
+                    label="油量"
+                    width="150"
+                  />
+                  <el-table-column
+                    prop="reference_price"
+                    label="參考單價"
+                    width="150"
+                  />
+                  <el-table-column
+                    prop="discount_amount"
+                    label="折讓金額"
+                    width="100"
+                    align="right"
+                    ><template v-slot="scope"
+                      >{{ formatCurrency(scope.row.discount_amount) }}
+                    </template></el-table-column
+                  >
+                  <el-table-column
+                    prop="salesAmount"
+                    label="實收金額"
+                    width="150"
+                    align="right"
+                    ><template v-slot="scope"
+                      >{{ formatCurrency(scope.row.salesAmount) }}
+                    </template></el-table-column
+                  >
+                  <el-table-column prop="mileage" label="里程數" width="100" />
+                </el-table>
+              </div>
             </div>
           </el-form-item>
         </el-form>
@@ -603,6 +613,7 @@
         width="15%"
         title="請稍後..."
         :close-on-click-modal="false"
+        :show-close="false"
       />
     </div>
   </div>
@@ -858,7 +869,6 @@ export default {
         .post("http://122.116.23.30:3347/main/viewAccount_sort", postData)
         .then((response) => {
           this.Vdialog.bills = response.data.data;
-          console.log(JSON.stringify(this.Vdialog.bills));
         })
         .catch((error) => {
           // 處理錯誤
@@ -875,7 +885,6 @@ export default {
         .post("http://122.116.23.30:3347/main/searchCard", postData)
         .then((response) => {
           this.Vdialog.Card = response.data.data;
-          console.log(JSON.stringify(this.Vdialog.Card));
         })
         .catch((error) => {
           // 處理錯誤
@@ -913,8 +922,6 @@ export default {
         this.Vdialog.Cpc = responses
           .flatMap((response) => response.data.data)
           .filter((item) => item.license_plate === license_plate);
-
-        console.log("近三個月數據：", JSON.stringify(this.Vdialog.Cpc));
       } catch (error) {
         console.error("API request failed:", error);
       }
@@ -1026,22 +1033,28 @@ export default {
         });
     },
     viewDetails(row) {
-      this.$router.push({
-        path: "SelectView",
-        query: {
-          rowType: "1",
-          cus_code: row.cus_code,
-        },
-      });
+      // this.$router.push({
+      //   path: "SelectView",
+      //   query: {
+      //     rowType: "1",
+      //     cus_code: row.cus_code,
+      //   },
+      // });
+      const edoc = row.cus_code;
+      const url = `http://122.116.23.30:3347/basic-info/SelectView?rowType=1&cus_code=${edoc}`;
+      window.open(url, "_blank");
     },
     dialogDetails() {
-      this.$router.push({
-        path: "SelectView",
-        query: {
-          rowType: "1",
-          cus_code: this.Vdialog.cus_code,
-        },
-      });
+      // this.$router.push({
+      //   path: "SelectView",
+      //   query: {
+      //     rowType: "1",
+      //     cus_code: this.Vdialog.cus_code,
+      //   },
+      // });
+      const edoc = this.Vdialog.cus_code;
+      const url = `http://122.116.23.30:3347/basic-info/SelectView?rowType=1&cus_code=${edoc}`;
+      window.open(url, "_blank");
     },
     editItem(row) {
       this.$router.push({
@@ -1096,10 +1109,10 @@ export default {
       //     cus_name: row.cus_name,
       //   },
       // });
-      const edoc= row.cus_code;
-      const eman= row.cus_name;
-      const url = `http://122.116.23.30:3347/basic-info/contact?cus_code=${edoc}&cus_name=${eman}`
-      window.open(url,"_blank");
+      const edoc = row.cus_code;
+      const eman = row.cus_name;
+      const url = `http://122.116.23.30:3347/basic-info/contact?cus_code=${edoc}&cus_name=${eman}`;
+      window.open(url, "_blank");
     },
     onBill(row) {
       // this.$router.push({
@@ -1109,10 +1122,10 @@ export default {
       //     cus_name: row.cus_name,
       //   },
       // });
-      const edoc= row.cus_code;
-      const eman= row.cus_name;
-      const url = `http://122.116.23.30:3347/basic-info/bill?cus_code=${edoc}&cus_name=${eman}`
-      window.open(url,"_blank");
+      const edoc = row.cus_code;
+      const eman = row.cus_name;
+      const url = `http://122.116.23.30:3347/basic-info/bill?cus_code=${edoc}&cus_name=${eman}`;
+      window.open(url, "_blank");
     },
 
     onDiscount(row) {
@@ -1123,10 +1136,10 @@ export default {
       //     cus_name: row.cus_name,
       //   },
       // });
-      const edoc= row.cus_code;
-      const eman= row.cus_name;
-      const url = `http://122.116.23.30:3347/basic-info/discount?cus_code=${edoc}&cus_name=${eman}`
-      window.open(url,"_blank");
+      const edoc = row.cus_code;
+      const eman = row.cus_name;
+      const url = `http://122.116.23.30:3347/basic-info/discount?cus_code=${edoc}&cus_name=${eman}`;
+      window.open(url, "_blank");
     },
     format(card_type) {
       const type = toRaw(card_type);
@@ -1135,6 +1148,16 @@ export default {
     formatCurrency(value) {
       if (isNaN(value) || value == null || value === "") return "0"; // 處理非數字情況
       return Number(value).toLocaleString(); // 千分位格式化
+    },
+    closeDialog() {
+      (this.Vdialog = {
+        cus_code: "",
+        cus_name: "",
+        bills: [],
+        Card: [],
+        Cpc: [],
+      }),
+        (this.dialogVehicle = false);
     },
   },
   mounted() {

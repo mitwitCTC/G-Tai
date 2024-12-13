@@ -54,7 +54,7 @@
   <div class="button-container">
     <el-button type="primary" @click="save">送出</el-button>
   </div>
-  <el-dialog v-model="isLoading"  title="請稍後..." :close-on-click-modal="false"/>
+  <el-dialog v-model="isLoading"  title="請稍後..." :close-on-click-modal="false" :show-close="false"/>
 </div>
 
 </template>

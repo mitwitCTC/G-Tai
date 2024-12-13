@@ -126,7 +126,7 @@
       </div>
     </template>
   </el-dialog>
-  <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false">
+  <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false" :show-close="false">
   <!-- 這裡是你的表單或內容 -->
   </el-dialog>
     <div style="margin-bottom: 50px;"></div>
