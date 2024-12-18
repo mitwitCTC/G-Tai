@@ -1,12 +1,23 @@
 <template>
   <div>
     <ListBar />
-    <div class="page-title"><h2>{{ pageTitle }}</h2></div>
+    <div class="page-title">
+      <h2>{{ pageTitle }}</h2>
+    </div>
     <div>
       <BreadCrumb :isSpecialPage="true" />
     </div>
-    <el-button type="success" @click="dialogBill = true">新增帳單資料</el-button>
-    <div class="page-title"><h5>客戶代號:<h4>{{this.cus_code}}</h4>客戶名稱:<h4>{{this.cus_name}}</h4></h5></div>
+    <el-button type="success" @click="dialogBill = true"
+      >新增帳單資料</el-button
+    >
+    <div class="page-title">
+      <h5>
+        客戶代號:
+        <h4>{{ this.cus_code }}</h4>
+        客戶名稱:
+        <h4>{{ this.cus_name }}</h4>
+      </h5>
+    </div>
     <div class="table-container">
       <el-table :data="currentPageData" style="width: 100%" v-loading="loading">
         <!-- <el-table-column prop="account_sortId" label="帳單編號" width="150" /> -->
@@ -17,14 +28,17 @@
         <el-table-column prop="billing_method" label="寄送方式" :formatter="formatbilling_method"  width="150" />
         <el-table-column prop="address_email" label="收件地址/Mail"width="300" /> -->
         <el-table-column label="操作">
-        <template v-slot="scope">
-          <div class="action-icons">
-            <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
-            <i class="fas fa-edit " @click="editItem(scope.row)"></i>
-            <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
-          </div>
-        </template>
-      </el-table-column>
+          <template v-slot="scope">
+            <div class="action-icons">
+              <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
+              <i class="fas fa-edit" @click="editItem(scope.row)"></i>
+              <i
+                class="fa-solid fa-trash-can"
+                @click="deleteItem(scope.row)"
+              ></i>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="pagination-container">
@@ -40,29 +54,74 @@
         class="pagination"
       />
     </div>
-      <div class="page-title"><h2>車籍資料維護</h2></div>
-      <el-form :inline="true" :model="search" class="demo-form-inline">
-        <el-form-item label="搜尋車牌號碼">
-          <el-input v-model="search.license_plate" placeholder="輸入車牌號碼" style="width: 225px;"></el-input>
-        </el-form-item> 
-        <!-- <el-button type="warning" @click="dialog = true">新增車籍</el-button> -->
-      </el-form>
-      <el-table :data="currentPageData2" style="width: 100%" v-loading="loading">
-        <el-table-column prop="account_sortId" label="帳單名稱" width="300"><template v-slot="scope">{{ formatName(scope.row.account_sortId)}} </template></el-table-column>
-        <el-table-column prop="license_plate" label="車牌號碼" width="450" />
-        <!-- <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" /> -->
-        <el-table-column prop="product_name" label="產品名稱"  width="500" ><template v-slot="scope">{{ formatProduct(scope.row.product_name)}} </template></el-table-column>
-        <el-table-column label="操作">
-          <template v-slot="scope">
-            <div class="action-icons">
-              <i class="fas fa-edit " @click="editItemVehicle(scope.row)"></i>
-              <i class="fa-solid fa-trash-can"  @click="deleteItemVehicle(scope.row)"></i>
-              <el-button type="warning" @click="onVehicle(scope.row)">車籍卡片</el-button>
-            </div>
-          </template>
-       </el-table-column>
+    <div class="page-title"><h2>車籍資料維護</h2></div>
+    <el-form :inline="true" :model="search" class="demo-form-inline">
+      <el-form-item label="搜尋車牌號碼">
+        <el-input
+          v-model="search.license_plate"
+          placeholder="輸入車牌號碼"
+          style="width: 225px"
+        ></el-input>
+        <el-button
+          type="warning"
+          @click="handleExport"
+          style="margin-left: 20px"
+          >匯出車籍</el-button
+        >
+      </el-form-item>
+      <!-- <el-button type="warning" @click="dialog = true">新增車籍</el-button> -->
+    </el-form>
+
+    <el-table :data="currentPageData2" style="width: 100%" v-loading="loading">
+      <el-table-column prop="account_sortId" label="帳單名稱" width="300"
+        ><template v-slot="scope"
+          >{{ formatName(scope.row.account_sortId) }}
+        </template></el-table-column
+      >
+      <el-table-column prop="license_plate" label="車牌號碼" width="200" />
+      <!-- <el-table-column prop="vehicle_type" label="車輛型態" :formatter="formatType" width="300" /> -->
+      <el-table-column prop="product_name" label="產品名稱" width="200"
+        ><template v-slot="scope"
+          >{{ formatProduct(scope.row.product_name) }}
+        </template></el-table-column
+      >
+      <el-table-column
+        prop="card_number"
+        label="卡號"
+        width="250"
+      ></el-table-column>
+      <el-table-column
+        prop="card_arrival_date"
+        label="到卡日期"
+        width="200"
+      ></el-table-column>
+      <el-table-column
+        prop="card_stop_date"
+        label="停卡日期"
+        width="200"
+      ></el-table-column>
+      <el-table-column label="操作">
+        <template v-slot="scope">
+          <div class="action-icons">
+            <i class="fas fa-edit" @click="editItemVehicle(scope.row)"></i>
+            <i
+              class="fa-solid fa-trash-can"
+              @click="deleteItemVehicle(scope.row)"
+            ></i>
+            <el-button type="warning" @click="onVehicle(scope.row)"
+              >車籍卡片</el-button
+            >
+          </div>
+        </template>
+      </el-table-column>
     </el-table>
-    <el-dialog v-model="isLoading" width="15%" title="請稍後..." :close-on-click-modal="false" :show-close="false"></el-dialog>
+    <el-dialog
+      v-model="isLoading"
+      width="15%"
+      title="請稍後..."
+      :close-on-click-modal="false"
+      :show-close="false"
+    ></el-dialog>
     <div class="pagination-container">
       <div class="pagination-info">
         Showing {{ startItem2 }} to {{ endItem2 }} of {{ filteredData.length }}
@@ -76,50 +135,59 @@
         class="pagination"
       />
     </div>
-    <div style="margin-bottom: 50px;"></div>
-    
+    <div style="margin-bottom: 50px"></div>
 
     <!-- 新增帳單資訊 -->
-    <el-dialog title="新增帳單資訊" v-model="dialogBill" width="50%" :close-on-click-modal="false">
-      <el-form :model="billform" label-width="120px"> <!-- 统一標籤寬度 -->
+    <el-dialog
+      title="新增帳單資訊"
+      v-model="dialogBill"
+      width="50%"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="billform" label-width="120px">
+        <!-- 统一標籤寬度 -->
         <el-row style="margin-bottom: 20px">
           <el-form-item label="帳單名稱">
-            <el-input v-model="billform.acc_name" ></el-input>
+            <el-input v-model="billform.acc_name"></el-input>
           </el-form-item>
           <!-- <el-form-item label="開立統編">
             <el-input v-model="billform.use_number" ></el-input>
           </el-form-item> -->
           <el-form-item label="開立統編">
-          <el-select  v-model="billform.use_number"
-          filterable
-          allow-create
-          clearable
-          placeholder="請選擇或輸入統編">
-            <el-option
-              v-for="bill in uniqueBills"
-              :key="bill.account_sortId "
-              :label="bill.use_number"
-              :value="bill.use_number "
-          ></el-option>
-          </el-select>
-        </el-form-item>
+            <el-select
+              v-model="billform.use_number"
+              filterable
+              allow-create
+              clearable
+              placeholder="請選擇或輸入統編"
+            >
+              <el-option
+                v-for="bill in uniqueBills"
+                :key="bill.account_sortId"
+                :label="bill.use_number"
+                :value="bill.use_number"
+              ></el-option>
+            </el-select>
+          </el-form-item>
           <!-- <el-form-item label="發票開立人名稱">
             <el-input v-model="billform.invoice_name" ></el-input>
           </el-form-item> -->
           <el-form-item label="發票抬頭">
-          <el-select  v-model="billform.invoice_name"
-          filterable
-          allow-create
-          clearable
-          placeholder="請輸入發票抬頭">
-            <el-option
-              v-for="bill in uniqueNameBills"
-              :key="bill.account_sortId "
-              :label="bill.invoice_name"
-              :value="bill.invoice_name "
-          ></el-option>
-          </el-select>
-        </el-form-item>
+            <el-select
+              v-model="billform.invoice_name"
+              filterable
+              allow-create
+              clearable
+              placeholder="請輸入發票抬頭"
+            >
+              <el-option
+                v-for="bill in uniqueNameBills"
+                :key="bill.account_sortId"
+                :label="bill.invoice_name"
+                :value="bill.invoice_name"
+              ></el-option>
+            </el-select>
+          </el-form-item>
           <!-- <el-form-item label="帳單寄送方式">
           <el-select v-model="billform.billing_method" placeholder="選擇方式">
             <el-option label="MAIL" :value="1"></el-option>
@@ -175,34 +243,40 @@
         <el-form-item label="對帳單注意事項" style="width: 1000px">
           <el-input v-model="billform.statement_remarks" type="textarea" ></el-input>
         </el-form-item> -->
-      </el-row>
-    </el-form>
-    <template v-slot:footer>
-      <div  class="dialog-footer">
-        <el-button @click="dialog = false">取消</el-button>
-        <el-button type="primary" @click="savePassbill">送出</el-button>
-      </div>
-    </template>
-  </el-dialog>
+        </el-row>
+      </el-form>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <el-button @click="dialog = false">取消</el-button>
+          <el-button type="primary" @click="savePassbill">送出</el-button>
+        </div>
+      </template>
+    </el-dialog>
 
-       <!-- 新增車籍資訊 -->
-       <el-dialog title="新增車籍資訊" v-model="dialog" width="50%" :close-on-click-modal="false">
-        <el-form :model="form" label-width="120px"> <!-- 统一標籤寬度 -->
-          <el-row style="margin-bottom: 20px">
-            <el-form-item label="帳單名稱">
-          <el-select v-model="form.account_sortId" placeholder="選擇帳單">
-            <el-option
-              v-for="id in bills"
-              :key="id.account_sortId"
-              :label="id.acc_name"
-              :value="id.account_sortId"
-          ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="車牌號碼">
-          <el-input v-model="form.license_plate" maxlength="11" ></el-input>
-        </el-form-item>
-        <!-- <el-form-item label="車輛型態">
+    <!-- 新增車籍資訊 -->
+    <el-dialog
+      title="新增車籍資訊"
+      v-model="dialog"
+      width="50%"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="form" label-width="120px">
+        <!-- 统一標籤寬度 -->
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="帳單名稱">
+            <el-select v-model="form.account_sortId" placeholder="選擇帳單">
+              <el-option
+                v-for="id in bills"
+                :key="id.account_sortId"
+                :label="id.acc_name"
+                :value="id.account_sortId"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="車牌號碼">
+            <el-input v-model="form.license_plate" maxlength="11"></el-input>
+          </el-form-item>
+          <!-- <el-form-item label="車輛型態">
           <el-select v-model="form.vehicle_type" placeholder="選擇車輛型態">
             <el-option label="大巴" :value="1"></el-option>
             <el-option label="中巴" :value="2"></el-option>
@@ -211,98 +285,100 @@
             <el-option label="臨時卡" :value="5"></el-option>
           </el-select>
         </el-form-item> -->
-        <el-form-item label="產品名稱">
-          <el-select v-model="form.product_name" placeholder="選擇油品">
-            <el-option
-              v-for="id in productMap"
-              :key="id.id"
-              :label="id.className"
-              :value="id.classId"
-          ></el-option>
-          </el-select>
-        </el-form-item>
+          <el-form-item label="產品名稱">
+            <el-select v-model="form.product_name" placeholder="選擇油品">
+              <el-option
+                v-for="id in productMap"
+                :key="id.id"
+                :label="id.className"
+                :value="id.classId"
+              ></el-option>
+            </el-select>
+          </el-form-item>
         </el-row>
-        </el-form>
-          <template v-slot:footer>
-          <div  class="dialog-footer">
-            <el-button type="success" @click="savePass(2)">送出並儲存</el-button>
-            <el-button @click="dialog = false">取消</el-button>
-            <el-button type="primary" @click="savePass(1)">送出</el-button>
-          </div>
-        </template>
-      </el-dialog>
+      </el-form>
+      <template v-slot:footer>
+        <div class="dialog-footer">
+          <el-button type="success" @click="savePass(2)">送出並儲存</el-button>
+          <el-button @click="dialog = false">取消</el-button>
+          <el-button type="primary" @click="savePass(1)">送出</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import ListBar from '@/components/ListBar.vue';
-import BreadCrumb from '@/components/BreadCrumb.vue';
-import axios from 'axios';
-import { toRaw } from 'vue'; 
+import ListBar from "@/components/ListBar.vue";
+import BreadCrumb from "@/components/BreadCrumb.vue";
+import axios from "axios";
+import { toRaw } from "vue";
+import ExportSelCard from "@/components/ExportSelCard.vue";
+
 
 export default {
   components: {
     BreadCrumb,
     ListBar,
- 
+    ExportSelCard,
   },
   data() {
     return {
-      isLoading:false,
-      loading:false,
-      contact:[],
-      cus_code:'',
-      cus_name:'',
+      isLoading: false,
+      loading: false,
+      contact: [],
+      cus_code: "",
+      cus_name: "",
       dialogBill: false,
       dialog: false,
       search: {
-        license_plate: ''
+        license_plate: "",
       },
       bills: [],
       vehicles: [],
-      productMap:[],
-      productType:{
-        "1": "大巴",
-        "2": "中巴",
-        "3": "自小客",
-        "4": "油罐卡",
-        "5": "臨時卡"
+      productMap: [],
+      productType: {
+        1: "大巴",
+        2: "中巴",
+        3: "自小客",
+        4: "油罐卡",
+        5: "臨時卡",
       },
-      billing_methodMap:{
-        "0": "不需要",
-        "1": "MAIL",
-        "2": "平信",
-        "3": "官方LINE",
-        "4": "掛號",
-        "5": "合併寄",
+      billing_methodMap: {
+        0: "不需要",
+        1: "MAIL",
+        2: "平信",
+        3: "官方LINE",
+        4: "掛號",
+        5: "合併寄",
       },
-      billform:{
-        customerId:'',
-        acc_name:'',
-        use_number:'',
-        invoice_name:'',
-        billing_method:'',
-        address_email:'',
-        statement_print:'',
-        recipient_name:'',
-        acc_contact:'',
-        statement_notes:'',
-        statement_remarks:'',
-        createTime:''
+      billform: {
+        customerId: "",
+        acc_name: "",
+        use_number: "",
+        invoice_name: "",
+        billing_method: "",
+        address_email: "",
+        statement_print: "",
+        recipient_name: "",
+        acc_contact: "",
+        statement_notes: "",
+        statement_remarks: "",
+        createTime: "",
       },
-      form:{
-        customerId:'',
-        createTime:''
+      form: {
+        customerId: "",
+        createTime: "",
       },
       currentPage: 1,
-      currentPage2:1,
-      pageSize: 10
+      currentPage2: 1,
+      pageSize: 10,
     };
   },
   created() {
     // this.rowData = JSON.parse(this.$route.query.rowData);
-    this.cus_code = (this.$route.query.cus_code);
-    this.cus_name = (this.$route.query.cus_name);
+    this.cus_code = this.$route.query.cus_code;
+    this.cus_name = this.$route.query.cus_name;
     this.billform.customerId = this.cus_code;
     this.form.customerId = this.cus_code;
     this.getbillselectData();
@@ -313,8 +389,8 @@ export default {
   },
   computed: {
     //1為帳單資料 2為車籍資料
-   // 計算當前頁面顯示的數據
-   currentPageData() {
+    // 計算當前頁面顯示的數據
+    currentPageData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
       return this.bills.slice(start, end);
@@ -329,7 +405,7 @@ export default {
       return Math.min(end, this.bills.length);
     },
     // 計算當前頁面顯示的數據
-   currentPageData2() {
+    currentPageData2() {
       const start = (this.currentPage2 - 1) * this.pageSize;
       const end = start + this.pageSize;
       return this.filteredData.slice(start, end);
@@ -345,16 +421,16 @@ export default {
     },
     filteredData() {
       const searchTerm = this.search.license_plate.trim().toLowerCase();
-      return this.vehicles.filter(item => {
-      const license_plate = item.license_plate ? item.license_plate.toLowerCase() : '';
-      return (
-          license_plate.includes(searchTerm)
-        );
+      return this.vehicles.filter((item) => {
+        const license_plate = item.license_plate
+          ? item.license_plate.toLowerCase()
+          : "";
+        return license_plate.includes(searchTerm);
       });
     },
     uniqueBills() {
       const seen = new Set();
-      return this.bills.filter(bill => {
+      return this.bills.filter((bill) => {
         // 只保留第一次出現的 account_sortId
         if (!seen.has(bill.use_number)) {
           seen.add(bill.use_number);
@@ -365,7 +441,7 @@ export default {
     },
     uniqueNameBills() {
       const seen = new Set();
-      return this.bills.filter(bill => {
+      return this.bills.filter((bill) => {
         // 只保留第一次出現的 account_sortId
         if (!seen.has(bill.invoice_name)) {
           seen.add(bill.invoice_name);
@@ -376,90 +452,169 @@ export default {
     },
   },
   methods: {
+    async handleExport() {
+    
+        try {
+          this.isLoading=true
+          await ExportSelCard.methods.exportExcel(this.cus_code,this.cus_name);
+          // 顯示成功訊息
+          this.$message({
+            message: `匯出成功`,
+            type: "success",
+          });
+        } catch {
+          this.$message({
+            message: `匯出失敗`,
+            type: "error",
+          });
+        }finally{
+          this.isLoading=false
+        }
+    },
     async getcontact() {
       const postData = {
-      customerId:this.cus_code,
+        customerId: this.cus_code,
       };
-      await axios.post('http://122.116.23.30:3347/main/searchContact',postData)
-        .then(response => {
+      await axios
+        .post("http://122.116.23.30:3347/main/searchContact", postData)
+        .then((response) => {
           this.contact = response.data.data;
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-          console.error('API request failed:', error);
+          console.error("API request failed:", error);
         });
     },
     async getbillselectData() {
       this.loading = true;
       const postData = {
-      customerId:this.cus_code,
+        customerId: this.cus_code,
       };
-      await axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
-        .then(response => {
+      await axios
+        .post("http://122.116.23.30:3347/main/searchAccount_sort", postData)
+        .then((response) => {
           this.bills = response.data.data;
           this.bills = response.data.data.sort((a, b) => {
-          return a.acc_name.localeCompare(b.acc_name, 'zh-Hans-TW-u-kn-true');
-        });
-          this.loading = false;  // 請求完成後關閉加載狀態
+            return a.acc_name.localeCompare(b.acc_name, "zh-Hans-TW-u-kn-true");
+          });
+          this.loading = false; // 請求完成後關閉加載狀態
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-          console.error('API request failed:', error);
+          console.error("API request failed:", error);
         });
     },
     async getproduct_name() {
-      await axios.get('http://122.116.23.30:3347/main/selectProduct')
-        .then(response => {
+      await axios
+        .get("http://122.116.23.30:3347/main/selectProduct")
+        .then((response) => {
           this.productMap = response.data.data;
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-          console.error('API request failed:', error);
+          console.error("API request failed:", error);
         });
     },
     async getselectData() {
       this.loading = true;
       const postData = {
-      customerId:this.cus_code,
+        customerId: this.cus_code,
       };
-      await axios.post('http://122.116.23.30:3347/main/searchVehicle',postData)
-        .then(response => {
-          this.vehicles = response.data.data;
-          this.loading = false;  // 請求完成後關閉加載狀態
+
+      try {
+        const response = await axios.post(
+          "http://122.116.23.30:3347/main/searchVehicle",
+          postData
+        );
+
+        if (!response.data.data) {
+          console.error("Invalid vehicle data");
+          this.vehicles = [];
+          this.loading = false;
+          return;
+        }
+
+        this.vehicles = response.data.data;
+        const promises = this.vehicles.map(async (vehicle) => {
+          try {
+            await this.selectCard(vehicle.vehicleId, vehicle);
+          } catch (error) {
+            console.error(
+              `Error processing vehicleId: ${vehicle.vehicleId}`,
+              error
+            );
+          }
+        });
+
+        await Promise.all(promises);
+      } catch (error) {
+        console.error("API request failed:", error);
+      } finally {
+        this.loading = false; // 確保請求完成後關閉加載狀態
+      }
+    },
+
+    async selectCard(vehicleId, vehicle) {
+      const postData = {
+        vehicleId: vehicleId,
+        status: 1,
+      };
+      await axios
+        .post("http://122.116.23.30:3347/main/searchCard", postData)
+        .then((response) => {
+          const result = response.data.data;
+          // 如果查詢結果有多筆資料
+          if (result.length > 1) {
+            // 推入原本的 vehicleId，並設定 card_number = 0
+            vehicle.card_number = "有多筆卡號，請至車籍卡片查看";
+          } // 如果只有一筆資料
+          else if (result.length === 1) {
+            const singleCard = result[0];
+            // 更新這筆 vehicleId 的資料，推入查詢結果
+            // 修改原本的 vehicle，新增查詢結果中的欄位
+            vehicle.card_number = singleCard.card_number;
+            vehicle.card_arrival_date = singleCard.card_arrival_date;
+            vehicle.card_stop_date = singleCard.card_stop_date;
+          }
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-          console.error('API request failed:', error);
+          console.error("API request failed:", error);
         });
     },
 
     savePassbill() {
-      if((!this.billform.invoice_name)|| (! this.billform.use_number)||(!this. billform.acc_name)){
+      if (
+        !this.billform.invoice_name ||
+        !this.billform.use_number ||
+        !this.billform.acc_name
+      ) {
         this.$message({
-              message: '欄位不得為空',
-              type: 'warning'
-            });
+          message: "欄位不得為空",
+          type: "warning",
+        });
       }
       const req = this.billform;
       //發送 POST 請求
-      axios.post('http://122.116.23.30:3347/main/createAccount_sort', req)
-        .then(response => {
+      axios
+        .post("http://122.116.23.30:3347/main/createAccount_sort", req)
+        .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
             this.$message({
-              message: '新增成功',
-              type: 'success'
+              message: "新增成功",
+              type: "success",
             });
-            this.form.acc_name = '';
-            this.form.use_number = '';
-            this.form.invoice_name = '';
-            this.form.billing_method = '';
-            this.form.address_email = '';
-            this.form.statement_print = '';
-            this.form.recipient_name = '';
-            this.form.acc_contact = '';
-            this.form.statement_notes = '';
-            this.form.statement_remarks = '';
+            this.form.acc_name = "";
+            this.form.use_number = "";
+            this.form.invoice_name = "";
+            this.form.billing_method = "";
+            this.form.address_email = "";
+            this.form.statement_print = "";
+            this.form.recipient_name = "";
+            this.form.acc_contact = "";
+            this.form.statement_notes = "";
+            this.form.statement_remarks = "";
             // 關閉對話框
             this.dialogBill = false;
 
@@ -468,95 +623,103 @@ export default {
           } else {
             // 處理非 0 成功代碼
             this.$message({
-              message: '新增失敗',
-              type: 'error'
+              message: "新增失敗",
+              type: "error",
             });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           // 發生錯誤時，顯示錯誤提示
           this.$message({
-            message: '新增失敗，伺服器錯誤',
-            type: 'error'
+            message: "新增失敗，伺服器錯誤",
+            type: "error",
           });
-          console.error('Error:', error);
+          console.error("Error:", error);
         });
-    }, 
+    },
     savePass(type) {
-      if((!this.form.license_plate)||(!this.form.account_sortId)||(!this.form.product_name))
-      {
+      if (
+        !this.form.license_plate ||
+        !this.form.account_sortId ||
+        !this.form.product_name
+      ) {
         this.$message({
-              message: '欄位不可為空',
-              type: 'error'
-            });
-            this.form.license_plate=''
-            return
+          message: "欄位不可為空",
+          type: "error",
+        });
+        this.form.license_plate = "";
+        return;
       }
       this.form.license_plate = this.form.license_plate.trim();
       if (this.licens.includes(this.form.license_plate)) {
         this.$message({
-              message: '此車牌已登入',
-              type: 'error'
-            });
-            this.form.license_plate=''
-            return
-      } 
+          message: "此車牌已登入",
+          type: "error",
+        });
+        this.form.license_plate = "";
+        return;
+      }
       this.isLoading = true; // 請求開始，顯示 loading 標示
       const req = this.form;
       //發送 POST 請求
-      axios.post('http://122.116.23.30:3347/main/createVehicle', req)
-        .then(response => {
+      axios
+        .post("http://122.116.23.30:3347/main/createVehicle", req)
+        .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             this.isLoading = false;
             // 成功提示
             this.$message({
-              message: '新增成功',
-              type: 'success'
+              message: "新增成功",
+              type: "success",
             });
             this.getVehicle();
-            if(type==1){
-            this.form.license_plate = '';
-            this.form.account_sortId = '';
-            this.form.product_name = '';
-            // 關閉對話框
-            this.dialog = false;
-          }else if(type==2){
-          }
-          this.getselectData();
+            if (type == 1) {
+              this.form.license_plate = "";
+              this.form.account_sortId = "";
+              this.form.product_name = "";
+              // 關閉對話框
+              this.dialog = false;
+            } else if (type == 2) {
+            }
+            this.getselectData();
           } else {
             // 處理非 0 成功代碼
             this.$message({
-              message: '新增失敗',
-              type: 'error'
+              message: "新增失敗",
+              type: "error",
             });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           this.isLoading = false;
           // 發生錯誤時，顯示錯誤提示
           this.$message({
-            message: '新增失敗，伺服器錯誤',
-            type: 'error'
+            message: "新增失敗，伺服器錯誤",
+            type: "error",
           });
-          console.error('Error:', error);
+          console.error("Error:", error);
         });
-    }, 
+    },
     formatName(account_sortId) {
       // 使用 find 方法找到對應的 employee_name
-      const account = this.bills.find(item => item.account_sortId == account_sortId);
-      return account == null ? '' : (account ? account.acc_name : '未知名稱');
+      const account = this.bills.find(
+        (item) => item.account_sortId == account_sortId
+      );
+      return account == null ? "" : account ? account.acc_name : "未知名稱";
     },
     formatType(vehicle_type) {
       const rawproduct = toRaw(vehicle_type);
-      return this.productType[rawproduct.vehicle_type] || '未知';
+      return this.productType[rawproduct.vehicle_type] || "未知";
     },
     formatbilling_method(billing_method) {
       const rawproduct = toRaw(billing_method);
-      return this.billing_methodMap[rawproduct.billing_method] || '未知';
+      return this.billing_methodMap[rawproduct.billing_method] || "未知";
     },
     formatProduct(product_name) {
-      const product = this.productMap.find(item => item.classId == product_name);
-      return product == null ? '' : (product ? product.className : '未知名稱');
+      const product = this.productMap.find(
+        (item) => item.classId == product_name
+      );
+      return product == null ? "" : product ? product.className : "未知名稱";
     },
     handlePageChange(page) {
       this.currentPage = page;
@@ -564,149 +727,151 @@ export default {
     handlePageChange2(page) {
       this.currentPage2 = page;
     },
-    
+
     viewDetails(row) {
-      this.$router.push({ 
-        path: 'SelectView',
+      this.$router.push({
+        path: "SelectView",
         query: {
-          rowType:'3',
-          cus_name:this.cus_name,
-          cus_code:this.cus_code,
-          account_sortId :row.account_sortId 
-        }
+          rowType: "3",
+          cus_name: this.cus_name,
+          cus_code: this.cus_code,
+          account_sortId: row.account_sortId,
+        },
       });
     },
     editItem(row) {
-      this.$router.push({ 
-        path: 'UpdateView',
+      this.$router.push({
+        path: "UpdateView",
         query: {
-          rowType:'3',
-          cus_name:this.cus_name,
-          cus_code:this.cus_code,
-          account_sortId :row.account_sortId 
-        }
+          rowType: "3",
+          cus_name: this.cus_name,
+          cus_code: this.cus_code,
+          account_sortId: row.account_sortId,
+        },
       });
     },
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
-      const req = {
-        account_sortId:row.account_sortId,
-        deleteTime:''
-      };
-      await axios.post('http://122.116.23.30:3347/main/deleteAccount_sort', req)
-        .then(response => {
-          if (response.status === 200 && response.data.returnCode === 0) {
-            // 成功提示
+        const req = {
+          account_sortId: row.account_sortId,
+          deleteTime: "",
+        };
+        await axios
+          .post("http://122.116.23.30:3347/main/deleteAccount_sort", req)
+          .then((response) => {
+            if (response.status === 200 && response.data.returnCode === 0) {
+              // 成功提示
+              this.$message({
+                message: "刪除成功",
+                type: "success",
+              });
+              this.getbillselectData();
+            } else {
+              // 處理非 0 成功代碼
+              this.$message({
+                message: "刪除失敗",
+                type: "error",
+              });
+            }
+          })
+          .catch((error) => {
+            // 發生錯誤時，顯示錯誤提示
             this.$message({
-              message: '刪除成功',
-              type: 'success'
+              message: "刪除失敗，伺服器錯誤",
+              type: "error",
             });
-            this.getbillselectData();
-          } else {
-            // 處理非 0 成功代碼
-            this.$message({
-              message: '刪除失敗',
-              type: 'error'
-            });
-          }
-        })
-        .catch(error => {
-          // 發生錯誤時，顯示錯誤提示
-          this.$message({
-            message: '刪除失敗，伺服器錯誤',
-            type: 'error'
+            console.error("Error:", error);
           });
-          console.error('Error:', error);
-        });
       }
     },
     viewDetailVehicles(row) {
-      this.$router.push({ 
-        path: 'SelectView',
+      this.$router.push({
+        path: "SelectView",
         query: {
-          rowType:'5',
-          cus_name:this.cus_name,
-          cus_code:this.cus_code
-        }
+          rowType: "5",
+          cus_name: this.cus_name,
+          cus_code: this.cus_code,
+        },
       });
     },
     editItemVehicle(row) {
-      this.$router.push({ 
-        path: 'UpdateView',
+      this.$router.push({
+        path: "UpdateView",
         query: {
-          rowType:'5',
-          cus_name:this.cus_name,
-          cus_code:this.cus_code,
+          rowType: "5",
+          cus_name: this.cus_name,
+          cus_code: this.cus_code,
           rowData: JSON.stringify({
-          ...row, // 複製原始數據
-          updateTime: '' // 將 updateTime 設為空字串
-          })
-        }
+            ...row, // 複製原始數據
+            updateTime: "", // 將 updateTime 設為空字串
+          }),
+        },
       });
     },
     async deleteItemVehicle(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
-      const req = {
-        vehicleId:row.vehicleId,
-        deleteTime:''
-      };
-      await axios.post('http://122.116.23.30:3347/main/deleteVehicle', req)
-        .then(response => {
-          if (response.status === 200 && response.data.returnCode === 0) {
-            // 成功提示
+        const req = {
+          vehicleId: row.vehicleId,
+          deleteTime: "",
+        };
+        await axios
+          .post("http://122.116.23.30:3347/main/deleteVehicle", req)
+          .then((response) => {
+            if (response.status === 200 && response.data.returnCode === 0) {
+              // 成功提示
+              this.$message({
+                message: "刪除成功",
+                type: "success",
+              });
+              this.getselectData();
+            } else {
+              // 處理非 0 成功代碼
+              this.$message({
+                message: "刪除失敗",
+                type: "error",
+              });
+            }
+          })
+          .catch((error) => {
+            // 發生錯誤時，顯示錯誤提示
             this.$message({
-              message: '刪除成功',
-              type: 'success'
+              message: "刪除失敗，伺服器錯誤",
+              type: "error",
             });
-            this.getselectData();
-          } else {
-            // 處理非 0 成功代碼
-            this.$message({
-              message: '刪除失敗',
-              type: 'error'
-            });
-          }
-        })
-        .catch(error => {
-          // 發生錯誤時，顯示錯誤提示
-          this.$message({
-            message: '刪除失敗，伺服器錯誤',
-            type: 'error'
+            console.error("Error:", error);
           });
-          console.error('Error:', error);
-        });
       }
     },
     onVehicle(row) {
-      this.$router.push({ 
-        path: 'vehicle',
+      this.$router.push({
+        path: "vehicle",
         query: {
-          cus_name:this.cus_name,
-          cus_code:this.cus_code,
-          license_plate:row.license_plate,
-          vehicleId:row.vehicleId,
-          acc_name:row.account_sortId
-        }
+          cus_name: this.cus_name,
+          cus_code: this.cus_code,
+          license_plate: row.license_plate,
+          vehicleId: row.vehicleId,
+          acc_name: row.account_sortId,
+        },
       });
     },
-    async getVehicle(){
-      await axios.get('http://122.116.23.30:3347/main/selectVehicle')
-        .then(response => {
-          this.licens = response.data.data.map(item => item.license_plate)
+    async getVehicle() {
+      await axios
+        .get("http://122.116.23.30:3347/main/selectVehicle")
+        .then((response) => {
+          this.licens = response.data.data.map((item) => item.license_plate);
         })
-        .catch(error => {
+        .catch((error) => {
           // 處理錯誤
-          console.error('API request failed:', error);
+          console.error("API request failed:", error);
         });
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-
 .pagination-container {
   display: flex;
   justify-content: space-between;
@@ -723,14 +888,14 @@ export default {
   text-align: right;
 }
 .el-select {
-  width: 175px
+  width: 175px;
 }
-.page-title  {
+.page-title {
   margin-top: 30px;
   margin-bottom: 30px;
 }
 .page-title h4 {
-    color: #f5bd04;
+  color: #f5bd04;
 }
 
 .filters {
@@ -753,10 +918,10 @@ export default {
   min-width: 900px;
 }
 
-.el-table th, .el-table td {
+.el-table th,
+.el-table td {
   white-space: nowrap;
 }
-
 
 .action-icons {
   display: flex;

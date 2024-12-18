@@ -37,7 +37,6 @@
         <el-table-column prop="title" label="發送主旨" width="200" />
         <el-table-column prop="content" label="發送內容" width="200" />
         <el-table-column prop="notused" label="未用油天數" width="100" />
-        
       </el-table>
     </div>
   </el-form-item>
@@ -92,6 +91,7 @@ export default {
       selectedDate: null,
       cus_message: [],
       cus_PerMes: [],
+      AllCustomer:[],
       type: {
         1: "手機簡訊",
         2: "Line",
@@ -164,6 +164,11 @@ export default {
         .post("http://122.116.23.30:3347/main/selectDefnotify", postdata)
         .then((response) => {
           if (response.data.data.length > 0) {
+            this.AllCustomer=response.data.data
+            this.AllCustomer.sort((a, b) => {
+              // 字串排序（假設 customerId 是字串，根據字典順序）
+              return a.customerId.localeCompare(b.customerId);
+            });
             response.data.data.forEach((item) => {
               if (item.sendMod == 0) {
                 // 如果 sendMod 是 0，加入 cus_PerMes

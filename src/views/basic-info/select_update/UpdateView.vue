@@ -359,8 +359,14 @@
       >
         <el-row style="margin-bottom: 20px">
           <el-form-item label="職稱">
+            <el-select v-model="rowData.job_title" placeholder="選擇職稱">
+            <el-option label="承辦" :value="'承辦'"></el-option>
+            <el-option label="會計" :value="'會計'"></el-option>
+          </el-select>
+        </el-form-item>
+          <!-- <el-form-item label="職稱">
             <el-input v-model="rowData.job_title"></el-input>
-          </el-form-item>
+          </el-form-item> -->
           <!-- <el-form-item label="性別">
           <el-select v-model="rowData.gender" placeholder="選擇性別">
           <el-option label="男" :value="'男'"></el-option>

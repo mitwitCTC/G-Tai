@@ -36,7 +36,7 @@ module.exports = ({ sequelize }) => {
                 const customerList = await customer.findAll({
                     where: { deleteTime: { [Op.eq]: '0' } },
                     order: [['cus_code', 'DESC']],
-                    attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date'],
+                    attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date','mail_address'],
                     raw: true
                 })
                 //Jason
@@ -577,7 +577,23 @@ module.exports = ({ sequelize }) => {
             }
         },
 
-
+         // 查詢全部車籍卡片(不包含刪除)資料
+         selectAllCard: async (req, res) => {
+                // 取得車籍的卡片
+                try {
+                    const time = getDateTime()
+                    console.log(time + ' 取得車籍卡片資料(selectAllCard)')
+                    // 取得所有聯絡人
+                    const card_relationList = await card_relation.findAll({ where: {deleteTime: { [Op.eq]: '0' }},
+                    raw: true })
+                    console.log({ returnCode: 0, message: "取得車籍卡片資料", data: card_relationList })
+                    return res.json({ returnCode: 0, message: "取得車籍卡片資料", data: card_relationList })
+    
+                } catch (err) {
+                    console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                    return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+                }
+        },
         // 查詢車籍卡片資料
         searchCard: async (req, res) => {
             try {
@@ -599,6 +615,13 @@ module.exports = ({ sequelize }) => {
                         })
                         console.log({ returnCode: 0, message: "取得車籍卡片資料", data: card_relationAllList })
                         return res.json({ returnCode: 0, message: "取得車籍卡片資料", data: card_relationAllList })
+                    case 3:
+                        const card_AllList = await card_relation.findAll({
+                            where: { vehicleId: { [Op.eq]: req.body.vehicleId } },
+                            raw: true
+                        })
+                        console.log({ returnCode: 0, message: "取得車籍卡片資料", data: card_AllList })
+                        return res.json({ returnCode: 0, message: "取得車籍卡片資料", data: card_AllList })
                 }
             } catch (err) {
                 console.log({ returnCode: 500, message: "系統錯誤", err: err })

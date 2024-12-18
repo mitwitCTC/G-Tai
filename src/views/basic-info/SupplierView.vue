@@ -145,7 +145,7 @@ export default {
         const response = await axios.get(
           "http://122.116.23.30:3347/main/selectContact"
         );
-        // this.AllContact = response.data.data; //全部的聯絡人
+        this.AllContact = response.data.data; //全部的聯絡人
       } catch (error) {
         console.error("Error fetching customer data:", error);
       } finally {
@@ -185,9 +185,9 @@ export default {
         }));
 
       //自訂匯出
-      this.groupContact = this.DDD.split(",").map((customerId) => ({
-        customerId,
-      }));
+      // this.groupContact = this.DDD.split(",").map((customerId) => ({
+      //   customerId,
+      // }));
 
       this.groupContact.sort((a, b) => {
         // 字串排序（假設 customerId 是字串，根據字典順序）
@@ -330,6 +330,7 @@ export default {
           const postdata = {
             cus_code: selectcus.customerId,
           };
+          console.log(JSON.stringify(postdata))
           const response = await axios.post(
             "http://122.116.23.30:3347/main/searchCustomer",
             postdata

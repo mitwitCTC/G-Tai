@@ -42,6 +42,22 @@
             >清除</el-button
           >
         </el-form-item>
+        <el-form-item>
+          <el-button
+            type="info"
+            @click="handleExport(1)"
+            v-if="!search.customerName"
+            >匯出郵寄名單</el-button
+          >
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="info"
+            @click="handleExport(2)"
+            v-if="!search.customerName"
+            >匯出全部車籍</el-button
+          >
+        </el-form-item>
       </el-form>
 
       <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
@@ -623,6 +639,8 @@
 import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
 import TablePaginated from "@/components/TablePaginated.vue";
+import ExportContact from "@/components/ExportContact.vue";
+import ExportCard from "@/components/ExportCard.vue";
 import axios from "axios";
 import { toRaw } from "vue"; // 引入 `toRaw` 函數
 // import SelectDialog from '@/components/SelectDialog.vue';
@@ -631,6 +649,8 @@ export default {
     BreadCrumb,
     ListBar,
     TablePaginated,
+    ExportContact,
+    ExportCard
   },
   data() {
     return {
@@ -755,6 +775,43 @@ export default {
   },
 
   methods: {
+    async handleExport(TYPE) {
+      if ((TYPE == 1)) {
+        try {
+          this.isLoading=true
+          await ExportContact.methods.exportExcel();
+          // 顯示成功訊息
+          this.$message({
+            message: `匯出成功`,
+            type: "success",
+          });
+        } catch {
+          this.$message({
+            message: `匯出失敗`,
+            type: "error",
+          });
+        }finally{
+          this.isLoading=false
+        }
+      } else if ((TYPE == 2)) {
+        try {
+          this.isLoading=true
+          await ExportCard.methods.exportExcel();
+          // 顯示成功訊息
+          this.$message({
+            message: `匯出成功`,
+            type: "success",
+          });
+        } catch {
+          this.$message({
+            message: `匯出失敗`,
+            type: "error",
+          });
+        }finally{
+          this.isLoading=false
+        }
+      }
+    },
     async onConnact(row) {
       const postData = {
         cus_code: row.cus_code,

@@ -209,7 +209,7 @@ export default {
       this.loading = true;
       const postData = {
       vehicleId:this.vehicleId,
-      status:1
+      status:3
     };
       await axios.post('http://122.116.23.30:3347/main/searchCard',postData)
         .then(response => {
