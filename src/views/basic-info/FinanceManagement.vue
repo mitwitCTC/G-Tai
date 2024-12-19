@@ -6,29 +6,49 @@
   <div>
     <BreadCrumb />
   </div>
-  <div class="table-container">
-    <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
+  <div>
+    <el-form-item label="結帳年月">
+      <el-date-picker
+        v-model="search_month"
+        type="month"
+        format="YYYY-MM"
+        value-format="YYYY-MM"
+        placeholder="請選擇結帳年月"
+        style="margin-right: 10px"
+        @change="clink()"
+      />
+      <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
+    </el-form-item>
+  </div>
+
+  <div class="table-container" v-if="cus_message.length > 0">
     <el-table :data="cus_message" style="width: 100%">
       <el-table-column prop="id" label="傳票號碼" width="150" />
       <el-table-column prop="creatTime" label="傳票日期" width="200" />
       <el-table-column prop="accFarewell" label="結帳年月" width="100" />
       <el-table-column prop="customerId" label="客戶代號" width="100" />
       <el-table-column prop="cus_name" label="客戶名稱" width="250" />
-      <el-table-column prop="amount" label="借貸金額" width="150" />
-      <el-table-column prop="message" label="摘要" width="250" />
+      <el-table-column prop="debitmessage" label="借方摘要" width="250" />
+      <el-table-column prop="creditmessage" label="貸方摘要" width="250" />
+      <el-table-column prop="amount" label="借貸金額" align="right" width="100"
+        ><template v-slot="scope"
+          >{{ formatCurrency(scope.row.amount) }}
+        </template></el-table-column
+      >
       <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
-            <i class="fas fa-eye" @click="editItemVehicle(scope.row)"></i>
+            <i class="fas fa-eye" @click="selectItemVehicle(scope.row)"></i>
             <i
               class="fa-regular fa-copy"
-              @click="deleteItemVehicle(scope.row)"
+              @click="copyItemVehicle(scope.row)"
             ></i>
           </div>
         </template>
       </el-table-column>
     </el-table>
   </div>
+  <div style="margin-bottom: 50px"></div>
 
   <el-dialog
     title="會計傳票"
@@ -37,6 +57,43 @@
     :close-on-click-modal="false"
     @close="closeDialog"
   >
+    <el-form-item label="*傳票日期">
+      <el-date-picker
+        v-model="entries.accDate"
+        type="date"
+        placeholder="傳票日期"
+        :disabled-date="DateBeforeToday"
+        format="YYYY-MM-DD"
+        value-format="YYYY-MM-DD"
+        style="width: 300px; margin-right: 20px"
+      >
+      </el-date-picker>
+    </el-form-item>
+    <el-form-item label="客戶編號">
+      <el-select
+        v-model="entries.customerId"
+        placeholder="輸入客戶名稱/客代"
+        filterable
+        :clearable="true"
+        style="width: 300px"
+        @change="getdata"
+      >
+        <!-- 使用 cusdata 直接顯示每個字符串 -->
+        <el-option
+          v-for="item in cusData"
+          :key="item"
+          :label="item"
+          :value="item.split(' ')[0]"
+        ></el-option>
+      </el-select>
+    </el-form-item>
+    <el-form-item label="客戶名稱">
+      <el-input
+        v-model="entries.cus_name"
+        disabled
+        style="width: 300px"
+      ></el-input>
+    </el-form-item>
     <!-- 借貸兩方 -->
     <div
       style="display: flex; justify-content: space-between; margin-bottom: 20px"
@@ -55,7 +112,7 @@
                 v-for="item in debit"
                 :key="item.parkId"
                 :label="item.SubjectsName"
-                :value="item.SubjectsName"
+                :value="item.Subjects"
               ></el-option>
             </el-select>
           </el-form-item>
@@ -66,7 +123,7 @@
           </el-form-item>
         </el-row>
         <el-table :data="entries.debit" border>
-          <el-table-column prop="subject" label="會計科目"></el-table-column>
+          <el-table-column prop="SubjectsName" label="會計科目"></el-table-column>
           <el-table-column prop="amount" label="金額" align="right">
             <template v-slot="scope">
               <el-input
@@ -91,6 +148,13 @@
         <div style="text-align: right; margin-top: 10px">
           <b>借方總金額：</b>{{ totalDebit }}
         </div>
+
+        <el-input
+          v-model="entries.debitmessage"
+          type="textarea"
+          style="width: 625px"
+          placeholder="借方-摘要"
+        ></el-input>
       </div>
 
       <!-- 貸方 -->
@@ -107,7 +171,7 @@
                 v-for="item in credit"
                 :key="item.parkId"
                 :label="item.SubjectsName"
-                :value="item.SubjectsName"
+                :value="item.Subjects"
               ></el-option>
             </el-select>
           </el-form-item>
@@ -118,7 +182,7 @@
           </el-form-item>
         </el-row>
         <el-table :data="entries.credit" border>
-          <el-table-column prop="subject" label="會計科目"></el-table-column>
+          <el-table-column prop="SubjectsName" label="會計科目"></el-table-column>
           <el-table-column prop="amount" label="金額" align="right">
             <template v-slot="scope">
               <el-input
@@ -143,6 +207,12 @@
         <div style="text-align: right; margin-top: 10px">
           <b>貸方總金額：</b>{{ totalCredit }}
         </div>
+        <el-input
+          v-model="entries.credirmessage"
+          type="textarea"
+          style="width: 625px"
+          placeholder="貸方-摘要"
+        ></el-input>
       </div>
     </div>
 
@@ -151,6 +221,85 @@
       <el-button @click="closeDialog">取消</el-button>
       <el-button type="primary" @click="submitForm">送出</el-button>
     </span>
+  </el-dialog>
+
+  <!-- 查詢詳細 -->
+  <el-dialog
+    title="會計傳票"
+    v-model="selectdialog"
+    width="70%"
+    :close-on-click-modal="false"
+  >
+    <el-table :data="select" style="width: 100%" class="section-header">
+      <el-table-column prop="id" label="傳票號碼" width="200" />
+      <el-table-column prop="creatTime" label="傳票日期" width="250" />
+      <el-table-column prop="accFarewell" label="結帳年月" width="150" />
+      <el-table-column prop="customerId" label="客戶代號" width="210" />
+      <el-table-column prop="cus_name" label="客戶名稱" width="300" />
+      <el-table-column prop="amount" label="借貸金額" align="right" width="150"
+        ><template v-slot="scope"
+          >{{ formatCurrency(scope.row.amount) }}
+        </template></el-table-column
+      >
+    </el-table>
+    <!-- 借貸兩方 -->
+    <div
+      style="display: flex; justify-content: space-between; margin-bottom: 20px"
+    >
+      <!-- 借方 -->
+      <div style="width: 48%">
+        <h3>借方</h3>
+
+        <el-table :data="select[0].debit" border>
+          <el-table-column
+            prop="SubjectsName"
+            label="會計科目"
+          ></el-table-column>
+          <el-table-column prop="amount" label="金額" align="right">
+            <template v-slot="scope"
+              >{{ formatCurrency(scope.row.amount) }}
+            </template>
+          </el-table-column>
+        </el-table>
+        <div style="text-align: right; margin-top: 10px">
+          <b>借方總金額：</b>{{ totalSelDebit }}
+        </div>
+
+        <el-input
+          v-model="select[0].debitmessage"
+          type="textarea"
+          style="width: 625px"
+          placeholder="借方-摘要"
+          disabled
+        ></el-input>
+      </div>
+
+      <!-- 貸方 -->
+      <div style="width: 48%">
+        <h3>貸方</h3>
+        <el-table :data="select[0].credit" border>
+          <el-table-column
+            prop="SubjectsName"
+            label="會計科目"
+          ></el-table-column>
+          <el-table-column prop="amount" label="金額" align="right">
+            <template v-slot="scope"
+              >{{ formatCurrency(scope.row.amount) }}
+            </template>
+          </el-table-column>
+        </el-table>
+        <div style="text-align: right; margin-top: 10px">
+          <b>貸方總金額：</b>{{ totalSelDebit }}
+        </div>
+        <el-input
+          v-model="select[0].creditmessage"
+          type="textarea"
+          style="width: 625px"
+          placeholder="貸方-摘要"
+          disabled
+        ></el-input>
+      </div>
+    </div>
   </el-dialog>
 </template>
 
@@ -166,73 +315,74 @@ export default {
   data() {
     return {
       dialogVisible: false, // 控制Dialog顯示
+      selectdialog: false,
       isEditable: null,
+      search_month: "",
       debit: [],
       credit: [],
+      cusData: [],
       debitcurrentEntry: {
         //借方
         subject: "", // 當前選擇的會計科目
-        amount: 0, // 當前輸入的金額
       },
       creditcurrentEntry: {
         //貸方
         subject: "", // 當前選擇的會計科目
-        amount: 0, // 當前輸入的金額
       },
       entries: {
+        customerId: "",
+        cus_name: "",
+        accDate: "", //傳票日期
+        debitmessage: "", //借方摘要
+        credirmessage: "", //貸方摘要
         debit: [], // 借方資料
         credit: [], // 貸方資料
       },
-      cus_message: [
-        {
-          id: "12",
-          customerId: "G1308719",
-          cus_name: "測試",
-          creatTime: "2024-11-28 20:25:59",
-          accFarewell: "2024-11",
-          amount: "6000",
-          message: "摘要備註",
-        },
-        {
-          id: "13",
-          customerId: "G1308719",
-          cus_name: "測試",
-          creatTime: "2024-11-29 20:25:59",
-          accFarewell: "2024-11",
-          amount: "7000",
-          message: "摘要備註",
-        },
-        {
-          id: "14",
-          customerId: "G1308719",
-          cus_name: "測試",
-          creatTime: "2024-11-30 20:25:59",
-          accFarewell: "2024-11",
-          amount: "8000",
-          message: "摘要備註",
-        },
-      ],
+      cus_message: [],
+      select: {
+        debit: [], // 借方資料
+        credit: [], // 貸方資料,
+      },
     };
   },
   created() {
     this.debitAccount(); //借方項目
     this.creditAccount(); //貸方項目
+    this.getcus(); //客戶資料
   },
   computed: {
     totalDebit() {
       return this.entries.debit
         .reduce((sum, entry) => {
-          // 移除千分位逗號，將金額轉換為數字
-          const amount = parseFloat(entry.amount.replace(/,/g, ""));
-          return sum + (isNaN(amount) ? 0 : amount); // 處理可能無效的數據
+          // 確保 amount 是字串，然後移除千分位逗號
+          const amount = parseFloat(String(entry.amount).replace(/,/g, ""));
+          return sum + (isNaN(amount) ? 0 : amount); // 確保數值有效
         }, 0)
-        .toLocaleString(); // 計算總金額後，格式化為千分位
+        .toLocaleString(); // 格式化為千分位字串
     },
     totalCredit() {
       return this.entries.credit
         .reduce((sum, entry) => {
           // 移除千分位逗號，將金額轉換為數字
-          const amount = parseFloat(entry.amount.replace(/,/g, ""));
+          const amount = parseFloat(String(entry.amount).replace(/,/g, ""));
+          return sum + (isNaN(amount) ? 0 : amount); // 處理可能無效的數據
+        }, 0)
+        .toLocaleString(); // 計算總金額後，格式化為千分位
+    },
+    totalSelDebit() {
+      return this.select[0].debit
+        .reduce((sum, entry) => {
+          // 確保 amount 是字串，然後移除千分位逗號
+          const amount = parseFloat(String(entry.amount).replace(/,/g, ""));
+          return sum + (isNaN(amount) ? 0 : amount); // 確保數值有效
+        }, 0)
+        .toLocaleString(); // 格式化為千分位字串
+    },
+    totalSelCredit() {
+      return this.select[0].credit
+        .reduce((sum, entry) => {
+          // 移除千分位逗號，將金額轉換為數字
+          const amount = parseFloat(String(entry.amount).replace(/,/g, ""));
           return sum + (isNaN(amount) ? 0 : amount); // 處理可能無效的數據
         }, 0)
         .toLocaleString(); // 計算總金額後，格式化為千分位
@@ -246,7 +396,6 @@ export default {
           "http://122.116.23.30:3347/finance/debitAccount"
         );
         this.debit = response.data.data;
-        console.log(JSON.stringify(this.debit));
       } catch (error) {
         console.error("Error fetching customer data:", error);
       }
@@ -258,7 +407,6 @@ export default {
           "http://122.116.23.30:3347/finance/creditAccount"
         );
         this.credit = response.data.data;
-        console.log(JSON.stringify(this.credit));
       } catch (error) {
         console.error("Error fetching customer data:", error);
       }
@@ -277,7 +425,7 @@ export default {
       }),
         (this.dialogVisible = false);
     },
-    addEntry(Type) {
+     addEntry(Type) {
       if (Type === "debit") {
         if (!this.debitcurrentEntry.subject) {
           this.$message.error("請先選擇會計科目！");
@@ -285,12 +433,16 @@ export default {
         }
         const newEntry = {
           amount: "0",
-          subject: this.debit.find(
-            (item) => item.SubjectsName === this.debitcurrentEntry.subject
+          SubjectsName: this.debit.find(
+            (item) => item.Subjects === this.debitcurrentEntry.subject
           ).SubjectsName,
+          Subjects: this.debitcurrentEntry.subject,
+          type: this.debit.find(
+            (item) => item.Subjects === this.debitcurrentEntry.subject
+          ).type,
         };
         this.entries.debit.push(newEntry);
-        this.debitcurrentEntry = { subject: "", amount: 0 };
+        this.debitcurrentEntry = { subject: "" };
       } else if (Type === "credit") {
         if (!this.creditcurrentEntry.subject) {
           this.$message.error("請先選擇會計科目！");
@@ -299,60 +451,184 @@ export default {
 
         const newEntry = {
           amount: "0",
-          subject: this.credit.find(
-            (item) => item.SubjectsName === this.creditcurrentEntry.subject
+          SubjectsName: this.credit.find(
+            (item) => item.Subjects === this.creditcurrentEntry.subject
           ).SubjectsName,
+          Subjects: this.creditcurrentEntry.subject,
+          type: this.credit.find(
+            (item) => item.Subjects === this.creditcurrentEntry.subject
+          ).type,
         };
         this.entries.credit.push(newEntry);
-        this.creditcurrentEntry = { subject: "", amount: 0 };
+        this.creditcurrentEntry = { subject: "" };
       }
     },
-    submitForm() {
+    async submitForm() {
       if (this.totalDebit !== this.totalCredit) {
         this.$message.error("借貸金額不平衡，請確認！");
         return;
       }
-
-      // 提交資料至後端
-      const payload = {
-        debit: this.entries.debit,
-        credit: this.entries.credit,
+      if (!this.entries.accDate) {
+        this.$message.error("請填寫傳票日期");
+        return;
+      }
+      const totalAmount = this.formatString(this.totalDebit);
+      this.entries.debit = this.entries.debit.map((entry) => ({
+        ...entry,
+        amount: this.formatString(entry.amount),
+      }));
+      this.entries.credit = this.entries.credit.map((credit) => ({
+        ...credit,
+        amount: this.formatString(credit.amount),
+      }));
+      const postData = {
+        trade_name: "資產負債表",
+        totalAmount: totalAmount,
+        accDate: this.entries.accDate,
+        debitmessage: this.entries.debitmessage,
+        creditmessage: this.entries.credirmessage,
+        customerId: this.entries.customerId,
+        cus_name: this.entries.cus_name,
+        detail: [...this.entries.debit, ...this.entries.credit],
       };
-      console.log("提交資料：", payload);
-
+      await axios
+        .post("http://122.116.23.30:3347/finance/subpoena", postData)
+        .then((response) => {
+          this.$message.success("會計傳票新增成功！");
+          this.getcus();
+          this.resetForm();
+          this.closeDialog();
+        })
+        .catch((error) => {
+          // 處理錯誤
+          this.$message({
+            message: "新增失敗",
+            type: "error",
+          });
+          console.error("API request failed:", error);
+        });
       // 成功訊息並關閉
-      this.$message.success("會計傳票新增成功！");
-      this.resetForm();
-      this.closeDialog();
     },
     resetForm() {
       this.entries = { debit: [], credit: [] };
       this.debitcurrentEntry = { subject: "", amount: 0 };
       this.creditcurrentEntry = { subject: "", amount: 0 };
     },
-    viewDetailVehicles(row) {
-      this.$router.push({
-        path: "SelectView",
-        query: {
-          rowType: "5",
-          cus_name: this.cus_name,
-          cus_code: this.cus_code,
-        },
-      });
+    async selectdata(id,type) {
+      const postData = {
+        id: id,
+      };
+      await axios
+        .post("http://122.116.23.30:3347/finance/selectSubpoena", postData)
+        .then((response) => {
+         if(type=='select'){
+          this.select = response.data.data.map((record) => {
+            // 初始化 debit 和 credit
+            const debit = [];
+            const credit = [];
+
+            // 遍歷 detail，根據 type 分類
+            record.detail.forEach((item) => {
+              if (item.type === "1") {
+                debit.push(item); // 借方資料
+              } else {
+                credit.push(item); // 貸方資料
+              }
+            });
+
+            // 返回合併後的資料結構
+            return {
+              ...record, // 保留其他屬性 (如 id, parkId, trade_name 等)
+              debit,
+              credit,
+            };
+          });
+          this.select[0].debit = this.select[0].debit.map((entry) => {
+            // 尋找對應的 SubjectsName
+            const subject = this.debit.find(
+              (item) => item.Subjects === entry.Subjects
+            );
+            return {
+              ...entry, // 保留原始資料
+              SubjectsName: subject ? subject.SubjectsName : "", // 如果找到則添加，否則為空字符串
+            };
+          });
+          this.select[0].credit = this.select[0].credit.map((credit) => {
+            // 尋找對應的 SubjectsName
+            const subject = this.credit.find(
+              (item) => item.Subjects === credit.Subjects
+            );
+            return {
+              ...credit, // 保留原始資料
+              SubjectsName: subject ? subject.SubjectsName : "", // 如果找到則添加，否則為空字符串
+            };
+          });
+         }else if(type=='copy'){
+        
+      this.entries = response.data.data.map((record) => {
+            // 初始化 debit 和 credit
+            const debit = [];
+            const credit = [];
+
+            // 遍歷 detail，根據 type 分類
+            record.detail.forEach((item) => {
+              if (item.type === "1") {
+                debit.push(item); // 借方資料
+              } else {
+                credit.push(item); // 貸方資料
+              }
+            });
+
+            // 返回合併後的資料結構
+            return {
+              ...record, // 保留其他屬性 (如 id, parkId, trade_name 等)
+              debit,
+              credit,
+            };
+          });
+          this.entries[0].debit = this.entries[0].debit.map((entry) => {
+            // 尋找對應的 SubjectsName
+            const subject = this.debit.find(
+              (item) => item.Subjects === entry.Subjects
+            );
+            return {
+              ...entry, // 保留原始資料
+              SubjectsName: subject ? subject.SubjectsName : "", // 如果找到則添加，否則為空字符串
+            };
+          });
+          this.entries[0].credit = this.entries[0].credit.map((credit) => {
+            // 尋找對應的 SubjectsName
+            const subject = this.credit.find(
+              (item) => item.Subjects === credit.Subjects
+            );
+            return {
+              ...credit, // 保留原始資料
+              SubjectsName: subject ? subject.SubjectsName : "", // 如果找到則添加，否則為空字符串
+            };
+          });
+          this.entries=this.entries[0]
+          console.log(JSON.stringify(this.entries))
+         }
+           
+
+        })
+        .catch((error) => {
+          // 處理錯誤
+          this.$message({
+            message: "系統錯誤",
+            type: "error",
+          });
+          console.error("API request failed:", error);
+        });
+      // 成功訊息並關閉
     },
-    editItemVehicle(row) {
-      this.$router.push({
-        path: "UpdateView",
-        query: {
-          rowType: "5",
-          cus_name: this.cus_name,
-          cus_code: this.cus_code,
-          rowData: JSON.stringify({
-            ...row, // 複製原始數據
-            updateTime: "", // 將 updateTime 設為空字串
-          }),
-        },
-      });
+    async copyItemVehicle(row) {
+      await this.selectdata(row.id,'copy');
+      this.dialogVisible=true
+    },
+    async selectItemVehicle(row) {
+      await this.selectdata(row.id,'select');
+      this.selectdialog = true;
     },
     formatAmount(value) {
       const amount = parseFloat(value.replace(/,/g, ""));
@@ -364,6 +640,84 @@ export default {
       }
       // 使用toLocaleString將數字格式化為千分位
       return num.toLocaleString();
+    },
+    formatString(value) {
+      if (typeof value === "string") {
+        // 移除千分位逗號，並轉換為數字
+        const number = Number(value.replace(/,/g, ""));
+        return isNaN(number) ? 0 : number; // 如果轉換失敗，回傳 0
+      } else if (typeof value === "number") {
+        return value; // 如果已經是數字，直接返回
+      }
+      return 0; // 如果輸入不是字串或數字，返回 0
+    },
+    DateBeforeToday(date) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // 將時間設置為當天午夜
+      return date.getTime() > today.getTime(); // 禁用今天以後的日期
+    },
+    getdata() {
+      this.entries.cus_name = "";
+      const postData = {
+        cus_code: this.entries.customerId,
+        customerId: this.entries.customerId,
+      };
+      if (this.entries.customerId.length == 8) {
+        this.entries.cus_name = "查詢中..";
+        axios
+          .post("http://122.116.23.30:3347/main/searchCustomer", postData)
+          .then((response) => {
+            this.entries.cus_name = response.data.data[0].cus_name;
+          })
+          .catch((error) => {
+            // 處理錯誤
+            this.entries.cus_name = "";
+            this.$message({
+              message: "請確認客戶代號是否有誤",
+              type: "error",
+            });
+            console.error("API request failed:", error);
+          });
+      }
+    },
+    async getcus() {
+      await axios
+        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .then((response) => {
+          this.cusData = response.data.data;
+          this.cusData = this.cusData.map(
+            (item) => `${item.cus_code} ${item.cus_name}`
+          );
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+        });
+    },
+    async clink() {
+      const postData = {
+        date: this.search_month,
+      };
+      await axios
+        .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)
+        .then((response) => {
+          this.cus_message = response.data.data;
+          if (!this.cus_message) {
+            this.cus_message = [];
+            this.$message({
+              message: `查無選擇年月資料`,
+              type: "warning",
+            });
+          }
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+        });
+    },
+    formatCurrency(value) {
+      if (!value) return "0";
+      return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
     },
   },
 };
@@ -381,5 +735,13 @@ export default {
 .action-icons i {
   cursor: pointer;
   font-size: 20px; /* 调整图标的大小 */
+}
+.section-header {
+  margin-top: 50px;
+  font-weight: bold;
+  background-color: #f0ecec; /* 浅灰色背景 */
+  border-radius: 10px; /* 圆角 */
+  padding: 10px; /* 内边距 */
+  margin-bottom: 10px; /* 项目之间的间距 */
 }
 </style>

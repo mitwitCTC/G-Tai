@@ -1,5 +1,5 @@
 module.exports = ({ sequelize }) => {
-    const { bank_data, cpc_data, } = sequelize
+    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details } = sequelize
     const Sequelize = require('sequelize');
     const Op = Sequelize.Op;
     const dayjs = require('dayjs');
@@ -220,7 +220,7 @@ module.exports = ({ sequelize }) => {
                 const time = getDateTime()
                 console.log(time + ' 取未核銷中油、銀行資料(unverified)')
                 const cpc_date = (req.body.account_date).replace(/-/g, "/")
-                const bank_date = convertToROCDate( getDateTime(req.body.account_date,'YYYY-MM-DD',-1))
+                const bank_date = convertToROCDate(getDateTime(req.body.account_date, 'YYYY-MM-DD', -1))
                 const cpc_dataCount = await cpc_data.findAll({
                     where: {
                         account_date: { [Op.eq]: cpc_date },
@@ -365,6 +365,193 @@ module.exports = ({ sequelize }) => {
                 console.log({ returnCode: 0, message: "取得刷卡資料", data: bankList })
                 return res.json({ returnCode: 0, message: "取得刷卡資料", data: bankList })
 
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+
+        //傳票借方會計科目(借方)
+        debitAccount: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 傳票借方會計科目(debitAccount)')
+                // 取得所有業務員
+                const Account = await accountingsubjects.findAll({
+                    where: { useType: { [Op.eq]: 'DR' } },
+                    raw: true
+                })
+                console.log({ returnCode: 0, message: "傳票借方會計科目", data: Account })
+                return res.json({ returnCode: 0, message: "傳票借方會計科目", data: Account })
+
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        //傳票貸方會計科目(貸方)
+        creditAccount: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 傳票貸方會計科目(creditAccount)')
+                // 取得所有業務員
+                const Account = await accountingsubjects.findAll({
+                    where: { useType: { [Op.eq]: 'CR' } },
+                    raw: true
+                })
+                console.log({ returnCode: 0, message: "傳票貸方會計科目", data: Account })
+                return res.json({ returnCode: 0, message: "傳票貸方會計科目", data: Account })
+
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 產生傳票
+        subpoena: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 產生傳票(subpoena)')
+                const accTradeID = "AO" + getDateTime(null, 'YYMMDDHHmmss')
+                // let detail = []
+                // req.body.forEach((item) => {
+                //     console.log(item.debit)
+                //     item.debit.forEach((item) => {
+                //         // 借方
+                //         let debitStr = {
+                //             "Subjects": item.Subjects,
+                //             "amount": item.amount,
+                //             "type": item.type,
+                //         }
+                //         detail.push(debitStr)
+                //     })
+                //     item.credit.forEach((item) => {
+                //         // 貸方
+                //         let creditStr = {
+                //             "Subjects": item.Subjects,
+                //             "amount": item.amount,
+                //             "type": item.type,
+                //         }
+                //         detail.push(creditStr)
+                //     })
+                // })
+                // console.log(req.body)
+                // 新增傳票紀錄
+                const createAcc_trade = await acc_trade.create({
+                    id: accTradeID,
+                    parkId: 1,
+                    trade_name: req.body.trade_name,
+                    amount: req.body.totalAmount,
+                    accDate: req.body.accDate,
+                    accFarewell: getDateTime(req.body.actDate, 'YYYY-MM'),
+                    creatTime: time,
+                    debitmessage: req.body.debitmessage,
+                    creditmessage: req.body.creditmessage,
+                    customerId: req.body.customerId,
+                    cus_name: req.body.cus_name,
+
+                })
+                // console.log({ returnCode: 0, message: "成功新增傳票紀錄" })
+                req.body.detail.forEach(async (item) => {
+                    // console.log(item)
+                    // 新增傳票明細
+                    const createAcc_tradeDetails = await acc_trade_details.create({
+                        accTradeID: accTradeID,
+                        Subjects: item.Subjects,
+                        amount: item.amount,
+                        type: item.type,
+                    })
+                })
+                // console.log({ returnCode: 0, message: "成功新增傳票明細" })
+                console.log({ returnCode: 0, message: "產生傳票成功", data: accTradeID })
+                return res.json({ returnCode: 0, message: "產生傳票成功", data: accTradeID })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 查詢傳票資料
+        searchSubpoena: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 查詢傳票資料(searchSubpoena)')
+                const accTrade = await acc_trade.findAll({
+                    where: {
+                        accFarewell: { [Op.eq]: req.body.date },
+                        deleteTime: { [Op.eq]: 0 }
+                    }, raw: true
+                })
+                if (accTrade.length == 0) {
+                    console.log({ returnCode: 0, message: "無資料" })
+                    return res.json({ returnCode: 0, message: "無資料" })
+                }
+                const accTradeID = accTrade.map(x => x.id)
+                const accTradeDetails = await acc_trade_details.findAll({
+                    where: {
+                        accTradeID: { [Op.in]: accTradeID },
+                    }, raw: true
+                })
+                accTrade.forEach(async (item) => {
+                    const trade = accTradeDetails.filter(o => o.accTradeID == item.id)
+                    item.detail = trade
+                })
+                console.log({ returnCode: 0, message: "查詢傳票資料", data: accTrade })
+                return res.json({ returnCode: 0, message: "查詢傳票資料", data: accTrade })
+
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+         // 查詢個別傳票資料
+         selectSubpoena: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 查詢個別傳票資料(selectSubpoena)')
+                const accTrade = await acc_trade.findAll({
+                    where: {
+                        id: { [Op.eq]: req.body.id },
+                        deleteTime: { [Op.eq]: 0 }
+                    }, raw: true
+                })
+                if (accTrade.length == 0) {
+                    console.log({ returnCode: 0, message: "無資料" })
+                    return res.json({ returnCode: 0, message: "無資料" })
+                }
+                const accTradeID = accTrade.map(x => x.id)
+                const accTradeDetails = await acc_trade_details.findAll({
+                    where: {
+                        accTradeID: { [Op.in]: accTradeID },
+                    }, raw: true
+                })
+                accTrade.forEach(async (item) => {
+                    const trade = accTradeDetails.filter(o => o.accTradeID == item.id)
+                    item.detail = trade
+                })
+                console.log({ returnCode: 0, message: "查詢個別傳票資料", data: accTrade })
+                return res.json({ returnCode: 0, message: "查詢個別傳票資料", data: accTrade })
+
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 刪除傳票
+        deleteSubpoena: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 刪除傳票(deleteSubpoena)')
+                // 刪除傳票紀錄
+                const deleteAcc_trade = await acc_trade.update({
+                    message: req.body.message == '' ? null : req.body.message,
+                    deleteTime: time
+                }, {
+                    where: {
+                        id: { [Op.eq]: req.body.id }
+                    }
+                })
+                console.log({ returnCode: 0, message: "刪除傳票成功", data: req.body.id })
+                return res.json({ returnCode: 0, message: "刪除傳票成功", data: req.body.id })
             } catch (err) {
                 console.log({ returnCode: 500, message: "系統錯誤", err: err })
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
