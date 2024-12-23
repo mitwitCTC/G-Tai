@@ -133,12 +133,12 @@ const router = createRouter({
         },
         {
           path: 'ReportManagement',
-          name: '報表',
+          name: '中油鎖卡名單',
           component: () => import('@/views/basic-info/ReportManagement.vue'),
           meta: {
-            title: '報表',
-            breadcrumb: '報表',
-            isSpecialPage: false
+            title: '中油鎖卡名單',
+            breadcrumb: '中油鎖卡名單',
+            isSpecialPage: true
           }
         },
         // {

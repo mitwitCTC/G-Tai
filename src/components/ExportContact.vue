@@ -45,6 +45,7 @@ export default {
           // 字串排序（假設 customerId 是字串，根據字典順序）
           return a.customerId.localeCompare(b.customerId);
         });
+        console.log(this.contact.length)
       } catch (error) {
         console.error("Error fetching customer data:", error);
       }

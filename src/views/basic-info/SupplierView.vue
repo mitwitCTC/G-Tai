@@ -123,7 +123,7 @@ export default {
         // },
       ],
       //  DDD:"G2200072,G2200176,G2200230,G2200260,G2200319,G2200520,G2200608,G2200782,G2200783",
-      DDD: "G2200741",
+      DDD: "G2200708",
       Statement: [],
       DetaProduct: [],
       Balance: [],
@@ -145,7 +145,8 @@ export default {
         const response = await axios.get(
           "http://122.116.23.30:3347/main/selectContact"
         );
-        this.AllContact = response.data.data; //全部的聯絡人
+        //自行註解
+        // this.AllContact = response.data.data; //全部的聯絡人
       } catch (error) {
         console.error("Error fetching customer data:", error);
       } finally {
@@ -185,9 +186,9 @@ export default {
         }));
 
       //自訂匯出
-      // this.groupContact = this.DDD.split(",").map((customerId) => ({
-      //   customerId,
-      // }));
+      this.groupContact = this.DDD.split(",").map((customerId) => ({
+        customerId,
+      }));
 
       this.groupContact.sort((a, b) => {
         // 字串排序（假設 customerId 是字串，根據字典順序）
@@ -330,7 +331,7 @@ export default {
           const postdata = {
             cus_code: selectcus.customerId,
           };
-          console.log(JSON.stringify(postdata))
+          console.log(JSON.stringify(postdata));
           const response = await axios.post(
             "http://122.116.23.30:3347/main/searchCustomer",
             postdata
@@ -1148,8 +1149,6 @@ export default {
           });
           //這裡
           if (this.DetaProduct && this.DetaProduct.length > 0) {
-            const header2 = ["品項", "公升數總計", "牌價總計", "售價總計"];
-            const columns = ["A", "C", "F", "I"];
             console.log("有油類加總");
             let lastRowNumber = 0;
             worksheet.eachRow((row, rowNumber) => {
@@ -1158,58 +1157,53 @@ export default {
               }
             });
 
-            const lastRowNum = lastRowNumber + 1;
+            const lastRowNum = lastRowNumber + 2;
 
             // 使用 String.fromCharCode() 將列編號轉成字母
-            const endRow2 = lastRowNum + this.DetaProduct.length + 1; // 結束行+標題
-            for (let row = lastRowNum + 1; row <= endRow2; row++) {
-              // 合併 "AB"
-              worksheet.mergeCells(`A${row}:B${row}`);
-              const cellAB = worksheet.getCell(`A${row}`);
-              cellAB.numFmt = "#,##0";
+            const endRow2 = lastRowNum + this.DetaProduct.length - 1; // 結束行+標題
+            for (let row = lastRowNum; row <= endRow2; row++) {
+              // 合併 "ABC"
+              worksheet.mergeCells(`A${row}:C${row}`);
+              const cellABC = worksheet.getCell(`A${row}`);
+              cellABC.value = "總計";
+              cellABC.font = {
+                ...cellABC.font, // 保留現有字體屬性
+                bold: true, // 設置為粗體
+              };
+              cellABC.alignment = { horizontal: "center" };
 
-              // 合併 "CDE"
-              worksheet.mergeCells(`C${row}:E${row}`);
-              const cellCDE = worksheet.getCell(`C${row}`);
-              cellCDE.numFmt = "#,##0";
-
-              // 合併 "FGH"
-              worksheet.mergeCells(`F${row}:H${row}`);
-              const cellFGH = worksheet.getCell(`F${row}`);
-              cellFGH.numFmt = "#,##0";
-
-              // 合併 "IJ"
-              worksheet.mergeCells(`I${row}:J${row}`);
-              const cellIJ = worksheet.getCell(`I${row}`);
-              cellIJ.numFmt = "#,##0";
-            }
-            // 插入表頭
-
-            for (let x = 0; x < header2.length; x++) {
-              const column = columns[x]; // 根據 A, C, F, I 的欄位
-              const tableStartRef = `${column}${lastRowNum + 1}`;
-              const cell = worksheet.getCell(tableStartRef);
-
-              cell.value = header2[x]; // 插入表頭內容
-              cell.alignment = { horizontal: "center" }; // 設置文字置中
-              cell.font = { ...cell.font, bold: true }; // 設置為粗體
-              cell.fill = {
-                // 設置背景顏色為淺灰色
-                type: "pattern",
-                pattern: "solid",
-                fgColor: { argb: "f2f2f2" }, // 使用十六進制顏色代碼
+              // 合併 "EF"
+              worksheet.mergeCells(`E${row}:F${row}`);
+              const cellEF = worksheet.getCell(`E${row}`);
+              cellEF.numFmt = "#,##0";
+              cellEF.font = {
+                ...cellEF.font, // 保留現有字體屬性
+                bold: true, // 設置為粗體
+              };
+              // 合併 "GH"
+              worksheet.mergeCells(`G${row}:H${row}`);
+              const cellGH = worksheet.getCell(`G${row}`);
+              cellGH.numFmt = "#,##0";
+              cellGH.font = {
+                ...cellGH.font, // 保留現有字體屬性
+                bold: true, // 設置為粗體
               };
             }
+
             //品項
             for (let x = 0; x <= this.DetaProduct.length - 1; x++) {
-              const tableStartRef = `A${lastRowNum + 2 + x}`;
+              const tableStartRef = `D${lastRowNum + x}`;
               const cell = worksheet.getCell(tableStartRef);
               cell.value = this.DetaProduct[x].product_name;
               cell.alignment = { horizontal: "center" };
+              cell.font = {
+                ...cell.font, // 保留現有字體屬性
+                bold: true, // 設置為粗體
+              };
             }
             //公升數
             for (let x = 0; x <= this.DetaProduct.length - 1; x++) {
-              const tableStartRef = `C${lastRowNum + 2 + x}`;
+              const tableStartRef = `E${lastRowNum + x}`;
               const cell = worksheet.getCell(tableStartRef);
               cell.value = parseFloat(this.DetaProduct[x].fuel_volume);
               cell.numFmt = "#,##0.00";
@@ -1217,69 +1211,34 @@ export default {
             }
             //牌價
             for (let x = 0; x <= this.DetaProduct.length - 1; x++) {
-              const tableStartRef = `F${lastRowNum + 2 + x}`;
+              const tableStartRef = `G${lastRowNum + x}`;
               worksheet.getCell(tableStartRef).value = parseFloat(
                 this.DetaProduct[x].reference_amount
               );
             }
             //售價
             for (let x = 0; x <= this.DetaProduct.length - 1; x++) {
-              const tableStartRef = `I${lastRowNum + 2 + x}`;
-              worksheet.getCell(tableStartRef).value = parseFloat(
-                this.DetaProduct[x].amount
-              );
+              const tableStartRef = `I${lastRowNum + x}`;
+              const cellI = worksheet.getCell(tableStartRef);
+              cellI.value = parseFloat(this.DetaProduct[x].amount);
+              cellI.font = {
+                ...cellI.font, // 保留現有字體屬性
+                bold: true, // 設置為粗體
+              };
             }
-            // 合計
-            const totalAmount = this.DetaProduct.reduce((sum, item) => {
-              // 這裡會加總每個 item 的 amount
-              return sum + parseFloat(item.amount); // 確保 amount 是數字
-            }, 0); // 初始總和是 0
-            const lastrow = endRow2 + 1;
-            worksheet.mergeCells(`A${lastrow}:H${lastrow}`);
-            worksheet.mergeCells(`I${lastrow}:J${lastrow}`);
-            worksheet.getCell(`A${lastrow}`).value = "合計";
-            worksheet.getCell(`I${lastrow}`).value = parseFloat(totalAmount);
-            const total = worksheet.getCell(`A${lastrow}`);
-            const totalNum = worksheet.getCell(`I${lastrow}`);
-            total.font = {
-              ...total.font, // 保留現有字體屬性
-              bold: true, // 設置為粗體
-            };
-            totalNum.font = {
-              ...totalNum.font, // 保留現有字體屬性
-              bold: true, // 設置為粗體
-            };
-            worksheet.getCell(`A${lastrow}`).alignment = {
-              horizontal: "right",
-            };
-            worksheet.getCell(`I${lastrow}`).numFmt = "#,##0";
-            worksheet.getCell(`A${lastrow}`).border = {
-              top: { style: "thin", color: { argb: "C0C0C0" } },
-              left: { style: "thin", color: { argb: "C0C0C0" } },
-              bottom: { style: "thin", color: { argb: "C0C0C0" } },
-              right: { style: "thin", color: { argb: "C0C0C0" } },
-            };
-            worksheet.getCell(`I${lastrow}`).border = {
-              top: { style: "thin", color: { argb: "C0C0C0" } },
-              left: { style: "thin", color: { argb: "C0C0C0" } },
-              bottom: { style: "thin", color: { argb: "C0C0C0" } },
-              right: { style: "thin", color: { argb: "C0C0C0" } },
-            };
+
             for (
-              let row = lastRowNum + 1;
-              row <= lastRowNum + this.DetaProduct.length + 1;
+              let row = lastRowNum;
+              row <= lastRowNum + this.DetaProduct.length - 1;
               row++
             ) {
               for (let col = 65; col <= 74; col++) {
                 const cellRef = `${String.fromCharCode(col)}${row}`; // 計算儲存格編號
                 const cell = worksheet.getCell(cellRef); // 獲取儲存格
-
                 // 設定儲存格的邊框樣式
                 cell.border = {
-                  top: { style: "thin", color: { argb: "C0C0C0" } },
-                  left: { style: "thin", color: { argb: "C0C0C0" } },
-                  bottom: { style: "thin", color: { argb: "C0C0C0" } },
-                  right: { style: "thin", color: { argb: "C0C0C0" } },
+                  top: { style: "thin" },
+                  bottom: { style: "thin" },
                 };
               }
             }
@@ -1291,7 +1250,8 @@ export default {
             worksheet.getColumn(columnIndex).width = 14; // 設定欄寬，數字可調整
           });
           worksheet.getColumn(2).width = 22; // 設定B欄寬
-          worksheet.getColumn(3).width = 22; // 設定C欄寬
+          worksheet.getColumn(3).width = 23; // 設定C欄寬
+          worksheet.getColumn(6).width = 15; // 設定F欄寬
           // 保存到新的文件
           newFileName = `${this.search_month}明細_${customerId}_${acc_name}.xlsx`;
           buffer = await workbook.xlsx.writeBuffer();

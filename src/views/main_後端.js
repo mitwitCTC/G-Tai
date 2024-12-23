@@ -36,7 +36,7 @@ module.exports = ({ sequelize }) => {
                 const customerList = await customer.findAll({
                     where: { deleteTime: { [Op.eq]: '0' } },
                     order: [['cus_code', 'DESC']],
-                    attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date','mail_address'],
+                    attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date','mail_address','card_status'],
                     raw: true
                 })
                 //Jason
@@ -215,7 +215,66 @@ module.exports = ({ sequelize }) => {
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
             }
         },
+        // 修改客戶鎖卡狀態
+        updateCuscardStatus: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 修改客戶鎖卡狀態(updateCuscardStatus)')
+                if(req.body.card_status==='2'){
+                    const customerList = await customer.update({
+                        card_status:'3'//鎖卡狀態
+                    }, {
+                        where: {
+                            cus_code: { [Op.eq]: req.body.cus_code }
+                        }
+                    })
+                }else if(req.body.card_status==='4'){
+                    const customerList = await customer.update({
+                        card_status:'5'//鎖卡狀態
+                    }, {
+                        where: {
+                            cus_code: { [Op.eq]: req.body.cus_code }
+                        }
+                    })
+                }
+                console.log({ returnCode: 0, message: "修改客戶鎖卡狀態 ", data: req.body })
+                return res.json({ returnCode: 0, message: "修改客戶鎖卡狀態 " + req.body.cus_code })
 
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 匯出客戶鎖卡狀態
+        exportCuscardStatus: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 匯出客戶鎖卡狀態(exportCuscardStatus)')
+                if(req.body.card_status==='3'){
+                    const customerList = await customer.update({
+                        card_status:'4'//鎖卡狀態改鎖卡中
+                    }, {
+                        where: {
+                            cus_code: { [Op.eq]: req.body.cus_code }
+                        }
+                    })
+                }else if(req.body.card_status==='5'){
+                    const customerList = await customer.update({
+                        card_status:'1'//鎖卡狀態改正常
+                    }, {
+                        where: {
+                            cus_code: { [Op.eq]: req.body.cus_code }
+                        }
+                    })
+                }
+                console.log({ returnCode: 0, message: "匯出客戶鎖卡狀態 ", data: req.body })
+                return res.json({ returnCode: 0, message: "匯出客戶鎖卡狀態 " + req.body.cus_code })
+
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
         // 取得聯絡人資料
         selectContact: async (req, res) => {
             try {

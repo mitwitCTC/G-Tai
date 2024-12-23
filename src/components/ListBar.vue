@@ -14,6 +14,7 @@
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/modifybill')">切換客代帳號</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/discountrecords')">更改客戶折讓</button>
         <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/SalesControl')">通知客戶管理</button>
+        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/ReportManagement')">中油鎖卡名單</button>
       </div>
       <button class="btn btn-light w-100 text-start" @click="toggleData">
         {{ isData ? '大批管理客戶資料⭢' : '大批管理客戶資料⭢' }}
@@ -35,11 +36,10 @@
           </div>
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/CustomerAccounts')">未核銷帳務</button>
         <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">結帳列印</button> -->
-        <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/FinanceManagement')">會計傳票</button> -->
+        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/FinanceManagement')">會計傳票</button>
       </div>
       
-      <!--  <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/CardMake')">製卡明細</button>
-      <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/ReportManagement')">報表</button>
+       <!-- <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/CardMake')">製卡明細</button>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/AccessControl')">權限管理</button> -->
     </div>
     <div class="sidebar-TheFooter">
