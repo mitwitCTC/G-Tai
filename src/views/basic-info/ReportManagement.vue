@@ -8,7 +8,7 @@
   </div>
 
   <el-form-item label="匯出名單" class="section-header">
-    <el-button type="danger" @click="dialog">匯出</el-button>
+    <el-button type="danger" @click="exData">匯出</el-button>
     <div class="table-container">
       <el-table
         :data="Ex_observe"
@@ -72,31 +72,6 @@
       </el-table>
     </div>
   </el-form-item>
-  <!-- <el-form-item label="自動發送客戶" class="section-header">
-    <div class="table-container">
-      <el-table :data="this.cus_message" style="width: 100%">
-        <el-table-column label="選擇" width="55">
-          <template v-slot="scope">
-            <el-checkbox v-model="scope.row.selected"></el-checkbox>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createDate" label="新增日期" width="150" />
-        <el-table-column prop="customerId" label="客戶代號" width="150" />
-        <el-table-column prop="cusName" label="客戶名稱" width="200" />
-        <el-table-column prop="contract_sales" label="負責業務" width="100" />
-        <el-table-column
-          prop="sendMod"
-          label="發送方式"
-          width="100"
-          :formatter="format"
-        />
-        <el-table-column prop="connectionId" label="發送資訊" width="150" />
-        <el-table-column prop="title" label="發送主旨" width="200" />
-        <el-table-column prop="content" label="發送內容" width="200" />
-        <el-table-column prop="notused" label="未用油天數" width="100" />
-      </el-table>
-    </div>
-  </el-form-item> -->
   <el-dialog
     v-model="isLoading"
     width="15%"
@@ -110,6 +85,7 @@
 <script>
 import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
+import ExcelJS from "exceljs";
 import { toRaw } from "vue"; // 引入 `toRaw` 函數
 import axios from "axios";
 export default {
@@ -120,10 +96,14 @@ export default {
   data() {
     return {
       isLoading: false,
+      cus_code: "",
       observe: [],
       Locked: [],
       Ex_observe: [],
       Ex_Locked: [],
+      Allcard: [],
+      Vehicle: [],
+      Allexport: [],
       Extype: {
         3: "待鎖卡",
         5: "待解卡",
@@ -140,27 +120,126 @@ export default {
   computed: {},
   methods: {
     async submitData() {
-      if ((!this.Locked.some((row) => row.selected)) && !this.observe.some((row) => row.selected)) {
+      if (
+        !this.Locked.some((row) => row.selected) &&
+        !this.observe.some((row) => row.selected)
+      ) {
         this.$message({
           message: "請勾選後再送出",
           type: "error",
         });
         return; // 停止後續執行
       }
-      
+
       const selectedItemsLocked = this.Locked.filter((row) => row.selected);
       this.isLoading = true;
       for (const item of selectedItemsLocked) {
-       await this.updateCardStatus(item.cus_code,item.card_status)
+        await this.updateCardStatus(item.cus_code, item.card_status);
       }
       const selectedItemsobserve = this.observe.filter((row) => row.selected);
-      this.isLoading = true;
       for (const item of selectedItemsobserve) {
-       await this.updateCardStatus(item.cus_code,item.card_status)
+        await this.updateCardStatus(item.cus_code, item.card_status);
       }
+      this.getcus();
       this.isLoading = false;
     },
-    async updateCardStatus(cus_code,card_status) {
+    async updateCardStatus(cus_code, card_status) {
+      try {
+        const processedData = {
+          cus_code: cus_code,
+          card_status: card_status,
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/main/updateCuscardStatus",
+          processedData
+        );
+        console.log("成功送出:", processedData, "回應:", response.data);
+      } catch (error) {
+        console.error("送出失敗:", processedData, "錯誤:", error);
+        this.$message({
+          message: `送出失敗: ${item.cus_code}`,
+          type: "error",
+        });
+      }
+    },
+    async exportCardStatus(cus_code, card_status) {
+      try {
+        const processedData = {
+          cus_code: cus_code,
+          card_status: card_status,
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/main/exportCuscardStatus",
+          processedData
+        );
+        console.log("成功送出:", processedData, "回應:", response.data);
+      } catch (error) {
+        console.error("送出失敗:", processedData, "錯誤:", error);
+        this.$message({
+          message: `送出失敗: ${item.cus_code}`,
+          type: "error",
+        });
+      }
+    },
+    async exData() {
+      if ((this.Ex_observe.length = 0) && (this.Ex_Locked.length = 0)) {
+        this.$message({
+          message: "無可匯出資料",
+          type: "error",
+        });
+        return; // 停止後續執行
+      }
+      this.Allexport = [];
+      this.isLoading = true;
+      console.log("1查詢卡號資料");
+      await this.getselectCARData();
+      console.log("1結束");
+      console.log("2查詢車籍資料");
+      await this.getselectVEHData();
+      console.log("2結束");
+      console.log("3組成資料");
+      this.Allcard = this.Allcard.filter((Allcard) => {
+        // 嘗試找到對應的車籍資料
+        const Vehicle = this.Vehicle.find(
+          (v) => v.vehicleId === Allcard.vehicleId
+        );
+        // 如果沒有找到對應的 vehicleId，則返回 false，把該筆資料過濾掉
+        return Vehicle !== undefined;
+      });
+      this.OriginalData = this.Allcard.map((Allcard) => {
+        // 找到對應的車籍
+        const Vehicle = this.Vehicle.find(
+          (v) => v.vehicleId === Allcard.vehicleId
+        );
+        const customerId = Vehicle ? Vehicle.customerId : "";
+        const license_plate = Vehicle ? Vehicle.license_plate : "";
+
+        // 4. 將資料組合起來
+        return {
+          ...Allcard,
+          customerId,
+          license_plate,
+        };
+      });
+      for (const item of this.Ex_observe) {
+        await this.doData(item.cus_code, item.card_status);
+      }
+      for (const item of this.Ex_Locked) {
+        await this.doData(item.cus_code, item.card_status);
+      }
+      console.log(JSON.stringify(this.Allexport));
+      console.log("3結束");
+      for (const item of this.Ex_observe) {
+        await this.exportCardStatus(item.cus_code, item.card_status);
+      }
+      for (const item of this.Ex_Locked) {
+        await this.exportCardStatus(item.cus_code, item.card_status);
+      }
+      this.exportExcel();
+      this.getcus();
+      this.isLoading = false;
+    },
+    async updateCardStatus(cus_code, card_status) {
       try {
         const processedData = {
           cus_code: cus_code,
@@ -216,11 +295,51 @@ export default {
           this.isLoading = false;
         });
     },
+    async getselectCARData() {
+      try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.get(
+          "http://122.116.23.30:3347/main/selectAllCard"
+        );
+        // 將資料放入 customers 陣列中
+        this.Allcard = response.data.data.filter(
+          //油
+          (card) =>
+            card.buildType == "3" &&
+            (card.card_type === "1" ||
+              card.card_type === "2" ||
+              card.card_type === "3")
+        );
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
+    async getselectVEHData() {
+      try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.get(
+          "http://122.116.23.30:3347/main/selectVehicle "
+        );
+        this.Vehicle = response.data.data;
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
+    async doData(cus_code, card_status) {
+      const filteredData = this.OriginalData.filter(
+        (item) => item.customerId === cus_code
+      ).map((item) => {
+        // 新增 card_status 欄位
+        return {
+          ...item, // 保留原資料
+          card_status: card_status, // 為每個項目新增 card_status 欄位，值可根據需求更改
+        };
+      });
+
+      this.Allexport = [...this.Allexport, ...filteredData];
+    },
     async exportExcel() {
-      console.log("組成資料");
-      await this.doData();
-      console.log("組成結束");
-      console.log("匯出");
+      console.log("4 匯出");
       try {
         // 確保資料先完成取得
         const workbook = new ExcelJS.Workbook();
@@ -229,7 +348,6 @@ export default {
           new URL("@/assets/卡片停用檔.xlsx", import.meta.url).href
         );
         const data = await response.blob(); // 轉為 Blob
-
         // 等待 FileReader onload 完成
         const arrayBuffer = await new Promise((resolve, reject) => {
           const fr = new FileReader();
@@ -237,28 +355,41 @@ export default {
           fr.onerror = (err) => reject(err); // 發生錯誤時，reject 錯誤
           fr.readAsArrayBuffer(data);
         });
-
         // 使用 arrayBuffer 讀取 Excel
         await workbook.xlsx.load(arrayBuffer);
         const worksheet = workbook.worksheets[0]; // 取得第一個工作表
-
-        // 開始填充資料
-        this.Allexport.forEach((contact, index) => {
+        //開始填充資料
+        this.Allexport.forEach((data, index) => {
           const rowIndex = index + 2; // 從 A2 開始
-          worksheet.getCell(`A${rowIndex}`).value = contact.customerId || ""; // 插入 customerId
-          worksheet.getCell(`B${rowIndex}`).value = contact.cus_name || "";
-          worksheet.getCell(`C${rowIndex}`).value = contact.mail_address || "";
-          worksheet.getCell(`D${rowIndex}`).value = contact.billMail || "";
-          worksheet.getCell(`E${rowIndex}`).value = contact.job_title || "";
-          worksheet.getCell(`F${rowIndex}`).value = contact.name || "";
-          worksheet.getCell(`G${rowIndex}`).value = contact.mobile || "";
-          worksheet.getCell(`H${rowIndex}`).value = contact.notes || "";
-          worksheet.getCell(`I${rowIndex}`).value = contact.employee_name || "";
-        });
-        worksheet.getColumn(2).width = 50;
-        worksheet.getColumn(3).width = 60;
-        worksheet.getColumn(4).width = 60;
+          worksheet.getCell(`A${rowIndex}`).value = data.cpc_account || "";
+          worksheet.getCell(`B${rowIndex}`).value = data.cpc_account || "";
+          worksheet.getCell(`C${rowIndex}`).value = data.customerId || "";
+          worksheet.getCell(`E${rowIndex}`).value = data.license_plate || "";
+          worksheet.getCell(`L${rowIndex}`).value = "U";
+          worksheet.getCell(`M${rowIndex}`).value = data.card_number || "";
+          worksheet.getCell(`N${rowIndex}`).value = "Y";
+          worksheet.getCell(`O${rowIndex}`).value = "Y";
+          worksheet.getCell(`P${rowIndex}`).value = "N";
+          worksheet.getCell(`S${rowIndex}`).value = "B";
+          worksheet.getCell(`U${rowIndex}`).value = "A";
+          worksheet.getCell(`V${rowIndex}`).value = "N";
+          worksheet.getCell(`W${rowIndex}`).value = "OIL";
+          worksheet.getCell(`X${rowIndex}`).value = "7";
+          worksheet.getCell(`D${rowIndex}`).value =
+            data.card_type == 1
+              ? "0017"
+              : data.card_type == 2
+              ? "0006"
+              : data.card_type == 3
+              ? "0001"
+              : ""; // 預設為空字串，如果沒有匹配
 
+          worksheet.getCell(`T${rowIndex}`).value =
+            data.card_status == 5 ? "" : data.card_status == 3 ? "C" : ""; // 預設為空字串，如果沒有匹配
+        });
+        worksheet.getColumn(5).width = 15;
+        worksheet.getColumn(13).width = 25;
+        // worksheet.getColumn(4).width = 60;
         // 生成下載鏈接並觸發下載
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: "application/octet-stream" });
@@ -266,8 +397,7 @@ export default {
         link.href = URL.createObjectURL(blob);
         link.download = `卡片停用檔.xlsx`; // 設定下載檔案名
         link.click();
-
-        console.log("匯出結束");
+        console.log("4匯出結束");
       } catch (error) {
         console.error("Error during export to Excel:", error);
       }

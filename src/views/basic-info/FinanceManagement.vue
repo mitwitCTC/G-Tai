@@ -17,14 +17,20 @@
         style="margin-right: 10px"
         @change="clink()"
       />
-      <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
+      <el-input
+        v-model="customerName"
+        placeholder="輸入客戶名稱/客戶代號/摘要/"
+        style="width: 225px"
+        v-if="cus_message.length > 0"
+      ></el-input>
+      <el-button type="primary" @click="openDialog"  >新增會計傳票</el-button>
     </el-form-item>
   </div>
 
   <div class="table-container" v-if="cus_message.length > 0">
-    <el-table :data="cus_message" style="width: 100%">
-      <el-table-column prop="id" label="傳票號碼" width="150" />
-      <el-table-column prop="creatTime" label="傳票日期" width="200" />
+    <el-table :data="filteredData" style="width: 100%">
+      <el-table-column prop="id" label="傳票號碼" width="200" />
+      <el-table-column prop="accDate" label="傳票日期" width="150" />
       <el-table-column prop="accFarewell" label="結帳年月" width="100" />
       <el-table-column prop="customerId" label="客戶代號" width="100" />
       <el-table-column prop="cus_name" label="客戶名稱" width="250" />
@@ -103,11 +109,26 @@
         <h3>借方</h3>
         <el-row :gutter="20" align="middle">
           <el-form-item label="會計科目" label-width="80px">
-            <el-select
+            <!-- <el-select
               v-model="debitcurrentEntry.subject"
               placeholder="選擇會計科目"
               style="width: 200px"
             >
+              <el-option
+                v-for="item in debit"
+                :key="item.parkId"
+                :label="item.SubjectsName"
+                :value="item.Subjects"
+              ></el-option>
+            </el-select> -->
+            <el-select
+              v-model="debitcurrentEntry.subject"
+              placeholder="輸入會計科目"
+              filterable
+              :clearable="true"
+              style="width: 200px"
+            >
+              <!-- 使用 cusdata 直接顯示每個字符串 -->
               <el-option
                 v-for="item in debit"
                 :key="item.parkId"
@@ -165,11 +186,26 @@
         <h3>貸方</h3>
         <el-row :gutter="20" align="middle">
           <el-form-item label="會計科目" label-width="80px">
-            <el-select
+            <!-- <el-select
               v-model="creditcurrentEntry.subject"
               placeholder="選擇會計科目"
               style="width: 200px"
             >
+              <el-option
+                v-for="item in credit"
+                :key="item.parkId"
+                :label="item.SubjectsName"
+                :value="item.Subjects"
+              ></el-option>
+            </el-select> -->
+            <el-select
+              v-model="creditcurrentEntry.subject"
+              placeholder="輸入會計科目"
+              filterable
+              :clearable="true"
+              style="width: 200px"
+            >
+              <!-- 使用 cusdata 直接顯示每個字符串 -->
               <el-option
                 v-for="item in credit"
                 :key="item.parkId"
@@ -225,7 +261,7 @@
     <!-- 底部按鈕 -->
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">取消</el-button>
-      <el-button type="info" @click="submitForm(1)">新增傳票</el-button>
+      <!-- <el-button type="info" @click="submitForm(1)">新增傳票</el-button> -->
       <el-button type="primary" @click="submitForm(2)">送出</el-button>
     </span>
   </el-dialog>
@@ -239,7 +275,7 @@
   >
     <el-table :data="select" style="width: 100%" class="section-header">
       <el-table-column prop="id" label="傳票號碼" width="200" />
-      <el-table-column prop="creatTime" label="傳票日期" width="250" />
+      <el-table-column prop="accDate" label="傳票日期" width="250" />
       <el-table-column prop="accFarewell" label="結帳年月" width="150" />
       <el-table-column prop="customerId" label="客戶代號" width="210" />
       <el-table-column prop="cus_name" label="客戶名稱" width="300" />
@@ -321,6 +357,7 @@ export default {
   },
   data() {
     return {
+      customerName: "",
       dialogVisible: false, // 控制Dialog顯示
       selectdialog: false,
       isEditable: null,
@@ -394,6 +431,23 @@ export default {
         }, 0)
         .toLocaleString(); // 計算總金額後，格式化為千分位
     },
+    filteredData() {
+      const searchTerm = this.customerName.trim().toLowerCase();
+
+      return this.cus_message.filter((item) => {
+        const cusCode = item.customerId ? item.customerId.toLowerCase() : "";
+        const cusName = item.cus_name ? item.cus_name.toLowerCase() : "";
+        const debitmessage = item.debitmessage ? item.debitmessage.toLowerCase() : "";
+        const creditmessage = item.creditmessage ? item.creditmessage.toLowerCase() : "";
+
+        return (
+          cusCode.includes(searchTerm) ||
+          cusName.includes(searchTerm) ||
+          debitmessage.includes(searchTerm)||
+          creditmessage.includes(searchTerm)
+        );
+      });
+    },
   },
   methods: {
     async debitAccount() {
@@ -444,9 +498,10 @@ export default {
             (item) => item.Subjects === this.debitcurrentEntry.subject
           ).SubjectsName,
           Subjects: this.debitcurrentEntry.subject,
-          type: this.debit.find(
-            (item) => item.Subjects === this.debitcurrentEntry.subject
-          ).type,
+          // type: this.debit.find(
+          //   (item) => item.Subjects === this.debitcurrentEntry.subject
+          // ).type,
+          type: "1",
         };
         this.entries.debit.push(newEntry);
         this.debitcurrentEntry = { subject: "" };
@@ -462,9 +517,10 @@ export default {
             (item) => item.Subjects === this.creditcurrentEntry.subject
           ).SubjectsName,
           Subjects: this.creditcurrentEntry.subject,
-          type: this.credit.find(
-            (item) => item.Subjects === this.creditcurrentEntry.subject
-          ).type,
+          // type: this.credit.find(
+          //   (item) => item.Subjects === this.creditcurrentEntry.subject
+          // ).type,
+          type: "2",
         };
         this.entries.credit.push(newEntry);
         this.creditcurrentEntry = { subject: "" };
@@ -715,25 +771,27 @@ export default {
         });
     },
     async clink() {
-      const postData = {
-        date: this.search_month,
-      };
-      await axios
-        .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)
-        .then((response) => {
-          this.cus_message = response.data.data;
-          if (!this.cus_message) {
-            this.cus_message = [];
-            this.$message({
-              message: `查無選擇年月資料`,
-              type: "warning",
-            });
-          }
-        })
-        .catch((error) => {
-          // 處理錯誤
-          console.error("API request failed:", error);
-        });
+      if (this.search_month) {
+        const postData = {
+          date: this.search_month,
+        };
+        await axios
+          .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)
+          .then((response) => {
+            this.cus_message = response.data.data;
+            if (!this.cus_message) {
+              this.cus_message = [];
+              this.$message({
+                message: `查無選擇年月資料`,
+                type: "warning",
+              });
+            }
+          })
+          .catch((error) => {
+            // 處理錯誤
+            console.error("API request failed:", error);
+          });
+      }
     },
     formatCurrency(value) {
       if (!value) return "0";

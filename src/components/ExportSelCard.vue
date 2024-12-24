@@ -204,9 +204,6 @@ export default {
       this.cus_name = cus_name;
       console.log("1查詢客戶資料");
       await this.getselectCUSData();
-      console.log(this.cus_code, this.cus_name);
-      console.log("1查詢客戶資料");
-      await this.getselectCUSData();
       console.log("1結束");
       console.log("2查詢卡號資料");
       await this.getselectCARData();

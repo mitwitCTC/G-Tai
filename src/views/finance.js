@@ -378,7 +378,7 @@ module.exports = ({ sequelize }) => {
                 console.log(time + ' 傳票借方會計科目(debitAccount)')
                 // 取得所有業務員
                 const Account = await accountingsubjects.findAll({
-                    where: { useType: { [Op.eq]: 'DR' } },
+                    // where: { useType: { [Op.eq]: 'DR' } },
                     raw: true
                 })
                 console.log({ returnCode: 0, message: "傳票借方會計科目", data: Account })
@@ -396,7 +396,7 @@ module.exports = ({ sequelize }) => {
                 console.log(time + ' 傳票貸方會計科目(creditAccount)')
                 // 取得所有業務員
                 const Account = await accountingsubjects.findAll({
-                    where: { useType: { [Op.eq]: 'CR' } },
+                    // where: { useType: { [Op.eq]: 'CR' } },
                     raw: true
                 })
                 console.log({ returnCode: 0, message: "傳票貸方會計科目", data: Account })
