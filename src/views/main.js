@@ -36,7 +36,7 @@ module.exports = ({ sequelize }) => {
                 const customerList = await customer.findAll({
                     where: { deleteTime: { [Op.eq]: '0' } },
                     order: [['cus_code', 'DESC']],
-                    attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date','mail_address','card_status'],
+                    attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date','mail_address','card_status','special_invoice'],
                     raw: true
                 })
                 //Jason

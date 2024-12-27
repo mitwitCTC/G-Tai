@@ -1,5 +1,5 @@
 module.exports = ({ sequelize }) => {
-    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details } = sequelize
+    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details,reportsales,definvoice,definvoice_details } = sequelize
     const Sequelize = require('sequelize');
     const Op = Sequelize.Op;
     const dayjs = require('dayjs');
@@ -23,6 +23,40 @@ module.exports = ({ sequelize }) => {
         let rocYear = year - 1911;
         return `${rocYear}${month}${day}`;
     }
+    //特殊發票流水號
+    const getDateTimeSSS = (date = null, format = 'YYMMDDHHmmssSSS') => {
+        const now = date ? new Date(date) : new Date();
+        const pad = (num, size = 2) => num.toString().padStart(size, '0'); // 用於補零
+      
+        const YY = now.getFullYear().toString().slice(-2); // 取年份的後兩位
+        const MM = pad(now.getMonth() + 1); // 月份 (0-indexed)
+        const DD = pad(now.getDate()); // 日期
+        const HH = pad(now.getHours()); // 小時
+        const mm = pad(now.getMinutes()); // 分鐘
+        const ss = pad(now.getSeconds()); // 秒
+        const SSS = pad(now.getMilliseconds(), 3); // 毫秒
+      
+        // 替換格式
+        return format
+          .replace('YY', YY)
+          .replace('MM', MM)
+          .replace('DD', DD)
+          .replace('HH', HH)
+          .replace('mm', mm)
+          .replace('ss', ss)
+          .replace('SSS', SSS);
+      };
+      const getLastDayOfMonth = (searchMonth) => {
+        // 假設 req.body.search_month 為 "YYYY-MM" 格式
+        const startOfNextMonth = dayjs(searchMonth, 'YYYY-MM') // 解析搜尋的年月
+          .add(1, 'month') // 增加1個月
+          .startOf('month'); // 計算下個月的第一天
+      
+        const lastDayOfMonth = startOfNextMonth.subtract(1, 'day'); // 減去一天得到當月最後一天
+      
+        return lastDayOfMonth.format('YYYY-MM-DD'); // 返回格式化的日期
+      }
+      
 
     return {
         // 取得永豐資料
@@ -412,7 +446,7 @@ module.exports = ({ sequelize }) => {
             try {
                 const time = getDateTime()
                 console.log(time + ' 產生傳票(subpoena)')
-                const accTradeID = "AO" + getDateTime(null, 'YYMMDDHHmmss')
+                const accTradeID = "IN" + getDateTime(null, 'YYMMDDHHmmss')
                 // let detail = []
                 // req.body.forEach((item) => {
                 //     console.log(item.debit)
@@ -460,6 +494,8 @@ module.exports = ({ sequelize }) => {
                         Subjects: item.Subjects,
                         amount: item.amount,
                         type: item.type,
+                        debitmessage:item.debitmessage,
+                        creditmessage:item.creditmessage
                     })
                 })
                 // console.log({ returnCode: 0, message: "成功新增傳票明細" })
@@ -477,9 +513,10 @@ module.exports = ({ sequelize }) => {
                 console.log(time + ' 查詢傳票資料(searchSubpoena)')
                 const accTrade = await acc_trade.findAll({
                     where: {
-                        accFarewell: { [Op.eq]: req.body.date },
+                        accDate: { [Op.between]: [req.body.date, req.body.enddate] },
                         deleteTime: { [Op.eq]: 0 }
-                    }, raw: true
+                    }, raw: true,
+                    order: [['accDate', 'DESC']],
                 })
                 if (accTrade.length == 0) {
                     console.log({ returnCode: 0, message: "無資料" })
@@ -552,6 +589,175 @@ module.exports = ({ sequelize }) => {
                 })
                 console.log({ returnCode: 0, message: "刪除傳票成功", data: req.body.id })
                 return res.json({ returnCode: 0, message: "刪除傳票成功", data: req.body.id })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+
+        // 修改傳票
+        updatesubpoena: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 修改傳票(updatesubpoena)')
+                const createAcc_trade = await acc_trade.update({
+                    amount: req.body.totalAmount,
+                    accDate: req.body.accDate,
+                    accFarewell: getDateTime(req.body.actDate, 'YYYY-MM'),
+                    debitmessage: req.body.debitmessage,
+                    customerId: req.body.customerId,
+                    cus_name: req.body.cus_name,
+
+                },
+                {
+                    where: { id: req.body.id }, // 根据传票ID更新
+                })
+                // console.log({ returnCode: 0, message: "成功新增傳票紀錄" })
+                for (const item of req.body.detail) {
+                    if (item.id) {
+                        // 如果有 ID，执行更新操作
+                        await acc_trade_details.update(
+                            {
+                                Subjects: item.Subjects,
+                                amount: item.amount,
+                                type: item.type,
+                                debitmessage: item.debitmessage,
+                                creditmessage: item.creditmessage,
+                            },
+                            {
+                                where: { id: item.id }, // 根据传票明细ID更新
+                            }
+                        );
+                    } else {
+                        // 如果没有 ID，执行新增操作
+                        await acc_trade_details.create({
+                            accTradeID: req.body.id, // 主传票的 ID
+                            Subjects: item.Subjects,
+                            amount: item.amount,
+                            type: item.type,
+                            debitmessage: item.debitmessage,
+                            creditmessage: item.creditmessage,
+                        });
+                    }
+                }
+                // console.log({ returnCode: 0, message: "成功新增傳票明細" })
+                console.log({ returnCode: 0, message: "修改傳票成功", data: req.body.id })
+                return res.json({ returnCode: 0, message: "修改傳票成功", data: req.body.id })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        //查詢特殊發票金額
+        searchtotalamount: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 查詢特殊發票金額(searchtotalamount)')
+                if (req.body.salesDate && req.body.customerId ) {
+                    const startDate = `${req.body.salesDate}-01`;
+                    const endDate = `${req.body.salesDate}-31`;
+                    
+                    const customerList = await reportsales.findAll({
+                      where: {
+                        salesDate: {
+                          [Op.between]: [startDate, endDate], // 範圍查詢
+                        },
+                        customerId: {
+                          [Op.eq]: req.body.customerId,
+                        },
+                      },
+                      raw: true,
+                    });
+                    // 計算 salesAmount 加總
+                    const totalSalesAmount = customerList.reduce((total, record) => {
+                        return total + (record.salesAmount || 0); // 確保 salesAmount 不為 null
+                    }, 0);
+                    // 組合回應結果
+                    const result = {
+                        customerId: req.body.customerId,
+                        totalSalesAmount,
+                    };
+                    console.log({ returnCode: 0, message: "查詢特殊發票金額", data: result })
+                    return res.json({ returnCode: 0, message: "查詢特殊發票金額", data: result })
+
+                } else {
+                    console.log({ returnCode: -1, message: '查詢失敗，缺少參數' })
+                    return res.json({ returnCode: -1, message: '查詢失敗，缺少參數' })
+                }
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+         //查詢已開立發票金額
+         searchuseamount: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 查詢已開立發票金額(searchuseamount)')
+                if (req.body.salesDate && req.body.customerId ) {
+                    const startDate = `${req.body.salesDate}-01`;
+                    const endDate = `${req.body.salesDate}-31`;
+                    
+                    const customerList = await definvoice.findAll({
+                      where: {
+                        invoiceDate: {
+                          [Op.between]: [startDate, endDate], // 範圍查詢
+                        },
+                        customerId: {
+                          [Op.eq]: req.body.customerId,
+                        },
+                      },
+                      raw: true,
+                    });
+                    // 計算 salesAmount 加總
+                    const totalAmount = customerList.reduce((total, record) => {
+                        return total + (record.Amount || 0); // 確保 salesAmount 不為 null
+                    }, 0);
+                    // 組合回應結果
+                    const result = {
+                        customerId: req.body.customerId,
+                        totalAmount,
+                    };
+                    console.log({ returnCode: 0, message: "查詢已開立發票金額", data: result })
+                    return res.json({ returnCode: 0, message: "查詢已開立發票金額", data: result })
+
+                } else {
+                    console.log({ returnCode: -1, message: '查詢失敗，缺少參數' })
+                    return res.json({ returnCode: -1, message: '查詢失敗，缺少參數' })
+                }
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 產生特殊發票
+        insertinvoice: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 產生特殊發票(insertinvoice)')
+                for (const invoice of req.body.invoice) {
+                    const invoiceId =  getDateTimeSSS(null, 'YYMMDDHHmmssSSS')
+                    const createinvoice = await definvoice.create({
+                        invoiceId: invoiceId,
+                        customerId: req.body.cus_code, 
+                        account_sortId: invoice.account_sortId, 
+                        Amount: invoice.Amount, 
+                        invoiceDate:getLastDayOfMonth(req.body.search_month),
+                        invoiceTime:'00:00:00',
+                        Bidentifier: invoice.use_number,  
+                        BName: invoice.invoice_name,  
+                    });
+                    for (const products of invoice.products) {
+                        const createinvoiceproducts = await definvoice_details.create({
+                            InvoiceId: invoiceId,
+                            Details: products.product, 
+                            Unit_Price:products.amount, 
+                            Amount:products.amount,
+                        });
+                    }
+                }
+                console.log({ returnCode: 0, message: "產生特殊發票成功" })
+                return res.json({ returnCode: 0, message: "產生特殊發票成功" })
             } catch (err) {
                 console.log({ returnCode: 500, message: "系統錯誤", err: err })
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })

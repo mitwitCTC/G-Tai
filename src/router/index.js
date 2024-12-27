@@ -122,6 +122,16 @@ const router = createRouter({
           }
         },
         {
+          path: 'SpecialInvoice',
+          name: '特殊發票處理',
+          component: () => import('@/views/basic-info/SpecialInvoice.vue'),
+          meta: {
+            title: '特殊發票處理',
+            breadcrumb: '特殊發票處理',
+            isAccountsPage: true
+          }
+        },
+        {
           path: 'SalesControl',
           name: '通知客戶管理',
           component: () => import('@/views/basic-info/SalesControl.vue'),
@@ -133,11 +143,11 @@ const router = createRouter({
         },
         {
           path: 'ReportManagement',
-          name: '中油鎖卡名單',
+          name: '中油鎖卡/解卡處理',
           component: () => import('@/views/basic-info/ReportManagement.vue'),
           meta: {
-            title: '中油鎖卡名單',
-            breadcrumb: '中油鎖卡名單',
+            title: '中油鎖卡/解卡處理',
+            breadcrumb: '中油鎖卡/解卡處理',
             isSpecialPage: true
           }
         },

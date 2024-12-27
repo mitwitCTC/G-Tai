@@ -7,23 +7,36 @@
     <BreadCrumb />
   </div>
   <div>
-    <el-form-item label="結帳年月">
+    <el-form-item label="結帳起日">
       <el-date-picker
         v-model="search_month"
-        type="month"
-        format="YYYY-MM"
-        value-format="YYYY-MM"
-        placeholder="請選擇結帳年月"
-        style="margin-right: 10px"
+        type="date"
+        placeholder="請選擇結帳日期"
+        format="YYYY-MM-DD"
+        value-format="YYYY-MM-DD"
+        style="margin-right: 20px"
         @change="clink()"
-      />
+      >
+      </el-date-picker>
+    </el-form-item>
+    <el-form-item label="結帳迄日">
+      <el-date-picker
+        v-model="search_end_month"
+        type="enddate"
+        placeholder="請選擇結帳日期"
+        format="YYYY-MM-DD"
+        value-format="YYYY-MM-DD"
+        style="margin-right: 20px"
+        @change="clink()"
+      >
+      </el-date-picker>
       <el-input
         v-model="customerName"
         placeholder="輸入客戶名稱/客戶代號/摘要/"
-        style="width: 225px"
+        style="width: 225px; margin-right: 10px"
         v-if="cus_message.length > 0"
       ></el-input>
-      <el-button type="primary" @click="openDialog"  >新增會計傳票</el-button>
+      <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
     </el-form-item>
   </div>
 
@@ -34,8 +47,7 @@
       <el-table-column prop="accFarewell" label="結帳年月" width="100" />
       <el-table-column prop="customerId" label="客戶代號" width="100" />
       <el-table-column prop="cus_name" label="客戶名稱" width="250" />
-      <el-table-column prop="debitmessage" label="借方摘要" width="250" />
-      <el-table-column prop="creditmessage" label="貸方摘要" width="250" />
+      <el-table-column prop="debitmessage" label="主摘要" width="250" />
       <el-table-column prop="amount" label="借貸金額" align="right" width="100"
         ><template v-slot="scope"
           >{{ formatCurrency(scope.row.amount) }}
@@ -45,10 +57,12 @@
         <template v-slot="scope">
           <div class="action-icons">
             <i class="fas fa-eye" @click="selectItemVehicle(scope.row)"></i>
+            <i class="fas fa-edit" @click="editItem(scope.row)"></i>
             <i
               class="fa-regular fa-copy"
               @click="copyItemVehicle(scope.row)"
             ></i>
+            <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
           </div>
         </template>
       </el-table-column>
@@ -57,9 +71,9 @@
   <div style="margin-bottom: 50px"></div>
 
   <el-dialog
-    title="會計傳票"
+    :title="dialogTitle == 0 ? '新增會計傳票' : '修改會計傳票'"
     v-model="dialogVisible"
-    width="70%"
+    width="90%"
     :close-on-click-modal="false"
     @close="closeDialog"
   >
@@ -68,36 +82,45 @@
         v-model="entries.accDate"
         type="date"
         placeholder="傳票日期"
-        :disabled-date="DateBeforeToday"
         format="YYYY-MM-DD"
         value-format="YYYY-MM-DD"
         style="width: 300px; margin-right: 20px"
       >
       </el-date-picker>
     </el-form-item>
-    <el-form-item label="客戶編號">
-      <el-select
-        v-model="entries.customerId"
-        placeholder="輸入客戶名稱/客代"
-        filterable
-        :clearable="true"
-        style="width: 300px"
-        @change="getdata"
-      >
-        <!-- 使用 cusdata 直接顯示每個字符串 -->
-        <el-option
-          v-for="item in cusData"
-          :key="item"
-          :label="item"
-          :value="item.split(' ')[0]"
-        ></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item label="客戶名稱">
+    <el-row>
+      <el-form-item label="客戶編號">
+        <el-select
+          v-model="entries.customerId"
+          placeholder="輸入客戶名稱/客代"
+          filterable
+          :clearable="true"
+          style="width: 300px"
+          @change="getdata"
+        >
+          <!-- 使用 cusdata 直接顯示每個字符串 -->
+          <el-option
+            v-for="item in cusData"
+            :key="item"
+            :label="item"
+            :value="item.split(' ')[0]"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="客戶名稱" style="margin-left: 70px">
+        <el-input
+          v-model="entries.cus_name"
+          disabled
+          style="width: 300px"
+        ></el-input>
+      </el-form-item>
+    </el-row>
+    <el-form-item label="主摘要&nbsp;&nbsp;&nbsp;">
       <el-input
-        v-model="entries.cus_name"
-        disabled
-        style="width: 300px"
+        v-model="entries.debitmessage"
+        type="textarea"
+        style="width: 46%"
+        placeholder="主摘要"
       ></el-input>
     </el-form-item>
     <!-- 借貸兩方 -->
@@ -148,7 +171,7 @@
             prop="SubjectsName"
             label="會計科目"
           ></el-table-column>
-          <el-table-column prop="amount" label="金額" align="right">
+          <el-table-column prop="amount" label="金額" align="right" width="150">
             <template v-slot="scope">
               <el-input
                 v-model="scope.row.amount"
@@ -157,7 +180,15 @@
               ></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column prop="debitmessage" label="借方摘要">
+            <template v-slot="scope">
+              <el-input
+                v-model="scope.row.debitmessage"
+                placeholder="借方-摘要"
+              ></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="90">
             <template #default="scope">
               <el-button
                 type="danger"
@@ -172,13 +203,6 @@
         <div style="text-align: right; margin-top: 10px">
           <b>借方總金額：</b>{{ totalDebit }}
         </div>
-
-        <el-input
-          v-model="entries.debitmessage"
-          type="textarea"
-          style="width: 100%"
-          placeholder="借方-摘要"
-        ></el-input>
       </div>
 
       <!-- 貸方 -->
@@ -225,7 +249,7 @@
             prop="SubjectsName"
             label="會計科目"
           ></el-table-column>
-          <el-table-column prop="amount" label="金額" align="right">
+          <el-table-column prop="amount" label="金額" align="right" width="150">
             <template v-slot="scope">
               <el-input
                 v-model="scope.row.amount"
@@ -234,7 +258,15 @@
               ></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column prop="creditmessage" label="貸方摘要">
+            <template v-slot="scope">
+              <el-input
+                v-model="scope.row.creditmessage"
+                placeholder="貸方-摘要"
+              ></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="90">
             <template #default="scope">
               <el-button
                 type="danger"
@@ -249,12 +281,12 @@
         <div style="text-align: right; margin-top: 10px">
           <b>貸方總金額：</b>{{ totalCredit }}
         </div>
-        <el-input
+        <!-- <el-input
           v-model="entries.creditmessage"
           type="textarea"
           style="width: 100%"
           placeholder="貸方-摘要"
-        ></el-input>
+        ></el-input> -->
       </div>
     </div>
 
@@ -270,7 +302,7 @@
   <el-dialog
     title="會計傳票"
     v-model="selectdialog"
-    width="70%"
+    width="90%"
     :close-on-click-modal="false"
   >
     <el-table :data="select" style="width: 100%" class="section-header">
@@ -279,6 +311,7 @@
       <el-table-column prop="accFarewell" label="結帳年月" width="150" />
       <el-table-column prop="customerId" label="客戶代號" width="210" />
       <el-table-column prop="cus_name" label="客戶名稱" width="300" />
+      <el-table-column prop="debitmessage" label="主摘要" width="400" />
       <el-table-column prop="amount" label="借貸金額" align="right" width="150"
         ><template v-slot="scope"
           >{{ formatCurrency(scope.row.amount) }}
@@ -298,23 +331,27 @@
             prop="SubjectsName"
             label="會計科目"
           ></el-table-column>
-          <el-table-column prop="amount" label="金額" align="right">
+          <el-table-column prop="amount" label="金額" align="right" width="150">
             <template v-slot="scope"
               >{{ formatCurrency(scope.row.amount) }}
             </template>
           </el-table-column>
+          <el-table-column
+            prop="debitmessage"
+            label="借方摘要"
+          ></el-table-column>
         </el-table>
         <div style="text-align: right; margin-top: 10px">
           <b>借方總金額：</b>{{ totalSelDebit }}
         </div>
 
-        <el-input
+        <!-- <el-input
           v-model="select[0].debitmessage"
           type="textarea"
           style="width: 100%"
-          placeholder="借方-摘要"
+          placeholder="主摘要"
           disabled
-        ></el-input>
+        ></el-input> -->
       </div>
 
       <!-- 貸方 -->
@@ -325,22 +362,26 @@
             prop="SubjectsName"
             label="會計科目"
           ></el-table-column>
-          <el-table-column prop="amount" label="金額" align="right">
+          <el-table-column prop="amount" label="金額" align="right" width="150">
             <template v-slot="scope"
               >{{ formatCurrency(scope.row.amount) }}
             </template>
           </el-table-column>
+          <el-table-column
+            prop="creditmessage"
+            label="貸方摘要"
+          ></el-table-column>
         </el-table>
         <div style="text-align: right; margin-top: 10px">
           <b>貸方總金額：</b>{{ totalSelDebit }}
         </div>
-        <el-input
+        <!-- <el-input
           v-model="select[0].creditmessage"
           type="textarea"
           style="width: 100%"
           placeholder="貸方-摘要"
           disabled
-        ></el-input>
+        ></el-input> -->
       </div>
     </div>
   </el-dialog>
@@ -362,6 +403,8 @@ export default {
       selectdialog: false,
       isEditable: null,
       search_month: "",
+      search_end_month: "",
+      dialogTitle: "",
       debit: [],
       credit: [],
       cusData: [],
@@ -374,11 +417,12 @@ export default {
         subject: "", // 當前選擇的會計科目
       },
       entries: {
+        id:"",
         customerId: "",
         cus_name: "",
         accDate: "", //傳票日期
         debitmessage: "", //借方摘要
-        creditmessage: "", //貸方摘要
+        // creditmessage: "", //貸方摘要
         debit: [], // 借方資料
         credit: [], // 貸方資料
       },
@@ -437,19 +481,53 @@ export default {
       return this.cus_message.filter((item) => {
         const cusCode = item.customerId ? item.customerId.toLowerCase() : "";
         const cusName = item.cus_name ? item.cus_name.toLowerCase() : "";
-        const debitmessage = item.debitmessage ? item.debitmessage.toLowerCase() : "";
-        const creditmessage = item.creditmessage ? item.creditmessage.toLowerCase() : "";
+        const debitmessage = item.debitmessage
+          ? item.debitmessage.toLowerCase()
+          : "";
 
         return (
           cusCode.includes(searchTerm) ||
           cusName.includes(searchTerm) ||
-          debitmessage.includes(searchTerm)||
-          creditmessage.includes(searchTerm)
+          debitmessage.includes(searchTerm)
         );
       });
     },
   },
   methods: {
+    async deleteItem(row) {
+      const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
+      if (result) {
+        const req = {
+          id: row.id,
+        };
+        await axios
+          .post("http://122.116.23.30:3347/finance/deleteSubpoena", req)
+          .then((response) => {
+            if (response.status === 200 && response.data.returnCode === 0) {
+              // 成功提示
+              this.$message({
+                message: "刪除成功",
+                type: "success",
+              });
+              this.clink();
+            } else {
+              // 處理非 0 成功代碼
+              this.$message({
+                message: "刪除失敗",
+                type: "error",
+              });
+            }
+          })
+          .catch((error) => {
+            // 發生錯誤時，顯示錯誤提示
+            this.$message({
+              message: "刪除失敗，伺服器錯誤",
+              type: "error",
+            });
+            console.error("Error:", error);
+          });
+      }
+    },
     async debitAccount() {
       try {
         // 發送 GET 請求到指定的 API
@@ -477,6 +555,7 @@ export default {
       this.entries[type].splice(index, 1); // 刪除對應類型 (debit/credit) 的索引條目
     },
     openDialog() {
+      this.dialogTitle = "0";
       this.dialogVisible = true;
     },
     closeDialog() {
@@ -493,6 +572,7 @@ export default {
           return;
         }
         const newEntry = {
+          id:this.debitcurrentEntry.id,
           amount: "0",
           SubjectsName: this.debit.find(
             (item) => item.Subjects === this.debitcurrentEntry.subject
@@ -504,7 +584,7 @@ export default {
           type: "1",
         };
         this.entries.debit.push(newEntry);
-        this.debitcurrentEntry = { subject: "" };
+        // this.debitcurrentEntry = { subject: "" };
       } else if (Type === "credit") {
         if (!this.creditcurrentEntry.subject) {
           this.$message.error("請先選擇會計科目！");
@@ -512,6 +592,7 @@ export default {
         }
 
         const newEntry = {
+          id:this.creditcurrentEntry.id,
           amount: "0",
           SubjectsName: this.credit.find(
             (item) => item.Subjects === this.creditcurrentEntry.subject
@@ -523,7 +604,7 @@ export default {
           type: "2",
         };
         this.entries.credit.push(newEntry);
-        this.creditcurrentEntry = { subject: "" };
+        // this.creditcurrentEntry = { subject: "" };
       }
     },
     async submitForm(type) {
@@ -545,6 +626,7 @@ export default {
         amount: this.formatString(credit.amount),
       }));
       const postData = {
+        id:this.entries.id,
         trade_name: "資產負債表",
         totalAmount: totalAmount,
         accDate: this.entries.accDate,
@@ -554,7 +636,8 @@ export default {
         cus_name: this.entries.cus_name,
         detail: [...this.entries.debit, ...this.entries.credit],
       };
-      await axios
+      if(this.dialogTitle=='0'){
+        await axios
         .post("http://122.116.23.30:3347/finance/subpoena", postData)
         .then((response) => {
           this.$message.success("會計傳票新增成功！");
@@ -575,6 +658,30 @@ export default {
           console.error("API request failed:", error);
         });
       //成功訊息並關閉
+      }else if(this.dialogTitle=='1'){
+        await axios
+        .post("http://122.116.23.30:3347/finance/updatesubpoena", postData)
+        .then((response) => {
+          this.$message.success("會計傳票修改成功！");
+          if (type == 1) {
+            this.resetForm(1);
+          } else if (type == 2) {
+            this.resetForm(2);
+            this.closeDialog();
+          }
+          this.clink();
+        })
+        .catch((error) => {
+          // 處理錯誤
+          this.$message({
+            message: "新增失敗",
+            type: "error",
+          });
+          console.error("API request failed:", error);
+        });
+      //成功訊息並關閉
+      }
+      
     },
     resetForm(type) {
       if (type == 1) {
@@ -700,6 +807,13 @@ export default {
     },
     async copyItemVehicle(row) {
       await this.selectdata(row.id, "copy");
+      this.dialogTitle = "0";
+      this.dialogVisible = true;
+    },
+    async editItem(row) {
+      await this.selectdata(row.id, "copy");
+      this.entries.id=row.id
+      this.dialogTitle = "1";
       this.dialogVisible = true;
     },
     async selectItemVehicle(row) {
@@ -771,9 +885,10 @@ export default {
         });
     },
     async clink() {
-      if (this.search_month) {
+      if (this.search_month && this.search_end_month) {
         const postData = {
           date: this.search_month,
+          enddate: this.search_end_month,
         };
         await axios
           .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)

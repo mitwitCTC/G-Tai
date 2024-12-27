@@ -182,7 +182,7 @@ export default {
       }
     },
     async exData() {
-      if ((this.Ex_observe.length = 0) && (this.Ex_Locked.length = 0)) {
+      if ((this.Ex_observe.length == 0) && (this.Ex_Locked.length == 0)) {
         this.$message({
           message: "無可匯出資料",
           type: "error",
