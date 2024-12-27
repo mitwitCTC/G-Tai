@@ -373,17 +373,22 @@ export default {
           worksheet.getCell(`S${rowIndex}`).value = "B";
           worksheet.getCell(`U${rowIndex}`).value = "A";
           worksheet.getCell(`V${rowIndex}`).value = "N";
-          worksheet.getCell(`W${rowIndex}`).value = "OIL";
           worksheet.getCell(`X${rowIndex}`).value = "7";
           worksheet.getCell(`D${rowIndex}`).value =
             data.card_type == 1
               ? "0017"
               : data.card_type == 2
-              ? "0006"
+              ? "'0006"
               : data.card_type == 3
               ? "0001"
               : ""; // 預設為空字串，如果沒有匹配
-
+          worksheet.getCell(`W${rowIndex}`).value = data.card_type == 1
+              ? "OTR"
+              : data.card_type == 2
+              ? "OIL"
+              : data.card_type == 3
+              ? "OIL"
+              : ""; // 預設為空字串，如果沒有匹配;
           worksheet.getCell(`T${rowIndex}`).value =
             data.card_status == 5 ? "" : data.card_status == 3 ? "C" : ""; // 預設為空字串，如果沒有匹配
         });
