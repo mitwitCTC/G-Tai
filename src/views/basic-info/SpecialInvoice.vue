@@ -67,7 +67,7 @@
         v-if="month_final != '24' && month_check == '22'"
         style="margin: 10px;"
         @click="changesystemwork('24')"
-        >完成特殊發票名單</el-button
+        >完成特殊發票開立</el-button
       >
 
   <el-table :data="cus_Data" style="width: 100%" v-if="search_month">
