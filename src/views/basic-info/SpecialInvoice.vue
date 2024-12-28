@@ -6,7 +6,17 @@
   <div>
     <BreadCrumb />
   </div>
-
+  <div class="page-title" style="color: red" v-if="this.month_check == '22'">
+    <h5>{{ search_month }}特殊發票名單已確認，無法變動</h5>
+  </div>
+  <div
+    class="page-title"
+    style="color: red"
+    v-if="this.month_check == '22' && this.month_final == '24'"
+  >
+    <h5>{{ search_month }}特殊發票名單已開立完成</h5>
+  </div>
+ 
   <el-form-item label="帳務期別" style="margin-left: 10px">
     <el-date-picker
       v-model="search_month"
@@ -16,7 +26,11 @@
       placeholder="請選擇帳單期別"
       @change="dototal"
     />
-    <el-form-item label="新增特殊開立客戶" style="margin-left: 10px">
+    <el-form-item
+      label="新增特殊開立客戶"
+      style="margin-left: 10px"
+      v-if="this.month_check != '22'"
+    >
       <el-select
         v-model="customerId"
         placeholder="輸入客戶名稱/客代"
@@ -32,9 +46,30 @@
           :value="item"
         ></el-option>
       </el-select>
-      <el-button type="info" v-if="customerId" @click="changeinvoicetype(customerId.cus_code,'1',0)">確認更改</el-button>
+      <el-button
+        type="info"
+        v-if="customerId && this.month_check != '22'"
+        @click="changeinvoicetype(customerId.cus_code, '1', 0)"
+        >確認更改</el-button
+      >
+      
     </el-form-item>
   </el-form-item>
+  <el-button
+        type="primary"
+        v-if="this.month_check != '22'"
+        style="margin: 10px;"
+        @click="changesystemwork('22')"
+        >確認特殊發票名單</el-button
+      >
+    <el-button
+        type="warning"
+        v-if="month_final != '24' && month_check == '22'"
+        style="margin: 10px;"
+        @click="changesystemwork('24')"
+        >完成特殊發票名單</el-button
+      >
+
   <el-table :data="cus_Data" style="width: 100%" v-if="search_month">
     <el-table-column prop="cus_code" label="客戶代號" width="200" />
     <el-table-column prop="cus_name" label="客戶名稱" width="300" />
@@ -61,11 +96,18 @@
         >{{ formatCurrency(scope.row.total) }}
       </template></el-table-column
     >
-    <el-table-column label="操作">
+    <el-table-column label="操作" v-if="this.month_final != '24'">
       <template v-slot="scope">
         <div class="action-icons">
           <i class="fas fa-edit" @click="onpeDialog(scope.row)"></i>
-          <el-button type="info" @click="changeinvoicetype(scope.row.cus_code,'0',scope.row.totalAmount)">更改為一般開立</el-button>
+          <el-button
+            type="info"
+            v-if="this.month_check != '22'"
+            @click="
+              changeinvoicetype(scope.row.cus_code, '0', scope.row.totalAmount)
+            "
+            >更改為一般開立</el-button
+          >
         </div>
       </template>
     </el-table-column>
@@ -271,6 +313,8 @@ export default {
   },
   data() {
     return {
+      month_check: "",
+      month_final: "",
       isLoading: false,
       dialog: false,
       search_month: "",
@@ -436,10 +480,48 @@ export default {
         this.isLoading = false; // 請求完成後關閉加載狀態
       }
     },
+    async changesystemwork(type) {
+      if(!this.search_month){
+        this.$message({
+              message: "請先選擇帳務期別",
+              type: "error",
+            });
+            return
+      }
+      const result = confirm("請確認是否改變更，是請按'確認'");
+      if (result) {
+        try {
+          this.isLoading = true; // 開始加載
+          // 發送 GET 請求到指定的 API
+          const postdata = {
+            workDate: this.search_month,
+            type: type,
+          };
+          const response = await axios.post(
+            "http://122.116.23.30:3347/finance/changesystemwork",
+            postdata
+          );
+          if (response.data && response.data.data) {
+            this.$message({
+              message: "更改成功",
+              type: "success",
+            });
+            this.getsystemwork();
+          }
+
+          // 將資料放入 customers 陣列中
+        } catch (error) {
+          console.error("Error fetching customer data:", error);
+        } finally {
+          this.isLoading = false; // 請求完成後關閉加載狀態
+        }
+      }
+    },
     async dototal() {
       this.isLoading = true;
       await this.getinvoicetotal();
       await this.getusetotal();
+      await this.getsystemwork();
       for (let i = 0; i < this.cus_Data.length; i++) {
         const total =
           this.cus_Data[i].totalSalesAmount - this.cus_Data[i].totalAmount;
@@ -482,6 +564,43 @@ export default {
         console.error("Error fetching customer data:", error);
       }
     },
+    async getsystemwork() {
+      try {
+        const postdata = {
+          workDate: this.search_month,
+          type: "22", //開立確認
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/finance/getsystemwork",
+          postdata
+        );
+        // 確認 API 回應是否有資料
+        if (response.data && response.data.data.length > 0) {
+          this.month_check = response.data.data[0].type;
+        } else {
+          this.month_check = "";
+          this.month_final = "";
+        }
+        if (this.month_check == "22") {
+          const postdata = {
+            workDate: this.search_month,
+            type: "24", //開立確認
+          };
+          const response = await axios.post(
+            "http://122.116.23.30:3347/finance/getsystemwork",
+            postdata
+          );
+          // 確認 API 回應是否有資料
+          if (response.data && response.data.data.length > 0) {
+            this.month_final = response.data.data[0].type;
+          } else {
+            this.month_final = "";
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
     async getinvoicetotal() {
       try {
         // 迭代每個 customerId
@@ -516,38 +635,46 @@ export default {
       }
     },
     async changeinvoicetype(customerId, type, totalAmount) {
-      const result = confirm("請確認是否改變此客戶開立發票方式，是請按'確認'");
-      if (result) {
-        
-      if (totalAmount != 0) {
+      if (this.month_check != "22") {
+        const result = confirm(
+          "請確認是否改變此客戶開立發票方式，是請按'確認'"
+        );
+        if (result) {
+          if (totalAmount != 0) {
+            this.$message({
+              message: "已有特殊開立發票金額 不可轉換",
+              type: "error",
+            });
+            return;
+          }
+
+          try {
+            // 發送 API 請求
+            const postdata = {
+              customerId: customerId,
+              special_invoice: type,
+            };
+            const response = await axios.post(
+              "http://122.116.23.30:3347/finance/changeinvoicetype",
+              postdata
+            );
+            this.$message({
+              message: "轉換成功",
+              type: "success",
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000); // 3000 毫秒 = 3 秒
+          } catch (error) {
+            console.error("Error fetching customer data:", error);
+          }
+        }
+      } else if (this.month_check == "22") {
         this.$message({
-          message: "已有特殊開立發票金額 不可轉換",
+          message: "特殊名單已確認 無法更改",
           type: "error",
         });
         return;
-      }
-   
-      try {
-          // 發送 API 請求
-          const postdata = {
-            customerId: customerId,
-            special_invoice: type,
-          };
-          const response = await axios.post(
-            "http://122.116.23.30:3347/finance/changeinvoicetype",
-            postdata
-          );
-          this.$message({
-          message: "轉換成功",
-          type: "success",
-        });
-        setTimeout(() => {
-        window.location.reload();
-      }, 2000); // 3000 毫秒 = 3 秒
-    
-      } catch (error) {
-        console.error("Error fetching customer data:", error);
-      }
       }
     },
     addProduct(row) {
@@ -566,12 +693,20 @@ export default {
       scope.row.product_text = scope.row.product.join(", ");
     },
     async onpeDialog(row) {
-      this.form.cus_code = row.cus_code;
-      this.form.cus_name = row.cus_name;
-      this.form.search_month = this.search_month;
-      this.form.TotalAmount = row.total;
-      await this.getbill(row.cus_code);
-      this.dialog = true;
+      if (this.month_final != "24") {
+        this.form.cus_code = row.cus_code;
+        this.form.cus_name = row.cus_name;
+        this.form.search_month = this.search_month;
+        this.form.TotalAmount = row.total;
+        await this.getbill(row.cus_code);
+        this.dialog = true;
+      } else if (this.month_final == "24") {
+        this.$message({
+          message: "特殊開立已完成 無法變更",
+          type: "error",
+        });
+        return;
+      }
     },
     use_number(invoice_name, row) {
       const matchedInvoice = this.bill.find(

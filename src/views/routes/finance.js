@@ -35,5 +35,7 @@ router.post('/searchtotalamount', Controllers.finance.searchtotalamount);  //查
 router.post('/searchuseamount', Controllers.finance.searchuseamount);   //查詢已開立發票金額
 router.post('/insertinvoice', Controllers.finance.insertinvoice);   // 產生特殊發票
 router.post('/changeinvoicetype', Controllers.finance.changeinvoicetype);   //更改一般/特殊發票開立
+router.post('/getsystemwork', Controllers.finance.getsystemwork);   //取得月結作業
+router.post('/changesystemwork', Controllers.finance.changesystemwork);   //新增月結作業
 
 module.exports = router;

@@ -1,5 +1,5 @@
 module.exports = ({ sequelize }) => {
-    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details,reportsales,definvoice,definvoice_details,customer, } = sequelize
+    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details,reportsales,definvoice,definvoice_details,customer,systemwork } = sequelize
     const Sequelize = require('sequelize');
     const Op = Sequelize.Op;
     const dayjs = require('dayjs');
@@ -779,6 +779,42 @@ module.exports = ({ sequelize }) => {
                 console.log({ returnCode: 0, message: "更改一般/特殊發票開立成功 ", data: req.body })
                 return res.json({ returnCode: 0, message: "更改一般/特殊發票開立成功 " + req.body.customerId })
 
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        //取得月結作業
+        getsystemwork: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + '取得月結作業(getsystemwork)')
+               // 修改客戶 
+               const systemworkList = await systemwork.findAll({
+                where: { workDate: { [Op.eq]: req.body.workDate }, type: { [Op.eq]: req.body.type } },
+                 raw: true
+            })
+                console.log({ returnCode: 0, message: "取得月結作業成功", data:systemworkList})
+                return res.json({ returnCode: 0, message: "取得月結作業成功" , data:systemworkList })
+
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+         // 新增月結作業
+         changesystemwork: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 新增月結作業(changesystemwork)')
+                const systemworkList = await systemwork.create({
+                    createTime: time,
+                    workDate: req.body.workDate,
+                    type: req.body.type,
+                    message:req.body.message,
+                })
+                console.log({ returnCode: 0, message: "新增月結作業", data: systemworkList })
+                return res.json({ returnCode: 0, message: "新增月結作業", data: systemworkList })
             } catch (err) {
                 console.log({ returnCode: 500, message: "系統錯誤", err: err })
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
