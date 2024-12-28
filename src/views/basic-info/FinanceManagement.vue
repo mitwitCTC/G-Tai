@@ -30,17 +30,18 @@
         @change="clink()"
       >
       </el-date-picker>
-      <el-input
-        v-model="customerName"
-        placeholder="輸入客戶名稱/客戶代號/摘要/"
-        style="width: 225px; margin-right: 10px"
-        v-if="cus_message.length > 0"
-      ></el-input>
+      
       <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
     </el-form-item>
   </div>
-
-  <div class="table-container" v-if="cus_message.length > 0">
+  <div class="table-container" v-if="cus_message_IN.length > 0">
+    <div class="page-title"><h3>一般輸入傳票</h3></div>
+    <el-input
+        v-model="customerName"
+        placeholder="輸入客戶名稱/客戶代號/摘要"
+        style="width: 225px; margin-right: 10px"
+        v-if="cus_message_IN.length > 0"
+      ></el-input>
     <el-table :data="filteredData" style="width: 100%">
       <el-table-column prop="id" label="傳票號碼" width="200" />
       <el-table-column prop="accDate" label="傳票日期" width="150" />
@@ -48,7 +49,7 @@
       <el-table-column prop="customerId" label="客戶代號" width="100" />
       <el-table-column prop="cus_name" label="客戶名稱" width="250" />
       <el-table-column prop="debitmessage" label="主摘要" width="250" />
-      <el-table-column prop="amount" label="借貸金額" align="right" width="100"
+      <el-table-column prop="amount" label="借貸金額" align="right" width="200"
         ><template v-slot="scope"
           >{{ formatCurrency(scope.row.amount) }}
         </template></el-table-column
@@ -68,6 +69,43 @@
       </el-table-column>
     </el-table>
   </div>
+
+  <div class="table-container" v-if="cus_message_AO.length > 0">
+    <div class="page-title"><h3>自動拋轉傳票</h3></div>
+    <el-input
+        v-model="customerName_AO"
+        placeholder="輸入客戶名稱/客戶代號/摘要"
+        style="width: 225px; margin-right: 10px"
+        v-if="cus_message_AO.length > 0"
+      ></el-input>
+    <el-table :data="filteredData_AO" style="width: 100%">
+      <el-table-column prop="id" label="傳票號碼" width="200" />
+      <el-table-column prop="accDate" label="傳票日期" width="150" />
+      <el-table-column prop="accFarewell" label="結帳年月" width="100" />
+      <el-table-column prop="customerId" label="客戶代號" width="100" />
+      <el-table-column prop="cus_name" label="客戶名稱" width="250" />
+      <el-table-column prop="debitmessage" label="主摘要" width="250" />
+      <el-table-column prop="amount" label="借貸金額" align="right" width="200"
+        ><template v-slot="scope"
+          >{{ formatCurrency(scope.row.amount) }}
+        </template></el-table-column
+      >
+      <el-table-column label="操作">
+        <template v-slot="scope">
+          <div class="action-icons">
+            <i class="fas fa-eye" @click="selectItemVehicle(scope.row)"></i>
+            <i class="fas fa-edit" @click="editItem(scope.row)"></i>
+            <i
+              class="fa-regular fa-copy"
+              @click="copyItemVehicle(scope.row)"
+            ></i>
+            <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+  
   <div style="margin-bottom: 50px"></div>
 
   <el-dialog
@@ -385,6 +423,13 @@
       </div>
     </div>
   </el-dialog>
+  <el-dialog
+    v-model="isLoading"
+    width="15%"
+    title="請稍後..."
+    :close-on-click-modal="false"
+    :show-close="false"
+  ></el-dialog>
 </template>
 
 <script>
@@ -398,6 +443,8 @@ export default {
   },
   data() {
     return {
+      isLoading:false,
+      customerName_AO:"",
       customerName: "",
       dialogVisible: false, // 控制Dialog顯示
       selectdialog: false,
@@ -426,7 +473,12 @@ export default {
         debit: [], // 借方資料
         credit: [], // 貸方資料
       },
-      cus_message: [],
+      cus_message_IN: [],
+      select: {
+        debit: [], // 借方資料
+        credit: [], // 貸方資料,
+      },
+      cus_message_AO: [],
       select: {
         debit: [], // 借方資料
         credit: [], // 貸方資料,
@@ -478,7 +530,24 @@ export default {
     filteredData() {
       const searchTerm = this.customerName.trim().toLowerCase();
 
-      return this.cus_message.filter((item) => {
+      return this.cus_message_IN.filter((item) => {
+        const cusCode = item.customerId ? item.customerId.toLowerCase() : "";
+        const cusName = item.cus_name ? item.cus_name.toLowerCase() : "";
+        const debitmessage = item.debitmessage
+          ? item.debitmessage.toLowerCase()
+          : "";
+
+        return (
+          cusCode.includes(searchTerm) ||
+          cusName.includes(searchTerm) ||
+          debitmessage.includes(searchTerm)
+        );
+      });
+    },
+    filteredData_AO() {
+      const searchTerm = this.customerName_AO.trim().toLowerCase();
+
+      return this.cus_message_AO.filter((item) => {
         const cusCode = item.customerId ? item.customerId.toLowerCase() : "";
         const cusName = item.cus_name ? item.cus_name.toLowerCase() : "";
         const debitmessage = item.debitmessage
@@ -890,21 +959,29 @@ export default {
           date: this.search_month,
           enddate: this.search_end_month,
         };
+        this.isLoading=true
         await axios
           .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)
           .then((response) => {
-            this.cus_message = response.data.data;
-            if (!this.cus_message) {
-              this.cus_message = [];
+            // this.cus_message_IN = response.data.data;
+            
+            if (!Array.isArray(response.data.data)) {
+              this.cus_message_IN = [];
+              this.cus_message_AO = [];
               this.$message({
                 message: `查無選擇年月資料`,
                 type: "warning",
               });
             }
+            this.cus_message_IN = response.data.data.filter(item => item.id.startsWith('IN'));
+            this.cus_message_AO = response.data.data.filter(item => item.id.startsWith('AO'));
+            this.isLoading=false
           })
           .catch((error) => {
             // 處理錯誤
+           
             console.error("API request failed:", error);
+            this.isLoading=false
           });
       }
     },

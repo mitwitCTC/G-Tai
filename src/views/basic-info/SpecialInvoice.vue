@@ -6,23 +6,7 @@
   <div>
     <BreadCrumb />
   </div>
-  <!-- <el-form-item label="期別">
-    <el-select
-      v-model="customerId"
-      placeholder="輸入客戶名稱/客代"
-      filterable
-      :clearable="true"
-      style="width: 300px; margin-right: 20px"
-      @change="onpeDialog"
-    >
-      <el-option
-        v-for="item in cus_Data"
-        :key="item.cus_code"
-        :label="`${item.cus_code} ${item.cus_name}`"
-        :value="item"
-      ></el-option>
-    </el-select>
-  </el-form-item> -->
+
   <el-form-item label="帳務期別" style="margin-left: 10px">
     <el-date-picker
       v-model="search_month"
@@ -32,6 +16,24 @@
       placeholder="請選擇帳單期別"
       @change="dototal"
     />
+    <el-form-item label="新增特殊開立客戶" style="margin-left: 10px">
+      <el-select
+        v-model="customerId"
+        placeholder="輸入客戶名稱/客代"
+        filterable
+        :clearable="true"
+        style="width: 300px; margin-right: 20px"
+        value-key="cus_code"
+      >
+        <el-option
+          v-for="item in No_cus_Data"
+          :key="item.cus_code"
+          :label="`${item.cus_code} ${item.cus_name}`"
+          :value="item"
+        ></el-option>
+      </el-select>
+      <el-button type="info" v-if="customerId" @click="changeinvoicetype(customerId.cus_code,'1',0)">確認更改</el-button>
+    </el-form-item>
   </el-form-item>
   <el-table :data="cus_Data" style="width: 100%" v-if="search_month">
     <el-table-column prop="cus_code" label="客戶代號" width="200" />
@@ -63,6 +65,7 @@
       <template v-slot="scope">
         <div class="action-icons">
           <i class="fas fa-edit" @click="onpeDialog(scope.row)"></i>
+          <el-button type="info" @click="changeinvoicetype(scope.row.cus_code,'0',scope.row.totalAmount)">更改為一般開立</el-button>
         </div>
       </template>
     </el-table-column>
@@ -272,7 +275,8 @@ export default {
       dialog: false,
       search_month: "",
       customerId: "",
-      cus_Data: [],
+      cus_Data: [], //特殊開立
+      No_cus_Data: [], //一般開立
       bill: [],
       form: { ...initialFormState },
       type: {
@@ -324,7 +328,6 @@ export default {
   },
   methods: {
     async save() {
-      
       const totalAmount = this.formatString(this.TotalAmount);
       this.form = {
         ...this.form,
@@ -337,7 +340,7 @@ export default {
         });
         return;
       }
-      if (this.form.invoice.length<1) {
+      if (this.form.invoice.length < 1) {
         this.$message({
           message: "請設定發票開立內容",
           type: "error",
@@ -512,6 +515,41 @@ export default {
         console.error("Error fetching customer data:", error);
       }
     },
+    async changeinvoicetype(customerId, type, totalAmount) {
+      const result = confirm("請確認是否改變此客戶開立發票方式，是請按'確認'");
+      if (result) {
+        
+      if (totalAmount != 0) {
+        this.$message({
+          message: "已有特殊開立發票金額 不可轉換",
+          type: "error",
+        });
+        return;
+      }
+   
+      try {
+          // 發送 API 請求
+          const postdata = {
+            customerId: customerId,
+            special_invoice: type,
+          };
+          const response = await axios.post(
+            "http://122.116.23.30:3347/finance/changeinvoicetype",
+            postdata
+          );
+          this.$message({
+          message: "轉換成功",
+          type: "success",
+        });
+        setTimeout(() => {
+        window.location.reload();
+      }, 2000); // 3000 毫秒 = 3 秒
+    
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+      }
+    },
     addProduct(row) {
       if (!Array.isArray(row.products)) {
         row.products = []; // 動態設置為空數組
@@ -563,6 +601,9 @@ export default {
         );
         this.cus_Data = response.data.data.filter(
           (cus_Data) => cus_Data.special_invoice === "1"
+        );
+        this.No_cus_Data = response.data.data.filter(
+          (cus_Data) => cus_Data.special_invoice === "0"
         );
         this.cus_Data.sort((a, b) => {
           // 如果 cus_code 是字符串，使用 localeCompare 進行字典序排序

@@ -1,5 +1,5 @@
 module.exports = ({ sequelize }) => {
-    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details,reportsales,definvoice,definvoice_details } = sequelize
+    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details,reportsales,definvoice,definvoice_details,customer, } = sequelize
     const Sequelize = require('sequelize');
     const Op = Sequelize.Op;
     const dayjs = require('dayjs');
@@ -758,6 +758,27 @@ module.exports = ({ sequelize }) => {
                 }
                 console.log({ returnCode: 0, message: "產生特殊發票成功" })
                 return res.json({ returnCode: 0, message: "產生特殊發票成功" })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 更改一般/特殊發票開立
+        changeinvoicetype: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 更改一般/特殊發票開立(changeinvoicetype)')
+               // 修改客戶 
+                const customerList = await customer.update({
+                    special_invoice:req.body.special_invoice
+                }, {
+                    where: {
+                        cus_code: { [Op.eq]: req.body.customerId }
+                    }
+                })
+                console.log({ returnCode: 0, message: "更改一般/特殊發票開立成功 ", data: req.body })
+                return res.json({ returnCode: 0, message: "更改一般/特殊發票開立成功 " + req.body.customerId })
+
             } catch (err) {
                 console.log({ returnCode: 500, message: "系統錯誤", err: err })
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
