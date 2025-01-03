@@ -16,7 +16,7 @@
   >
     <h5>{{ search_month }}特殊發票名單已開立完成</h5>
   </div>
- 
+
   <el-form-item label="帳務期別" style="margin-left: 10px">
     <el-date-picker
       v-model="search_month"
@@ -52,26 +52,25 @@
         @click="changeinvoicetype(customerId.cus_code, '1', 0)"
         >確認更改</el-button
       >
-      
     </el-form-item>
   </el-form-item>
   <el-button
-        type="primary"
-        v-if="this.month_check != '22'"
-        style="margin: 10px;"
-        @click="changesystemwork('22')"
-        >確認特殊發票名單</el-button
-      >
-    <el-button
-        type="warning"
-        v-if="month_final != '24' && month_check == '22'"
-        style="margin: 10px;"
-        @click="changesystemwork('24')"
-        >完成特殊發票開立</el-button
-      >
+    type="primary"
+    v-if="this.month_check != '22'"
+    style="margin: 10px"
+    @click="changesystemwork('22')"
+    >確認特殊發票名單</el-button
+  >
+  <el-button
+    type="warning"
+    v-if="month_final != '24' && month_check == '22'"
+    style="margin: 10px"
+    @click="changesystemwork('24')"
+    >完成特殊發票開立</el-button
+  >
 
   <el-table :data="cus_Data" style="width: 100%" v-if="search_month">
-    <el-table-column prop="cus_code" label="客戶代號" width="200" />
+    <el-table-column prop="customerId" label="客戶代號" width="200" />
     <el-table-column prop="cus_name" label="客戶名稱" width="300" />
     <el-table-column
       prop="totalSalesAmount"
@@ -104,7 +103,11 @@
             type="info"
             v-if="this.month_check != '22'"
             @click="
-              changeinvoicetype(scope.row.cus_code, '0', scope.row.totalAmount)
+              changeinvoicetype(
+                scope.row.customerId,
+                '0',
+                scope.row.totalAmount
+              )
             "
             >更改為一般開立</el-button
           >
@@ -321,6 +324,7 @@ export default {
       customerId: "",
       cus_Data: [], //特殊開立
       No_cus_Data: [], //一般開立
+      searchamount:[],//已開立
       bill: [],
       form: { ...initialFormState },
       type: {
@@ -481,12 +485,12 @@ export default {
       }
     },
     async changesystemwork(type) {
-      if(!this.search_month){
+      if (!this.search_month) {
         this.$message({
-              message: "請先選擇帳務期別",
-              type: "error",
-            });
-            return
+          message: "請先選擇帳務期別",
+          type: "error",
+        });
+        return;
       }
       const result = confirm("請確認是否改變更，是請按'確認'");
       if (result) {
@@ -534,31 +538,58 @@ export default {
       this.isLoading = false;
     },
     async getusetotal() {
-      try {
-        for (let i = 0; i < this.cus_Data.length; i++) {
-          const customerId = this.cus_Data[i].cus_code;
-          // 發送 API 請求
-          const postdata = {
-            customerId: customerId,
-            salesDate: this.search_month,
-          };
-          const response = await axios.post(
-            "http://122.116.23.30:3347/finance/searchuseamount",
-            postdata
-          );
+      // try {
+      //   for (let i = 0; i < this.cus_Data.length; i++) {
+      //     const customerId = this.cus_Data[i].cus_code;
+      //     // 發送 API 請求
+      //     const postdata = {
+      //       customerId: customerId,
+      //       salesDate: this.search_month,
+      //     };
+      //     const response = await axios.post(
+      //       "http://122.116.23.30:3347/finance/searchuseamount",
+      //       postdata
+      //     );
 
-          // 確認 API 回應是否有資料
-          if (response.data && response.data.data) {
-            // 更新 cus_Data 中相應的項目
-            this.cus_Data[i] = {
-              ...this.cus_Data[i], // 保留原有資料
-              totalAmount: response.data.data.totalAmount, // 加入 totalSalesAmount 欄位
-            };
-          } else {
-            console.error(
-              `No totalSalesAmount found for customerId: ${customerId}`
-            );
-          }
+      //     // 確認 API 回應是否有資料
+      //     if (response.data && response.data.data) {
+      //       // 更新 cus_Data 中相應的項目
+      //       this.cus_Data[i] = {
+      //         ...this.cus_Data[i], // 保留原有資料
+      //         totalAmount: response.data.data.totalAmount, // 加入 totalSalesAmount 欄位
+      //       };
+      //     } else {
+      //       console.error(
+      //         `No totalSalesAmount found for customerId: ${customerId}`
+      //       );
+      //     }
+      //   }
+      // } catch (error) {
+      //   console.error("Error fetching customer data:", error);
+      // }
+      try {
+        const postdata = {
+          salesDate: this.search_month,
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/finance/searchuseamount",
+          postdata
+        );
+
+        // 確認 API 回應是否有資料
+        if (response.data && response.data.data) {
+          // 更新 cus_Data 中相應的項目
+          this.searchamount = response.data.data;
+          const amountMap = new Map(
+            this.searchamount.map((item) => [item.customerId, item.Amount])
+          );
+          // 更新 cus_Data 中的資料
+          this.cus_Data = this.cus_Data.map((item) => ({
+            ...item,
+            totalAmount: amountMap.get(item.customerId) || 0, // 如果找不到對應的 customerId，就給 0
+          }));
+        } else {
+          console.error(`No totalSalesAmount found`);
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);
@@ -602,33 +633,53 @@ export default {
       }
     },
     async getinvoicetotal() {
+      // try {
+      //   // 迭代每個 customerId
+      //   for (let i = 0; i < this.cus_Data.length; i++) {
+      //     const customerId = this.cus_Data[i].cus_code;
+
+      //     // 發送 API 請求
+      //     const postdata = {
+      //       customerId: customerId,
+      //       salesDate: this.search_month,
+      //     };
+      //     const response = await axios.post(
+      //       "http://122.116.23.30:3347/finance/searchtotalamount",
+      //       postdata
+      //     );
+
+      //     // 確認 API 回應是否有資料
+      //     if (response.data && response.data.data) {
+      //       // 更新 cus_Data 中相應的項目
+      //       this.cus_Data[i] = {
+      //         ...this.cus_Data[i], // 保留原有資料
+      //         totalSalesAmount: response.data.data.totalSalesAmount, // 加入 totalSalesAmount 欄位
+      //       };
+      //     } else {
+      //       console.error(
+      //         `No totalSalesAmount found for customerId: ${customerId}`
+      //       );
+      //     }
+      //   }
+      // } catch (error) {
+      //   console.error("Error fetching customer data:", error);
+      // }
       try {
         // 迭代每個 customerId
-        for (let i = 0; i < this.cus_Data.length; i++) {
-          const customerId = this.cus_Data[i].cus_code;
+        const postdata = {
+          salesDate: this.search_month,
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/finance/searchtotalamount",
+          postdata
+        );
 
-          // 發送 API 請求
-          const postdata = {
-            customerId: customerId,
-            salesDate: this.search_month,
-          };
-          const response = await axios.post(
-            "http://122.116.23.30:3347/finance/searchtotalamount",
-            postdata
-          );
-
-          // 確認 API 回應是否有資料
-          if (response.data && response.data.data) {
-            // 更新 cus_Data 中相應的項目
-            this.cus_Data[i] = {
-              ...this.cus_Data[i], // 保留原有資料
-              totalSalesAmount: response.data.data.totalSalesAmount, // 加入 totalSalesAmount 欄位
-            };
-          } else {
-            console.error(
-              `No totalSalesAmount found for customerId: ${customerId}`
-            );
-          }
+        // 確認 API 回應是否有資料
+        if (response.data && response.data.data) {
+          // 更新 cus_Data 中相應的項目
+          this.cus_Data = response.data.data;
+        } else {
+          console.error(`No totalSalesAmount found `);
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);
@@ -694,11 +745,11 @@ export default {
     },
     async onpeDialog(row) {
       if (this.month_final != "24") {
-        this.form.cus_code = row.cus_code;
+        this.form.cus_code = row.customerId;
         this.form.cus_name = row.cus_name;
         this.form.search_month = this.search_month;
         this.form.TotalAmount = row.total;
-        await this.getbill(row.cus_code);
+        await this.getbill(row.customerId);
         this.dialog = true;
       } else if (this.month_final == "24") {
         this.$message({
@@ -734,9 +785,9 @@ export default {
         const response = await axios.get(
           "http://122.116.23.30:3347/main/selectCustomer"
         );
-        this.cus_Data = response.data.data.filter(
-          (cus_Data) => cus_Data.special_invoice === "1"
-        );
+        // this.cus_Data = response.data.data.filter(
+        //   (cus_Data) => cus_Data.special_invoice === "1"
+        // );
         this.No_cus_Data = response.data.data.filter(
           (cus_Data) => cus_Data.special_invoice === "0"
         );

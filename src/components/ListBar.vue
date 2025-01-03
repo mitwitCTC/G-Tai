@@ -37,7 +37,7 @@
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/CustomerAccounts')">未核銷帳務</button>
         <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">結帳列印</button> -->
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/FinanceManagement')">會計傳票</button>
-        <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/SpecialInvoice')">特殊發票處理</button> -->
+        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/SpecialInvoice')">特殊發票處理</button>
       </div>
       
        <!-- <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/CardMake')">製卡明細</button>

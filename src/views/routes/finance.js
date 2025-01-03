@@ -37,5 +37,6 @@ router.post('/insertinvoice', Controllers.finance.insertinvoice);   // 產生特
 router.post('/changeinvoicetype', Controllers.finance.changeinvoicetype);   //更改一般/特殊發票開立
 router.post('/getsystemwork', Controllers.finance.getsystemwork);   //取得月結作業
 router.post('/changesystemwork', Controllers.finance.changesystemwork);   //新增月結作業
+router.post('/systemworktime', Controllers.finance.systemworktime);   //更新完成結束作業
 
 module.exports = router;

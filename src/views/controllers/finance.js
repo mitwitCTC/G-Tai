@@ -653,30 +653,54 @@ module.exports = ({ sequelize }) => {
             try {
                 const time = getDateTime()
                 console.log(time + ' 查詢特殊發票金額(searchtotalamount)')
-                if (req.body.salesDate && req.body.customerId ) {
+                if (req.body.salesDate ) {
                     const startDate = `${req.body.salesDate}-01`;
                     const endDate = `${req.body.salesDate}-31`;
                     
-                    const customerList = await reportsales.findAll({
-                      where: {
-                        salesDate: {
-                          [Op.between]: [startDate, endDate], // 範圍查詢
-                        },
-                        customerId: {
-                          [Op.eq]: req.body.customerId,
-                        },
-                      },
-                      raw: true,
-                    });
-                    // 計算 salesAmount 加總
-                    const totalSalesAmount = customerList.reduce((total, record) => {
-                        return total + (record.salesAmount || 0); // 確保 salesAmount 不為 null
-                    }, 0);
-                    // 組合回應結果
-                    const result = {
-                        customerId: req.body.customerId,
-                        totalSalesAmount,
-                    };
+                    // const customerList = await reportsales.findAll({
+                    //   where: {
+                    //     salesDate: {
+                    //       [Op.between]: [startDate, endDate], // 範圍查詢
+                    //     },
+                    //     customerId: {
+                    //       [Op.eq]: req.body.customerId,
+                    //     },
+                    //   },
+                    //   raw: true,
+                    // });
+                    // // 計算 salesAmount 加總
+                    // const totalSalesAmount = customerList.reduce((total, record) => {
+                    //     return total + (record.salesAmount || 0); // 確保 salesAmount 不為 null
+                    // }, 0);
+                    // // 組合回應結果
+                    // const result = {
+                    //     customerId: req.body.customerId,
+                    //     totalSalesAmount,
+                    // };
+                    const result = await reportsales.sequelize.query(
+                        `
+                        SELECT 
+                            rs.customerId, 
+                            c.cus_name, 
+                            SUM(rs.salesAmount) AS totalSalesAmount
+                        FROM 
+                            jutai.reportsales rs
+                        INNER JOIN 
+                            jutai.customer c
+                        ON 
+                            rs.customerId = c.cus_code
+                        WHERE 
+                            rs.salesDate BETWEEN :startDate AND :endDate
+                            AND c.special_invoice = '1'
+                        GROUP BY 
+                            rs.customerId, c.cus_name
+                        order by customerId
+                        `,
+                        {
+                          replacements: { startDate, endDate }, // 替换为动态变量
+                          type: reportsales.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+                        }
+                      );
                     console.log({ returnCode: 0, message: "查詢特殊發票金額", data: result })
                     return res.json({ returnCode: 0, message: "查詢特殊發票金額", data: result })
 
@@ -694,30 +718,67 @@ module.exports = ({ sequelize }) => {
             try {
                 const time = getDateTime()
                 console.log(time + ' 查詢已開立發票金額(searchuseamount)')
-                if (req.body.salesDate && req.body.customerId ) {
+                if (req.body.salesDate) {
                     const startDate = `${req.body.salesDate}-01`;
                     const endDate = `${req.body.salesDate}-31`;
                     
-                    const customerList = await definvoice.findAll({
-                      where: {
-                        invoiceDate: {
-                          [Op.between]: [startDate, endDate], // 範圍查詢
-                        },
-                        customerId: {
-                          [Op.eq]: req.body.customerId,
-                        },
-                      },
-                      raw: true,
-                    });
-                    // 計算 salesAmount 加總
-                    const totalAmount = customerList.reduce((total, record) => {
-                        return total + (record.Amount || 0); // 確保 salesAmount 不為 null
-                    }, 0);
-                    // 組合回應結果
-                    const result = {
-                        customerId: req.body.customerId,
-                        totalAmount,
-                    };
+                    // const customerList = await definvoice.findAll({
+                    //   where: {
+                    //     invoiceDate: {
+                    //       [Op.between]: [startDate, endDate], // 範圍查詢
+                    //     },
+                    //     customerId: {
+                    //       [Op.eq]: req.body.customerId,
+                    //     },
+                    //   },
+                    //   raw: true,
+                    // });
+                    // // 計算 salesAmount 加總
+                    // const totalAmount = customerList.reduce((total, record) => {
+                    //     return total + (record.Amount || 0); // 確保 salesAmount 不為 null
+                    // }, 0);
+                    // // 組合回應結果
+                    // const result = {
+                    //     customerId: req.body.customerId,
+                    //     totalAmount,
+                    // };
+
+                    ////20250102
+                    // const result = await reportsales.sequelize.query(
+                    //     `
+                    //     SELECT 
+                    //         rs.customerId, 
+                    //         c.cus_name, 
+                    //         SUM(rs.Amount) AS Amount
+                    //     FROM 
+                    //         jutai.definvoice rs
+                    //     INNER JOIN 
+                    //         jutai.customer c
+                    //     ON 
+                    //         rs.customerId = c.cus_code
+                    //     WHERE 
+                    //         rs.invoiceDate BETWEEN :startDate AND :endDate
+                    //         AND c.special_invoice = '1'
+                    //     GROUP BY 
+                    //         rs.customerId, c.cus_name
+                    //     order by customerId
+                    //     `,
+                    //     {
+                    //       replacements: { startDate, endDate }, // 替换为动态变量
+                    //       type: reportsales.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+                    //     }
+                    //   );
+
+                      const result = await reportsales.sequelize.query(
+                        `
+                        SELECT a.customerId,sum(b.Amount) AS Amount FROM jutai.definvoice a join jutai.definvoice_details b on (a.invoiceId=b.InvoiceId) where a.invoiceDate BETWEEN :startDate AND :endDate and b.Details<>'製卡費' group by customerId order by customerId  ;
+                        `,
+                        {
+                          replacements: { startDate, endDate }, // 替换为动态变量
+                          type: reportsales.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+                        }
+                      );
+                  
                     console.log({ returnCode: 0, message: "查詢已開立發票金額", data: result })
                     return res.json({ returnCode: 0, message: "查詢已開立發票金額", data: result })
 
@@ -812,6 +873,8 @@ module.exports = ({ sequelize }) => {
                     workDate: req.body.workDate,
                     type: req.body.type,
                     message:req.body.message,
+                    startTime: req.body.startTime == '' ? time : req.body.startTime,
+                    endTime: req.body.endTime == '' ? time : req.body.endTime,
                 })
                 console.log({ returnCode: 0, message: "新增月結作業", data: systemworkList })
                 return res.json({ returnCode: 0, message: "新增月結作業", data: systemworkList })
@@ -820,6 +883,162 @@ module.exports = ({ sequelize }) => {
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
             }
         },
+        // 更新完成結束作業
+        systemworktime: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 更新完成結束作業(systemworktime)')
+                const systemworkList = await systemwork.update({
+                    type: req.body.type,
+                    message:req.body.message,
+                    startTime: req.body.startTime == '' ? time : req.body.startTime,
+                    endTime: req.body.endTime == '' ? time : req.body.endTime,
+                }, {
+                    where: {
+                        id: {
+                            [Op.eq]: req.body.id
+                          },
+                    },
+                }
+            )
+                console.log({ returnCode: 0, message: "更新完成結束作業"})
+                return res.json({ returnCode: 0, message: "更新完成結束作業" })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // //查詢特殊發票金額
+        // searchtotalamount2: async (req, res) => {
+        //     try {
+        //         const time = getDateTime()
+        //         console.log(time + ' 查詢特殊發票金額(searchtotalamount)')
+        //         if (req.body.salesDate) {
+        //             const startDate = `${req.body.salesDate}-01`;
+        //             const endDate = `${req.body.salesDate}-31`;
+                    
+        //             // const customerList = await reportsales.findAll({
+        //             //   where: {
+        //             //     salesDate: {
+        //             //       [Op.between]: [startDate, endDate], // 範圍查詢
+        //             //     },
+        //             //     customerId: {
+        //             //       [Op.eq]: req.body.customerId,
+        //             //     },
+        //             //   },
+        //             //   raw: true,
+        //             // });
+        //             // // 計算 salesAmount 加總
+        //             // const totalSalesAmount = customerList.reduce((total, record) => {
+        //             //     return total + (record.salesAmount || 0); // 確保 salesAmount 不為 null
+        //             // }, 0);
+        //             // // 組合回應結果
+        //             // const result = {
+        //             //     customerId: req.body.customerId,
+        //             //     totalSalesAmount,
+        //             // };
+        //             const result = await reportsales.sequelize.query(
+        //                 `
+        //                 SELECT 
+        //                     rs.customerId, 
+        //                     c.cus_name, 
+        //                     SUM(rs.salesAmount) AS totalSalesAmount
+        //                 FROM 
+        //                     jutai.reportsales rs
+        //                 INNER JOIN 
+        //                     jutai.customer c
+        //                 ON 
+        //                     rs.customerId = c.cus_code
+        //                 WHERE 
+        //                     rs.salesDate BETWEEN :startDate AND :endDate
+        //                     AND c.special_invoice = '1'
+        //                 GROUP BY 
+        //                     rs.customerId, c.cus_name
+        //                 order by customerId
+        //                 `,
+        //                 {
+        //                   replacements: { startDate, endDate }, // 替换为动态变量
+        //                   type: reportsales.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+        //                 }
+        //               );
+                   
+        //             console.log({ returnCode: 0, message: "查詢特殊發票金額", data: result })
+        //             return res.json({ returnCode: 0, message: "查詢特殊發票金額", data: result })
+
+        //         } else {
+        //             console.log({ returnCode: -1, message: '查詢失敗，缺少參數' })
+        //             return res.json({ returnCode: -1, message: '查詢失敗，缺少參數' })
+        //         }
+        //     } catch (err) {
+        //         console.log({ returnCode: 500, message: "系統錯誤", err: err })
+        //         return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+        //     }
+        // },
+        //  //查詢已開立發票金額
+        //  searchuseamount2: async (req, res) => {
+        //     try {
+        //         const time = getDateTime()
+        //         console.log(time + ' 查詢已開立發票金額(searchuseamount)')
+        //         if (req.body.salesDate) {
+        //             const startDate = `${req.body.salesDate}-01`;
+        //             const endDate = `${req.body.salesDate}-31`;
+                    
+        //             // const customerList = await definvoice.findAll({
+        //             //   where: {
+        //             //     invoiceDate: {
+        //             //       [Op.between]: [startDate, endDate], // 範圍查詢
+        //             //     },
+        //             //     customerId: {
+        //             //       [Op.eq]: req.body.customerId,
+        //             //     },
+        //             //   },
+        //             //   raw: true,
+        //             // });
+        //             // // 計算 salesAmount 加總
+        //             // const totalAmount = customerList.reduce((total, record) => {
+        //             //     return total + (record.Amount || 0); // 確保 salesAmount 不為 null
+        //             // }, 0);
+        //             // // 組合回應結果
+        //             // const result = {
+        //             //     customerId: req.body.customerId,
+        //             //     totalAmount,
+        //             // };
+        //             const result = await reportsales.sequelize.query(
+        //                 `
+        //                 SELECT 
+        //                     rs.customerId, 
+        //                     c.cus_name, 
+        //                     SUM(rs.Amount) AS Amount
+        //                 FROM 
+        //                     jutai.definvoice rs
+        //                 INNER JOIN 
+        //                     jutai.customer c
+        //                 ON 
+        //                     rs.customerId = c.cus_code
+        //                 WHERE 
+        //                     rs.invoiceDate BETWEEN :startDate AND :endDate
+        //                     AND c.special_invoice = '1'
+        //                 GROUP BY 
+        //                     rs.customerId, c.cus_name
+        //                 order by customerId
+        //                 `,
+        //                 {
+        //                   replacements: { startDate, endDate }, // 替换为动态变量
+        //                   type: reportsales.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+        //                 }
+        //               );
+        //             console.log({ returnCode: 0, message: "查詢已開立發票金額", data: result })
+        //             return res.json({ returnCode: 0, message: "查詢已開立發票金額", data: result })
+
+        //         } else {
+        //             console.log({ returnCode: -1, message: '查詢失敗，缺少參數' })
+        //             return res.json({ returnCode: -1, message: '查詢失敗，缺少參數' })
+        //         }
+        //     } catch (err) {
+        //         console.log({ returnCode: 500, message: "系統錯誤", err: err })
+        //         return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+        //     }
+        // },
     }
 
 }

@@ -123,7 +123,7 @@ export default {
         // },
       ],
       //  DDD:"G2200072,G2200176,G2200230,G2200260,G2200319,G2200520,G2200608,G2200782,G2200783",
-      DDD: "G2200708",
+      DDD: "G2200782",
       Statement: [],
       DetaProduct: [],
       Balance: [],
@@ -358,10 +358,11 @@ export default {
     },
     // 根據油品名稱分組
     groupByProduct(data) {
-      const products = [...new Set(data.map((item) => item.fuel_type))];
+      const products = [...new Set(data.map((item) => item.fuel_type.trim()))];
+      // 根據去除空格的油品名稱進行分組
       return products.map((product) => ({
         fuel_type: product,
-        data: data.filter((item) => item.fuel_type === product),
+        data: data.filter((item) => item.fuel_type.trim() === product),
       }));
     },
     // 根據車牌和油品分組，並插入小計行
@@ -375,8 +376,8 @@ export default {
         const filteredData = this.Details.filter(
           (item) => item.license_plate === plate
         );
-        const productGroups = this.groupByProduct(filteredData);
 
+        const productGroups = this.groupByProduct(filteredData);
         // 將數據插入
         productGroups.forEach((group) => {
           grouped.push(...group.data);
@@ -398,7 +399,6 @@ export default {
               mileage: 0,
             }
           );
-
           // 計算該組別的里程數差值
           const mileageDifference =
             group.data[group.data.length - 1].mileage - group.data[0].mileage;
@@ -644,6 +644,7 @@ export default {
         const worksheet = workbook.worksheets[0]; // 取得第一個工作表
         let newFileName;
         let buffer;
+        invoice_name = invoice_name ?? ""; //沒抬頭 空值 不給null
         if (select == 1) {
           const last_month_balance = this.Balance.overage; //前期餘額
           const current_month_remittance_amount = Number(
@@ -651,7 +652,9 @@ export default {
           ); //本期匯入
           const current_month_fuel_total = Number(this.Balance.salesAmount); //本期使用
           const current_month_balance = this.Balance.thisMonthOverage; //本期餘額
-          const payment_deadline = `每月${this.collateral.remittance_date}日`; //月結繳款期限
+          const payment_deadline = this.collateral.remittance_date
+            ? `每月${this.collateral.remittance_date}日`
+            : ""; // 如果 remittance_date 是 null 或 undefined，設定為空字串
           const config_notes = this.collateral.config_notes; //擔保品
           const data4 = this.Statement.product;
           const sortOrder = ["超級柴油", "無鉛汽油", "尿素溶液", "諾瓦尿素"];
@@ -661,9 +664,11 @@ export default {
             const indexB = sortOrder.indexOf(b.product_name);
             return indexA - indexB;
           });
-          console.log(JSON.stringify(this.Statement));
-          console.log(JSON.stringify(data4));
-          const data5 = this.Statement.cardIssuanceFee;
+          let data5 = this.Statement.cardIssuanceFee;
+          data5 = data5.map((item) => ({
+            ...item,
+            amount: Math.abs(Number(item.amount)), // 先轉成數字，再取絕對值
+          }));
           const summary_data = this.Statement.details.map((row) => [
             formattedMonth,
             row.license_plate,
@@ -1045,7 +1050,7 @@ export default {
               right: { style: "thin", color: { argb: "C0C0C0" } }, // 添加銀色細邊框
             };
           }
-          const columnsToAdjust = ["A", "B", "C", "D", "E", "F", "H"]; // 需要調整的欄
+          const columnsToAdjust = ["A", "B", "C", "D", "E", "F", "G", "H"]; // 需要調整的欄
           columnsToAdjust.forEach((col) => {
             const columnIndex = worksheet.getColumn(col).number; // 取得欄位編號
             worksheet.getColumn(columnIndex).width = 16; // 設定欄寬，數字可調整
@@ -1081,6 +1086,7 @@ export default {
           // 起始行
           let startRow = 7;
           const summaryRows = []; // 用來記錄小計行的行號
+          console.log(JSON.stringify(data));
           data.forEach((rowData, rowIndex) => {
             // 如果是 summary row，插入小計
             const currentRowNum = startRow + rowIndex;

@@ -594,7 +594,15 @@ export default {
           type: "warning",
         });
       }
+      if(this.bills.some(bill => bill.acc_name === this.billform.acc_name)){
+        this.$message({
+          message: "帳單名稱不能重複",
+          type: "warning",
+        });
+        return
+      }
       const req = this.billform;
+      
       //發送 POST 請求
       axios
         .post("http://122.116.23.30:3347/main/createAccount_sort", req)

@@ -360,10 +360,10 @@
         <el-row style="margin-bottom: 20px">
           <el-form-item label="職稱">
             <el-select v-model="rowData.job_title" placeholder="選擇職稱">
-            <el-option label="承辦" :value="'承辦'"></el-option>
-            <el-option label="會計" :value="'會計'"></el-option>
-          </el-select>
-        </el-form-item>
+              <el-option label="承辦" :value="'承辦'"></el-option>
+              <el-option label="會計" :value="'會計'"></el-option>
+            </el-select>
+          </el-form-item>
           <!-- <el-form-item label="職稱">
             <el-input v-model="rowData.job_title"></el-input>
           </el-form-item> -->
@@ -411,10 +411,7 @@
         </el-row>
 
         <el-row style="margin-bottom: 20px">
-          <el-form-item
-            label="訊息通知Mail"
-            v-if="rowData.messageNotify == 3"
-          >
+          <el-form-item label="訊息通知Mail" v-if="rowData.messageNotify == 3">
             <el-input v-model="rowData.messageMail"></el-input>
           </el-form-item>
           <el-form-item
@@ -707,6 +704,7 @@ export default {
       bills_form: {},
       salesmenData: [],
       discount_form: [],
+      bills:[],
     };
   },
   mounted() {
@@ -886,13 +884,13 @@ export default {
         } else {
           this.cus_form.config_notes = "";
         }
-        this.cus_form.virtual_account=this.cus_form.virtual_account.trim()
-        if(this.cus_form.virtual_account.length!=14){
+        this.cus_form.virtual_account = this.cus_form.virtual_account.trim();
+        if (this.cus_form.virtual_account.length != 14) {
           this.$message({
-                message: "確認虛擬帳戶為14碼",
-                type: "error",
-              });
-              return
+            message: "確認虛擬帳戶為14碼",
+            type: "error",
+          });
+          return;
         }
         this.cus_form.config_method = [0];
         const req = this.cus_form;
@@ -926,7 +924,17 @@ export default {
             console.error("Error:", error);
           });
       } else if (this.rowType === "3") {
+        await this.getbillselectData();
         this.bills_form.updateTime = "";
+        if (
+          this.bills.some((bill) => bill.acc_name === this.bills_form.acc_name)
+        ) {
+          this.$message({
+            message: "帳單名稱不能重複",
+            type: "warning",
+          });
+          return;
+        }
         const req = this.bills_form;
         axios
           .post("http://122.116.23.30:3347/main/updateAccount_sort", req)
@@ -1181,6 +1189,23 @@ export default {
         .get("http://122.116.23.30:3347/main/selectProduct")
         .then((response) => {
           this.productMap = response.data.data;
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+        });
+    },
+    async getbillselectData() {
+      const postData = {
+        customerId: this.cus_code,
+      };
+      await axios
+        .post("http://122.116.23.30:3347/main/searchAccount_sort", postData)
+        .then((response) => {
+          this.bills = response.data.data;
+          this.bills = response.data.data.sort((a, b) => {
+            return a.acc_name.localeCompare(b.acc_name, "zh-Hans-TW-u-kn-true");
+          });
         })
         .catch((error) => {
           // 處理錯誤

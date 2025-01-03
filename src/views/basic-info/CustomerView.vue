@@ -1089,7 +1089,7 @@ export default {
           console.error("Error:", error);
         });
     },
-    viewDetails(row) {
+    async viewDetails(row) {
       // this.$router.push({
       //   path: "SelectView",
       //   query: {
@@ -1097,6 +1097,8 @@ export default {
       //     cus_code: row.cus_code,
       //   },
       // });
+      //這裡
+      console.log(btoa(row.cus_code))
       const edoc = row.cus_code;
       const url = `http://122.116.23.30:3347/basic-info/SelectView?rowType=1&cus_code=${edoc}`;
       window.open(url, "_blank");
