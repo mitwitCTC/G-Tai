@@ -477,7 +477,7 @@ module.exports = ({ sequelize }) => {
                     trade_name: req.body.trade_name,
                     amount: req.body.totalAmount,
                     accDate: req.body.accDate,
-                    accFarewell: getDateTime(req.body.actDate, 'YYYY-MM'),
+                    accFarewell: req.body.actDate.slice(0, 7),
                     creatTime: time,
                     debitmessage: req.body.debitmessage,
                     creditmessage: req.body.creditmessage,
@@ -603,7 +603,7 @@ module.exports = ({ sequelize }) => {
                 const createAcc_trade = await acc_trade.update({
                     amount: req.body.totalAmount,
                     accDate: req.body.accDate,
-                    accFarewell: getDateTime(req.body.actDate, 'YYYY-MM'),
+                    accFarewell: req.body.actDate.slice(0, 7),
                     debitmessage: req.body.debitmessage,
                     customerId: req.body.customerId,
                     cus_name: req.body.cus_name,

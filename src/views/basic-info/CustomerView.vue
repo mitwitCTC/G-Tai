@@ -9,12 +9,20 @@
     </div>
 
     <div>
-      <el-form :inline="true" :model="search" class="demo-form-inline">
-        <el-form-item label="客戶名稱/客戶代號/統編" v-if="!search.customerV">
+      <el-form
+        :inline="true"
+        :model="search"
+        class="demo-form-inline"
+        @keydown.enter.prevent="handleEnterKey"
+      >
+        <el-form-item
+          label="客戶名稱/客戶代號/統編/合約備註"
+          v-if="!search.customerV"
+        >
           <el-input
             v-model="search.customerName"
-            placeholder="輸入客戶名稱/客戶代號/統編/"
-            style="width: 225px"
+            placeholder="輸入客戶名稱/客戶代號/統編/合約備註"
+            style="width: 300px"
           ></el-input>
         </el-form-item>
         <el-form-item label="車牌" v-if="!search.customerName">
@@ -83,7 +91,7 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           prop="vat_number"
           label="統編"
           width="150"
@@ -92,7 +100,7 @@
           prop="front_pwd"
           label="密碼"
           width="200"
-        ></el-table-column>
+        ></el-table-column> -->
         <el-table-column
           prop="submission_date"
           label="簽呈日期"
@@ -161,142 +169,262 @@
         :close-on-click-modal="false"
       >
         <h6>*為必填欄位</h6>
-        <el-form :model="form" label-width="155px">
-          <!-- 统一标签宽度 -->
-          <el-row style="margin-bottom: 20px">
-            <el-form-item label="*客戶代號">
-              <el-input
-                v-model="form.cus_code"
-                maxlength="8"
-                disabled
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="*客戶名稱">
-              <el-input v-model="form.cus_name"></el-input>
-            </el-form-item>
-            <el-form-item label="負責業務">
-              <el-select v-model="form.salesmanId" placeholder="選擇業務">
-                <el-option
-                  v-for="salesman in salesmenData"
-                  :key="salesman.salesmanId"
-                  :label="salesman.employee_name"
-                  :value="salesman.employee_id"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-            <!-- <el-form-item label="虛擬帳號">
+        <div class="section-header">
+          <el-form :model="form" label-width="155px">
+            <!-- 统一标签宽度 -->
+            <el-row style="margin-bottom: 20px">
+              <el-form-item>
+                <template #label>
+                  <span style="color: red">*客戶代號</span>
+                </template>
+                <el-input
+                  v-model="form.cus_code"
+                  maxlength="8"
+                  disabled
+                ></el-input>
+              </el-form-item>
+              <el-form-item>
+                <template #label>
+                  <span style="color: red">*客戶名稱</span>
+                </template>
+                <el-input v-model="form.cus_name"></el-input>
+              </el-form-item>
+              <el-form-item label="合約狀態">
+                <el-select
+                  v-model="form.contract_status"
+                  placeholder="選擇合約狀態"
+                >
+                  <el-option label="未解約" :value="'N'"></el-option>
+                  <el-option label="暫停" :value="'S'"></el-option>
+                  <el-option label="解約" :value="'Y'"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item>
+                <template #label>
+                  <span style="color: red">*公司統編</span>
+                </template>
+                <el-input v-model="form.vat_number" maxlength="10"></el-input>
+              </el-form-item>
+              <el-form-item label="前台密碼(@)">
+                <el-input v-model="form.front_pwd"></el-input>
+              </el-form-item>
+              <el-form-item label="簽呈日期">
+                <el-date-picker
+                  v-model="form.submission_date"
+                  type="date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  placeholder="選擇日期"
+                  style="width: 300px"
+                >
+                </el-date-picker>
+              </el-form-item>
+              <el-form-item label="合約日期(起)">
+                <el-date-picker
+                  v-model="form.contract_start"
+                  type="date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  placeholder="選擇日期"
+                  style="width: 300px"
+                >
+                </el-date-picker>
+              </el-form-item>
+              <el-form-item label="合約日期(迄)">
+                <el-date-picker
+                  v-model="form.contract_end"
+                  type="date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  placeholder="選擇日期"
+                  style="width: 300px"
+                >
+                </el-date-picker>
+              </el-form-item>
+            </el-row>
+          </el-form>
+        </div>
+        <div class="section-header">
+          <el-form :model="form" label-width="155px">
+            <el-row style="margin-bottom: 20px">
+              <el-form-item label="交易模式">
+                <el-select
+                  v-model="form.transaction_mode"
+                  placeholder="選擇交易模式"
+                >
+                  <el-option label="儲值" :value="1"></el-option>
+                  <el-option label="月結" :value="2"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item
+                label="款項繳費期限(日)"
+                v-if="this.form.transaction_mode == 2"
+              >
+                <el-input
+                  v-model="form.remittance_date"
+                  maxlength="2"
+                ></el-input>
+              </el-form-item>
+
+              <el-form-item
+                label="低水位通知"
+                v-if="this.form.transaction_mode == 1"
+              >
+                <el-input v-model="form.low_balance_notice"></el-input>
+              </el-form-item>
+              <el-form-item
+                label="停油寬限額度"
+                v-if="this.form.transaction_mode == 1"
+              >
+                <el-input
+                  v-model="form.fuel_grace_limit"
+                  @input="validateFuelGraceLimit"
+                  placeholder="請輸入小於或等於 0 的數值"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="押金">
+                <el-input v-model="form.deposit"></el-input>
+              </el-form-item>
+              <el-form-item label="需特殊開立">
+                <el-select v-model="form.special_invoice" placeholder="選擇">
+                  <el-option label="一般" :value="'0'"></el-option>
+                  <el-option label="特殊" :value="'1'"></el-option>
+                </el-select>
+              </el-form-item>
+
+              <!-- <el-form-item label="虛擬帳號">
           <el-input v-model="form.virtual_account" ></el-input>
         </el-form-item> -->
-            <el-form-item label="區域">
-              <el-select v-model="form.region" placeholder="選擇區域">
-                <el-option label="1.北、北、基、宜" :value="1"></el-option>
-                <el-option label="2.中、彰、投" :value="2"></el-option>
-                <el-option label="3.桃、竹、苗" :value="3"></el-option>
-                <el-option label="4.雲、嘉、南" :value="4"></el-option>
-                <el-option label="5.高、屏、澎" :value="5"></el-option>
-                <el-option label="6.花、東" :value="6"></el-option>
-              </el-select>
+              <el-form-item label="區域">
+                <el-select v-model="form.region" placeholder="選擇區域">
+                  <el-option label="1.北、北、基、宜" :value="1"></el-option>
+                  <el-option label="2.中、彰、投" :value="2"></el-option>
+                  <el-option label="3.桃、竹、苗" :value="3"></el-option>
+                  <el-option label="4.雲、嘉、南" :value="4"></el-option>
+                  <el-option label="5.高、屏、澎" :value="5"></el-option>
+                  <el-option label="6.花、東" :value="6"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="產業類別">
+                <el-select v-model="form.industry" placeholder="選擇產業類別">
+                  <el-option label="1.食品飲料" :value="1"></el-option>
+                  <el-option label="2.傢飾傢俱家電" :value="2"></el-option>
+                  <el-option label="3.石油化學" :value="3"></el-option>
+                  <el-option label="4.五金製造" :value="4"></el-option>
+                  <el-option label="5.電力機械" :value="5"></el-option>
+                  <el-option label="6.營建土木工程" :value="6"></el-option>
+                  <el-option label="7.紙業製造" :value="7"></el-option>
+                  <el-option label="8.金屬製造" :value="8"></el-option>
+                  <el-option label="9.大眾運輸" :value="9"></el-option>
+                  <el-option label="10.橡膠塑膠" :value="10"></el-option>
+                  <el-option label="11.物流倉儲" :value="11"></el-option>
+                  <el-option label="12.礦業土石" :value="12"></el-option>
+                  <el-option label="13.資訊科技" :value="13"></el-option>
+                  <el-option label="14.文教類" :value="14"></el-option>
+                  <el-option label="15.傳播類" :value="15"></el-option>
+                  <el-option label="16.環境衛生" :value="16"></el-option>
+                  <el-option label="17.生技醫療" :value="17"></el-option>
+                  <el-option label="18.電子科技" :value="18"></el-option>
+                  <el-option label="19.綜合工商" :value="19"></el-option>
+                  <el-option label="20.汽機車買賣維修" :value="20"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="預估月加油量">
+                <el-input v-model="form.est_fuel_volume"></el-input>
+              </el-form-item>
+              <el-form-item label="信用卡手續費收取">
+                <el-select
+                  v-model="form.card_other_fee"
+                  placeholder="選擇是否收取"
+                >
+                  <el-option label="0.不收取" :value="'0'"></el-option>
+                  <el-option label="1.另外收取" :value="'1'"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-row>
+            <!-- 製卡費&備註 -->
+            <el-row style="margin-bottom: 20px">
+              <el-form-item label="製卡費用">
+                <el-input v-model="form.card_fee"></el-input>
+              </el-form-item>
+              <el-form-item label="再製卡費用">
+                <el-input v-model="form.reissue_fee"></el-input>
+              </el-form-item>
+              <el-form-item label="製卡費備註">
+                <el-input v-model="form.card_fee_notes"></el-input>
+              </el-form-item>
+            </el-row>
+            <el-row style="margin-bottom: 20px">
+              <el-form-item label="公司電話">
+                <el-input v-model="form.phone"></el-input>
+              </el-form-item>
+              <el-form-item label="傳真號碼">
+                <el-input v-model="form.fax"></el-input>
+              </el-form-item>
+            </el-row>
+            <el-row style="margin-bottom: 20px">
+              <el-form-item label="營登地址">
+                <el-input v-model="form.reg_address"></el-input>
+              </el-form-item>
+              <el-form-item label="通訊地址">
+                <el-input v-model="form.mail_address"></el-input>
+              </el-form-item>
+            </el-row>
+          </el-form>
+        </div>
+        <div class="section-header">
+          <!-- 備註 -->
+          <el-form :model="form" label-width="155px">
+            <el-form-item label="對帳單及發票注意事項" style="width: 1000px">
+              <el-input v-model="form.invoice_notes" type="textarea"></el-input>
             </el-form-item>
-            <el-form-item label="產業類別">
-              <el-select v-model="form.industry" placeholder="選擇產業類別">
-                <el-option label="1.食品飲料" :value="1"></el-option>
-                <el-option label="2.傢飾傢俱家電" :value="2"></el-option>
-                <el-option label="3.石油化學" :value="3"></el-option>
-                <el-option label="4.五金製造" :value="4"></el-option>
-                <el-option label="5.電力機械" :value="5"></el-option>
-                <el-option label="6.營建土木工程" :value="6"></el-option>
-                <el-option label="7.紙業製造" :value="7"></el-option>
-                <el-option label="8.金屬製造" :value="8"></el-option>
-                <el-option label="9.大眾運輸" :value="9"></el-option>
-                <el-option label="10橡膠塑膠" :value="10"></el-option>
-                <el-option label="11.物流倉儲" :value="11"></el-option>
-                <el-option label="12.物流倉儲" :value="12"></el-option>
-                <el-option label="13.資訊科技" :value="13"></el-option>
-                <el-option label="14.環境衛生" :value="14"></el-option>
-                <el-option label="15.傳播類" :value="15"></el-option>
-                <el-option label="16.生技醫療" :value="16"></el-option>
-                <el-option label="17.電子科技" :value="17"></el-option>
-                <el-option label="18.食品飲料" :value="18"></el-option>
-                <el-option label="19.綜合工商" :value="19"></el-option>
-                <el-option label="20.汽機車買賣維修" :value="20"></el-option>
-              </el-select>
+            <el-form-item label="付款備註" style="width: 1000px">
+              <el-input v-model="form.con_notes" type="textarea"></el-input>
             </el-form-item>
-            <el-form-item label="預估月加油量">
-              <el-input v-model="form.est_fuel_volume"></el-input>
+            <el-form-item label="合約備註" style="width: 1000px">
+              <el-input
+                v-model="form.contract_notes"
+                type="textarea"
+              ></el-input>
             </el-form-item>
-            <el-form-item label="公司電話">
-              <el-input v-model="form.phone"></el-input>
-            </el-form-item>
-            <el-form-item label="傳真號碼">
-              <el-input v-model="form.fax"></el-input>
-            </el-form-item>
-            <el-form-item label="交易模式">
-              <el-select
-                v-model="form.transaction_mode"
-                placeholder="選擇交易模式"
-              >
-                <el-option label="儲值" :value="1"></el-option>
-                <el-option label="月結" :value="2"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="押金">
-              <el-input v-model="form.deposit"></el-input>
-            </el-form-item>
-            <el-form-item label="前台密碼(@)">
-              <el-input v-model="form.front_pwd"></el-input>
-            </el-form-item>
-            <el-form-item label="合約日期(起)">
-              <el-date-picker
-                v-model="form.contract_start"
-                type="date"
-                format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
-                placeholder="選擇日期"
-                style="width: 300px"
-              >
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item
-              label="停油寬限額度"
-              v-if="this.form.transaction_mode == 1"
-            >
-              <el-input v-model="form.fuel_grace_limit"></el-input>
-            </el-form-item>
-            <el-form-item label="*公司統編">
-              <el-input v-model="form.vat_number" maxlength="10"></el-input>
-            </el-form-item>
-            <el-form-item label="合約日期(迄)">
-              <el-date-picker
-                v-model="form.contract_end"
-                type="date"
-                format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
-                placeholder="選擇日期"
-                style="width: 300px"
-              >
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item
-              label="低水位通知"
-              v-if="this.form.transaction_mode == 1"
-            >
-              <el-input v-model="form.low_balance_notice"></el-input>
-            </el-form-item>
-            <el-form-item label="公司抬頭">
+          </el-form>
+        </div>
+        <!-- 簽約業務&備註 -->
+        <div class="section-header">
+          <el-form :model="form" label-width="155px">
+            <el-row style="margin-bottom: 20px">
+              <el-form-item label="簽約業務">
+                <el-select v-model="form.contract_sales" placeholder="選擇業務">
+                  <el-option
+                    v-for="salesman in salesmenData"
+                    :key="salesman.salesmanId"
+                    :label="salesman.employee_name"
+                    :value="salesman.employee_id"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="負責業務">
+                <el-select v-model="form.salesmanId" placeholder="選擇業務">
+                  <el-option
+                    v-for="salesman in salesmenData"
+                    :key="salesman.salesmanId"
+                    :label="salesman.employee_name"
+                    :value="salesman.employee_id"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+
+              <el-form-item label="業務備註">
+                <el-input v-model="form.sales_notes"></el-input>
+              </el-form-item>
+            </el-row>
+          </el-form>
+        </div>
+        <!-- <el-form-item label="公司抬頭">
               <el-input v-model="form.company_title"></el-input>
-            </el-form-item>
-            <el-form-item label="簽呈日期">
-              <el-date-picker
-                v-model="form.submission_date"
-                type="date"
-                format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
-                placeholder="選擇日期"
-                style="width: 300px"
-              >
-              </el-date-picker>
-            </el-form-item>
-            <!-- <el-form-item label="匯款日期" v-if="this.form.transaction_mode==2">
+            </el-form-item> -->
+
+        <!-- <el-form-item label="匯款日期" v-if="this.form.transaction_mode==2">
           <el-date-picker 
           v-model="form.remittance_date" 
           type="date" 
@@ -306,16 +434,11 @@
           style="width: 300px;">
         </el-date-picker>
         </el-form-item> -->
-            <el-form-item
-              label="款項繳費期限(日)"
-              v-if="this.form.transaction_mode == 2"
-            >
-              <el-input v-model="form.remittance_date" maxlength="2"></el-input>
-            </el-form-item>
-            <el-form-item label="油價簡訊電話">
+
+        <!-- <el-form-item label="油價簡訊電話">
               <el-input v-model="form.fuel_sms_phone"></el-input>
-            </el-form-item>
-            <!-- <el-form-item label="餘額不足簡訊方式" v-if="this.form.transaction_mode==1">
+            </el-form-item> -->
+        <!-- <el-form-item label="餘額不足簡訊方式" v-if="this.form.transaction_mode==1">
           <el-select v-model="form.fuel_sms_option" placeholder="選擇模式">
             <el-option label="Y" :value="'Y'"></el-option>
             <el-option label="N" :value="'N'"></el-option>
@@ -329,72 +452,7 @@
         <el-form-item label="餘額不足訊息電話" v-if="this.form.transaction_mode==1">
           <el-input v-model="form.balance_sms_phone" ></el-input>
         </el-form-item> -->
-            <el-form-item label="合約狀態">
-              <el-select
-                v-model="form.contract_status"
-                placeholder="選擇合約狀態"
-              >
-                <el-option label="未解約" :value="'N'"></el-option>
-                <el-option label="暫停" :value="'S'"></el-option>
-                <el-option label="解約" :value="'Y'"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="營登地址">
-              <el-input v-model="form.reg_address"></el-input>
-            </el-form-item>
-            <el-form-item label="通訊地址">
-              <el-input v-model="form.mail_address"></el-input>
-            </el-form-item>
-          </el-row>
-
-          <!-- 製卡費&備註 -->
-          <el-row style="margin-bottom: 20px">
-            <el-form-item label="製卡費用">
-              <el-input v-model="form.card_fee"></el-input>
-            </el-form-item>
-            <el-form-item label="再製卡費用">
-              <el-input v-model="form.reissue_fee"></el-input>
-            </el-form-item>
-            <el-form-item label="製卡費備註" style="width: 1000px">
-              <el-input
-                v-model="form.card_fee_notes"
-                type="textarea"
-              ></el-input>
-            </el-form-item>
-          </el-row>
-          <!-- 備註 -->
-          <el-row style="margin-bottom: 20px">
-            <el-form-item label="對帳單及發票注意事項" style="width: 1000px">
-              <el-input v-model="form.invoice_notes" type="textarea"></el-input>
-            </el-form-item>
-            <el-form-item label="預付及合約注意事項" style="width: 1000px">
-              <el-input v-model="form.con_notes" type="textarea"></el-input>
-            </el-form-item>
-            <el-form-item label="合約備註" style="width: 1000px">
-              <el-input
-                v-model="form.contract_notes"
-                type="textarea"
-              ></el-input>
-            </el-form-item>
-          </el-row>
-          <!-- 簽約業務&備註 -->
-          <el-row style="margin-bottom: 20px">
-            <el-form-item label="簽約業務">
-              <el-select v-model="form.contract_sales" placeholder="選擇業務">
-                <el-option
-                  v-for="salesman in salesmenData"
-                  :key="salesman.salesmanId"
-                  :label="salesman.employee_name"
-                  :value="salesman.employee_id"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="業務備註" class="large-textbox">
-              <el-input v-model="form.sales_notes" type="textarea"></el-input>
-            </el-form-item>
-          </el-row>
-
-          <!-- <el-form-item label="設定方式">
+        <!-- <el-form-item label="設定方式">
         <el-checkbox-group v-model="form.config_method" >
           <el-checkbox :label="1">銀行定存</el-checkbox>
           <el-checkbox :label="2">現金</el-checkbox>
@@ -405,25 +463,16 @@
           <el-checkbox :label="7">其他</el-checkbox>
         </el-checkbox-group>
     </el-form-item>  -->
-          <!-- 設定方式備註 -->
-          <!-- <el-form-item label="設定方式備註" class="large-textbox">
+        <!-- 設定方式備註 -->
+        <!-- <el-form-item label="設定方式備註" class="large-textbox">
       <el-input v-model="form.config_notes" type="textarea" ></el-input>
     </el-form-item> -->
-          <!-- 信用卡收取手續費 -->
-          <el-row style="margin-bottom: 20px">
-            <el-form-item label="信用卡手續費收取">
-              <el-select
-                v-model="form.card_other_fee"
-                placeholder="選擇是否收取"
-              >
-                <el-option label="0.不收取" :value="'0'"></el-option>
-                <el-option label="1.另外收取" :value="'1'"></el-option>
-              </el-select>
-            </el-form-item>
-            <!-- <el-form-item label="信用卡手續費%數">
+        <!-- 信用卡收取手續費 -->
+
+        <!-- <el-form-item label="信用卡手續費%數">
       <el-input v-model="form.card_handling" ></el-input>
     </el-form-item> -->
-          </el-row>
+        <el-form :model="form" label-width="155px">
           <el-form-item
             label="設定方式"
             class="section-header"
@@ -502,13 +551,13 @@
                 <el-table-column
                   prop="account_sortId"
                   label="帳單編號"
-                  width="300"
+                  width="350"
                 />
                 <el-table-column prop="acc_name" label="帳單名稱" width="550" />
                 <el-table-column
                   prop="use_number"
                   label="開立統編"
-                  width="500"
+                  width="550"
                 />
               </el-table>
             </div>
@@ -541,12 +590,12 @@
                 <el-table-column
                   prop="card_arrival_date"
                   label="到卡日期"
-                  width="150"
+                  width="200"
                 />
                 <el-table-column
                   prop="card_stop_date"
                   label="停卡日期"
-                  width="150"
+                  width="200"
                 />
                 <el-table-column prop="notes" label="備註" width="200" />
                 <el-table-column
@@ -596,8 +645,17 @@
                   <el-table-column
                     prop="reference_price"
                     label="參考單價"
-                    width="150"
+                    width="100"
                   />
+                  <el-table-column
+                    prop="reference_amount"
+                    label="牌價金額"
+                    width="150"
+                    align="right"
+                    ><template v-slot="scope"
+                      >{{ formatCurrency(scope.row.reference_amount) }}
+                    </template></el-table-column
+                  >
                   <el-table-column
                     prop="discount_amount"
                     label="折讓金額"
@@ -650,7 +708,7 @@ export default {
     ListBar,
     TablePaginated,
     ExportContact,
-    ExportCard
+    ExportCard,
   },
   data() {
     return {
@@ -705,6 +763,7 @@ export default {
         createTime: "",
         cus_code: "",
         cus_name: "",
+        remittance_date: "20",
         one: "", // 銀行定存
         two: "", // 現金
         three: "", // 支票
@@ -751,11 +810,15 @@ export default {
         const cusCode = item.cus_code ? item.cus_code.toLowerCase() : "";
         const cusName = item.cus_name ? item.cus_name.toLowerCase() : "";
         const vatNumber = item.vat_number ? item.vat_number.toLowerCase() : "";
+        const contract_notes = item.contract_notes
+          ? item.contract_notes.toLowerCase()
+          : "";
 
         return (
           cusCode.includes(searchTerm) ||
           cusName.includes(searchTerm) ||
-          vatNumber.includes(searchTerm)
+          vatNumber.includes(searchTerm) ||
+          contract_notes.includes(searchTerm)
         );
       });
     },
@@ -775,10 +838,29 @@ export default {
   },
 
   methods: {
+    validateFuelGraceLimit(value) {
+      // 確保輸入值小於或等於 0
+      if (value > 0) {
+        this.form.fuel_grace_limit = 0; // 超出範圍時自動設置為 0
+      } else {
+        this.form.fuel_grace_limit = value;
+      }
+    },
+    handleEnterKey() {
+      // 手動觸發按鈕的 click 事件
+      if (!this.search.customerV) {
+        this.$message({
+          message: `Enter輸入鍵只適用查詢車牌`,
+          type: "warning",
+        });
+        return;
+      }
+      this.searchV(1); // 這裡傳遞你想要的參數
+    },
     async handleExport(TYPE) {
-      if ((TYPE == 1)) {
+      if (TYPE == 1) {
         try {
-          this.isLoading=true
+          this.isLoading = true;
           await ExportContact.methods.exportExcel();
           // 顯示成功訊息
           this.$message({
@@ -790,12 +872,12 @@ export default {
             message: `匯出失敗`,
             type: "error",
           });
-        }finally{
-          this.isLoading=false
+        } finally {
+          this.isLoading = false;
         }
-      } else if ((TYPE == 2)) {
+      } else if (TYPE == 2) {
         try {
-          this.isLoading=true
+          this.isLoading = true;
           await ExportCard.methods.exportExcel();
           // 顯示成功訊息
           this.$message({
@@ -807,8 +889,8 @@ export default {
             message: `匯出失敗`,
             type: "error",
           });
-        }finally{
-          this.isLoading=false
+        } finally {
+          this.isLoading = false;
         }
       }
     },
@@ -851,7 +933,7 @@ export default {
             // 將物件轉成字串，然後使用 btoa 編碼
 
             // 拼接完整的 URL
-            const url = `http://122.116.23.30:3346/#/login?cca=${cca}&dwp=${dwp}`;
+            const url = `http://122.116.23.30:3346/login?cca=${cca}&dwp=${dwp}`;
 
             // 開啟新分頁
             window.open(url, "_blank");
@@ -935,7 +1017,7 @@ export default {
     async searchCard(vehicleId) {
       const postData = {
         vehicleId: vehicleId,
-        status: 1,
+        status: 3,
       };
 
       await axios
@@ -1098,7 +1180,7 @@ export default {
       //   },
       // });
       //這裡
-      console.log(btoa(row.cus_code))
+      console.log(btoa(row.cus_code));
       const edoc = row.cus_code;
       const url = `http://122.116.23.30:3347/basic-info/SelectView?rowType=1&cus_code=${edoc}`;
       window.open(url, "_blank");

@@ -36,7 +36,7 @@ module.exports = ({ sequelize }) => {
                 const customerList = await customer.findAll({
                     where: { deleteTime: { [Op.eq]: '0' } },
                     order: [['cus_code', 'DESC']],
-                    attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date','mail_address','card_status','special_invoice'],
+                    attributes: ['customerId', 'cus_code', 'cus_name', 'salesmanId', 'virtual_account', 'region', 'industry', 'est_fuel_volume', 'phone', 'fax', 'vat_number', 'company_title', 'deleteTime', 'month_gas', 'month_balance', 'front_pwd', 'submission_date','mail_address','card_status','special_invoice','contract_notes'],
                     raw: true
                 })
                 //Jason
@@ -123,7 +123,8 @@ module.exports = ({ sequelize }) => {
                     createTime: req.body.createTime == '' ? time : req.body.createTime,
                     con_notes: req.body.con_notes,
                     card_other_fee: req.body.card_other_fee == '' ? null : req.body.card_other_fee,
-                    card_handling: req.body.card_handling == '' ? null : req.body.card_handling
+                    card_handling: req.body.card_handling == '' ? null : req.body.card_handling,
+                    special_invoice: req.body.special_invoice,
                 })
                 console.log({ returnCode: 0, message: "新增客戶資料", data: customerList.dataValues })
                 return res.json({ returnCode: 0, message: "新增客戶資料", data: customerList })
@@ -179,7 +180,8 @@ module.exports = ({ sequelize }) => {
                     card_other_fee: req.body.card_other_fee == '' ? null : req.body.card_other_fee,
                     card_handling: req.body.card_handling == '' ? null : req.body.card_handling,
                     //Jason
-                    virtual_account:req.body.virtual_account//虛擬帳戶
+                    virtual_account:req.body.virtual_account,//虛擬帳戶
+                    special_invoice: req.body.special_invoice,
                 }, {
                     where: {
                         customerId: { [Op.eq]: req.body.customerId }

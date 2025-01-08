@@ -13,7 +13,7 @@
       <el-table-column prop="upload_time" label="上傳中油時間" width="150" />
       <el-table-column prop="upload_reason" label="上傳中油原因" width="150" />
       <el-table-column prop="card_arrival_date" label="到卡日期" width="150" />
-      <el-table-column prop="card_stop_date" label="停卡日期" width="150" />
+      <el-table-column prop="card_stop_date" label="停卡日期" width="200" />
       <el-table-column prop="notes" label="備註" />
       <el-table-column prop="vehicle_change_reason" label="車輛異動-因素" />
       <el-table-column label="操作">

@@ -317,6 +317,7 @@ export default {
       },
       form: {
         state: "",
+        card_stop_date:"",
         deleteTime: "",
       },
       currentPage: 1,

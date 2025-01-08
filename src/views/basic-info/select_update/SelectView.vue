@@ -19,6 +19,10 @@
     </h5>
   </div>
   <div>
+    <el-button type="info" v-if="this.rowType === '1'" @click="getConnact()"
+      >前端連結</el-button
+    >
+    
     <el-form
       :model="cus_form"
       label-width="155px"
@@ -37,17 +41,98 @@
           <el-form-item label="客戶名稱">
             <el-input v-model="cus_form.cus_name" readonly></el-input>
           </el-form-item>
-          <el-form-item label="負責業務" v-if="this.salesmenData">
+          <el-form-item label="合約狀態">
             <el-input
-              :value="getEmployeeName(cus_form.salesmanId)"
+              :value="
+                cus_form.contract_status == 'N'
+                  ? '未解約'
+                  : cus_form.contract_status == 'Y'
+                  ? '解約'
+                  : cus_form.contract_status == 'S'
+                  ? '暫停'
+                  : '未知'
+              "
               readonly
             ></el-input>
           </el-form-item>
-          <!-- <el-form-item label="負責業務" v-if="this.salesmenData">
-      <el-input :value="cus_form.salesmanId"  readonly></el-input>
-    </el-form-item> -->
+          <el-form-item label="公司統編">
+            <el-input v-model="cus_form.vat_number" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="前台密碼(@)">
+            <el-input v-model="cus_form.front_pwd" readonly></el-input>
+          </el-form-item>
           <el-form-item label="虛擬帳號">
             <el-input v-model="cus_form.virtual_account" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="簽呈日期">
+            <el-input v-model="cus_form.submission_date" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="合約日期(起)">
+            <el-input v-model="cus_form.contract_start" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="合約日期(迄)">
+            <el-input v-model="cus_form.contract_end" readonly></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="交易模式">
+            <el-input
+              :value="
+                cus_form.transaction_mode == '1'
+                  ? '1.儲值'
+                  : cus_form.transaction_mode == '2'
+                  ? '2.月結'
+                  : '未知'
+              "
+              readonly
+            ></el-input>
+          </el-form-item>
+          <el-form-item
+            label="低水位通知"
+            v-if="this.cus_form.transaction_mode == 1"
+          >
+            <el-input
+              v-model="cus_form.low_balance_notice"
+              :value="formatCurrency(cus_form.low_balance_notice)"
+              readonly
+            ></el-input>
+          </el-form-item>
+          <el-form-item
+            label="停油寬限額度"
+            v-if="this.cus_form.transaction_mode == 1"
+          >
+            <el-input
+              v-model="cus_form.fuel_grace_limit"
+              :value="formatCurrency(cus_form.fuel_grace_limit)"
+              readonly
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item
+            label="款項繳費期限(日)"
+            v-if="this.cus_form.transaction_mode == 2"
+          >
+            <el-input v-model="cus_form.remittance_date" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="押金">
+            <el-input
+              v-model="cus_form.deposit"
+              :value="formatCurrency(cus_form.deposit)"
+              readonly
+              class="right-align-input"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="需特殊開立">
+            <el-input
+              :value="
+                cus_form.special_invoice == '0'
+                  ? '一般開立'
+                  : cus_form.special_invoice == '1'
+                  ? '特殊開立'
+                  : '未知'
+              "
+              readonly
+            ></el-input>
           </el-form-item>
           <el-form-item label="區域">
             <el-input
@@ -66,121 +151,14 @@
           <el-form-item label="預估月加油量">
             <el-input v-model="cus_form.est_fuel_volume" readonly></el-input>
           </el-form-item>
-          <el-form-item label="公司電話">
-            <el-input v-model="cus_form.phone" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="傳真號碼">
-            <el-input v-model="cus_form.fax" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="交易模式">
+          <el-form-item label="信用卡手續費收取">
             <el-input
-              :value="
-                cus_form.transaction_mode == '1'
-                  ? '1.儲值'
-                  : cus_form.transaction_mode == '2'
-                  ? '2.月結'
-                  : '未知'
-              "
+              v-model="cus_form.card_other_fee"
+              :formatter="formatOtherfee"
               readonly
             ></el-input>
-          </el-form-item>
-          <el-form-item label="押金">
-            <el-input
-              v-model="cus_form.deposit"
-              :value="formatCurrency(cus_form.deposit)"
-              readonly
-              class="right-align-input"
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="前台密碼(@)">
-            <el-input v-model="cus_form.front_pwd" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="合約日期(起)">
-            <el-input v-model="cus_form.contract_start" readonly></el-input>
-          </el-form-item>
-          <el-form-item
-            label="停油寬限額度"
-            v-if="this.cus_form.transaction_mode == 1"
-          >
-            <el-input
-              v-model="cus_form.fuel_grace_limit"
-              :value="formatCurrency(cus_form.fuel_grace_limit)"
-              readonly
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="公司統編">
-            <el-input v-model="cus_form.vat_number" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="合約日期(迄)">
-            <el-input v-model="cus_form.contract_end" readonly></el-input>
-          </el-form-item>
-          <el-form-item
-            label="低水位通知"
-            v-if="this.cus_form.transaction_mode == 1"
-          >
-            <el-input
-              v-model="cus_form.low_balance_notice"
-              :value="formatCurrency(cus_form.low_balance_notice)"
-              readonly
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="公司抬頭">
-            <el-input v-model="cus_form.company_title" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="簽呈日期">
-            <el-input v-model="cus_form.submission_date" readonly></el-input>
-          </el-form-item>
-          <!-- <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
-      <el-input v-model="cus_form.remittance_date" readonly></el-input>
-    </el-form-item> -->
-          <el-form-item
-            label="款項繳費期限(日)"
-            v-if="this.cus_form.transaction_mode == 2"
-          >
-            <el-input v-model="cus_form.remittance_date" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="油價簡訊電話">
-            <el-input v-model="cus_form.fuel_sms_phone" readonly></el-input>
-          </el-form-item>
-          <!-- <el-form-item label="餘額不足簡訊方式" v-if="this.cus_form.transaction_mode==1" >
-      <el-input
-    :value="
-      cus_form.fuel_sms_option === '1' ? '手機簡訊' :
-      cus_form.fuel_sms_option === '2' ? '官line' :
-      cus_form.fuel_sms_option === '3' ? '1+2' :
-      cus_form.fuel_sms_option === '4' ? '私line' :
-      cus_form.fuel_sms_option === '5' ? '其他' :
-      cus_form.fuel_sms_option
-    "
-    readonly
-  ></el-input>
-    </el-form-item>
-    <el-form-item label="餘額不足訊息電話" v-if="this.cus_form.transaction_mode==1">
-      <el-input v-model="cus_form.balance_sms_phone" readonly></el-input>
-    </el-form-item> -->
-          <el-form-item label="合約狀態">
-            <el-input
-              :value="
-                cus_form.contract_status == 'N'
-                  ? '未解約'
-                  : cus_form.contract_status == 'Y'
-                  ? '解約'
-                  : cus_form.contract_status == 'S'
-                  ? '暫停'
-                  : '未知'
-              "
-              readonly
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="營登地址">
-            <el-input v-model="cus_form.reg_address" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="通訊地址">
-            <el-input v-model="cus_form.mail_address" readonly></el-input>
           </el-form-item>
         </el-row>
-
-        <!-- 製卡費&備註 -->
         <el-row style="margin-bottom: 20px">
           <el-form-item label="製卡費用">
             <el-input
@@ -196,16 +174,26 @@
               class="right-align-input"
             ></el-input>
           </el-form-item>
-          <el-form-item label="製卡費備註" style="width: 1000px">
-            <el-input
-              v-model="cus_form.card_fee_notes"
-              type="textarea"
-              readonly
-            ></el-input>
+          <el-form-item label="製卡費備註">
+            <el-input v-model="cus_form.card_fee_notes" readonly></el-input>
           </el-form-item>
         </el-row>
-
-        <!-- 備註 -->
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="公司電話">
+            <el-input v-model="cus_form.phone" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="傳真號碼">
+            <el-input v-model="cus_form.fax" readonly></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="營登地址">
+            <el-input v-model="cus_form.reg_address" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="通訊地址">
+            <el-input v-model="cus_form.mail_address" readonly></el-input>
+          </el-form-item>
+        </el-row>
         <el-row style="margin-bottom: 20px">
           <el-form-item label="對帳單及發票注意事項" style="width: 1000px">
             <el-input
@@ -214,7 +202,7 @@
               readonly
             ></el-input>
           </el-form-item>
-          <el-form-item label="預付及合約注意事項" style="width: 1000px">
+          <el-form-item label="付款備註" style="width: 1000px">
             <el-input
               v-model="cus_form.con_notes"
               type="textarea"
@@ -229,7 +217,6 @@
             ></el-input>
           </el-form-item>
         </el-row>
-
         <!-- 簽約業務&備註 -->
         <el-row style="margin-bottom: 20px">
           <el-form-item label="簽約業務" v-if="this.salesmenData">
@@ -238,14 +225,44 @@
               readonly
             ></el-input>
           </el-form-item>
-          <el-form-item label="業務備註" class="large-textbox">
+          <el-form-item label="負責業務" v-if="this.salesmenData">
             <el-input
-              v-model="cus_form.sales_notes"
-              type="textarea"
+              :value="getEmployeeName(cus_form.salesmanId)"
               readonly
             ></el-input>
           </el-form-item>
+          <el-form-item label="業務備註">
+            <el-input v-model="cus_form.sales_notes" readonly></el-input>
+          </el-form-item>
         </el-row>
+
+        <!-- <el-form-item label="公司抬頭">
+          <el-input v-model="cus_form.company_title" readonly></el-input>
+        </el-form-item> -->
+
+        <!-- <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
+      <el-input v-model="cus_form.remittance_date" readonly></el-input>
+    </el-form-item> -->
+
+        <!-- <el-form-item label="油價簡訊電話">
+          <el-input v-model="cus_form.fuel_sms_phone" readonly></el-input>
+        </el-form-item> -->
+        <!-- <el-form-item label="餘額不足簡訊方式" v-if="this.cus_form.transaction_mode==1" >
+      <el-input
+    :value="
+      cus_form.fuel_sms_option === '1' ? '手機簡訊' :
+      cus_form.fuel_sms_option === '2' ? '官line' :
+      cus_form.fuel_sms_option === '3' ? '1+2' :
+      cus_form.fuel_sms_option === '4' ? '私line' :
+      cus_form.fuel_sms_option === '5' ? '其他' :
+      cus_form.fuel_sms_option
+    "
+    readonly
+  ></el-input>
+    </el-form-item>
+    <el-form-item label="餘額不足訊息電話" v-if="this.cus_form.transaction_mode==1">
+      <el-input v-model="cus_form.balance_sms_phone" readonly></el-input>
+    </el-form-item> -->
 
         <!-- 設定方式&備註 -->
 
@@ -264,26 +281,11 @@
         <!-- 設定方式備註 -->
 
         <!-- 信用卡收取手續費 -->
-        <el-row style="margin-bottom: 20px">
-          <el-form-item label="信用卡手續費收取">
-            <el-input
-              v-model="cus_form.card_other_fee"
-              :formatter="formatOtherfee"
-              readonly
-            ></el-input>
-          </el-form-item>
-          <!-- <el-form-item label="信用卡手續費%數">
+
+        <!-- <el-form-item label="信用卡手續費%數">
       <el-input v-model="cus_form.card_handling" readonly ></el-input>
     </el-form-item> -->
-        </el-row>
-        <el-row style="margin-bottom: 20px">
-          <el-form-item label="當月用油公升">
-            <el-input v-model="cus_form.month_gas" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="當月餘額金額">
-            <el-input v-model="cus_form.month_balance" readonly></el-input>
-          </el-form-item>
-        </el-row>
+
         <!-- <el-form-item label="設定方式" style="width: 1000px;margin-bottom: 20px;" v-if="cus_form.transaction_mode==2">
       <el-input v-model="cus_form.config_notes" type="textarea"  readonly></el-input>
     </el-form-item> -->
@@ -323,6 +325,26 @@
           </el-form-item>
         </el-row>
       </el-form-item>
+      <el-form
+      :model="cus_form"
+      label-width="155px"
+      style="width: 100%; min-width: 1600px"
+    >
+      <el-form-item
+        label="客戶當月資訊"
+        class="section-header"
+        v-if="this.rowType === '1'"
+      >
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="當月用油公升">
+            <el-input v-model="cus_form.month_gas" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="當月餘額金額">
+            <el-input v-model="cus_form.month_balance" readonly></el-input>
+          </el-form-item>
+        </el-row>
+      </el-form-item>
+    </el-form>
       <!--查詢所有list-->
       <!--帳單list-->
       <el-form-item
@@ -358,6 +380,7 @@
           </el-table>
         </div>
       </el-form-item>
+      
       <!--車籍list-->
       <el-form-item
         label="車籍資訊"
@@ -506,48 +529,56 @@
         <div class="table-container">
           <el-table :data="contact" style="width: 100%" v-loading="loading">
             <el-table-column
-        prop="job_title"
-        label="職稱"
-        width="100"
-      ></el-table-column>
-      <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
-      <el-table-column prop="name" label="姓名" width="150"></el-table-column>
-      <el-table-column
-        prop="mobile"
-        label="手機/電話"
-        width="120"
-      ></el-table-column>
-      <!-- <el-table-column prop="mail" label="聯絡E-MAIL"></el-table-column> -->
-      <el-table-column
-        prop="isLine"
-        label="是否綁定Line"
-        style="width: 50px"
-        :formatter="format3"
-        width="120"
-      ></el-table-column>
-      <el-table-column
-        prop="messageNotify"
-        label="訊息通知"
-        :formatter="format"
-        width="90"
-      ></el-table-column>
-      <el-table-column
-        prop="messageMail"
-        label="通知Mail"
-        width="200"
-      ></el-table-column>
-      <el-table-column
-        prop="billNotify"
-        label="帳單通知"
-        :formatter="format2"
-        width="90"
-      ></el-table-column>
-      <el-table-column
-        prop="billMail"
-        label="帳務地址/Mail"
-        width="280"
-      ></el-table-column>
-      <el-table-column prop="notes" label="備註" width="200"></el-table-column>
+              prop="job_title"
+              label="職稱"
+              width="100"
+            ></el-table-column>
+            <!-- <el-table-column prop="gender" label="性別"></el-table-column> -->
+            <el-table-column
+              prop="name"
+              label="姓名"
+              width="150"
+            ></el-table-column>
+            <el-table-column
+              prop="mobile"
+              label="手機/電話"
+              width="120"
+            ></el-table-column>
+            <!-- <el-table-column prop="mail" label="聯絡E-MAIL"></el-table-column> -->
+            <el-table-column
+              prop="isLine"
+              label="是否綁定Line"
+              style="width: 50px"
+              :formatter="format3"
+              width="120"
+            ></el-table-column>
+            <el-table-column
+              prop="messageNotify"
+              label="訊息通知"
+              :formatter="format"
+              width="90"
+            ></el-table-column>
+            <el-table-column
+              prop="messageMail"
+              label="通知Mail"
+              width="200"
+            ></el-table-column>
+            <el-table-column
+              prop="billNotify"
+              label="帳單通知"
+              :formatter="format2"
+              width="90"
+            ></el-table-column>
+            <el-table-column
+              prop="billMail"
+              label="帳務地址/Mail"
+              width="280"
+            ></el-table-column>
+            <el-table-column
+              prop="notes"
+              label="備註"
+              width="200"
+            ></el-table-column>
           </el-table>
         </div>
       </el-form-item>
@@ -1108,6 +1139,43 @@ export default {
     }
   },
   methods: {
+    async getConnact() {
+      const postData = {
+        vat_number: this.cus_form.vat_number,
+        front_pwd: this.cus_form.front_pwd,
+      };
+      console.log(JSON.stringify(postData));
+      await axios
+        .post("http://122.116.23.30:3346/main/login", postData)
+        .then((response) => {
+          if (response.data.data[0].contract_status == "Y") {
+            this.$message({
+              message: "該用戶已停用，不可登入",
+              type: "error",
+            });
+            return;
+          } else {
+            const cca = btoa(postData.vat_number);
+            const dwp = btoa(postData.front_pwd);
+            // 將物件轉成字串，然後使用 btoa 編碼
+
+            // 拼接完整的 URL
+            const url = `http://122.116.23.30:3346/login?cca=${cca}&dwp=${dwp}`;
+
+            // 開啟新分頁
+            window.open(url, "_blank");
+          }
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+          this.$message({
+            message: "系統錯誤",
+            type: "error",
+          });
+          this.onConnacts = [];
+        });
+    },
     async getsalesman() {
       await axios
         .get("http://122.116.23.30:3347/main/selectSalesman")
@@ -1143,6 +1211,10 @@ export default {
         .post("http://122.116.23.30:3347/main/searchDiscount", postData)
         .then((response) => {
           this.DiscountData = response.data.data;
+          this.DiscountData = this.DiscountData.filter(
+            (item) =>
+              item.product_name !== "0002" && item.product_name !== "0005"
+          );
         })
         .catch((error) => {
           // 處理錯誤

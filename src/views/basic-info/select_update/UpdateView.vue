@@ -37,6 +37,7 @@
     </h5>
   </div>
   <div>
+    <h6>*為必填欄位</h6>
     <el-form
       :model="form"
       label-width="155px"
@@ -49,24 +50,116 @@
         v-if="this.rowType === '1'"
       >
         <el-row style="margin-bottom: 20px">
-          <el-form-item label="客戶代號">
+          <el-form-item>
+            <template #label>
+              <span style="color: red">*客戶代號</span>
+            </template>
             <el-input v-model="cus_form.cus_code" readonly></el-input>
           </el-form-item>
-          <el-form-item label="客戶名稱">
+          <el-form-item>
+            <template #label>
+              <span style="color: red">*客戶名稱</span>
+            </template>
             <el-input v-model="cus_form.cus_name"></el-input>
           </el-form-item>
-          <el-form-item label="負責業務">
-            <el-select v-model="cus_form.salesmanId" placeholder="選擇業務">
-              <el-option
-                v-for="salesman in salesmenData"
-                :key="salesman.employee_id"
-                :label="salesman.employee_name"
-                :value="salesman.employee_id"
-              ></el-option>
+          <el-form-item label="合約狀態">
+            <el-select
+              v-model="cus_form.contract_status"
+              placeholder="選擇合約狀態"
+            >
+              <el-option label="未解約" :value="'N'"></el-option>
+              <el-option label="暫停" :value="'S'"></el-option>
+              <el-option label="解約" :value="'Y'"></el-option>
             </el-select>
+          </el-form-item>
+          <el-form-item>
+            <template #label>
+              <span style="color: red">*公司統編</span>
+            </template>
+            <el-input v-model="cus_form.vat_number"></el-input>
+          </el-form-item>
+          <el-form-item label="前台密碼(@)">
+            <el-input v-model="cus_form.front_pwd"></el-input>
           </el-form-item>
           <el-form-item label="虛擬帳號">
             <el-input v-model="cus_form.virtual_account"></el-input>
+          </el-form-item>
+          <el-form-item label="簽呈日期">
+            <el-date-picker
+              v-model="cus_form.submission_date"
+              type="date"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+              placeholder="選擇日期"
+              style="width: 300px"
+            >
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="合約日期(起)">
+            <el-date-picker
+              v-model="cus_form.contract_start"
+              type="date"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+              placeholder="選擇日期"
+              style="width: 300px"
+            >
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="合約日期(迄)">
+            <el-date-picker
+              v-model="cus_form.contract_end"
+              type="date"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+              placeholder="選擇日期"
+              style="width: 300px"
+            >
+            </el-date-picker>
+          </el-form-item>
+        </el-row>
+
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="交易模式">
+            <el-select
+              v-model="cus_form.transaction_mode"
+              placeholder="選擇交易模式"
+            >
+              <el-option label="1.儲值" :value="'1'"></el-option>
+              <el-option label="2.月結" :value="'2'"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item
+            label="低水位通知"
+            v-if="this.cus_form.transaction_mode == 1"
+          >
+            <el-input v-model="cus_form.low_balance_notice"></el-input>
+          </el-form-item>
+          <el-form-item
+            label="停油寬限額度"
+            v-if="this.cus_form.transaction_mode == 1"
+          >
+            <el-input
+              v-model="cus_form.fuel_grace_limit"
+              @input="validateFuelGraceLimit"
+              placeholder="請輸入小於或等於 0 的數值"
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item
+            label="款項繳費期限(日)"
+            v-if="this.cus_form.transaction_mode == 2"
+          >
+            <el-input v-model="cus_form.remittance_date"></el-input>
+          </el-form-item>
+          <el-form-item label="押金">
+            <el-input v-model="cus_form.deposit"></el-input>
+          </el-form-item>
+          <el-form-item label="需特殊開立">
+            <el-select v-model="cus_form.special_invoice" placeholder="選擇">
+              <el-option label="一般" :value="'0'"></el-option>
+              <el-option label="特殊" :value="'1'"></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="區域">
             <el-select v-model="cus_form.region" placeholder="選擇區域">
@@ -89,15 +182,15 @@
               <el-option label="7.紙業製造" :value="7"></el-option>
               <el-option label="8.金屬製造" :value="8"></el-option>
               <el-option label="9.大眾運輸" :value="9"></el-option>
-              <el-option label="10橡膠塑膠" :value="10"></el-option>
+              <el-option label="10.橡膠塑膠" :value="10"></el-option>
               <el-option label="11.物流倉儲" :value="11"></el-option>
-              <el-option label="12.物流倉儲" :value="12"></el-option>
+              <el-option label="12.礦業土石" :value="12"></el-option>
               <el-option label="13.資訊科技" :value="13"></el-option>
-              <el-option label="14.環境衛生" :value="14"></el-option>
+              <el-option label="14.文教類" :value="14"></el-option>
               <el-option label="15.傳播類" :value="15"></el-option>
-              <el-option label="16.生技醫療" :value="16"></el-option>
-              <el-option label="17.電子科技" :value="17"></el-option>
-              <el-option label="18.食品飲料" :value="18"></el-option>
+              <el-option label="16.環境衛生" :value="16"></el-option>
+              <el-option label="17.生技醫療" :value="17"></el-option>
+              <el-option label="18.電子科技" :value="18"></el-option>
               <el-option label="19.綜合工商" :value="19"></el-option>
               <el-option label="20.汽機車買賣維修" :value="20"></el-option>
             </el-select>
@@ -105,142 +198,47 @@
           <el-form-item label="預估月加油量">
             <el-input v-model="cus_form.est_fuel_volume"></el-input>
           </el-form-item>
+          <el-form-item label="信用卡手續費收取">
+            <el-select
+              v-model="cus_form.card_other_fee"
+              placeholder="選擇是否收取"
+            >
+              <el-option label="0.不收取" :value="'0'"></el-option>
+              <el-option label="1.另外收取" :value="'1'"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="製卡費用">
+            <el-input
+              v-model="cus_form.card_fee"
+              class="right-align-input"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="再製卡費用">
+            <el-input
+              v-model="cus_form.reissue_fee"
+              class="right-align-input"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="製卡費備註">
+            <el-input v-model="cus_form.card_fee_notes"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row style="margin-bottom: 20px">
           <el-form-item label="公司電話">
             <el-input v-model="cus_form.phone"></el-input>
           </el-form-item>
           <el-form-item label="傳真號碼">
             <el-input v-model="cus_form.fax"></el-input>
           </el-form-item>
-          <el-form-item label="交易模式">
-            <el-select
-              v-model="cus_form.transaction_mode"
-              placeholder="選擇交易模式"
-            >
-              <el-option label="1.儲值" :value="'1'"></el-option>
-              <el-option label="2.月結" :value="'2'"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="押金">
-            <el-input v-model="cus_form.deposit"></el-input>
-          </el-form-item>
-          <el-form-item label="前台密碼(@)">
-            <el-input v-model="cus_form.front_pwd"></el-input>
-          </el-form-item>
-          <el-form-item label="合約日期(起)">
-            <el-date-picker
-              v-model="cus_form.contract_start"
-              type="date"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              placeholder="選擇日期"
-              style="width: 300px"
-            >
-            </el-date-picker>
-          </el-form-item>
-          <el-form-item
-            label="停油寬限額度"
-            v-if="this.cus_form.transaction_mode == 1"
-          >
-            <el-input v-model="cus_form.fuel_grace_limit"></el-input>
-          </el-form-item>
-          <el-form-item label="公司統編">
-            <el-input v-model="cus_form.vat_number"></el-input>
-          </el-form-item>
-          <el-form-item label="合約日期(迄)">
-            <el-date-picker
-              v-model="cus_form.contract_end"
-              type="date"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              placeholder="選擇日期"
-              style="width: 300px"
-            >
-            </el-date-picker>
-          </el-form-item>
-          <el-form-item
-            label="低水位通知"
-            v-if="this.cus_form.transaction_mode == 1"
-          >
-            <el-input v-model="cus_form.low_balance_notice"></el-input>
-          </el-form-item>
-          <el-form-item label="公司抬頭">
-            <el-input v-model="cus_form.company_title"></el-input>
-          </el-form-item>
-          <el-form-item label="簽呈日期">
-            <el-date-picker
-              v-model="cus_form.submission_date"
-              type="date"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              placeholder="選擇日期"
-              style="width: 300px"
-            >
-            </el-date-picker>
-          </el-form-item>
-          <!-- <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
-        <el-date-picker
-          v-model="cus_form.remittance_date"
-          type="date"
-          format="YYYY-MM-DD"
-          value-format="YYYY-MM-DD"
-          placeholder="選擇日期"
-          style="width: 300px;">
-        </el-date-picker>
-      </el-form-item> -->
-          <el-form-item
-            label="款項繳費期限(日)"
-            v-if="this.cus_form.transaction_mode == 2"
-          >
-            <el-input v-model="cus_form.remittance_date"></el-input>
-          </el-form-item>
-          <el-form-item label="油價簡訊電話">
-            <el-input v-model="cus_form.fuel_sms_phone"></el-input>
-          </el-form-item>
-          <!-- <el-form-item label="餘額不足簡訊方式" v-if="this.cus_form.transaction_mode==1">
-          <el-select v-model="cus_form.fuel_sms_option" placeholder="選擇模式">
-            <el-option label="Y" :value="'Y'"></el-option>
-            <el-option label="N" :value="'N'"></el-option> 
-            <el-option label="1:手機簡訊" :value="'1'"></el-option>
-            <el-option label="2:官Line" :value="'2'"></el-option>
-            <el-option label="3:手機簡訊+官Line" :value="'3'"></el-option>
-            <el-option label="4:私line" :value="'4'"></el-option>
-            <el-option label="5:其他" :value="'5'"></el-option>
-          </el-select>
-        </el-form-item>
-      <el-form-item label="餘額不足訊息電話" v-if="this.cus_form.transaction_mode==1">
-        <el-input v-model="cus_form.balance_sms_phone"></el-input>
-      </el-form-item> -->
-          <el-form-item label="合約狀態">
-            <el-select
-              v-model="cus_form.contract_status"
-              placeholder="選擇合約狀態"
-            >
-              <el-option label="未解約" :value="'N'"></el-option>
-              <el-option label="暫停" :value="'S'"></el-option>
-              <el-option label="解約" :value="'Y'"></el-option>
-            </el-select>
-          </el-form-item>
+        </el-row>
+        <el-row style="margin-bottom: 20px">
           <el-form-item label="營登地址">
             <el-input v-model="cus_form.reg_address"></el-input>
           </el-form-item>
           <el-form-item label="通訊地址">
             <el-input v-model="cus_form.mail_address"></el-input>
-          </el-form-item>
-        </el-row>
-
-        <!-- 製卡費&備註 -->
-        <el-row style="margin-bottom: 20px">
-          <el-form-item label="製卡費用">
-            <el-input v-model="cus_form.card_fee"></el-input>
-          </el-form-item>
-          <el-form-item label="再製卡費用">
-            <el-input v-model="cus_form.reissue_fee"></el-input>
-          </el-form-item>
-          <el-form-item label="製卡費備註" style="width: 1000px">
-            <el-input
-              v-model="cus_form.card_fee_notes"
-              type="textarea"
-            ></el-input>
           </el-form-item>
         </el-row>
         <!-- 備註 -->
@@ -261,7 +259,6 @@
             ></el-input>
           </el-form-item>
         </el-row>
-        <!-- 簽約業務&備註 -->
         <el-row style="margin-bottom: 20px">
           <el-form-item label="簽約業務">
             <el-select v-model="cus_form.contract_sales" placeholder="選擇業務">
@@ -273,55 +270,20 @@
               ></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="業務備註" class="large-textbox">
-            <el-input v-model="cus_form.sales_notes" type="textarea"></el-input>
-          </el-form-item>
-        </el-row>
-        <!-- 設定方式&備註 -->
-        <!-- <el-row style="margin-bottom: 20px"> -->
-        <!-- 設定方式 (多選框) -->
-        <!-- <el-form-item label="設定方式">
-        <el-checkbox-group v-model="cus_form.config_method">
-          <el-checkbox :label="1">銀行定存</el-checkbox>
-          <el-checkbox :label="2">現金</el-checkbox>
-          <el-checkbox :label="3">支票</el-checkbox>
-          <el-checkbox :label="4">商業本票</el-checkbox>
-          <el-checkbox :label="5">銀行保證</el-checkbox>
-          <el-checkbox :label="6">無擔保</el-checkbox>
-          <el-checkbox :label="7">其他</el-checkbox>
-        </el-checkbox-group>
-      </el-form-item> -->
-        <!-- 設定方式備註 -->
-        <!-- <el-form-item label="設定方式備註" class="large-textbox">
-        <el-input v-model="cus_form.config_notes" type="textarea"></el-input>
-      </el-form-item> 
-    </el-row> -->
-        <!-- 信用卡收取手續費 -->
-        <el-row style="margin-bottom: 20px">
-          <el-form-item label="信用卡手續費收取">
-            <el-select
-              v-model="cus_form.card_other_fee"
-              placeholder="選擇是否收取"
-            >
-              <el-option label="0.不收取" :value="'0'"></el-option>
-              <el-option label="1.另外收取" :value="'1'"></el-option>
+          <el-form-item label="負責業務">
+            <el-select v-model="cus_form.salesmanId" placeholder="選擇業務">
+              <el-option
+                v-for="salesman in salesmenData"
+                :key="salesman.employee_id"
+                :label="salesman.employee_name"
+                :value="salesman.employee_id"
+              ></el-option>
             </el-select>
           </el-form-item>
-          <!-- <el-form-item label="信用卡手續費%數">
-      <el-input v-model="cus_form.card_handling" ></el-input>
-    </el-form-item> -->
+          <el-form-item label="業務備註">
+            <el-input v-model="cus_form.sales_notes"></el-input>
+          </el-form-item>
         </el-row>
-        <!-- <el-row style="margin-bottom: 20px">
-          <el-form-item label="當月用油公升">
-            <el-input v-model="cus_form.month_gas"></el-input>
-          </el-form-item>
-          <el-form-item label="當月餘額金額">
-            <el-input v-model="cus_form.month_balance"></el-input>
-          </el-form-item>
-        </el-row> -->
-        <!-- <el-form-item label="設定方式備註" style="width: 1000px;margin-bottom: 20px;" v-if="cus_form.transaction_mode==2">
-      <el-input v-model="cus_form.config_notes" type="textarea"  readonly></el-input>
-    </el-form-item> -->
         <el-form-item
           label="設定方式"
           class="section-header"
@@ -349,6 +311,74 @@
             <el-input v-model="cus_form.seven"></el-input>
           </el-form-item>
         </el-form-item>
+
+        <!-- <el-form-item label="公司抬頭">
+            <el-input v-model="cus_form.company_title"></el-input>
+          </el-form-item> -->
+
+        <!-- <el-form-item label="匯款日期" v-if="this.cus_form.transaction_mode==2">
+        <el-date-picker
+          v-model="cus_form.remittance_date"
+          type="date"
+          format="YYYY-MM-DD"
+          value-format="YYYY-MM-DD"
+          placeholder="選擇日期"
+          style="width: 300px;">
+        </el-date-picker>
+      </el-form-item> -->
+
+        <!-- <el-form-item label="油價簡訊電話">
+            <el-input v-model="cus_form.fuel_sms_phone"></el-input>
+          </el-form-item> -->
+        <!-- <el-form-item label="餘額不足簡訊方式" v-if="this.cus_form.transaction_mode==1">
+          <el-select v-model="cus_form.fuel_sms_option" placeholder="選擇模式">
+            <el-option label="Y" :value="'Y'"></el-option>
+            <el-option label="N" :value="'N'"></el-option> 
+            <el-option label="1:手機簡訊" :value="'1'"></el-option>
+            <el-option label="2:官Line" :value="'2'"></el-option>
+            <el-option label="3:手機簡訊+官Line" :value="'3'"></el-option>
+            <el-option label="4:私line" :value="'4'"></el-option>
+            <el-option label="5:其他" :value="'5'"></el-option>
+          </el-select>
+        </el-form-item>
+      <el-form-item label="餘額不足訊息電話" v-if="this.cus_form.transaction_mode==1">
+        <el-input v-model="cus_form.balance_sms_phone"></el-input>
+      </el-form-item> -->
+
+        <!-- <el-row style="margin-bottom: 20px"> -->
+        <!-- 設定方式 (多選框) -->
+        <!-- <el-form-item label="設定方式">
+        <el-checkbox-group v-model="cus_form.config_method">
+          <el-checkbox :label="1">銀行定存</el-checkbox>
+          <el-checkbox :label="2">現金</el-checkbox>
+          <el-checkbox :label="3">支票</el-checkbox>
+          <el-checkbox :label="4">商業本票</el-checkbox>
+          <el-checkbox :label="5">銀行保證</el-checkbox>
+          <el-checkbox :label="6">無擔保</el-checkbox>
+          <el-checkbox :label="7">其他</el-checkbox>
+        </el-checkbox-group>
+      </el-form-item> -->
+        <!-- 設定方式備註 -->
+        <!-- <el-form-item label="設定方式備註" class="large-textbox">
+        <el-input v-model="cus_form.config_notes" type="textarea"></el-input>
+      </el-form-item> 
+    </el-row> -->
+        <!-- 信用卡收取手續費 -->
+
+        <!-- <el-form-item label="信用卡手續費%數">
+      <el-input v-model="cus_form.card_handling" ></el-input>
+    </el-form-item> -->
+        <!-- <el-row style="margin-bottom: 20px">
+          <el-form-item label="當月用油公升">
+            <el-input v-model="cus_form.month_gas"></el-input>
+          </el-form-item>
+          <el-form-item label="當月餘額金額">
+            <el-input v-model="cus_form.month_balance"></el-input>
+          </el-form-item>
+        </el-row> -->
+        <!-- <el-form-item label="設定方式備註" style="width: 1000px;margin-bottom: 20px;" v-if="cus_form.transaction_mode==2">
+      <el-input v-model="cus_form.config_notes" type="textarea"  readonly></el-input>
+    </el-form-item> -->
       </el-form-item>
 
       <!-- 聯絡人 -->
@@ -704,7 +734,7 @@ export default {
       bills_form: {},
       salesmenData: [],
       discount_form: [],
-      bills:[],
+      bills: [],
     };
   },
   mounted() {
@@ -843,6 +873,14 @@ export default {
     }
   },
   methods: {
+    validateFuelGraceLimit(value) {
+      // 確保輸入值小於或等於 0
+      if (value > 0) {
+        this.cus_form.fuel_grace_limit = 0; // 超出範圍時自動設置為 0
+      } else {
+        this.cus_form.fuel_grace_limit = value;
+      }
+    },
     validatePhone(value) {
       // 僅保留數字，限制最大長度 10
       this.rowData.mobile = value.replace(/\D/g, "").slice(0, 10);
@@ -1250,5 +1288,12 @@ export default {
 }
 .page-title h4 {
   color: #f5bd04;
+}
+h6 {
+  color: rgb(255, 0, 0);
+  margin-left: 20px;
+}
+/deep/ .right-align-input .el-input__inner {
+  text-align: right;
 }
 </style>
