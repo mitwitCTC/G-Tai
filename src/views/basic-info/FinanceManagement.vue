@@ -699,6 +699,7 @@ export default {
         trade_name: "資產負債表",
         totalAmount: totalAmount,
         accDate: this.entries.accDate,
+        accFarewell: this.entries.accDate ? this.entries.accDate.slice(0, 7) : null,
         debitmessage: this.entries.debitmessage,
         creditmessage: this.entries.creditmessage,
         customerId: this.entries.customerId,
