@@ -24,7 +24,15 @@
       <el-table-column prop="account_date" label="交易時間"></el-table-column>
       <!-- <el-table-column prop="account_date" label="入帳日"></el-table-column> -->
       <!-- <el-table-column prop="account_time" label="交易時間"></el-table-column> -->
-      <el-table-column prop="taxId" label="統一編號"></el-table-column>
+      <el-table-column prop="taxId" label="統一編號"
+        ><template #default="scope">
+          {{
+            scope.row.taxId === "0" || scope.row.taxId === 0
+              ? ""
+              : scope.row.taxId
+          }}
+        </template></el-table-column
+      >
       <el-table-column prop="remark" label="備註"></el-table-column>
       <el-table-column prop="amount" label="入帳金額" align="right"
         ><template v-slot="scope"
@@ -278,7 +286,9 @@ export default {
         return;
       }
       this.form.account_time = String(this.form.account_date) + "000000";
+      this.form.taxId = 0;
       const req = this.form;
+      console.log(JSON.stringify(req));
       //發送 POST 請求
       axios
         .post("http://122.116.23.30:3347/finance/createTBB", req)

@@ -21,10 +21,7 @@ export default {
         );
         const customerData = response.data.data;
         // 將資料放入 customers 陣列中
-        this.customers = customerData;
-        this.customers.push(
-          ...customerData.filter((customer) => customer.cus_code !== "G1308719")
-        );
+        this.customers=response.data.data
         this.customers.sort((a, b) => {
           // 字串排序（假設 customerId 是字串，根據字典順序）
           return a.cus_code.localeCompare(b.cus_code);
