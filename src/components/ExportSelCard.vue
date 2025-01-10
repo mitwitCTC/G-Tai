@@ -119,6 +119,7 @@ export default {
         // 3. 找到對應的帳單資料
         const Bill = this.Bill.find((b) => b.account_sortId === account_sortId);
         const acc_name = Bill ? Bill.acc_name : "";
+        const use_number = Bill ? Bill.use_number : "";
 
         // 4. 將資料組合起來
         return {
@@ -129,6 +130,7 @@ export default {
           account_sortId,
           cus_name,
           acc_name,
+          use_number,
           UreaCard: null, // 預設為 null，稍後會根據 UreaCard 的資料進行填充
         };
       });
@@ -245,19 +247,20 @@ export default {
           worksheet.getCell(`A${rowIndex}`).value = data.customerId || "";
           worksheet.getCell(`B${rowIndex}`).value = data.cus_name || "";
           worksheet.getCell(`C${rowIndex}`).value = data.acc_name || "";
-          worksheet.getCell(`D${rowIndex}`).value = data.license_plate || "";
-          worksheet.getCell(`E${rowIndex}`).value = data.product_name || "";
-          worksheet.getCell(`F${rowIndex}`).value = data.card_number || "";
-          worksheet.getCell(`G${rowIndex}`).value =
+          worksheet.getCell(`D${rowIndex}`).value = data.use_number || "";
+          worksheet.getCell(`E${rowIndex}`).value = data.license_plate || "";
+          worksheet.getCell(`F${rowIndex}`).value = data.product_name || "";
+          worksheet.getCell(`G${rowIndex}`).value = data.card_number || "";
+          worksheet.getCell(`H${rowIndex}`).value =
             data.card_arrival_date || "";
-          worksheet.getCell(`H${rowIndex}`).value = data.card_stop_date || "";
-          worksheet.getCell(`I${rowIndex}`).value = data.UreaCard || "";
-          worksheet.getCell(`J${rowIndex}`).value = data.notes || "";
+          worksheet.getCell(`I${rowIndex}`).value = data.card_stop_date || "";
+          worksheet.getCell(`J${rowIndex}`).value = data.UreaCard || "";
+          worksheet.getCell(`K${rowIndex}`).value = data.notes || "";
         });
         worksheet.getColumn(2).width = 50;
         worksheet.getColumn(3).width = 60;
-        worksheet.getColumn(9).width = 28;
-        worksheet.getColumn(10).width = 60;
+        worksheet.getColumn(10).width = 28;
+        worksheet.getColumn(11).width = 60;
         // 生成下載鏈接並觸發下載
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: "application/octet-stream" });
