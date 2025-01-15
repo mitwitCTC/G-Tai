@@ -1084,7 +1084,7 @@ module.exports = ({ sequelize }) => {
         modificationDiscount: async (req, res) => {
             try {
                 const time = getDateTime()
-                console.log(time + ' 調整折讓(transformation)')
+                console.log(time + ' 調整折讓(modificationDiscount)')
 
                 const updateDiscount = await discount.update({
                     discount_float: req.body.discount_float,
@@ -1426,7 +1426,7 @@ module.exports = ({ sequelize }) => {
                         })
                         console.log({ returnCode: 0, message: "登錄車籍資料", data: req.body })
                         return res.json({ returnCode: 0, message: "登錄車籍資料" })
-                    case 6: // 改客戶(原卡號停用)
+                    case 6: // 改客戶(原卡號沿用)
                         // 刪除車號
                         const searchVehicle6 = await vehicle.findAll({
                             where: {
@@ -1435,6 +1435,17 @@ module.exports = ({ sequelize }) => {
                             }, raw: true
                         })
                         console.log(searchVehicle6[0].vehicleId)
+                        // 查找停卡操作的資料，取出 card_arrival_date
+                         const stoppedCard = await card_relation.findOne({
+                            where: {
+                                vehicleId: { [Op.eq]: searchVehicle6[0].vehicleId },
+                                deleteTime: { [Op.eq]: '0' },
+                            },
+                            attributes: ['card_arrival_date'], // 只取出 card_arrival_date 欄位
+                            raw: true
+                        });
+
+                        const originalCardArrivalDate = stoppedCard ? stoppedCard.card_arrival_date : '0'; // 若無資料，預設為 '0'
                         await vehicle.update({
                             vehicle_change: req.body.vehicle_change,
                             deleteTime: req.body.deleteTime == '' ? time : req.body.deleteTime,
@@ -1486,7 +1497,7 @@ module.exports = ({ sequelize }) => {
                             upload_time: "0",
                             upload_reason: "新增",
                             card_create_date: req.body.card_create_date == '' ? time : req.body.card_create_date,
-                            card_arrival_date: "0",
+                            card_arrival_date: originalCardArrivalDate,
                             card_stop_date: "0",
                             stop_upload_time: "0",
                             stop_upload_reason: "0",

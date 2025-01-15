@@ -64,6 +64,8 @@
               @click="copyItemVehicle(scope.row)"
             ></i>
             <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
+            <el-button type="info" @click="handleExport(scope.row)">列印傳票</el-button>
+            <!-- <el-button type="info" @click="handleExportAll()">多列印傳票</el-button> -->
           </div>
         </template>
       </el-table-column>
@@ -100,6 +102,7 @@
               @click="copyItemVehicle(scope.row)"
             ></i>
             <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
+            <el-button type="info" @click="handleExport(scope.row)">列印傳票</el-button>
           </div>
         </template>
       </el-table-column>
@@ -435,6 +438,8 @@
 <script>
 import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
+import ExportAccounting from "@/components/ExportAccounting.vue";
+import ExportAll from "@/components/ExportAll.vue";
 import axios from "axios";
 export default {
   components: {
@@ -563,6 +568,42 @@ export default {
     },
   },
   methods: {
+    async handleExportAll() {
+        try {
+          this.isLoading = true;
+          await ExportAll.methods.exportExcel();
+          // 顯示成功訊息
+          this.$message({
+            message: `匯出成功`,
+            type: "success",
+          });
+        } catch {
+          this.$message({
+            message: `匯出失敗`,
+            type: "error",
+          });
+        } finally {
+          this.isLoading = false;
+        }
+    },
+    async handleExport(row) {
+        try {
+          this.isLoading = true;
+          await ExportAccounting.methods.exportExcel(row);
+          // 顯示成功訊息
+          this.$message({
+            message: `匯出成功`,
+            type: "success",
+          });
+        } catch {
+          this.$message({
+            message: `匯出失敗`,
+            type: "error",
+          });
+        } finally {
+          this.isLoading = false;
+        }
+    },
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {

@@ -165,7 +165,7 @@ export default {
             (b) => b.account_sortId === account_sortId
           );
           const acc_name = Bill ? Bill.acc_name : "";
-
+          const use_number = Bill ? Bill.use_number : "";
           // 把資料填充並加入 Allexport
           this.Allexport.push({
             vehicleId: urea.vehicleId,
@@ -175,6 +175,7 @@ export default {
             account_sortId,
             cus_name,
             acc_name,
+            use_number,
             UreaCard: urea.card_number, // 填入對應的 card_number
           });
         }
@@ -204,7 +205,7 @@ export default {
     async exportExcel(cus_code, cus_name) {
       this.cus_code = cus_code;
       this.cus_name = cus_name;
-      console.log("1查詢客戶資料 ");
+      console.log("1查詢客戶資料");
       await this.getselectCUSData();
       console.log("1結束");
       console.log("2查詢卡號資料");

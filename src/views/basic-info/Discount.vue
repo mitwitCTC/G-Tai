@@ -314,6 +314,7 @@ export default {
       }
       
       this.isLoading = false;
+      console.log(row.discount_float)
     },
     validateFloat(row) {
       const regex = /^\d*\.?\d{0,3}$/; // 限制最多兩位小數

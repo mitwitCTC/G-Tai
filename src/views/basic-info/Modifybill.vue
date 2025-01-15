@@ -302,6 +302,7 @@ export default {
           date: this.form.date,
         }));
       }
+      console.log(JSON.stringify(result))
       this.isLoading = true; // 請求開始，顯示 loading 標示
       await axios
         .post("http://122.116.23.30:3347/main/transformation", result)
