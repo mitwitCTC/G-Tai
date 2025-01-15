@@ -98,11 +98,11 @@ export default {
         worksheet.getCell(`F5`).value = row.cus_name || "";
         // 開始填充資料
         this.debit.forEach((data, index) => {
-          const rowIndex = index * 3 + 11;
+          const rowIndex = index * 2 + 10;
           worksheet.getCell(`A${rowIndex}`).value = data.Subjects || "";
           worksheet.getCell(`B${rowIndex}`).value = "借";
           worksheet.getCell(`C${rowIndex}`).value = data.SubjectsName || "";
-          worksheet.mergeCells(`D${rowIndex}:F${rowIndex + 2}`);
+          worksheet.mergeCells(`D${rowIndex}:F${rowIndex + 1}`);
           worksheet.getCell(`D${rowIndex}`).value = data.debitmessage || "";
           // 設置 D 欄靠上對齊
           worksheet.getCell(`D${rowIndex}`).alignment = {
@@ -120,7 +120,7 @@ export default {
           }
         });
         this.credit.forEach((data, index) => {
-          const rowIndex = index * 3 + lastRowNumber + 1;
+          const rowIndex = index * 2 + lastRowNumber + 1;
           worksheet.getCell(`A${rowIndex}`).value = data.Subjects || "";
           worksheet.getCell(`B${rowIndex}`).value = "貸";
           // 設定 B 行單元格樣式
@@ -132,7 +132,7 @@ export default {
           };
           worksheet.getCell(`C${rowIndex}`).value =
             `　${data.SubjectsName}` || "";
-          worksheet.mergeCells(`D${rowIndex}:F${rowIndex + 2}`);
+          worksheet.mergeCells(`D${rowIndex}:F${rowIndex + 1}`);
           worksheet.getCell(`D${rowIndex}`).value = data.creditmessage || "";
           // 設置 D 欄靠上對齊
           worksheet.getCell(`D${rowIndex}`).alignment = {
@@ -182,8 +182,10 @@ export default {
           const cell = worksheet.getCell(cellAddress);
           cell.alignment = { horizontal: "center", vertical: "middle" }; // 水平居中，垂直居中
         });
+        worksheet.getCell(`C${lastRow}`).alignment = { horizontal: "right", vertical: "middle" };
         worksheet.getColumn(1).width = 12;
         worksheet.getColumn(3).width = 32;
+        worksheet.getColumn(4).width = 37;
         worksheet.getColumn(7).width = 16;
         worksheet.getColumn(7).width = 14;
         worksheet.getColumn(8).width = 14;
