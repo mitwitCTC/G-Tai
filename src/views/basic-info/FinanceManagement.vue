@@ -30,18 +30,20 @@
         @change="clink()"
       >
       </el-date-picker>
-      
+
       <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
+      <!-- <el-button type="info" @click="handleExportAll()">多筆傳票列印</el-button> -->
+      <el-button type="info" @click="printdialog=true">多筆傳票列印</el-button>
     </el-form-item>
   </div>
   <div class="table-container" v-if="cus_message_IN.length > 0">
     <div class="page-title"><h3>一般輸入傳票</h3></div>
     <el-input
-        v-model="customerName"
-        placeholder="輸入客戶名稱/客戶代號/摘要"
-        style="width: 225px; margin-right: 10px"
-        v-if="cus_message_IN.length > 0"
-      ></el-input>
+      v-model="customerName"
+      placeholder="輸入客戶名稱/客戶代號/摘要"
+      style="width: 225px; margin-right: 10px"
+      v-if="cus_message_IN.length > 0"
+    ></el-input>
     <el-table :data="filteredData" style="width: 100%">
       <el-table-column prop="id" label="傳票號碼" width="200" />
       <el-table-column prop="accDate" label="傳票日期" width="150" />
@@ -64,8 +66,9 @@
               @click="copyItemVehicle(scope.row)"
             ></i>
             <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
-            <el-button type="info" @click="handleExport(scope.row)">列印傳票</el-button>
-            <!-- <el-button type="info" @click="handleExportAll()">多列印傳票</el-button> -->
+            <el-button type="info" @click="handleExport(scope.row)"
+              >列印傳票</el-button
+            >
           </div>
         </template>
       </el-table-column>
@@ -75,11 +78,11 @@
   <div class="table-container" v-if="cus_message_AO.length > 0">
     <div class="page-title"><h3>自動拋轉傳票</h3></div>
     <el-input
-        v-model="customerName_AO"
-        placeholder="輸入客戶名稱/客戶代號/摘要"
-        style="width: 225px; margin-right: 10px"
-        v-if="cus_message_AO.length > 0"
-      ></el-input>
+      v-model="customerName_AO"
+      placeholder="輸入客戶名稱/客戶代號/摘要"
+      style="width: 225px; margin-right: 10px"
+      v-if="cus_message_AO.length > 0"
+    ></el-input>
     <el-table :data="filteredData_AO" style="width: 100%">
       <el-table-column prop="id" label="傳票號碼" width="200" />
       <el-table-column prop="accDate" label="傳票日期" width="150" />
@@ -102,13 +105,15 @@
               @click="copyItemVehicle(scope.row)"
             ></i>
             <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
-            <el-button type="info" @click="handleExport(scope.row)">列印傳票</el-button>
+            <el-button type="info" @click="handleExport(scope.row)"
+              >列印傳票</el-button
+            >
           </div>
         </template>
       </el-table-column>
     </el-table>
   </div>
-  
+
   <div style="margin-bottom: 50px"></div>
 
   <el-dialog
@@ -426,6 +431,78 @@
       </div>
     </div>
   </el-dialog>
+<!-- 列印畫面 -->
+<el-dialog
+    title="多筆列印"
+    v-model="printdialog"
+    width="90%"
+    :close-on-click-modal="false"
+  >
+  <el-form-item label="結帳起日">
+      <el-date-picker
+        v-model="print.search_month"
+        type="date"
+        placeholder="請選擇結帳日期"
+        format="YYYY-MM-DD"
+        value-format="YYYY-MM-DD"
+        style="margin-right: 20px"
+        @change="printclink()"
+      >
+      </el-date-picker>
+    </el-form-item>
+    <el-form-item label="結帳迄日">
+      <el-date-picker
+        v-model="print.search_end_month"
+        type="enddate"
+        placeholder="請選擇結帳日期"
+        format="YYYY-MM-DD"
+        value-format="YYYY-MM-DD"
+        style="margin-right: 20px"
+        @change="printclink()"
+      >
+      </el-date-picker>
+      </el-form-item>
+        <el-button type="info" @click="handleExportAll()">列印</el-button>
+      <div class="table-container" v-if="print.cus_message_IN.length > 0">
+    <div class="page-title"><h3>一般輸入傳票</h3></div>
+    <el-table :data="print.cus_message_IN" style="width: 100%" @selection-change="(selectedRows) => handleSelectionChange('IN', selectedRows)" >
+      <el-table-column type="selection" width="55" />
+      <el-table-column prop="id" label="傳票號碼" width="200" />
+      <el-table-column prop="accDate" label="傳票日期" width="150" />
+      <el-table-column prop="accFarewell" label="結帳年月" width="100" />
+      <el-table-column prop="customerId" label="客戶代號" width="100" />
+      <el-table-column prop="cus_name" label="客戶名稱" width="250" />
+      <el-table-column prop="debitmessage" label="主摘要" width="250" />
+      <el-table-column prop="amount" label="借貸金額" align="right" width="200"
+        ><template v-slot="scope"
+          >{{ formatCurrency(scope.row.amount) }}
+        </template></el-table-column
+      >
+    </el-table>
+  </div>
+
+  <div class="table-container" v-if="print.cus_message_AO.length > 0">
+    <div class="page-title"><h3>自動拋轉傳票</h3></div>
+    <el-table :data="print.cus_message_AO" style="width: 100%" @selection-change="(selectedRows) => handleSelectionChange('AO', selectedRows)" >
+      <el-table-column type="selection" width="55" />
+      <el-table-column prop="id" label="傳票號碼" width="200" />
+      <el-table-column prop="accDate" label="傳票日期" width="150" />
+      <el-table-column prop="accFarewell" label="結帳年月" width="100" />
+      <el-table-column prop="customerId" label="客戶代號" width="100" />
+      <el-table-column prop="cus_name" label="客戶名稱" width="250" />
+      <el-table-column prop="debitmessage" label="主摘要" width="250" />
+      <el-table-column prop="amount" label="借貸金額" align="right" width="200"
+        ><template v-slot="scope"
+          >{{ formatCurrency(scope.row.amount) }}
+        </template></el-table-column
+      >
+    </el-table>
+   
+    <div style="margin-bottom: 50px"></div>
+  </div>
+   
+  </el-dialog>
+
   <el-dialog
     v-model="isLoading"
     width="15%"
@@ -448,11 +525,12 @@ export default {
   },
   data() {
     return {
-      isLoading:false,
-      customerName_AO:"",
+      isLoading: false,
+      customerName_AO: "",
       customerName: "",
       dialogVisible: false, // 控制Dialog顯示
       selectdialog: false,
+      printdialog: false,
       isEditable: null,
       search_month: "",
       search_end_month: "",
@@ -469,7 +547,7 @@ export default {
         subject: "", // 當前選擇的會計科目
       },
       entries: {
-        id:"",
+        id: "",
         customerId: "",
         cus_name: "",
         accDate: "", //傳票日期
@@ -487,6 +565,16 @@ export default {
       select: {
         debit: [], // 借方資料
         credit: [], // 貸方資料,
+      },
+      print: {
+        search_month: "",
+        search_end_month: "",
+        cus_message_IN: [],
+        cus_message_AO: [],
+      },
+      selectedRows: {
+        IN: [],
+        AO: [],
       },
     };
   },
@@ -568,41 +656,61 @@ export default {
     },
   },
   methods: {
+    // 當選擇變化時，更新選中的資料
+    handleSelectionChange(type, selectedRows) {
+      this.selectedRows[type] = selectedRows;
+    },
     async handleExportAll() {
-        try {
-          this.isLoading = true;
-          await ExportAll.methods.exportExcel();
-          // 顯示成功訊息
-          this.$message({
-            message: `匯出成功`,
-            type: "success",
-          });
-        } catch {
-          this.$message({
-            message: `匯出失敗`,
-            type: "error",
-          });
-        } finally {
-          this.isLoading = false;
-        }
+      const selectedData = [...this.selectedRows.IN, ...this.selectedRows.AO];
+      console.log("匯出筆數"+selectedData.length)
+      if(selectedData.length==0){
+        this.$message({
+          message: `請先選取資料 再進行匯出`,
+          type: "warning",
+        });
+        return
+      }
+      if(selectedData.length>100){
+        this.$message({
+          message: `限制匯出資料為100筆以內`,
+          type: "warning",
+        });
+        return
+      }
+      try {
+        this.isLoading = true;
+        await ExportAll.methods.exportExcel(selectedData);
+        // 顯示成功訊息
+        this.$message({
+          message: `匯出成功`,
+          type: "success",
+        });
+      } catch {
+        this.$message({
+          message: `匯出失敗`,
+          type: "error",
+        });
+      } finally {
+        this.isLoading = false;
+      }
     },
     async handleExport(row) {
-        try {
-          this.isLoading = true;
-          await ExportAccounting.methods.exportExcel(row);
-          // 顯示成功訊息
-          this.$message({
-            message: `匯出成功`,
-            type: "success",
-          });
-        } catch {
-          this.$message({
-            message: `匯出失敗`,
-            type: "error",
-          });
-        } finally {
-          this.isLoading = false;
-        }
+      try {
+        this.isLoading = true;
+        await ExportAccounting.methods.exportExcel(row);
+        // 顯示成功訊息
+        this.$message({
+          message: `匯出成功`,
+          type: "success",
+        });
+      } catch {
+        this.$message({
+          message: `匯出失敗`,
+          type: "error",
+        });
+      } finally {
+        this.isLoading = false;
+      }
     },
     async deleteItem(row) {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
@@ -682,7 +790,7 @@ export default {
           return;
         }
         const newEntry = {
-          id:this.debitcurrentEntry.id,
+          id: this.debitcurrentEntry.id,
           amount: "0",
           SubjectsName: this.debit.find(
             (item) => item.Subjects === this.debitcurrentEntry.subject
@@ -702,7 +810,7 @@ export default {
         }
 
         const newEntry = {
-          id:this.creditcurrentEntry.id,
+          id: this.creditcurrentEntry.id,
           amount: "0",
           SubjectsName: this.credit.find(
             (item) => item.Subjects === this.creditcurrentEntry.subject
@@ -736,63 +844,64 @@ export default {
         amount: this.formatString(credit.amount),
       }));
       const postData = {
-        id:this.entries.id,
+        id: this.entries.id,
         trade_name: "資產負債表",
         totalAmount: totalAmount,
         accDate: this.entries.accDate,
-        accFarewell: this.entries.accDate ? this.entries.accDate.slice(0, 7) : null,
+        accFarewell: this.entries.accDate
+          ? this.entries.accDate.slice(0, 7)
+          : null,
         debitmessage: this.entries.debitmessage,
         creditmessage: this.entries.creditmessage,
         customerId: this.entries.customerId,
         cus_name: this.entries.cus_name,
         detail: [...this.entries.debit, ...this.entries.credit],
       };
-      if(this.dialogTitle=='0'){
+      if (this.dialogTitle == "0") {
         await axios
-        .post("http://122.116.23.30:3347/finance/subpoena", postData)
-        .then((response) => {
-          this.$message.success("會計傳票新增成功！");
-          if (type == 1) {
-            this.resetForm(1);
-          } else if (type == 2) {
-            this.resetForm(2);
-            this.closeDialog();
-          }
-          this.clink();
-        })
-        .catch((error) => {
-          // 處理錯誤
-          this.$message({
-            message: "新增失敗",
-            type: "error",
+          .post("http://122.116.23.30:3347/finance/subpoena", postData)
+          .then((response) => {
+            this.$message.success("會計傳票新增成功！");
+            if (type == 1) {
+              this.resetForm(1);
+            } else if (type == 2) {
+              this.resetForm(2);
+              this.closeDialog();
+            }
+            this.clink();
+          })
+          .catch((error) => {
+            // 處理錯誤
+            this.$message({
+              message: "新增失敗",
+              type: "error",
+            });
+            console.error("API request failed:", error);
           });
-          console.error("API request failed:", error);
-        });
-      //成功訊息並關閉
-      }else if(this.dialogTitle=='1'){
+        //成功訊息並關閉
+      } else if (this.dialogTitle == "1") {
         await axios
-        .post("http://122.116.23.30:3347/finance/updatesubpoena", postData)
-        .then((response) => {
-          this.$message.success("會計傳票修改成功！");
-          if (type == 1) {
-            this.resetForm(1);
-          } else if (type == 2) {
-            this.resetForm(2);
-            this.closeDialog();
-          }
-          this.clink();
-        })
-        .catch((error) => {
-          // 處理錯誤
-          this.$message({
-            message: "新增失敗",
-            type: "error",
+          .post("http://122.116.23.30:3347/finance/updatesubpoena", postData)
+          .then((response) => {
+            this.$message.success("會計傳票修改成功！");
+            if (type == 1) {
+              this.resetForm(1);
+            } else if (type == 2) {
+              this.resetForm(2);
+              this.closeDialog();
+            }
+            this.clink();
+          })
+          .catch((error) => {
+            // 處理錯誤
+            this.$message({
+              message: "新增失敗",
+              type: "error",
+            });
+            console.error("API request failed:", error);
           });
-          console.error("API request failed:", error);
-        });
-      //成功訊息並關閉
+        //成功訊息並關閉
       }
-      
     },
     resetForm(type) {
       if (type == 1) {
@@ -923,7 +1032,7 @@ export default {
     },
     async editItem(row) {
       await this.selectdata(row.id, "copy");
-      this.entries.id=row.id
+      this.entries.id = row.id;
       this.dialogTitle = "1";
       this.dialogVisible = true;
     },
@@ -1001,12 +1110,12 @@ export default {
           date: this.search_month,
           enddate: this.search_end_month,
         };
-        this.isLoading=true
+        this.isLoading = true;
         await axios
           .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)
           .then((response) => {
             // this.cus_message_IN = response.data.data;
-            
+
             if (!Array.isArray(response.data.data)) {
               this.cus_message_IN = [];
               this.cus_message_AO = [];
@@ -1015,15 +1124,55 @@ export default {
                 type: "warning",
               });
             }
-            this.cus_message_IN = response.data.data.filter(item => item.id.startsWith('IN'));
-            this.cus_message_AO = response.data.data.filter(item => item.id.startsWith('AO'));
-            this.isLoading=false
+            this.cus_message_IN = response.data.data.filter((item) =>
+              item.id.startsWith("IN")
+            );
+            this.cus_message_AO = response.data.data.filter((item) =>
+              item.id.startsWith("AO")
+            );
+            this.isLoading = false;
           })
           .catch((error) => {
             // 處理錯誤
-           
+
             console.error("API request failed:", error);
-            this.isLoading=false
+            this.isLoading = false;
+          });
+      }
+    },
+    async printclink() {
+      if (this.print.search_month && this.print.search_end_month) {
+        const postData = {
+          date: this.print.search_month,
+          enddate: this.print.search_end_month,
+        };
+        this.isLoading = true;
+        await axios
+          .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)
+          .then((response) => {
+            // this.cus_message_IN = response.data.data;
+
+            if (!Array.isArray(response.data.data)) {
+              this.print.cus_message_IN = [];
+              this.print.cus_message_AO = [];
+              this.$message({
+                message: `查無選擇年月資料`,
+                type: "warning",
+              });
+            }
+            this.print.cus_message_IN = response.data.data.filter((item) =>
+              item.id.startsWith("IN")
+            );
+            this.print.cus_message_AO = response.data.data.filter((item) =>
+              item.id.startsWith("AO")
+            );
+            this.isLoading = false;
+          })
+          .catch((error) => {
+            // 處理錯誤
+
+            console.error("API request failed:", error);
+            this.isLoading = false;
           });
       }
     },
