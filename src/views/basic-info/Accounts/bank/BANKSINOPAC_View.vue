@@ -603,7 +603,7 @@ return formattedDate;
           console.error('API request failed:', error);
         });
     },
-    getdata(type){
+    async getdata(type){
       if(type==1){
       this.form.credit_amount=''
       this.form.handling_fee=0
@@ -617,7 +617,7 @@ return formattedDate;
      if(this.form.customerId.length==8){
       this.isLoading = true;
       this.form.cus_name='查詢中..'
-      axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
+      await axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
         .then(response => {
             this.form.cus_name = response.data.data[0].cus_name;
             this.form.card_other_fee=response.data.data[0].card_other_fee;
@@ -633,9 +633,11 @@ return formattedDate;
         });
      } 
      if(this.form.cus_name){
-      axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
+      console.log(`postdata`+JSON.stringify(postData))
+      await axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
         .then(response => {
             this.bills = response.data.data;
+            console.log(JSON.stringify(this.bills))
             if(!this.bills.length){
               this.$message({
               message: '查無帳單資訊',
@@ -653,9 +655,10 @@ return formattedDate;
             });
           console.error('API request failed:', error);
         });
-        axios.post('http://122.116.23.30:3347/finance/selectCreditCard',postData)
+        await axios.post('http://122.116.23.30:3347/finance/selectCreditCard',postData)
         .then(response => {
             this.card = response.data.data;
+            console.log("卡"+JSON.stringify(this.card))
             this.isLoading = false;
         })
         .catch(error => {

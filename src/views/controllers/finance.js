@@ -1,5 +1,5 @@
 module.exports = ({ sequelize }) => {
-    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details,reportsales,definvoice,definvoice_details,customer,systemwork } = sequelize
+    const { bank_data, cpc_data, accountingsubjects, acc_trade, acc_trade_details,reportsales,definvoice,definvoice_details,customer,systemwork,reportsales_details } = sequelize
     const Sequelize = require('sequelize');
     const Op = Sequelize.Op;
     const dayjs = require('dayjs');
@@ -154,12 +154,28 @@ module.exports = ({ sequelize }) => {
 
         // 取得台企銀資料
         selectTBB: async (req, res) => {
+            // try {
+            //     const time = getDateTime()
+            //     console.log(time + ' 取得台企銀資料(selectTBB)')
+            //     // 取得所有業務員
+            //     const bankList = await bank_data.findAll({
+            //         where: { trading_model: { [Op.in]: [0, 3, 4, 5, 6] }, delete_time: { [Op.eq]: 0 } },   // 台企手動、支票、永豐匯款、現金、其他
+            //         // attributes: ['id', 'customerId', 'credit_card_data', 'issuing_bank', 'credit_amount', 'bank_amount', 'amount'],
+            //         raw: true
+            //     })
+            //     console.log({ returnCode: 0, message: "取得台企銀資料", data: bankList })
+            //     return res.json({ returnCode: 0, message: "取得台企銀資料", data: bankList })
+
+            // } catch (err) {
+            //     console.log({ returnCode: 500, message: "系統錯誤", err: err })
+            //     return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            // }
             try {
                 const time = getDateTime()
                 console.log(time + ' 取得台企銀資料(selectTBB)')
                 // 取得所有業務員
                 const bankList = await bank_data.findAll({
-                    where: { trading_model: { [Op.in]: [0, 3, 4, 5, 6] }, delete_time: { [Op.eq]: 0 } },   // 台企手動、支票、永豐匯款、現金、其他
+                    where: { delete_time: { [Op.eq]: 0 } },   // 台企手動、支票、永豐匯款、現金、其他
                     // attributes: ['id', 'customerId', 'credit_card_data', 'issuing_bank', 'credit_amount', 'bank_amount', 'amount'],
                     raw: true
                 })
@@ -386,6 +402,7 @@ module.exports = ({ sequelize }) => {
 
         // 取得刷卡資料
         selectCreditCard: async (req, res) => {
+           
             try {
                 const time = getDateTime()
                 console.log(time + ' 取得刷卡資料(selectCreditCard)')
@@ -393,7 +410,11 @@ module.exports = ({ sequelize }) => {
                 const bankList = await bank_data.findAll({
                     where: { customerId: { [Op.eq]: req.body.customerId }, bank: { [Op.eq]: '永豐' }, delete_time: { [Op.eq]: 0 } },
                     group: 'account',
-                    attributes: ['customerId', 'account', 'issuing_bank'],
+                    attributes: [
+                        'customerId', 
+                        'account',
+                         [ Sequelize.fn('any_value',Sequelize.col('issuing_bank')),'issuing_bank']
+                        ],
                     raw: true
                 })
                 console.log({ returnCode: 0, message: "取得刷卡資料", data: bankList })
@@ -796,12 +817,27 @@ module.exports = ({ sequelize }) => {
             try {
                 const time = getDateTime()
                 console.log(time + ' 產生特殊發票(insertinvoice)')
+                const report = await reportsales_details.findOne({
+                    where: {
+                        customerId: req.body.cus_code,
+                        salesDate: {
+                            [Op.like]: `${req.body.search_month}-%` // salesDate 格式為 YYYY-MM-DD，搜尋 YYYY-MM 格式
+                        }
+                    }
+                });
+    
+                if (!report) {
+                    console.log({ returnCode: 400, message: "找不到對應的報表資料" });
+                    return res.json({ returnCode: 400, message: "找不到對應的報表資料" });
+                }
+                // 如果找到報表資料，則從中取出 account_sortId
+                const account_sortId = report.account_sortId;
                 for (const invoice of req.body.invoice) {
                     const invoiceId =  getDateTimeSSS(null, 'YYMMDDHHmmssSSS')
                     const createinvoice = await definvoice.create({
                         invoiceId: invoiceId,
                         customerId: req.body.cus_code, 
-                        account_sortId: invoice.account_sortId, 
+                        account_sortId: account_sortId, 
                         Amount: invoice.Amount, 
                         invoiceDate:getLastDayOfMonth(req.body.search_month),
                         invoiceTime:'00:00:00',

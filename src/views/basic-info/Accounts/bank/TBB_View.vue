@@ -6,6 +6,29 @@
   <div>
     <BreadCrumb />
   </div>
+  <!-- 下拉框：trading_model -->
+  <el-select
+    v-model="selectedTradingModel"
+    placeholder="請選擇交易模式"
+    clearable
+    @change="filterData"
+  >
+    <el-option label="台企手動" :value="'0'"></el-option>
+    <el-option label="台企自動" :value="'1'"></el-option>
+    <el-option label="永豐手動刷卡帳" :value="'2'"></el-option>
+    <el-option label="支票" :value="'3'"></el-option>
+    <el-option label="永豐手動匯款帳" :value="'4'"></el-option>
+    <el-option label="現金" :value="'5'"></el-option>
+    <el-option label="其他" :value="'6'"></el-option>
+    <el-option label="製卡費" :value="'7'"></el-option>
+  </el-select>
+
+  <!-- 日期輸入框：account_date -->
+  <el-input
+    v-model="searchDate"
+    placeholder="請輸入交易時間 (格式: 1140101)"
+    @input="filterData"
+  ></el-input>
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
   <div class="table-container">
     <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
@@ -51,13 +74,14 @@
     </el-table>
     <div class="pagination-container">
       <div class="pagination-info">
-        Showing {{ startItem }} to {{ endItem }} of {{ BankData.length }}
+        Showing {{ startItem }} to {{ endItem }} of
+        {{ this.filteredData.length }}
       </div>
       <el-pagination
         @current-change="handlePageChange"
         :current-page="currentPage"
         :page-size="pageSize"
-        :total="BankData.length"
+        :total="this.filteredData.length"
         layout="prev, pager, next, jumper"
         class="pagination"
       />
@@ -221,6 +245,11 @@ export default {
       cusData: [],
       currentPage: 1,
       pageSize: 10,
+      // 搜尋條件
+      selectedTradingModel: null,
+      searchDate: "",
+      // 篩選後的資料
+      filteredData: [],
     };
   },
   async created() {
@@ -232,7 +261,7 @@ export default {
     paginatedData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.BankData.slice(start, end);
+      return this.filteredData.slice(start, end);
     },
     startItem() {
       return (this.currentPage - 1) * this.pageSize + 1;
@@ -242,6 +271,21 @@ export default {
     },
   },
   methods: {
+    // 篩選資料
+    filterData() {
+      this.filteredData = this.BankData.filter((item) => {
+        const matchModel =
+          !this.selectedTradingModel ||
+          item.trading_model === this.selectedTradingModel;
+
+        // 這裡不再檢查 selectedTradingModel，只根據 searchDate 過濾
+        const matchDate =
+          !this.searchDate || item.account_date.includes(this.searchDate);
+
+        return matchModel && matchDate;
+      });
+    },
+
     inputdata() {
       if (this.form.trading_model == "4") {
         this.form.bank = "永豐匯款";
@@ -505,6 +549,9 @@ h6 {
   margin-left: 20px;
 }
 .el-input {
+  width: 250px;
+}
+.el-select {
   width: 250px;
 }
 .el-button {

@@ -32,7 +32,6 @@
       </el-date-picker>
 
       <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
-      <!-- <el-button type="info" @click="handleExportAll()">多筆傳票列印</el-button> -->
       <el-button type="info" @click="printdialog=true">多筆傳票列印</el-button>
     </el-form-item>
   </div>

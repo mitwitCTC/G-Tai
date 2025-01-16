@@ -243,7 +243,7 @@ export default {
             worksheet.getCell(`H${rowIndex}`).numFmt = "#,##0"; // 千分位格式
           });
           //合計
-          let totalAmountRow = lastRowNumber + this.credit.length * 3 + 3;
+          let totalAmountRow = lastRowNumber + this.credit.length * 2 + 3;
           worksheet.getCell(`F${totalAmountRow}`).value = "合計：";
           const cell = worksheet.getCell(`F${totalAmountRow}`);
           cell.alignment = { horizontal: "center", vertical: "middle" }; // 水平居中，垂直居中
@@ -302,7 +302,7 @@ export default {
           console.log(`做完${row.id}_傳票`);
           index++; // 增加索引
         }
-        // rows.forEach((row, index) => {});
+        // // rows.forEach((row, index) => {});
 
         // 生成下載鏈接並觸發下載
         const buffer = await workbook.xlsx.writeBuffer();

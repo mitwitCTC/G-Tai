@@ -418,6 +418,7 @@ export default {
         this.isLoading = true; // 開始加載
         // 發送 GET 請求到指定的 API
         const postdata = this.form;
+        console.log(JSON.stringify(this.form))
         const response = await axios.post(
           "http://122.116.23.30:3347/finance/insertinvoice",
           postdata
