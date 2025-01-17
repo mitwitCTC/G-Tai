@@ -44,7 +44,7 @@
         width="350"
       ></el-table-column>
       <el-table-column prop="bank" label="銀行"></el-table-column>
-      <el-table-column prop="account_date" label="交易時間"></el-table-column>
+      <el-table-column prop="account_time" label="交易時間"></el-table-column>
       <!-- <el-table-column prop="account_date" label="入帳日"></el-table-column> -->
       <!-- <el-table-column prop="account_time" label="交易時間"></el-table-column> -->
       <el-table-column prop="taxId" label="統一編號"

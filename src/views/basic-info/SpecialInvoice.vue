@@ -169,7 +169,14 @@
         ></el-input>
       </el-form-item>
     </el-row>
-    <el-button type="warning" @click="addEntry()"> 新增 </el-button>
+    <div class="page-title"><h3>已開立發票資訊</h3></div>
+    <el-table :data="invoicedata" border>
+      <el-table-column prop="BName" label="抬頭" width="600"/>
+      <el-table-column prop="Bidentifier" label="統編" width="490"/>
+      <el-table-column prop="Amount" label="開立金額" width="400"/>
+    </el-table>
+    <div class="page-title"><h3>新增特殊發票</h3></div>
+    <el-button type="warning" @click="addEntry()" style="margin-bottom: 10px;"> 新增 </el-button>
     <el-table :data="form.invoice" border>
       <el-table-column prop="invoice_name" label="抬頭" width="400">
         <template v-slot="scope">
@@ -324,7 +331,7 @@ export default {
       customerId: "",
       cus_Data: [], //特殊開立
       No_cus_Data: [], //一般開立
-      searchamount:[],//已開立
+      searchamount: [], //已開立
       bill: [],
       form: { ...initialFormState },
       type: {
@@ -342,6 +349,7 @@ export default {
         "尿素溶液",
         "無鉛汽油",
       ],
+      invoicedata: [],
     };
   },
   created() {
@@ -375,6 +383,24 @@ export default {
     },
   },
   methods: {
+    async selectinvoice(row) {
+      try {
+        const postdata = {
+          customerId: row.customerId,
+          invoiceDate: this.search_month,
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/finance/selectinvoice",
+          postdata
+        );
+        // 確認 API 回應是否有資料
+        if (response.data && response.data.data.length > 0) {
+          this.invoicedata = response.data.data;
+        }
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
     async save() {
       const totalAmount = this.formatString(this.TotalAmount);
       this.form = {
@@ -418,7 +444,6 @@ export default {
         this.isLoading = true; // 開始加載
         // 發送 GET 請求到指定的 API
         const postdata = this.form;
-        console.log(JSON.stringify(this.form))
         const response = await axios.post(
           "http://122.116.23.30:3347/finance/insertinvoice",
           postdata
@@ -468,7 +493,7 @@ export default {
     },
     async getbill(customerId) {
       try {
-        this.isLoading = true; // 開始加載
+        
         // 發送 GET 請求到指定的 API
         const postdata = {
           customerId: customerId,
@@ -481,9 +506,7 @@ export default {
         // 將資料放入 customers 陣列中
       } catch (error) {
         console.error("Error fetching customer data:", error);
-      } finally {
-        this.isLoading = false; // 請求完成後關閉加載狀態
-      }
+      } 
     },
     async changesystemwork(type) {
       if (!this.search_month) {
@@ -746,12 +769,15 @@ export default {
     },
     async onpeDialog(row) {
       if (this.month_final != "24") {
+        this.isLoading = true; // 開始加載
         this.form.cus_code = row.customerId;
         this.form.cus_name = row.cus_name;
         this.form.search_month = this.search_month;
         this.form.TotalAmount = row.total;
         await this.getbill(row.customerId);
+        await this.selectinvoice(row);
         this.dialog = true;
+        this.isLoading = false; 
       } else if (this.month_final == "24") {
         this.$message({
           message: "特殊開立已完成 無法變更",

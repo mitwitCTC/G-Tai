@@ -881,6 +881,37 @@ module.exports = ({ sequelize }) => {
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
             }
         },
+        // 查詢已開立發票明細
+        selectinvoice: async (req, res) => {
+            const time = getDateTime()
+                console.log(time + ' 查詢已開立發票明細(selectinvoice)')
+                try{
+                if (req.body.customerId && req.body.invoiceDate ) {
+
+                    const customerId=req.body.customerId
+                    const invoiceDate=req.body.invoiceDate
+                      const result = await reportsales.sequelize.query(
+                        `
+                        SELECT * FROM jutai.definvoice a join jutai.definvoice_details b on (a.invoiceId=b.invoiceId)  WHERE a.customerId = :customerId AND a.invoiceDate LIKE :invoiceDate;
+                        `,
+                        {
+                          replacements: { customerId, invoiceDate: `${invoiceDate}%` }, // 替换为动态变量
+                          type: reportsales.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+                        }
+                      );
+                  
+                    console.log({ returnCode: 0, message: "查詢已開立發票明細", data: result })
+                    return res.json({ returnCode: 0, message: "查詢已開立發票明細", data: result })
+
+                } else {
+                    console.log({ returnCode: -1, message: '查詢失敗，缺少參數' })
+                    return res.json({ returnCode: -1, message: '查詢失敗，缺少參數' })
+                }
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
         //取得月結作業
         getsystemwork: async (req, res) => {
             try {
