@@ -32,7 +32,9 @@
       </el-date-picker>
 
       <el-button type="primary" @click="openDialog">新增會計傳票</el-button>
-      <el-button type="info" @click="printdialog=true">多筆傳票列印</el-button>
+      <el-button type="info" @click="printdialog = true"
+        >多筆傳票列印</el-button
+      >
     </el-form-item>
   </div>
   <div class="table-container" v-if="cus_message_IN.length > 0">
@@ -120,7 +122,7 @@
     v-model="dialogVisible"
     width="90%"
     :close-on-click-modal="false"
-    @close="closeDialog"
+    :show-close="false"
   >
     <el-form-item label="*傳票日期">
       <el-date-picker
@@ -239,6 +241,16 @@
                 type="danger"
                 size="mini"
                 @click="removeEntry(scope.$index, 'debit')"
+                v-if="dialogTitle == 0"
+              >
+                刪除
+              </el-button>
+
+              <el-button
+                type="danger"
+                size="mini"
+                @click="removeOLDEntry(scope.row, scope.$index, 'debit')"
+                v-if="dialogTitle == 1"
               >
                 刪除
               </el-button>
@@ -317,6 +329,15 @@
                 type="danger"
                 size="mini"
                 @click="removeEntry(scope.$index, 'credit')"
+                v-if="dialogTitle == 0"
+              >
+                刪除
+              </el-button>
+              <el-button
+                type="danger"
+                size="mini"
+                @click="removeOLDEntry(scope.row, scope.$index, 'credit')"
+                v-if="dialogTitle == 1"
               >
                 刪除
               </el-button>
@@ -337,7 +358,8 @@
 
     <!-- 底部按鈕 -->
     <span slot="footer" class="dialog-footer">
-      <el-button @click="closeDialog">取消</el-button>
+      <el-button @click="closeDialog(1)" v-if="dialogTitle==0">取消</el-button>
+      <el-button @click="closeDialog(2)"v-if="dialogTitle==1">取消</el-button>
       <!-- <el-button type="info" @click="submitForm(1)">新增傳票</el-button> -->
       <el-button type="primary" @click="submitForm(2)">送出</el-button>
     </span>
@@ -430,14 +452,14 @@
       </div>
     </div>
   </el-dialog>
-<!-- 列印畫面 -->
-<el-dialog
+  <!-- 列印畫面 -->
+  <el-dialog
     title="多筆列印"
     v-model="printdialog"
     width="90%"
     :close-on-click-modal="false"
   >
-  <el-form-item label="結帳起日">
+    <el-form-item label="結帳起日">
       <el-date-picker
         v-model="print.search_month"
         type="date"
@@ -460,46 +482,65 @@
         @change="printclink()"
       >
       </el-date-picker>
-      </el-form-item>
-        <el-button type="info" @click="handleExportAll()">列印</el-button>
-      <div class="table-container" v-if="print.cus_message_IN.length > 0">
-    <div class="page-title"><h3>一般輸入傳票</h3></div>
-    <el-table :data="print.cus_message_IN" style="width: 100%" @selection-change="(selectedRows) => handleSelectionChange('IN', selectedRows)" >
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="id" label="傳票號碼" width="200" />
-      <el-table-column prop="accDate" label="傳票日期" width="150" />
-      <el-table-column prop="accFarewell" label="結帳年月" width="100" />
-      <el-table-column prop="customerId" label="客戶代號" width="100" />
-      <el-table-column prop="cus_name" label="客戶名稱" width="250" />
-      <el-table-column prop="debitmessage" label="主摘要" width="250" />
-      <el-table-column prop="amount" label="借貸金額" align="right" width="200"
-        ><template v-slot="scope"
-          >{{ formatCurrency(scope.row.amount) }}
-        </template></el-table-column
+    </el-form-item>
+    <el-button type="info" @click="handleExportAll()">列印</el-button>
+    <div class="table-container" v-if="print.cus_message_IN.length > 0">
+      <div class="page-title"><h3>一般輸入傳票</h3></div>
+      <el-table
+        :data="print.cus_message_IN"
+        style="width: 100%"
+        @selection-change="
+          (selectedRows) => handleSelectionChange('IN', selectedRows)
+        "
       >
-    </el-table>
-  </div>
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="id" label="傳票號碼" width="200" />
+        <el-table-column prop="accDate" label="傳票日期" width="150" />
+        <el-table-column prop="accFarewell" label="結帳年月" width="100" />
+        <el-table-column prop="customerId" label="客戶代號" width="100" />
+        <el-table-column prop="cus_name" label="客戶名稱" width="250" />
+        <el-table-column prop="debitmessage" label="主摘要" width="250" />
+        <el-table-column
+          prop="amount"
+          label="借貸金額"
+          align="right"
+          width="200"
+          ><template v-slot="scope"
+            >{{ formatCurrency(scope.row.amount) }}
+          </template></el-table-column
+        >
+      </el-table>
+    </div>
 
-  <div class="table-container" v-if="print.cus_message_AO.length > 0">
-    <div class="page-title"><h3>自動拋轉傳票</h3></div>
-    <el-table :data="print.cus_message_AO" style="width: 100%" @selection-change="(selectedRows) => handleSelectionChange('AO', selectedRows)" >
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="id" label="傳票號碼" width="200" />
-      <el-table-column prop="accDate" label="傳票日期" width="150" />
-      <el-table-column prop="accFarewell" label="結帳年月" width="100" />
-      <el-table-column prop="customerId" label="客戶代號" width="100" />
-      <el-table-column prop="cus_name" label="客戶名稱" width="250" />
-      <el-table-column prop="debitmessage" label="主摘要" width="250" />
-      <el-table-column prop="amount" label="借貸金額" align="right" width="200"
-        ><template v-slot="scope"
-          >{{ formatCurrency(scope.row.amount) }}
-        </template></el-table-column
+    <div class="table-container" v-if="print.cus_message_AO.length > 0">
+      <div class="page-title"><h3>自動拋轉傳票</h3></div>
+      <el-table
+        :data="print.cus_message_AO"
+        style="width: 100%"
+        @selection-change="
+          (selectedRows) => handleSelectionChange('AO', selectedRows)
+        "
       >
-    </el-table>
-   
-    <div style="margin-bottom: 50px"></div>
-  </div>
-   
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="id" label="傳票號碼" width="200" />
+        <el-table-column prop="accDate" label="傳票日期" width="150" />
+        <el-table-column prop="accFarewell" label="結帳年月" width="100" />
+        <el-table-column prop="customerId" label="客戶代號" width="100" />
+        <el-table-column prop="cus_name" label="客戶名稱" width="250" />
+        <el-table-column prop="debitmessage" label="主摘要" width="250" />
+        <el-table-column
+          prop="amount"
+          label="借貸金額"
+          align="right"
+          width="200"
+          ><template v-slot="scope"
+            >{{ formatCurrency(scope.row.amount) }}
+          </template></el-table-column
+        >
+      </el-table>
+
+      <div style="margin-bottom: 50px"></div>
+    </div>
   </el-dialog>
 
   <el-dialog
@@ -534,6 +575,7 @@ export default {
       search_month: "",
       search_end_month: "",
       dialogTitle: "",
+      isdel: false,
       debit: [],
       credit: [],
       cusData: [],
@@ -655,26 +697,54 @@ export default {
     },
   },
   methods: {
+    async removeOLDEntry(row, index, type) {
+      console.log(JSON.stringify(row));
+      if (row.isNew == true) {
+        this.removeEntry(index, type);
+      } else {
+        try {
+          const postData = {
+            id: row.id,
+          };
+          // 發送 GET 請求到指定的 API
+          const response = await axios.post(
+            "http://122.116.23.30:3347/finance/deleteSubpoenaedetails",
+            postData
+          );
+          this.$message({
+            message: `刪除成功`,
+            type: "success",
+          });
+          this.isdel = true;
+          await this.selectdata(this.entries.id, "copy");
+        } catch {
+          this.$message({
+            message: `刪除失敗`,
+            type: "error",
+          });
+        }
+      }
+    },
     // 當選擇變化時，更新選中的資料
     handleSelectionChange(type, selectedRows) {
       this.selectedRows[type] = selectedRows;
     },
     async handleExportAll() {
       const selectedData = [...this.selectedRows.IN, ...this.selectedRows.AO];
-      console.log("匯出筆數"+selectedData.length)
-      if(selectedData.length==0){
+      console.log("匯出筆數" + selectedData.length);
+      if (selectedData.length == 0) {
         this.$message({
           message: `請先選取資料 再進行匯出`,
           type: "warning",
         });
-        return
+        return;
       }
-      if(selectedData.length>100){
+      if (selectedData.length > 100) {
         this.$message({
           message: `限制匯出資料為100筆以內`,
           type: "warning",
         });
-        return
+        return;
       }
       try {
         this.isLoading = true;
@@ -775,12 +845,24 @@ export default {
       this.dialogTitle = "0";
       this.dialogVisible = true;
     },
-    closeDialog() {
-      (this.entries = {
-        debit: [], // 借方資料
-        credit: [], // 貸方資料
-      }),
-        (this.dialogVisible = false);
+    closeDialog(type) {
+      if (type == 1) {
+        (this.entries = {
+          debit: [], // 借方資料
+          credit: [], // 貸方資料
+        }),
+          (this.dialogVisible = false);
+      } else if (type == 2) {
+        if (this.isdel == true) {
+          this.$message.error("請先送出修改後資料");
+          return;
+        }
+        (this.entries = {
+          debit: [], // 借方資料
+          credit: [], // 貸方資料
+        }),
+          (this.dialogVisible = false);
+      }
     },
     addEntry(Type) {
       if (Type === "debit") {
@@ -790,6 +872,7 @@ export default {
         }
         const newEntry = {
           id: this.debitcurrentEntry.id,
+          isNew: true, // 標記為新增的資料
           amount: "0",
           SubjectsName: this.debit.find(
             (item) => item.Subjects === this.debitcurrentEntry.subject
@@ -810,6 +893,7 @@ export default {
 
         const newEntry = {
           id: this.creditcurrentEntry.id,
+          isNew: true, // 標記為新增的資料
           amount: "0",
           SubjectsName: this.credit.find(
             (item) => item.Subjects === this.creditcurrentEntry.subject
@@ -865,7 +949,7 @@ export default {
               this.resetForm(1);
             } else if (type == 2) {
               this.resetForm(2);
-              this.closeDialog();
+              this.closeDialog(1);
             }
             this.clink();
           })
@@ -883,11 +967,13 @@ export default {
           .post("http://122.116.23.30:3347/finance/updatesubpoena", postData)
           .then((response) => {
             this.$message.success("會計傳票修改成功！");
+            this.isdel = false;
+            console.log(this.isdel)
             if (type == 1) {
               this.resetForm(1);
             } else if (type == 2) {
               this.resetForm(2);
-              this.closeDialog();
+              this.closeDialog(1);
             }
             this.clink();
           })

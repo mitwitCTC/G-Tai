@@ -615,6 +615,23 @@ module.exports = ({ sequelize }) => {
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
             }
         },
+        deleteSubpoenaedetails: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 刪除傳票明細(deleteSubpoenaedetails)')
+                // 刪除傳票紀錄
+                const deleteAccTrade = await acc_trade_details.destroy({
+                    where: {
+                      id: { [Op.eq]: req.body.id } // 刪除條件：匹配 ID
+                    }
+                  });
+                console.log({ returnCode: 0, message: "刪除傳票明細成功", data: req.body.id })
+                return res.json({ returnCode: 0, message: "刪除傳票明細成功", data: req.body.id })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
 
         // 修改傳票
         updatesubpoena: async (req, res) => {

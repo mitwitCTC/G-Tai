@@ -28,6 +28,7 @@ router.post('/subpoena', Controllers.finance.subpoena);  // 產生傳票
 router.post('/searchSubpoena', Controllers.finance.searchSubpoena);  // 查詢傳票資料
 router.post('/selectSubpoena', Controllers.finance.selectSubpoena);  // 查詢個別傳票資料
 router.post('/deleteSubpoena', Controllers.finance.deleteSubpoena);  // 刪除傳票
+router.post('/deleteSubpoenaedetails', Controllers.finance.deleteSubpoenaedetails);  // 刪除傳票明細
 router.post('/updatesubpoena', Controllers.finance.updatesubpoena);  // 修改傳票
 
 

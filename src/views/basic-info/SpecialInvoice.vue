@@ -173,7 +173,9 @@
     <el-table :data="invoicedata" border>
       <el-table-column prop="BName" label="抬頭" width="600"/>
       <el-table-column prop="Bidentifier" label="統編" width="490"/>
-      <el-table-column prop="Amount" label="開立金額" width="400"/>
+      <el-table-column prop="Amount" label="開立金額" width="400"><template v-slot="scope"
+        >{{ formatCurrency(scope.row.Amount) }}
+      </template></el-table-column>
     </el-table>
     <div class="page-title"><h3>新增特殊發票</h3></div>
     <el-button type="warning" @click="addEntry()" style="margin-bottom: 10px;"> 新增 </el-button>
