@@ -34,7 +34,6 @@
   </el-table>
   <!-- 新增 -->
   <el-dialog
-    title="新增資料"
     v-model="dialog"
     width="70%"
     @close="handleClear"
@@ -42,6 +41,24 @@
   >
     <el-form :model="form" label-width="120px">
       <!-- 统一標籤寬度 -->
+      <h3 v-if="this.selectcards.length>0">車號：{{form.titleplent}}所有卡片</h3>
+      <el-table
+        :data="this.selectcards"
+        style="width: 100%"
+        v-loading="loading"
+        v-if="this.selectcards.length>0"
+      >
+      <el-table-column prop="card_number" label="卡號" width="200" />
+      <el-table-column prop="card_type" label="卡片類別" width="150" :formatter="format" />
+      <el-table-column prop="upload_time" label="上傳中油時間" width="150" />
+      <el-table-column prop="upload_reason" label="上傳中油原因" width="150" />
+      <el-table-column prop="card_arrival_date" label="到卡日期" width="150" />
+      <el-table-column prop="card_stop_date" label="停卡日期" width="200" />
+      <el-table-column prop="notes" label="備註" />
+      <el-table-column prop="vehicle_change_reason" label="車輛異動-因素" />
+      </el-table>
+      <h3 style="margin-top: 50px;">新增資料</h3>
+      <div style="margin-top: 50px;"></div>
       <el-row style="margin-bottom: 20px">
         <el-form-item label="*客戶編號">
           <!-- <el-input v-model="form.cus_code" @input="getdata" maxlength="8"></el-input> -->
@@ -281,6 +298,7 @@ import BreadCrumb from "@/components/BreadCrumb.vue";
 import TablePaginated from "@/components/TablePaginated.vue";
 import axios from "axios";
 import ExcelJS from "exceljs";
+import { toRaw } from 'vue'; // 引入 `toRaw` 函數
 
 export default {
   components: {
@@ -304,6 +322,7 @@ export default {
       Vehicle: [],
       bills: [],
       cards: [],
+      selectcards: [],
       allVehicle: [],
       Recorded: [],
       result: [],
@@ -317,11 +336,18 @@ export default {
       },
       form: {
         state: "",
-        card_stop_date:"",
+        card_stop_date: "",
         deleteTime: "",
+        titleplent:""
       },
       currentPage: 1,
       pageSize: 10,
+      type: {
+        '1': '尿素',
+        '2': '柴油',
+        '3': '汽油',
+        '4': '諾瓦尿素',
+      } ,
     };
   },
   created() {
@@ -345,6 +371,10 @@ export default {
     },
   },
   methods: {
+    format(card_type) {
+      const type = toRaw(card_type);
+      return this.type[type.card_type.toString()] || '未知';
+    },
     getstate() {
       if (!this.form.license_plate) {
         this.form.state = "";
@@ -441,7 +471,7 @@ export default {
           time
         );
         this.result = response.data.data;
-        console.log(JSON.stringify(this.result))
+        console.log(JSON.stringify(this.result));
       } catch (error) {
         console.error("API 請求失敗：" + error);
       }
@@ -469,12 +499,22 @@ export default {
         status: 2,
         card_type: this.form.card_type,
       };
-      const response = await axios.post(
-        "http://122.116.23.30:3347/main/searchCard",
-        postvehicleId
-      );
+      const postdata = {
+        vehicleId: this.vehicleId,
+        status: 3,
+      };
       try {
+        const response = await axios.post(
+          "http://122.116.23.30:3347/main/searchCard",
+          postvehicleId
+        );
+        const response2 = await axios.post(
+          "http://122.116.23.30:3347/main/searchCard",
+          postdata
+        );
         this.cards = response.data.data;
+        this.form.titleplent=this.form.license_plate
+        this.selectcards = response2.data.data;
       } catch {
         this.$message({
           message: "系統有誤",
@@ -529,6 +569,8 @@ export default {
       ) {
         try {
           //1.先找全部車牌 有就判斷 沒就新增
+          this.selectcards=[]
+          this.form.titleplent=""
           this.vehicleId = "";
           let vehicleFound = false;
           this.isLoading = true; // 請求開始，顯示 loading 標示
