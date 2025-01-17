@@ -170,10 +170,17 @@
       </el-form-item>
     </el-row>
     <div class="page-title"><h3>已開立發票資訊</h3></div>
-    <el-table :data="invoicedata" border>
-      <el-table-column prop="BName" label="抬頭" width="600"/>
-      <el-table-column prop="Bidentifier" label="統編" width="490"/>
-      <el-table-column prop="Amount" label="開立金額" width="400"><template v-slot="scope"
+    <el-table :data="invoicedata"  style="width: 100%;">
+      <el-table-column prop="編號" label="發票流水號" width="190"/>
+      <el-table-column prop="BName" label="抬頭" width="250"/>
+      <el-table-column prop="Bidentifier" label="統編" width="190"/>
+      <el-table-column prop="品項" label="品項" width="250"/>
+      <el-table-column prop="數量" label="數量" width="100"/>
+      <el-table-column prop="品項小計" label="品項小計" width="150">
+        <template v-slot="scope"
+        >{{ formatCurrency(scope.row.品項小計) }}
+      </template></el-table-column>
+      <el-table-column prop="Amount" label="開立金額" width="150"><template v-slot="scope"
         >{{ formatCurrency(scope.row.Amount) }}
       </template></el-table-column>
     </el-table>
@@ -352,10 +359,12 @@ export default {
         "無鉛汽油",
       ],
       invoicedata: [],
+      bills:[],
     };
   },
   created() {
     this.getcus();
+    this.selectAccount_sort();
   },
   computed: {
     TotalAmount() {
@@ -385,6 +394,28 @@ export default {
     },
   },
   methods: {
+    formatName(account_sortId) {
+      // 使用 find 方法找到對應的 employee_name
+      const account = this.bills.find(
+        (item) => item.account_sortId == account_sortId
+      );
+      return account == null ? "" : account ? account.acc_name : "未知名稱";
+    },
+    async selectAccount_sort() {
+      try {
+        const response = await axios.get(
+          "http://122.116.23.30:3347/main/selectAccount_sort"
+        );
+        // 確認 API 回應是否有資料
+        if (response.data && response.data.data.length > 0) {
+          this.bills = response.data.data;
+        }
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      } finally {
+        this.isLoading = false; // 請求完成後關閉加載狀態
+      }
+    },
     async selectinvoice(row) {
       try {
         const postdata = {
@@ -398,6 +429,7 @@ export default {
         // 確認 API 回應是否有資料
         if (response.data && response.data.data.length > 0) {
           this.invoicedata = response.data.data;
+          console.log(JSON.stringify(this.invoicedata))
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);
@@ -827,8 +859,6 @@ export default {
         // 將資料放入 customers 陣列中
       } catch (error) {
         console.error("Error fetching customer data:", error);
-      } finally {
-        this.isLoading = false; // 請求完成後關閉加載狀態
       }
     },
     removeEntry(index) {

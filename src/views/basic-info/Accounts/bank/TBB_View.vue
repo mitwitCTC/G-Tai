@@ -30,6 +30,9 @@
     @input="filterData"
   ></el-input>
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
+  <el-button type="info" @click="handleExport(this.filteredData)" v-if="paginatedData.length>0"
+    >匯出</el-button
+  >
   <div class="table-container">
     <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
       <el-table-column prop="id" label="序號" width="100"></el-table-column>
@@ -228,6 +231,7 @@
 <script>
 import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
+import ExportTBB from "@/components/ExportTBB.vue";
 import axios from "axios";
 export default {
   components: {
@@ -271,6 +275,24 @@ export default {
     },
   },
   methods: {
+    async handleExport(data){
+      try {
+          this.isLoading = true;
+          await ExportTBB.methods.exportExcel(data);
+          // 顯示成功訊息
+          this.$message({
+            message: `匯出成功`,
+            type: "success",
+          });
+        } catch {
+          this.$message({
+            message: `匯出失敗`,
+            type: "error",
+          });
+        } finally {
+          this.isLoading = false;
+        }
+    },
     // 篩選資料
     filterData() {
       this.filteredData = this.BankData.filter((item) => {

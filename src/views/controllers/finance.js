@@ -909,7 +909,7 @@ module.exports = ({ sequelize }) => {
                     const invoiceDate=req.body.invoiceDate
                       const result = await reportsales.sequelize.query(
                         `
-                        SELECT * FROM jutai.definvoice a join jutai.definvoice_details b on (a.invoiceId=b.invoiceId)  WHERE a.customerId = :customerId AND a.invoiceDate LIKE :invoiceDate;
+                        SELECT a.invoiceId as 編號,a.Bidentifier,a.BName,a.Amount,b.Details as 品項,b.Quantity as 數量,b.Amount as 品項小計  FROM jutai.definvoice a join jutai.definvoice_details b on (a.invoiceId=b.invoiceId) where a.customerId = :customerId AND a.invoiceDate LIKE :invoiceDate;
                         `,
                         {
                           replacements: { customerId, invoiceDate: `${invoiceDate}%` }, // 替换为动态变量
