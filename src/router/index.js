@@ -254,6 +254,36 @@ const router = createRouter({
             isData:true
           },
         },
+        {
+          path: 'cpctrade',
+          name: '中油交易',
+          component: () => import('@/views/basic-info/cpctrade.vue'),
+          meta: {
+            title: '中油交易',
+            breadcrumb: '中油交易',
+            isAccountsPage: true
+          },
+        },
+        {
+          path: 'definvoice',
+          name: '開立發票查詢',
+          component: () => import('@/views/basic-info/definvoice.vue'),
+          meta: {
+            title: '開立發票查詢',
+            breadcrumb: '開立發票查詢',
+            isAccountsPage: true
+          },
+        },
+        {
+          path: 'cpcpwd',
+          name: '中油密碼更改',
+          component: () => import('@/views/basic-info/cpcpwd.vue'),
+          meta: {
+            title: '中油密碼更改',
+            breadcrumb: '中油密碼更改',
+            isset: true
+          },
+        },
       ]
     }
   ]

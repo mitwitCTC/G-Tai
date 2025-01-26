@@ -39,8 +39,10 @@ export default {
           worksheet.getCell(`E${rowIndex}`).value = contact.account_time || "";
           worksheet.getCell(`F${rowIndex}`).value = contact.taxId || "";
           worksheet.getCell(`G${rowIndex}`).value = contact.remark || "";
-          worksheet.getCell(`H${rowIndex}`).value = parseFloat(contact.amount); // 轉數值
-          worksheet.getCell(`H${rowIndex}}`).numFmt = "#,##0"; // 千分位格式
+          worksheet.getCell(`H${rowIndex}`).value = contact.checkoutTime || "";
+          worksheet.getCell(`I${rowIndex}`).value = contact.acc_trade || "";
+          worksheet.getCell(`J${rowIndex}`).value = parseFloat(contact.amount); // 轉數值
+          worksheet.getCell(`J${rowIndex}}`).numFmt = "#,##0"; // 千分位格式
         });
         worksheet.getColumn(3).width = 60;
         // 生成下載鏈接並觸發下載

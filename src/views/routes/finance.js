@@ -41,4 +41,9 @@ router.post('/getsystemwork', Controllers.finance.getsystemwork);   //取得月�
 router.post('/changesystemwork', Controllers.finance.changesystemwork);   //新增月結作業
 router.post('/systemworktime', Controllers.finance.systemworktime);   //更新完成結束作業
 
+router.post('/searchcpcdata', Controllers.finance.searchcpcdata);   //中油交易
+router.post('/searchdefinvoice', Controllers.finance.searchdefinvoice);   //發票查詢
+
+router.post('/changeCollateral', Controllers.finance.changeCollateral);   //更改擔保品模式
+
 module.exports = router;

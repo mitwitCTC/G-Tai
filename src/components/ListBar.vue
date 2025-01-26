@@ -38,10 +38,18 @@
         <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">結帳列印</button> -->
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/FinanceManagement')">會計傳票</button>
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/SpecialInvoice')">特殊發票處理</button>
+        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/cpctrade')">中油交易</button>
+        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/definvoice')">開立發票查詢</button>
       </div>
-      
        <!-- <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/CardMake')">製卡明細</button>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/AccessControl')">權限管理</button> -->
+      <button class="btn btn-light w-100 text-start" @click="setData">
+        {{ isset ? '系統設定⭢' : '系統設定⭢' }}
+      </button>
+      <div class="collapse" :class="{ show: !isset }" id="collapseExample4">
+        <button class="btn btn-light w-100 text-start set-color" @click="() => goTo('/basic-info/cpcpwd')">中油密碼更改</button>
+        <!-- <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button> -->
+      </div>
     </div>
     <div class="sidebar-TheFooter">
       <div class="divider"></div>
@@ -66,6 +74,7 @@ const isBasicInfoCollapsed = ref(true);
 const isBasicInfoCollapsedTrade = ref(true);
 const isBasicInfoCollapsedBank = ref(true);
 const isData = ref(true);
+const isset = ref(true);
 
 const goTo = (path) => {
   if (route.path !== path) {
@@ -84,6 +93,9 @@ const toggleBasicInfoCollapseBank = () => {
 };
 const toggleData = () => {
   isData.value = !isData.value;
+};
+const setData = () => {
+  isset.value = !isset.value;
 };
 
 const logout = () => {
@@ -146,6 +158,12 @@ const logout = () => {
 }
 .Data-color:hover {
   background-color: #ff00f2; 
+}
+.set-color {
+  background-color: #8c5bff; 
+}
+.set-color:hover {
+  background-color: #824caf; 
 }
 .sidebar-TheFooter {
   padding: 10px;

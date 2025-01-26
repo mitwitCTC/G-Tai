@@ -1290,6 +1290,68 @@ module.exports = ({ sequelize }) => {
 
                         console.log({ returnCode: 0, message: "登錄車籍資料", data: req.body })
                         return res.json({ returnCode: 0, message: "登錄車籍資料" })
+                        //8 故障
+                    case 8:
+                        const searcCard_relation3 = await card_relation.findAll({
+                            where: {
+                                card_number: { [Op.eq]: req.body.card_number },
+                                deleteTime: { [Op.eq]: '0' }
+                            }, raw: true
+                        })
+                        if (searcCard_relation3.length > 0) {
+                            console.log(searcCard_relation3[0].card_relationIid)
+                            await card_relation.update({
+                                buildType: "4",
+                                card_type: req.body.card_type,
+                                // upload_time: "0",
+                                card_stop_date: req.body.card_stop_date == '' ? time : req.body.card_stop_date,
+                                upload_reason: req.body.upload_reason == '' ? "0" : req.body.upload_reason,
+                                vehicle_change_reason: req.body.vehicle_change_reason == '' ? null : req.body.vehicle_change_reason,
+                                status: req.body.status,
+                                deleteTime: req.body.deleteTime == '' ? time : req.body.deleteTime,
+                            }, {
+                                where: {
+                                    card_relationIid: { [Op.eq]: searcCard_relation3[0].card_relationIid }
+                                }
+                            })
+                        } else {
+                            console.log({ returnCode: -1, message: "停卡失敗，此卡號已刪除", data: req.body })
+                            return res.json({ returnCode: -1, message: "停卡失敗，此卡號" + req.body.card_number + "已刪除" })
+                        }
+
+                        // 查詢車號
+                        const searchVehicle5 = await vehicle.findAll({
+                            where: {
+                                license_plate: { [Op.eq]: req.body.license_plate },
+                                deleteTime: { [Op.eq]: '0' }
+                            }, raw: true
+                        })
+                        if (searchVehicle5.length > 0) {
+                            console.log(searchVehicle5[0].vehicleId)
+                            // 新增卡片
+                            await card_relation.create({
+                                vehicleId: searchVehicle5[0].vehicleId,
+                                buildType: "1",
+                                card_type: req.body.card_type,
+                                upload_time: "0",
+                                upload_reason: "新增",
+                                card_create_date: req.body.card_create_date == '' ? time : req.body.card_create_date,
+                                card_arrival_date: "0",
+                                card_stop_date: "0",
+                                stop_upload_time: "0",
+                                stop_upload_reason: "0",
+                                vehicle_change_reason: req.body.vehicle_change_reason == '' ? null : req.body.vehicle_change_reason,
+                                cpc_account: req.body.cpc_account,
+                                status: req.body.status,
+                                createTime: req.body.createTime == '' ? time : req.body.createTime,
+                            })
+                        } else {
+                            console.log({ returnCode: -1, message: "新增車籍卡片失敗", data: req.body })
+                            return res.json({ returnCode: -1, message: "新增車籍卡片失敗" })
+                        }
+
+                        console.log({ returnCode: 0, message: "登錄車籍資料", data: req.body })
+                        return res.json({ returnCode: 0, message: "登錄車籍資料" })
                     case 3:
                         // 刪除車號
                         const searchVehicle3 = await vehicle.findAll({

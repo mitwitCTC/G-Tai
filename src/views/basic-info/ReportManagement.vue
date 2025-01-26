@@ -182,7 +182,7 @@ export default {
       }
     },
     async exData() {
-      if ((this.Ex_observe.length == 0) && (this.Ex_Locked.length == 0)) {
+      if (this.Ex_observe.length == 0 && this.Ex_Locked.length == 0) {
         this.$message({
           message: "無可匯出資料",
           type: "error",
@@ -366,7 +366,9 @@ export default {
           worksheet.getCell(`C${rowIndex}`).value = data.customerId || "";
           worksheet.getCell(`E${rowIndex}`).value = data.license_plate || "";
           worksheet.getCell(`L${rowIndex}`).value = "U";
-          worksheet.getCell(`M${rowIndex}`).value = data.card_number || "";
+          worksheet.getCell(`M${rowIndex}`).value = data.card_number
+            ? data.card_number.replace(/#/g, "'")
+            : "";
           worksheet.getCell(`N${rowIndex}`).value = "Y";
           worksheet.getCell(`O${rowIndex}`).value = "Y";
           worksheet.getCell(`P${rowIndex}`).value = "N";
@@ -376,13 +378,14 @@ export default {
           worksheet.getCell(`X${rowIndex}`).value = "7";
           worksheet.getCell(`D${rowIndex}`).value =
             data.card_type == 1
-              ? "0017"
+              ? "'0017"
               : data.card_type == 2
               ? "'0006"
               : data.card_type == 3
-              ? "0001"
+              ? "'0001"
               : ""; // 預設為空字串，如果沒有匹配
-          worksheet.getCell(`W${rowIndex}`).value = data.card_type == 1
+          worksheet.getCell(`W${rowIndex}`).value =
+            data.card_type == 1
               ? "OTR"
               : data.card_type == 2
               ? "OIL"

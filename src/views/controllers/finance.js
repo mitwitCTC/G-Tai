@@ -992,6 +992,138 @@ module.exports = ({ sequelize }) => {
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
             }
         },
+         // 查詢中油交易
+         searchcpcdata: async (req, res) => {
+            const date =req.body.date
+            const enddate=req.body.enddate
+            try {
+                const time = getDateTime()
+                console.log(time + ' 查詢中油交易(searchcpcdata)')
+                // const accTrade = await cpc_data.findAll({
+                //     where: {
+                //         account_date: { [Op.between]: [req.body.date, req.body.enddate] }
+                //     }, raw: true,
+                //     order: [['customerId', 'DESC']],
+                // })
+                const accTrade = await cpc_data.sequelize.query(
+                    `
+                    SELECT 
+                        a.*, 
+                        b.cus_name, 
+                        c.acc_name
+                    FROM 
+                        jutai.cpc_data a
+                    JOIN 
+                        jutai.customer b
+                    ON 
+                        a.customerId = b.cus_code
+                    JOIN 
+                        jutai.account_sort c
+                    ON 
+                        a.account_sortId = c.account_sortId
+                    WHERE 
+                        a.account_date BETWEEN :date AND :enddate
+                    ORDER BY 
+                        b.cus_name ASC;
+                    `,
+                    {
+                      replacements: { date,enddate }, // 替换为动态变量
+                      type: reportsales.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+                    }
+                  );
+                if (accTrade.length == 0) {
+                    console.log({ returnCode: 0, message: "無資料" })
+                    return res.json({ returnCode: 0, message: "無資料" })
+                }
+                console.log({ returnCode: 0, message: "查詢中油交易", data: accTrade })
+                return res.json({ returnCode: 0, message: "查詢中油交易", data: accTrade })
+
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 查詢開立發票
+        searchdefinvoice: async (req, res) => {
+            const date =req.body.date
+            const enddate=req.body.enddate
+            try {
+                const time = getDateTime()
+                console.log(time + ' 查詢開立發票(searchdefinvoice)')
+                // const accTrade = await cpc_data.findAll({
+                //     where: {
+                //         account_date: { [Op.between]: [req.body.date, req.body.enddate] }
+                //     }, raw: true,
+                //     order: [['customerId', 'DESC']],
+                // })
+                const accTrade = await definvoice.sequelize.query(
+                    `
+                    SELECT 
+                        a.*,
+                        b.cus_name AS cus_name,
+                        c.acc_name AS acc_name,
+                        COUNT(d.InvoiceId) AS InvoiceIdCount,
+                        SUM(d.Quantity) AS QuantitySum
+                    FROM 
+                        jutai.definvoice a
+                    LEFT JOIN 
+                        jutai.customer b
+                    ON 
+                        a.customerId = b.cus_code
+                    LEFT JOIN 
+                        jutai.account_sort c
+                    ON 
+                        a.account_sortId = c.account_sortId
+                    LEFT JOIN 
+                        jutai.definvoice_details d
+                    ON 
+                        a.invoiceId = d.InvoiceId
+                    WHERE 
+                        a.invoiceDate  BETWEEN :date AND :enddate
+                    GROUP BY 
+                        a.invoiceId
+                    ORDER BY 
+                        a.customerId;
+                    `,
+                    {
+                      replacements: { date,enddate }, // 替换为动态变量
+                      type: reportsales.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+                    }
+                  );
+                if (accTrade.length == 0) {
+                    console.log({ returnCode: 0, message: "無資料" })
+                    return res.json({ returnCode: 0, message: "無資料" })
+                }
+                console.log({ returnCode: 0, message: "查詢開立發票", data: accTrade })
+                return res.json({ returnCode: 0, message: "查詢開立發票", data: accTrade })
+
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        //更改擔保品模式
+        changeCollateral: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 更改擔保品模式(changeCollateral)')
+                const trade_type = await bank_data.update({
+                    trade_type:'2',
+                }, {
+                    where: {
+                        id: {
+                            [Op.eq]: req.body.id
+                          },
+                    },
+                }
+            )
+                console.log({ returnCode: 0, message: "更改擔保品模式"})
+                return res.json({ returnCode: 0, message: "更改擔保品模式" })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
         // //查詢特殊發票金額
         // searchtotalamount2: async (req, res) => {
         //     try {

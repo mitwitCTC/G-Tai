@@ -30,12 +30,15 @@
     @input="filterData"
   ></el-input>
   <el-button type="primary" @click="dialogopen()">新增資料</el-button>
-  <el-button type="info" @click="handleExport(this.filteredData)" v-if="paginatedData.length>0"
+  <el-button
+    type="info"
+    @click="handleExport(this.filteredData)"
+    v-if="paginatedData.length > 0"
     >匯出</el-button
   >
   <div class="table-container">
     <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
-      <el-table-column prop="id" label="序號" width="100"></el-table-column>
+      <el-table-column prop="id" label="序號" width="80"></el-table-column>
       <el-table-column
         prop="customerId"
         label="客戶代號"
@@ -44,13 +47,13 @@
       <el-table-column
         prop="cus_name"
         label="客戶名稱"
-        width="350"
+        width="250"
       ></el-table-column>
-      <el-table-column prop="bank" label="銀行"></el-table-column>
-      <el-table-column prop="account_time" label="交易時間"></el-table-column>
+      <el-table-column prop="bank" label="銀行"  width="150"></el-table-column>
+      <el-table-column prop="account_time" label="交易時間"  width="100"></el-table-column>
       <!-- <el-table-column prop="account_date" label="入帳日"></el-table-column> -->
       <!-- <el-table-column prop="account_time" label="交易時間"></el-table-column> -->
-      <el-table-column prop="taxId" label="統一編號"
+      <el-table-column prop="taxId" label="統一編號"  width="150"
         ><template #default="scope">
           {{
             scope.row.taxId === "0" || scope.row.taxId === 0
@@ -59,8 +62,10 @@
           }}
         </template></el-table-column
       >
-      <el-table-column prop="remark" label="備註"></el-table-column>
-      <el-table-column prop="amount" label="入帳金額" align="right"
+      <el-table-column prop="remark" label="備註"  width="150"></el-table-column>
+      <el-table-column prop="checkoutTime" label="儲值入帳"  width="150"></el-table-column>
+      <el-table-column prop="acc_trade" label="傳票編號"  width="150"></el-table-column>
+      <el-table-column prop="amount" label="入帳金額" align="right"  width="100"
         ><template v-slot="scope"
           >{{ formatCurrency(scope.row.amount) }}
         </template></el-table-column
@@ -71,6 +76,12 @@
             <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
             <!-- <i class="fas fa-edit " @click="editItem(scope.row)"></i> -->
             <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
+            <el-button
+              type="info"
+              @click="isCollateral(scope.row)"
+              v-if="scope.row.checkoutTime == 0"
+              >轉擔保品</el-button
+            >
           </div>
         </template>
       </el-table-column>
@@ -88,6 +99,7 @@
         layout="prev, pager, next, jumper"
         class="pagination"
       />
+      <div style="margin-bottom: 100px ;"></div>
     </div>
 
     <!-- 新增資料 -->
@@ -275,23 +287,63 @@ export default {
     },
   },
   methods: {
-    async handleExport(data){
+    async isCollateral(row) {
+      if (
+        window.confirm(
+          `請確認是否要更改？序號：${row.id}，${row.customerId}，${row.cus_name}`
+        )
+      ) {
+        const postData = {
+          id: row.id,
+        };
+        axios
+          .post("http://122.116.23.30:3347/finance/changeCollateral", postData)
+          .then((response) => {
+            if (response.status === 200 && response.data.returnCode === 0) {
+              // 成功提示
+              this.$message({
+                message: "成功",
+                type: "success",
+              });
+              // 刷新數據
+              this.getselectData();
+            } else {
+              // 處理非 0 成功代碼
+              this.$message({
+                message: "失敗",
+                type: "error",
+              });
+            }
+          })
+          .catch((error) => {
+            // 發生錯誤時，顯示錯誤提示
+            this.$message({
+              message: "新增失敗，伺服器錯誤",
+              type: "error",
+            });
+            console.error("Error:", error);
+          });
+      } else {
+        console.log("使用者取消更改");
+      }
+    },
+    async handleExport(data) {
       try {
-          this.isLoading = true;
-          await ExportTBB.methods.exportExcel(data);
-          // 顯示成功訊息
-          this.$message({
-            message: `匯出成功`,
-            type: "success",
-          });
-        } catch {
-          this.$message({
-            message: `匯出失敗`,
-            type: "error",
-          });
-        } finally {
-          this.isLoading = false;
-        }
+        this.isLoading = true;
+        await ExportTBB.methods.exportExcel(data);
+        // 顯示成功訊息
+        this.$message({
+          message: `匯出成功`,
+          type: "success",
+        });
+      } catch {
+        this.$message({
+          message: `匯出失敗`,
+          type: "error",
+        });
+      } finally {
+        this.isLoading = false;
+      }
     },
     // 篩選資料
     filterData() {

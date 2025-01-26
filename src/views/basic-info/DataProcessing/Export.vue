@@ -111,7 +111,8 @@
             this.form.state == 2 ||
             this.form.state == 4 ||
             this.form.state == 5 ||
-            this.form.state == 7
+            this.form.state == 7 ||
+            this.form.state == 8
           "
         >
           <el-select
@@ -120,7 +121,8 @@
             @change="getstate"
           >
             <el-option label="刪除(停用)" :value="4"></el-option>
-            <el-option label="改卡號(故障、遺失)" :value="2"></el-option>
+            <el-option label="改卡號(遺失)" :value="2"></el-option>
+            <el-option label="改卡號(故障)" :value="8"></el-option>
             <el-option label="原卡復油" :value="5"></el-option>
             <el-option label="新增卡別" :value="7"></el-option>
           </el-select>
@@ -197,7 +199,8 @@
               form.state == 4 ||
               form.state == 1 ||
               form.state == 5 ||
-              form.state == 7
+              form.state == 7 ||
+              form.state == 8
             "
             @change="filterRecorded2"
           >
@@ -229,7 +232,7 @@
               :value="'遺失'"
             ></el-option>
             <el-option
-              v-if="form.state == 2"
+              v-if="form.state == 8"
               label="故障"
               :value="'故障'"
             ></el-option>
@@ -449,11 +452,14 @@ export default {
       if (this.form.upload_reason == "改客戶(原卡號沿用)") {
         this.form.state = 6;
       } else if (
-        this.form.upload_reason == "故障" ||
         this.form.upload_reason == "遺失"
       ) {
         this.form.state = 2;
-      } else {
+      }  else if (
+        this.form.upload_reason == "故障"
+      ) {
+        this.form.state = 8;
+      }else {
         this.form.state = 3;
       }
     },

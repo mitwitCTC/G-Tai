@@ -296,7 +296,7 @@ export default {
         result = selectedRows.map((row) => ({
           license_plate: row.license_plate,
           customerId: this.customerId, // 客戶代號
-          account_sortId: row.account_sortId, // 帳單代號
+          account_sortId: this.form.acc_name, // 帳單代號
           mode: this.form.state,
           message: row.license_plate,
           date: this.form.date,
