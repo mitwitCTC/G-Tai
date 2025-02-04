@@ -170,22 +170,34 @@
       </el-form-item>
     </el-row>
     <div class="page-title"><h3>已開立發票資訊</h3></div>
-    <el-table :data="invoicedata"  style="width: 100%;">
-      <el-table-column prop="編號" label="發票流水號" width="190"/>
-      <el-table-column prop="BName" label="抬頭" width="250"/>
-      <el-table-column prop="Bidentifier" label="統編" width="190"/>
-      <el-table-column prop="品項" label="品項" width="250"/>
-      <el-table-column prop="數量" label="數量" width="100"/>
+    <el-table :data="invoicedata" style="width: 100%">
+      <el-table-column prop="編號" label="發票流水號" width="190" />
+      <el-table-column prop="BName" label="抬頭" width="250" />
+      <el-table-column prop="Bidentifier" label="統編" width="190" />
+      <el-table-column prop="品項" label="品項" width="250" />
+      <el-table-column prop="數量" label="數量" width="100" />
       <el-table-column prop="品項小計" label="品項小計" width="150">
         <template v-slot="scope"
-        >{{ formatCurrency(scope.row.品項小計) }}
-      </template></el-table-column>
-      <el-table-column prop="Amount" label="開立金額" width="150"><template v-slot="scope"
-        >{{ formatCurrency(scope.row.Amount) }}
-      </template></el-table-column>
+          >{{ formatCurrency(scope.row.品項小計) }}
+        </template></el-table-column
+      >
+      <el-table-column prop="Amount" label="開立金額" width="150"
+        ><template v-slot="scope"
+          >{{ formatCurrency(scope.row.Amount) }}
+        </template></el-table-column
+      >
+      <el-table-column label="操作">
+        <template v-slot="scope">
+          <div class="action-icons">
+            <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
+          </div>
+        </template>
+      </el-table-column>
     </el-table>
     <div class="page-title"><h3>新增特殊發票</h3></div>
-    <el-button type="warning" @click="addEntry()" style="margin-bottom: 10px;"> 新增 </el-button>
+    <el-button type="warning" @click="addEntry()" style="margin-bottom: 10px">
+      新增
+    </el-button>
     <el-table :data="form.invoice" border>
       <el-table-column prop="invoice_name" label="抬頭" width="400">
         <template v-slot="scope">
@@ -359,7 +371,7 @@ export default {
         "無鉛汽油",
       ],
       invoicedata: [],
-      bills:[],
+      bills: [],
     };
   },
   created() {
@@ -394,6 +406,40 @@ export default {
     },
   },
   methods: {
+    async deleteItem(row) {
+      const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
+      if (result) {
+        const req = {
+          invoiceId: row.invoiceId,
+        };
+        await axios
+          .post("http://122.116.23.30:3347/finance/deleteinvoice", req)
+          .then((response) => {
+            if (response.status === 200 && response.data.returnCode === 0) {
+              // 成功提示
+              this.$message({
+                message: "刪除成功",
+                type: "success",
+              });
+              this.selectinvoice();
+            } else {
+              // 處理非 0 成功代碼
+              this.$message({
+                message: "刪除失敗",
+                type: "error",
+              });
+            }
+          })
+          .catch((error) => {
+            // 發生錯誤時，顯示錯誤提示
+            this.$message({
+              message: "刪除失敗，伺服器錯誤",
+              type: "error",
+            });
+            console.error("Error:", error);
+          });
+      }
+    },
     formatName(account_sortId) {
       // 使用 find 方法找到對應的 employee_name
       const account = this.bills.find(
@@ -416,10 +462,11 @@ export default {
         this.isLoading = false; // 請求完成後關閉加載狀態
       }
     },
-    async selectinvoice(row) {
+    async selectinvoice() {
       try {
-        const postdata = {
-          customerId: row.customerId,
+
+          const postdata = {
+          customerId: this.form.cus_code,
           invoiceDate: this.search_month,
         };
         const response = await axios.post(
@@ -429,7 +476,7 @@ export default {
         // 確認 API 回應是否有資料
         if (response.data && response.data.data.length > 0) {
           this.invoicedata = response.data.data;
-          console.log(JSON.stringify(this.invoicedata))
+          console.log(JSON.stringify(this.invoicedata));
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);
@@ -527,7 +574,6 @@ export default {
     },
     async getbill(customerId) {
       try {
-        
         // 發送 GET 請求到指定的 API
         const postdata = {
           customerId: customerId,
@@ -540,7 +586,7 @@ export default {
         // 將資料放入 customers 陣列中
       } catch (error) {
         console.error("Error fetching customer data:", error);
-      } 
+      }
     },
     async changesystemwork(type) {
       if (!this.search_month) {
@@ -809,9 +855,9 @@ export default {
         this.form.search_month = this.search_month;
         this.form.TotalAmount = row.total;
         await this.getbill(row.customerId);
-        await this.selectinvoice(row);
+        await this.selectinvoice();
         this.dialog = true;
-        this.isLoading = false; 
+        this.isLoading = false;
       } else if (this.month_final == "24") {
         this.$message({
           message: "特殊開立已完成 無法變更",

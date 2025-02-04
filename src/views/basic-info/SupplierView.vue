@@ -123,7 +123,7 @@ export default {
         // },
       ],
       //  DDD:"G2200072,G2200176,G2200230,G2200260,G2200319,G2200520,G2200608,G2200782,G2200783",
-      DDD: "G2200814",
+      DDD: "G2200513",
       Statement: [],
       DetaProduct: [],
       Balance: [],
@@ -676,7 +676,8 @@ export default {
             Number(row.fuel_volume),
             Number(row.reference_amount),
             Number(row.amount),
-            Number(row.mileage),
+            // Number(row.mileage),
+            Number(row.lastMileage || 0) - Number(row.pastmaxMileage || 0),
             Number(row.fuel_consumption),
           ]);
           //公司資訊

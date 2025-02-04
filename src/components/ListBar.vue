@@ -40,6 +40,7 @@
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/SpecialInvoice')">特殊發票處理</button>
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/cpctrade')">中油交易</button>
         <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/definvoice')">開立發票查詢</button>
+        <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/billsend')">確認寄送帳單名單</button> -->
       </div>
        <!-- <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/CardMake')">製卡明細</button>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/AccessControl')">權限管理</button> -->

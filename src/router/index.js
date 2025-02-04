@@ -284,6 +284,16 @@ const router = createRouter({
             isset: true
           },
         },
+        {
+          path: 'billsend',
+          name: '確認寄送帳單名單',
+          component: () => import('@/views/basic-info/billsend.vue'),
+          meta: {
+            title: '確認寄送帳單名單',
+            breadcrumb: '確認寄送帳單名單',
+            isAccountsPage: true
+          },
+        },
       ]
     }
   ]
