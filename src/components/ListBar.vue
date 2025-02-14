@@ -2,54 +2,184 @@
   <!-- 側欄 -->
   <div class="bg-light border-right" id="sidebar-wrapper">
     <div class="sidebar-heading">
-      <img src="@/assets/logo.png" alt="Logo" class="img-fluid" @click="goTo('/')" />
+      <img
+        src="@/assets/logo.png"
+        alt="Logo"
+        class="img-fluid"
+        @click="goTo('/')"
+      />
     </div>
     <div class="list-group list-group-flush">
-      <button class="btn btn-light w-100 text-start" @click="toggleBasicInfoCollapse">
-        {{ isBasicInfoCollapsed ? '基本資料維護⭢' : '基本資料維護↓' }}
+      <button
+        class="btn btn-light w-100 text-start"
+        @click="toggleBasicInfoCollapse"
+      >
+        {{ isBasicInfoCollapsed ? "基本資料維護⭢" : "基本資料維護↓" }}
       </button>
-      <div class="collapse" :class="{ show: !isBasicInfoCollapsed }" id="collapseExample1">
-        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/customer')">客戶資料維護</button>
-        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button>
-        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/modifybill')">切換客代帳號</button>
-        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/discountrecords')">更改客戶折讓</button>
-        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/SalesControl')">通知客戶管理</button>
-        <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/ReportManagement')">中油鎖卡/解卡處理</button>
+      <div
+        class="collapse"
+        :class="{ show: !isBasicInfoCollapsed }"
+        id="collapseExample1"
+      >
+        <button
+          class="btn btn-light w-100 text-start custom-color"
+          @click="() => goTo('/basic-info/customer')"
+        >
+          客戶資料維護
+        </button>
+        <button
+          class="btn btn-light w-100 text-start custom-color"
+          @click="() => goTo('/basic-info/salesperson')"
+        >
+          員工資料維護
+        </button>
+        <button
+          class="btn btn-light w-100 text-start custom-color"
+          @click="() => goTo('/basic-info/modifybill')"
+        >
+          切換客代帳號
+        </button>
+        <button
+          class="btn btn-light w-100 text-start custom-color"
+          @click="() => goTo('/basic-info/discountrecords')"
+        >
+          更改客戶折讓
+        </button>
+        <button
+          class="btn btn-light w-100 text-start custom-color"
+          @click="() => goTo('/basic-info/SalesControl')"
+        >
+          通知客戶管理
+        </button>
+        <button
+          class="btn btn-light w-100 text-start custom-color"
+          @click="() => goTo('/basic-info/ReportManagement')"
+        >
+          中油鎖卡/解卡處理
+        </button>
       </div>
       <button class="btn btn-light w-100 text-start" @click="toggleData">
-        {{ isData ? '大批管理客戶資料⭢' : '大批管理客戶資料⭢' }}
+        {{ isData ? "大批管理客戶資料⭢" : "大批管理客戶資料⭢" }}
       </button>
       <div class="collapse" :class="{ show: !isData }" id="collapseExample4">
-        <button class="btn btn-light w-100 text-start Data-color" @click="() => goTo('/basic-info/Export')">匯出車藉中油檔</button>
-        <button class="btn btn-light w-100 text-start Data-color" @click="() => goTo('/basic-info/Import')">匯入車藉中油檔</button>
-      </div>
-      <button class="btn btn-light w-100 text-start" @click="toggleBasicInfoCollapseTrade">
-        {{ isBasicInfoCollapsedTrade ? '帳務管理⭢' : '帳務管理↓' }}
-      </button>
-      <div class="collapse" :class="{ show: !isBasicInfoCollapsedTrade }" id="collapseExample2">
-        <button class="btn btn-light w-100 text-start trade-color"  @click="toggleBasicInfoCollapseBank">
-          {{ isBasicInfoCollapsedBank ? '銀行⭢' : '銀行↓' }}
+        <button
+          class="btn btn-light w-100 text-start Data-color"
+          @click="() => goTo('/basic-info/Export')"
+        >
+          匯出車藉中油檔
         </button>
-        <div class="collapse" :class="{ show: !isBasicInfoCollapsedBank }" id="collapseExample3">
-          <button class="btn btn-light w-100 text-start bank-color" @click="() => goTo('/basic-info/TBB_View')">匯款/支票</button>
-          <button class="btn btn-light w-100 text-start bank-color" @click="() => goTo('/basic-info/BANKSINOPAC_View')">刷卡帳務</button>
-          </div>
-        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/CustomerAccounts')">未核銷帳務</button>
-        <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">結帳列印</button> -->
-        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/FinanceManagement')">會計傳票</button>
-        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/SpecialInvoice')">特殊發票處理</button>
-        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/cpctrade')">中油交易</button>
-        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/definvoice')">開立發票查詢</button>
-        <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/billsend')">確認寄送帳單名單</button> -->
+        <button
+          class="btn btn-light w-100 text-start Data-color"
+          @click="() => goTo('/basic-info/Import')"
+        >
+          匯入車藉中油檔
+        </button>
       </div>
-       <!-- <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/CardMake')">製卡明細</button>
+      <button
+        class="btn btn-light w-100 text-start"
+        @click="toggleBasicInfoCollapseTrade"
+      >
+        {{ isBasicInfoCollapsedTrade ? "帳務管理⭢" : "帳務管理↓" }}
+      </button>
+      <div
+        class="collapse"
+        :class="{ show: !isBasicInfoCollapsedTrade }"
+        id="collapseExample2"
+      >
+        <button
+          class="btn btn-light w-100 text-start trade-color"
+          @click="toggleBasicInfoCollapseBank"
+        >
+          {{ isBasicInfoCollapsedBank ? "銀行⭢" : "銀行↓" }}
+        </button>
+        <div
+          class="collapse"
+          :class="{ show: !isBasicInfoCollapsedBank }"
+          id="collapseExample3"
+        >
+          <button
+            class="btn btn-light w-100 text-start bank-color"
+            @click="() => goTo('/basic-info/TBB_View')"
+          >
+            匯款/支票
+          </button>
+          <button
+            class="btn btn-light w-100 text-start bank-color"
+            @click="() => goTo('/basic-info/BANKSINOPAC_View')"
+          >
+            刷卡帳務
+          </button>
+        </div>
+        <button
+          class="btn btn-light w-100 text-start trade-color"
+          @click="() => goTo('/basic-info/CustomerAccounts')"
+        >
+          未核銷帳務
+        </button>
+        <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">結帳列印</button> -->
+
+        <button
+          class="btn btn-light w-100 text-start trade-color"
+          @click="() => goTo('/basic-info/SpecialInvoice')"
+        >
+          特殊發票處理
+        </button>
+        <button
+          class="btn btn-light w-100 text-start trade-color"
+          @click="() => goTo('/basic-info/cpctrade')"
+        >
+          中油交易
+        </button>
+        <!-- <button
+          class="btn btn-light w-100 text-start trade-color"
+          @click="() => goTo('/basic-info/monthaccount')"
+        >
+          月底核帳
+        </button> -->
+        <button
+          class="btn btn-light w-100 text-start trade-color"
+          @click="() => goTo('/basic-info/definvoice')"
+        >
+          開立發票查詢
+        </button>
+        <button
+          class="btn btn-light w-100 text-start trade-color"
+          @click="() => goTo('/basic-info/billsend')"
+        >
+          確認寄送帳單名單
+        </button>
+      </div>
+      <!-- <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/CardMake')">製卡明細</button>
       <button class="btn btn-light w-100 text-start" @click="() => goTo('/basic-info/AccessControl')">權限管理</button> -->
+      <button class="btn btn-light w-100 text-start" @click="Accounting">
+        {{ isAccounting ? "會計系統⭢" : "會計系統⭢" }}
+      </button>
+      <div class="collapse" :class="{ show: !isAccounting }" id="collapseExample5">
+        <button
+          class="btn btn-light w-100 text-start Acc-color"
+          @click="() => goTo('/basic-info/FinanceManagement')"
+        >
+          會計傳票
+        </button>
+        <button
+          class="btn btn-light w-100 text-start Acc-color"
+          @click="() => goTo('/basic-info/Accedit')"
+        >
+          編輯會計科目
+        </button>
+        <!-- <button class="btn btn-light w-100 text-start set-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button> -->
+      </div>
       <button class="btn btn-light w-100 text-start" @click="setData">
-        {{ isset ? '系統設定⭢' : '系統設定⭢' }}
+        {{ isset ? "系統設定⭢" : "系統設定⭢" }}
       </button>
       <div class="collapse" :class="{ show: !isset }" id="collapseExample4">
-        <button class="btn btn-light w-100 text-start set-color" @click="() => goTo('/basic-info/cpcpwd')">中油密碼更改</button>
-        <!-- <button class="btn btn-light w-100 text-start custom-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button> -->
+        <button
+          class="btn btn-light w-100 text-start set-color"
+          @click="() => goTo('/basic-info/cpcpwd')"
+        >
+          中油密碼更改
+        </button>
+        <!-- <button class="btn btn-light w-100 text-start set-color" @click="() => goTo('/basic-info/salesperson')">員工資料維護</button> -->
       </div>
     </div>
     <div class="sidebar-TheFooter">
@@ -63,19 +193,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
 
-const userName = ref('登入者：測試測試'); // 替換為實際的登入者名稱
+const userName = ref("登入者：測試測試"); // 替換為實際的登入者名稱
 
 const isBasicInfoCollapsed = ref(true);
 const isBasicInfoCollapsedTrade = ref(true);
 const isBasicInfoCollapsedBank = ref(true);
 const isData = ref(true);
 const isset = ref(true);
+const isAccounting = ref(true);
 
 const goTo = (path) => {
   if (route.path !== path) {
@@ -98,10 +229,13 @@ const toggleData = () => {
 const setData = () => {
   isset.value = !isset.value;
 };
+const Accounting = () => {
+  isAccounting.value = !isAccounting.value;
+};
 
 const logout = () => {
   // 登出邏輯，例如清除token，重定向到登入頁面等
-  router.push('/login'); // 假設登出後重定向到登入頁面
+  router.push("/login"); // 假設登出後重定向到登入頁面
 };
 </script>
 
@@ -119,7 +253,7 @@ const logout = () => {
 }
 
 .sidebar-heading img {
-  cursor: pointer; 
+  cursor: pointer;
 }
 
 .sidebar-heading {
@@ -137,34 +271,40 @@ const logout = () => {
 }
 
 .custom-color {
-  background-color: #faca2a; 
+  background-color: #faca2a;
 }
 .custom-color:hover {
-  background-color: #be4e04; 
+  background-color: #be4e04;
 }
 .trade-color {
-  background-color: #76fa2a; 
+  background-color: #76fa2a;
 }
 .trade-color:hover {
-  background-color: #04b840; 
+  background-color: #04b840;
 }
 .bank-color {
-  background-color: #1ad0fd; 
+  background-color: #1ad0fd;
 }
 .bank-color:hover {
-  background-color: #07a8f3; 
+  background-color: #07a8f3;
 }
 .Data-color {
-  background-color: #ff5bf7; 
+  background-color: #ff5bf7;
 }
 .Data-color:hover {
-  background-color: #ff00f2; 
+  background-color: #ff00f2;
 }
 .set-color {
-  background-color: #8c5bff; 
+  background-color: #8c5bff;
 }
 .set-color:hover {
-  background-color: #824caf; 
+  background-color: #824caf;
+}
+.Acc-color {
+  background-color: #ee3e3e;
+}
+.Acc-color:hover {
+  background-color: #b10505;
 }
 .sidebar-TheFooter {
   padding: 10px;

@@ -203,14 +203,14 @@
         <template v-slot="scope">
           <el-select
             v-model="scope.row.invoice_name"
-            placeholder="選擇抬頭"
+            placeholder="選擇抬頭(開立二聯發票無需選擇)"
             style="width: 100%"
             @change="use_number(scope.row.invoice_name, scope.row)"
           >
             <el-option
               v-for="item in bill"
               :key="item.account_sortId"
-              :label="item.invoice_name"
+              :label="item.invoice_name|| '開立二聯發票'"
               :value="item.invoice_name"
             ></el-option>
           </el-select>
@@ -410,8 +410,9 @@ export default {
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
         const req = {
-          invoiceId: row.invoiceId,
+          invoiceId: row.編號,
         };
+        console.log(JSON.stringify(req))
         await axios
           .post("http://122.116.23.30:3347/finance/deleteinvoice", req)
           .then((response) => {
@@ -421,7 +422,8 @@ export default {
                 message: "刪除成功",
                 type: "success",
               });
-              this.selectinvoice();
+              this.dototal();
+              this.dialog = false;
             } else {
               // 處理非 0 成功代碼
               this.$message({
@@ -462,11 +464,12 @@ export default {
         this.isLoading = false; // 請求完成後關閉加載狀態
       }
     },
-    async selectinvoice() {
-      try {
+    async selectinvoice(row) {
+     
 
-          const postdata = {
-          customerId: this.form.cus_code,
+      try {
+        const postdata = {
+          customerId: row.customerId,
           invoiceDate: this.search_month,
         };
         const response = await axios.post(
@@ -476,7 +479,8 @@ export default {
         // 確認 API 回應是否有資料
         if (response.data && response.data.data.length > 0) {
           this.invoicedata = response.data.data;
-          console.log(JSON.stringify(this.invoicedata));
+        } else {
+          this.invoicedata = [];
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);
@@ -503,7 +507,7 @@ export default {
         return;
       }
       for (const invoice of this.form.invoice) {
-        if (!invoice.invoice_name || !invoice.use_number || !invoice.products) {
+        if (!invoice.products) {
           this.$message({
             message: "欄位不可為空",
             type: "error",
@@ -848,6 +852,7 @@ export default {
       scope.row.product_text = scope.row.product.join(", ");
     },
     async onpeDialog(row) {
+      console.log(JSON.stringify(row));
       if (this.month_final != "24") {
         this.isLoading = true; // 開始加載
         this.form.cus_code = row.customerId;
@@ -855,7 +860,7 @@ export default {
         this.form.search_month = this.search_month;
         this.form.TotalAmount = row.total;
         await this.getbill(row.customerId);
-        await this.selectinvoice();
+        await this.selectinvoice(row);
         this.dialog = true;
         this.isLoading = false;
       } else if (this.month_final == "24") {

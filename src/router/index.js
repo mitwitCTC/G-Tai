@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AccessControl from '@/views/basic-info/AccessControl.vue'
+import monthaccount from '@/views/basic-info/monthaccount.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -118,7 +119,17 @@ const router = createRouter({
           meta: {
             title: '會計傳票',
             breadcrumb: '會計傳票',
-            isAccountsPage: true
+            isAcc: true
+          }
+        },
+        {
+          path: 'Accedit',
+          name: '編輯會計科目',
+          component: () => import('@/views/basic-info/Accedit.vue'),
+          meta: {
+            title: '編輯會計科目',
+            breadcrumb: '編輯會計科目',
+            isAcc: true
           }
         },
         {
@@ -169,6 +180,16 @@ const router = createRouter({
           title: '供應權限管理商資料',
           breadcrumb: '供應權限管理商資料',
           isSpecialPage: false
+        }
+      },
+      {
+        path: 'monthaccount',
+        name: '月底核帳',
+        component: monthaccount,
+        meta: {
+          title: '月底核帳',
+          breadcrumb: '月底核帳',
+          isAccountsPage: true
         }
       },
         {

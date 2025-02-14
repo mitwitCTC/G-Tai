@@ -172,7 +172,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="產業類別">
-            <el-select v-model="cus_form.industry" placeholder="選擇產業類別">
+            <el-select v-model="cus_form.industry" placeholder="選擇產業類別" filterable>
               <el-option label="1.食品飲料" :value="1"></el-option>
               <el-option label="2.傢飾傢俱家電" :value="2"></el-option>
               <el-option label="3.石油化學" :value="3"></el-option>
@@ -261,7 +261,7 @@
         </el-row>
         <el-row style="margin-bottom: 20px">
           <el-form-item label="簽約業務">
-            <el-select v-model="cus_form.contract_sales" placeholder="選擇業務">
+            <el-select v-model="cus_form.contract_sales" placeholder="選擇業務" filterable>
               <el-option
                 v-for="salesman in salesmenData"
                 :key="salesman.employee_id"
@@ -271,7 +271,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="負責業務">
-            <el-select v-model="cus_form.salesmanId" placeholder="選擇業務">
+            <el-select v-model="cus_form.salesmanId" placeholder="選擇業務" filterable>
               <el-option
                 v-for="salesman in salesmenData"
                 :key="salesman.employee_id"

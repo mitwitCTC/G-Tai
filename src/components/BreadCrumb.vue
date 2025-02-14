@@ -7,6 +7,7 @@
       <h6 v-else-if="isBankPage">帳務管理 ⮕ 銀行 ⮕{{ pageTitle }}</h6>
       <h6 v-else-if="isData">大批管理客戶資料 ⮕{{ pageTitle }}</h6>
       <h6 v-else-if="isset">系統設定 ⮕{{ pageTitle }}</h6>
+      <h6 v-else-if="isAcc">會計系統 ⮕{{ pageTitle }}</h6>
       <h6 v-else>{{ pageTitle }}</h6>
     </div>
   </template>
@@ -30,7 +31,8 @@
         isAccountsPage:false,
         isBankPage:false,
         isData:false,
-        isset:false
+        isset:false,
+        isAcc:false,
       };
     }, 
     mounted() {
@@ -41,6 +43,7 @@
       this.isBankPage = this.$route.meta.isBankPage || false;
       this.isData = this.$route.meta.isData || false;
       this.isset = this.$route.meta.isset || false;
+      this.isAcc = this.$route.meta.isAcc || false;
     }
     
   };

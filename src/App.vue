@@ -28,7 +28,7 @@ export default {
   computed: {
     // 檢查當前路由是否為 /AccessControl
     isAccessControlPage() {
-      return this.$route.path === '/basic-info/AccessControl';
+      return this.$route.path === '/basic-info/AccessControl'|| this.$route.path === '/basic-info/ccc' ;
     }
   }
 };

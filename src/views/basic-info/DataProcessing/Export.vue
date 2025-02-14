@@ -199,8 +199,7 @@
               form.state == 4 ||
               form.state == 1 ||
               form.state == 5 ||
-              form.state == 7 ||
-              form.state == 8
+              form.state == 7 
             "
             @change="filterRecorded2"
           >
@@ -248,7 +247,7 @@
         <el-select v-model="form.state" placeholder="狀態" disabled="true">
           <el-option label="狀態" :value="0"></el-option>
           <el-option label="判斷結果：1.新增" :value="1"></el-option>
-          <el-option label="判斷結果：2.更改卡號" :value="2"></el-option>
+          <el-option label="判斷結果：2.更改卡號(遺失)" :value="2"></el-option>
           <el-option
             label="判斷結果：3.改客戶(原卡號停用)"
             :value="3"
@@ -260,6 +259,7 @@
             :value="6"
           ></el-option>
           <el-option label="判斷結果：7.新增卡別" :value="7"></el-option>
+          <el-option label="判斷結果：8.更改卡號(故障)" :value="8"></el-option>
         </el-select>
       </el-form-item>
     </el-form>

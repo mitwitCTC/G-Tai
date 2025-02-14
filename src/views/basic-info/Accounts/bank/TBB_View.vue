@@ -36,8 +36,8 @@
     v-if="paginatedData.length > 0"
     >匯出</el-button
   >
-  <div class="table-container">
-    <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
+  <div class="table-container" v-if="paginatedData.length > 0">
+    <el-table :data="paginatedData" style="width: 100%">
       <el-table-column prop="id" label="序號" width="80"></el-table-column>
       <el-table-column
         prop="customerId"
@@ -49,11 +49,26 @@
         label="客戶名稱"
         width="250"
       ></el-table-column>
-      <el-table-column prop="bank" label="銀行"  width="150"></el-table-column>
-      <el-table-column prop="account_time" label="交易時間"  width="100"></el-table-column>
+      <el-table-column prop="bank" label="銀行" width="80"></el-table-column>
+      <el-table-column prop="trade_type" label="交易類型" width="100">
+        <template v-slot="scope">
+          {{
+            scope.row.trade_type === "1"
+              ? "儲值金"
+              : scope.row.trade_type === "2"
+              ? "擔保品"
+              : ""
+          }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="account_time"
+        label="交易時間"
+        width="100"
+      ></el-table-column>
       <!-- <el-table-column prop="account_date" label="入帳日"></el-table-column> -->
       <!-- <el-table-column prop="account_time" label="交易時間"></el-table-column> -->
-      <el-table-column prop="taxId" label="統一編號"  width="150"
+      <el-table-column prop="taxId" label="統一編號" width="150"
         ><template #default="scope">
           {{
             scope.row.taxId === "0" || scope.row.taxId === 0
@@ -62,10 +77,18 @@
           }}
         </template></el-table-column
       >
-      <el-table-column prop="remark" label="備註"  width="150"></el-table-column>
-      <el-table-column prop="checkoutTime" label="儲值入帳"  width="150"></el-table-column>
-      <el-table-column prop="acc_trade" label="傳票編號"  width="150"></el-table-column>
-      <el-table-column prop="amount" label="入帳金額" align="right"  width="100"
+      <el-table-column prop="remark" label="備註" width="150"></el-table-column>
+      <el-table-column
+        prop="checkoutTime"
+        label="儲值入帳"
+        width="150"
+      ></el-table-column>
+      <el-table-column
+        prop="acc_trade"
+        label="傳票編號"
+        width="150"
+      ></el-table-column>
+      <el-table-column prop="amount" label="入帳金額" align="right" width="100"
         ><template v-slot="scope"
           >{{ formatCurrency(scope.row.amount) }}
         </template></el-table-column
@@ -99,7 +122,7 @@
         layout="prev, pager, next, jumper"
         class="pagination"
       />
-      <div style="margin-bottom: 100px ;"></div>
+      <div style="margin-bottom: 100px"></div>
     </div>
 
     <!-- 新增資料 -->
@@ -237,7 +260,16 @@
         </div>
       </template>
     </el-dialog>
+    
+    <div style="margin-bottom: 50px"></div>
   </div>
+  <el-dialog
+      v-model="isloading"
+      width="15%"
+      title="請稍後..."
+      :close-on-click-modal="false"
+      :show-close="false"
+    ></el-dialog>
 </template>
 
 <script>
@@ -252,7 +284,7 @@ export default {
   },
   data() {
     return {
-      loading: false,
+      isloading: false,
       dialog: false,
       form: {
         amount: "",
@@ -329,7 +361,7 @@ export default {
     },
     async handleExport(data) {
       try {
-        this.isLoading = true;
+        this.isloading = true;
         await ExportTBB.methods.exportExcel(data);
         // 顯示成功訊息
         this.$message({
@@ -342,7 +374,7 @@ export default {
           type: "error",
         });
       } finally {
-        this.isLoading = false;
+        this.isloading = false;
       }
     },
     // 篩選資料
@@ -461,7 +493,7 @@ export default {
         });
     },
     async getselectData() {
-      this.loading = true; // 開始加載
+      this.isloading = true; // 開始加載
       await axios
         .get("http://122.116.23.30:3347/finance/selectTBB")
         .then((response) => {
@@ -479,7 +511,8 @@ export default {
             }
           });
           this.BankData.sort((a, b) => b.account_date - a.account_date);
-          this.loading = false; // 請求完成後關閉加載狀態
+          console.log(JSON.stringify(this.BankData));
+          this.isloading = false; // 請求完成後關閉加載狀態
         })
         .catch((error) => {
           // 處理錯誤

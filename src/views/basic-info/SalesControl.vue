@@ -42,7 +42,19 @@
   </el-form-item>
   <el-form-item label="自動發送客戶" class="section-header">
     <div class="table-container">
-      <el-table :data="this.cus_message" style="width: 100%">
+      <!-- 全選框 -->
+      <el-checkbox v-model="selectAll" @change="toggleSelectAll" v-if="cus_message.length>0">
+        全選
+      </el-checkbox>
+      <el-select v-model="status" placeholder="選擇告警狀態" style="width: 200px; margin-left: 20px;margin-bottom: 5px;" v-if="cus_message.length>0" @change="filterTable"  clearable>
+        <el-option
+              v-for="cus in uniqueTitles"
+              :key="cus"
+              :label="cus"
+              :value="cus"
+            ></el-option>
+      </el-select>
+      <el-table :data="filteredCusMessage" style="width: 100%">
         <el-table-column label="選擇" width="55">
           <template v-slot="scope">
             <el-checkbox v-model="scope.row.selected"></el-checkbox>
@@ -87,11 +99,14 @@ export default {
   },
   data() {
     return {
+      selectAll: false, // 控制全選框
       isLoading: false,
       selectedDate: null,
+      filteredCusMessage:[],
       cus_message: [],
       cus_PerMes: [],
-      AllCustomer:[],
+      AllCustomer: [],
+      status: "",
       type: {
         1: "手機簡訊",
         2: "Line",
@@ -99,8 +114,31 @@ export default {
       },
     };
   },
-  computed: {},
+
+  computed: {
+    uniqueTitles() {
+      return [...new Set(this.cus_message.map((cus) => cus.title))];
+    },
+  },
   methods: {
+    updateSelectAll() {
+      this.selectAll = this.filteredCusMessage.length > 0 && this.filteredCusMessage.every((cus) => cus.selected);
+    },
+    filterTable() {
+
+      this.selectAll = false;
+      if (this.status) {
+        this.filteredCusMessage = this.cus_message.filter((cus) => cus.title === this.status);
+      } else {
+        this.filteredCusMessage = this.cus_message;
+      }
+      this.updateSelectAll(); // 更新全選狀態
+    },
+    toggleSelectAll() {
+      this.filteredCusMessage.forEach((row) => {
+        row.selected = this.selectAll;
+      });
+    },
     async submitData() {
       if (!this.cus_message.some((row) => row.selected)) {
         this.$message({
@@ -128,6 +166,7 @@ export default {
             this.cus_message.forEach((row) => {
               row.selected = false; // 直接將 selected 設為 false
             });
+            this.selectAll = false;
             this.selectedDate = null;
             this.Defnotify();
           } else {
@@ -154,6 +193,8 @@ export default {
       return date.getTime() > today.getTime(); // 禁用今天以後的日期
     },
     async Defnotify() {
+      this.selectAll = false;
+      this.status="";
       this.isLoading = true;
       this.cus_message = [];
       this.cus_PerMes = [];
@@ -164,7 +205,7 @@ export default {
         .post("http://122.116.23.30:3347/main/selectDefnotify", postdata)
         .then((response) => {
           if (response.data.data.length > 0) {
-            this.AllCustomer=response.data.data
+            this.AllCustomer = response.data.data;
             this.AllCustomer.sort((a, b) => {
               // 字串排序（假設 customerId 是字串，根據字典順序）
               return a.customerId.localeCompare(b.customerId);
@@ -176,6 +217,7 @@ export default {
               } else {
                 // 否則加入 cus_message
                 this.cus_message.push(item);
+                this.filteredCusMessage = this.cus_message;
               }
             });
           } else {

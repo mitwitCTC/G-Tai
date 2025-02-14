@@ -32,7 +32,8 @@
     <el-table :data="this.mail" style="width: 100%">
       <el-table-column prop="farewell" label="期別" width="150" />
       <el-table-column prop="customerId" label="客戶代號" width="150" />
-      <el-table-column prop="cus_name" label="客戶名稱" width="500" />
+      <el-table-column prop="cus_name" label="客戶名稱" width="400" />
+      <el-table-column prop="connectionId" label="寄送資訊" width="300" />
       <el-table-column prop="sendType" label="寄送狀態" width="200">
         <template #default="{ row }">
           <el-tag :type="getTagType(row.sendType)">
@@ -47,7 +48,8 @@
     <el-table :data="this.line" style="width: 100%">
       <el-table-column prop="farewell" label="期別" width="150" />
       <el-table-column prop="customerId" label="客戶代號" width="150" />
-      <el-table-column prop="cus_name" label="客戶名稱" width="500" />
+      <el-table-column prop="cus_name" label="客戶名稱" width="400" />
+      <el-table-column prop="connectionId" label="寄送資訊" width="300" />
       <el-table-column prop="sendType" label="寄送狀態" width="200">
         <template #default="{ row }">
           <el-tag :type="getTagType(row.sendType)">
@@ -203,17 +205,17 @@ export default {
             workDate: this.search_month,
             type: type,
           };
-          // const response = await axios.post(
-          //   "http://122.116.23.30:3347/finance/changesystemwork",
-          //   postdata
-          // );
-          // if (response.data && response.data.data) {
-          //   this.$message({
-          //     message: "更改成功",
-          //     type: "success",
-          //   });
-          //   this.getsystemwork();
-          // }
+          const response = await axios.post(
+            "http://122.116.23.30:3347/finance/changesystemwork",
+            postdata
+          );
+          if (response.data && response.data.data) {
+            this.$message({
+              message: "更改成功",
+              type: "success",
+            });
+            this.getsystemwork();
+          }
 
           // 將資料放入 customers 陣列中
         } catch (error) {
@@ -227,7 +229,7 @@ export default {
     getSendTypeText(type) {
       const statusMap = {
         0: "未設定",
-        1: "設定傳送",
+        1: "已設定傳送",
         2: "傳送成功",
         3: "傳送失敗",
         4: "檔案太多需手動發送",
