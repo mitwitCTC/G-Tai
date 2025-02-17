@@ -25,8 +25,18 @@
           v-if="mergedData.length > 0"
           >匯出</el-button
         >
+        <el-button
+          type="primary"
+          style="margin-left: 10px"
+          v-if="this.month_check != '21'"
+          @click="changesystemwork('21')"
+          >確認帳務</el-button
+        >
       </el-form-item>
     </el-form>
+    <div class="page-title" style="color: red" v-if="this.month_check == '21'">
+      <h5>{{ search_month }}帳務已確認</h5>
+    </div>
     <el-table
       :data="mergedData"
       style="width: 100%"
@@ -76,18 +86,90 @@ export default {
     return {
       isLoading: false,
       search_month: "",
+      month_check: "",
       mergedData: [],
       data: [],
     };
   },
-  created() {},
+  created() {
+    
+  },
   computed: {},
 
   methods: {
+    async changesystemwork(type) {
+      if (!this.search_month) {
+        this.$message({
+          message: "請先選擇期別",
+          type: "error",
+        });
+        return;
+      }
+      const result = confirm("此動作無法返回，請確認是否無誤");
+      if (result) {
+        try {
+          // 确保 this.mail 和 this.line 存在
+          if (this.mergedData == 0) {
+            this.$message({
+              message: "本月無核帳資料",
+              type: "error",
+            });
+            return;
+          }
+          this.isLoading = true; // 開始加載
+          // 發送 GET 請求到指定的 API
+          const postdata = {
+            workDate: this.search_month,
+            type: type,
+          };
+          const response = await axios.post(
+            "http://122.116.23.30:3347/finance/changesystemwork",
+            postdata
+          );
+          if (response.data && response.data.data) {
+            this.$message({
+              message: "成功",
+              type: "success",
+            });
+            this.getsystemwork();
+          }
+
+          // 將資料放入 customers 陣列中
+        } catch (error) {
+          console.error("Error fetching customer data:", error);
+        } finally {
+          this.clink();
+          this.isLoading = false; // 請求完成後關閉加載狀態
+        }
+      }
+    },
+    async getsystemwork() {
+      try {
+        const postdata = {
+          workDate: this.search_month,
+          type: "21",
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/finance/getsystemwork",
+          postdata
+        );
+        // 確認 API 回應是否有資料
+        if (response.data && response.data.data.length > 0) {
+          this.month_check = response.data.data[0].type;
+        } else {
+          this.month_check = "";
+        }
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
     async handleExport() {
       try {
         this.isLoading = true;
-        await ExportMonthData.methods.exportExcel(this.search_month,this.mergedData);
+        await ExportMonthData.methods.exportExcel(
+          this.search_month,
+          this.mergedData
+        );
         // 顯示成功訊息
         this.$message({
           message: `匯出成功`,
@@ -126,6 +208,7 @@ export default {
     },
     async clink() {
       this.isLoading = true;
+      this.getsystemwork();
       await this.getdata();
       this.isLoading = false;
     },

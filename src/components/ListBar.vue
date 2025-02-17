@@ -116,7 +116,7 @@
         >
           未核銷帳務
         </button>
-        <!-- <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">結帳列印</button> -->
+        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">總表&明細列印</button>
 
         <button
           class="btn btn-light w-100 text-start trade-color"
@@ -130,12 +130,12 @@
         >
           中油交易
         </button>
-        <!-- <button
+        <button
           class="btn btn-light w-100 text-start trade-color"
           @click="() => goTo('/basic-info/monthaccount')"
         >
           月底核帳
-        </button> -->
+        </button>
         <button
           class="btn btn-light w-100 text-start trade-color"
           @click="() => goTo('/basic-info/definvoice')"

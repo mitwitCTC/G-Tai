@@ -187,7 +187,7 @@ export default {
         });
         return;
       }
-      const result = confirm("請確認是否改變更，是請按'確認'");
+      const result = confirm("此動作無法返回，請確認是否無誤");
       if (result) {
         try {
           // 确保 this.mail 和 this.line 存在

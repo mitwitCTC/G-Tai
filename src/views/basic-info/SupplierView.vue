@@ -20,7 +20,7 @@
           @change="clink()"
         />
         <!-- 發送方式的下拉框 -->
-        <el-select
+        <!-- <el-select
           v-model="selectedSendMode"
           placeholder="請選擇發送方式"
           style="width: 150px; margin-right: 10px"
@@ -29,26 +29,51 @@
           <el-option label="寄送" value="1" />
           <el-option label="Line" value="2" />
           <el-option label="mail" value="3" />
-        </el-select>
+        </el-select> -->
+        <el-form-item label="客戶編號" v-if="this.search_month != 0">
+          <!-- <el-input v-model="form.cus_code" @input="getdata" maxlength="8"></el-input> -->
+          <el-select
+            v-model="BBB"
+            placeholder="輸入客戶名稱/客代"
+            filterable
+            :clearable="true"
+            style="width: 300px; margin-right: 20px"
+            @change="selectbillNotify()"
+          >
+            <!-- 使用 cusdata 直接顯示每個字符串 -->
+            <el-option
+              v-for="item in AllContact"
+              :key="item"
+              :label="item"
+              :value="item.split(' ')[0]"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-select
           v-model="select"
           placeholder="請選擇匯出項目"
           style="width: 150px; margin-right: 10px"
+          v-if="this.BBB != 0"
           @change="APIData()"
         >
           <el-option label="總表" value="1" />
           <el-option label="明細" value="2" />
         </el-select>
-        <el-button type="success" @click="exportAll">匯出</el-button>
+        <el-button
+          type="success"
+          @click="exportAll"
+          v-if="this.cus_message.length > 0"
+          >匯出</el-button
+        >
       </div>
     </el-form-item>
-    <div class="pagination-info">
+    <!-- <div class="pagination-info">
       共{{ this.AllContact.length }}位聯絡人，共{{
         this.groupContact.length
       }}位查詢客戶需要發送，共{{
         this.cus_info.length
       }}位客戶查詢資料成功，共取得{{ this.Account.length }}筆帳單資料
-    </div>
+    </div> -->
     <!-- <div class="pagination-info" v-if="this.select">
       去除無資料帳單，剩餘{{ this.cus_message.length }}筆需匯出
     </div> -->
@@ -71,6 +96,7 @@
       </div>
     </el-form-item>
   </div>
+  <div style="margin-bottom: 50px"></div>
   <el-dialog
     v-model="isLoading"
     width="15%"
@@ -124,6 +150,7 @@ export default {
       ],
       //  DDD:"G2200072,G2200176,G2200230,G2200260,G2200319,G2200520,G2200608,G2200782,G2200783",
       DDD: "G2200513",
+      BBB: "",
       Statement: [],
       DetaProduct: [],
       Balance: [],
@@ -143,10 +170,13 @@ export default {
       try {
         this.isLoading = true; // 開始加載
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectContact"
+          "http://122.116.23.30:3347/main/selectCustomer"
         );
         //自行註解
-        // this.AllContact = response.data.data; //全部的聯絡人
+        this.AllContact = response.data.data; //全部的聯絡人
+        this.AllContact = this.AllContact.map(
+          (item) => `${item.cus_code} ${item.cus_name}`
+        );
       } catch (error) {
         console.error("Error fetching customer data:", error);
       } finally {
@@ -155,40 +185,47 @@ export default {
     },
     async selectbillNotify() {
       this.isLoading = true;
+      this.cus_message = [];
+      this.select = "";
       this.groupContact = [];
       this.cus_info = [];
       this.Account = [];
-      const uniqueCustomerIds = new Set();
-      if (this.selectedSendMode == "1") {
-        this.groupContact = this.AllContact.filter(
-          (contact) => contact.billNotify === "1"
-        );
-      } else if (this.selectedSendMode == "2") {
-        this.groupContact = this.AllContact.filter(
-          (contact) => contact.billNotify === "2"
-        );
-      } else if (this.selectedSendMode == "3") {
-        this.groupContact = this.AllContact.filter(
-          (contact) => contact.billNotify === "3"
-        );
-      }
-      this.groupContact = this.groupContact
-        .filter((contact) => {
-          if (uniqueCustomerIds.has(contact.customerId)) {
-            return false; // 若 customerId 已存在，過濾掉
-          }
-          uniqueCustomerIds.add(contact.customerId); // 新增至 Set，表示已處理過
-          return true; // 保留該筆資料
-        })
-        .map((contact) => ({
-          customerId: contact.customerId, // 保留 customerId
-          billNotify: contact.billNotify, // 保留 billNotify
+      // const uniqueCustomerIds = new Set();
+      // if (this.selectedSendMode == "1") {
+      //   this.groupContact = this.AllContact.filter(
+      //     (contact) => contact.billNotify === "1"
+      //   );
+      // } else if (this.selectedSendMode == "2") {
+      //   this.groupContact = this.AllContact.filter(
+      //     (contact) => contact.billNotify === "2"
+      //   );
+      // } else if (this.selectedSendMode == "3") {
+      //   this.groupContact = this.AllContact.filter(
+      //     (contact) => contact.billNotify === "3"
+      //   );
+      // }
+      // this.groupContact = this.groupContact
+      //   .filter((contact) => {
+      //     if (uniqueCustomerIds.has(contact.customerId)) {
+      //       return false; // 若 customerId 已存在，過濾掉
+      //     }
+      //     uniqueCustomerIds.add(contact.customerId); // 新增至 Set，表示已處理過
+      //     return true; // 保留該筆資料
+      //   })
+      //   .map((contact) => ({
+      //     customerId: contact.customerId, // 保留 customerId
+      //     billNotify: contact.billNotify, // 保留 billNotify
+      //   }));
+      if (this.BBB) {
+        this.groupContact = this.BBB.split(",").map((customerId) => ({
+          customerId,
         }));
+      }
 
       //自訂匯出
-      this.groupContact = this.DDD.split(",").map((customerId) => ({
-        customerId,
-      }));
+      // this.groupContact = this.DDD.split(",").map((customerId) => ({
+      //   customerId,
+      // }));
 
       this.groupContact.sort((a, b) => {
         // 字串排序（假設 customerId 是字串，根據字典順序）
@@ -278,7 +315,7 @@ export default {
       }
     },
     clink() {
-      (this.selectedSendMode = ""), (this.select = "");
+      (this.selectedSendMode = ""), (this.select = ""), (this.BBB = ""), (this.cus_message = []);
     },
 
     async matchdata() {
@@ -456,7 +493,7 @@ export default {
     },
 
     async exportAll() {
-      if (!this.select || !this.search_month || !this.selectedSendMode) {
+      if (!this.select || !this.search_month ) {
         this.$message({
           message: "必填欄位不可為空",
           type: "error",

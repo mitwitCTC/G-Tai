@@ -93,11 +93,11 @@ const router = createRouter({
         },
         {
           path: 'supplier',
-          name: '結帳列印',
+          name: '總表&明細列印',
           component: () => import('@/views/basic-info/SupplierView.vue'),
           meta: {
-            title: '結帳列印',
-            breadcrumb: '結帳列印',
+            title: '總表&明細列印',
+            breadcrumb: '總表&明細列印',
             isAccountsPage: true
           }
         },
