@@ -85,11 +85,13 @@
           <el-table-column prop="account_sortId" label="帳單編號" width="150" />
           <el-table-column prop="customerId" label="客戶代號" width="150" />
           <el-table-column prop="cus_name" label="客戶名稱" width="300" />
-          <el-table-column
-            prop="transaction_mode"
-            label="交易模式"
-            width="100"
-          />
+          <el-table-column prop="transaction_mode" label="交易模式" width="100">
+            <template v-slot="scope">
+              <span>{{
+                formatTransactionMode(scope.row.transaction_mode)
+              }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="invoice_name" label="發票抬頭" width="300" />
           <el-table-column prop="acc_name" label="帳單組別" width="250" />
         </el-table>
@@ -315,7 +317,15 @@ export default {
       }
     },
     clink() {
-      (this.selectedSendMode = ""), (this.select = ""), (this.BBB = ""), (this.cus_message = []);
+      (this.selectedSendMode = ""),
+        (this.select = ""),
+        (this.BBB = ""),
+        (this.cus_message = []);
+    },
+    formatTransactionMode(mode) {
+      if (mode == 1) return "儲值";
+      if (mode == 2) return "月結";
+      return "未知"; // 預設值，防止出錯
     },
 
     async matchdata() {
@@ -493,7 +503,7 @@ export default {
     },
 
     async exportAll() {
-      if (!this.select || !this.search_month ) {
+      if (!this.select || !this.search_month) {
         this.$message({
           message: "必填欄位不可為空",
           type: "error",

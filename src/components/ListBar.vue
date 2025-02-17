@@ -116,14 +116,6 @@
         >
           未核銷帳務
         </button>
-        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">總表&明細列印</button>
-
-        <button
-          class="btn btn-light w-100 text-start trade-color"
-          @click="() => goTo('/basic-info/SpecialInvoice')"
-        >
-          特殊發票處理
-        </button>
         <button
           class="btn btn-light w-100 text-start trade-color"
           @click="() => goTo('/basic-info/cpctrade')"
@@ -132,16 +124,24 @@
         </button>
         <button
           class="btn btn-light w-100 text-start trade-color"
+          @click="() => goTo('/basic-info/definvoice')"
+        >
+          開立發票查詢
+        </button>
+        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">總表&明細列印</button>
+        <button
+          class="btn btn-light w-100 text-start trade-color"
           @click="() => goTo('/basic-info/monthaccount')"
         >
           月底核帳
         </button>
         <button
           class="btn btn-light w-100 text-start trade-color"
-          @click="() => goTo('/basic-info/definvoice')"
+          @click="() => goTo('/basic-info/SpecialInvoice')"
         >
-          開立發票查詢
+          特殊發票處理
         </button>
+       
         <button
           class="btn btn-light w-100 text-start trade-color"
           @click="() => goTo('/basic-info/billsend')"
