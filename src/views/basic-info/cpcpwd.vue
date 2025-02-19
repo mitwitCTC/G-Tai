@@ -21,6 +21,9 @@
     </el-row>
     <el-form-item label="密碼">
       <el-input v-model="pwd" style="width: 200px"></el-input>
+    </el-form-item>
+    <el-form-item label="確認密碼">
+      <el-input v-model="pwdCH" style="width: 200px"></el-input>
       <el-button type="success" @click="save" style="margin-left: 50px"
         >變更</el-button
       >
@@ -50,6 +53,7 @@ export default {
       isLoading: false,
       cpc_account: "",
       pwd: "",
+      pwdCH:""
     };
   },
   created() {},
@@ -63,6 +67,14 @@ export default {
         });
         return
       }
+      if (this.pwdCH !=this.pwd) {
+        this.$message({
+          message: `確認密碼與輸入密碼不相同`,
+          type: "warning",
+        });
+        return
+      }
+      
       this.pwd= this.pwd.trim()
       const postData = {
         account: this.cpc_account,

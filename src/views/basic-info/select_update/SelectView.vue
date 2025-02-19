@@ -462,9 +462,14 @@
             />
             <el-table-column prop="fuel_type" label="油品" width="200" />
             <el-table-column
+              prop="station_code"
+              label="加油站編號"
+              width="100"
+            />
+            <el-table-column
               prop="station_name"
               label="加油站名稱"
-              width="350"
+              width="200"
             />
             <el-table-column prop="fuel_volume" label="油量" width="200" />
             <el-table-column

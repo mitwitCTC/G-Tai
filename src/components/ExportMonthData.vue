@@ -62,6 +62,17 @@ export default {
                 top: { style: "thin" },
               };
             });
+          } else if (contact.iscard == true) {
+            worksheet.getCell(`A${rowIndex}`).value = contact.customerId || ""; // 插入 customerId
+            worksheet.getCell(`B${rowIndex}`).value = contact.acc_name || "";
+            worksheet.getCell(`C${rowIndex}`).value =
+              contact.record_count || "";
+            worksheet.getCell(`D${rowIndex}`).value = "製卡費";
+            worksheet.getCell(`F${rowIndex}`).value =
+              Number(contact.amount) || "";
+            worksheet.getCell(`G${rowIndex}`).value = contact.use_number || "";
+            worksheet.getCell(`H${rowIndex}`).value =
+              contact.invoice_name || "";
           }
         });
         // worksheet.getColumn(2).width = 50;

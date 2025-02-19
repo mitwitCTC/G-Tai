@@ -29,7 +29,7 @@
     placeholder="請輸入交易時間 (格式: 1140101)"
     @input="filterData"
   ></el-input>
-  <el-button type="primary" @click="dialogopen()">新增資料</el-button>
+  <el-button type="primary" @click="dialog = true">新增資料</el-button>
   <el-button
     type="info"
     @click="handleExport(this.filteredData)"
@@ -68,7 +68,7 @@
       ></el-table-column>
       <!-- <el-table-column prop="account_date" label="入帳日"></el-table-column> -->
       <!-- <el-table-column prop="account_time" label="交易時間"></el-table-column> -->
-      <el-table-column prop="taxId" label="統一編號" width="150"
+      <el-table-column prop="taxId" label="統一編號/科目編號" width="150"
         ><template #default="scope">
           {{
             scope.row.taxId === "0" || scope.row.taxId === 0
@@ -124,18 +124,18 @@
       />
       <div style="margin-bottom: 100px"></div>
     </div>
-
-    <!-- 新增資料 -->
-    <el-dialog
-      title="新增資料"
-      v-model="dialog"
-      width="80%"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="form" label-width="155px">
-        <!-- 统一標籤寬度 -->
-        <h6>*為必填欄位</h6>
-        <!-- <el-row style="margin-bottom: 20px">
+  </div>
+  <!-- 新增資料 -->
+  <el-dialog
+    title="新增資料"
+    v-model="dialog"
+    width="80%"
+    :close-on-click-modal="false"
+  >
+    <el-form :model="form" label-width="155px">
+      <!-- 统一標籤寬度 -->
+      <h6>*為必填欄位</h6>
+      <!-- <el-row style="margin-bottom: 20px">
           <el-form-item label="*客戶代號">
              <el-input v-model="form.customerId" ></el-input>
           </el-form-item>
@@ -146,130 +146,139 @@
             <el-input v-model="form.cus_name" readonly  ></el-input>
           </el-form-item>
         </el-row> -->
-        <el-row style="margin-bottom: 20px">
-          <el-form-item label="*客戶編號">
-            <el-select
-              v-model="form.customerId"
-              placeholder="輸入客戶名稱/客代"
-              filterable
-              :clearable="true"
-              style="width: 300px; margin-right: 20px"
-              @change="getdata"
-            >
-              <!-- 使用 cusdata 直接顯示每個字符串 -->
-              <el-option
-                v-for="item in cusdata"
-                :key="item"
-                :label="item"
-                :value="item.split(' ')[0]"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="*客戶名稱">
-            <el-input v-model="form.cus_name" readonly></el-input>
-          </el-form-item>
-        </el-row>
-        <el-form-item label="*入帳模式">
+      <el-row style="margin-bottom: 20px">
+        <el-form-item label="*客戶編號">
           <el-select
-            v-model="form.trading_model"
-            placeholder="選擇入帳模式"
-            style="width: 250px"
-            @change="inputdata"
+            v-model="form.customerId"
+            placeholder="輸入客戶名稱/客代"
+            filterable
+            :clearable="true"
+            style="width: 300px; margin-right: 20px"
+            @change="getdata"
           >
-            <el-option label="永豐匯款" :value="'4'"></el-option>
-            <el-option label="台企匯款" :value="'0'"></el-option>
-            <el-option label="支票" :value="'3'"></el-option>
-            <el-option label="現金" :value="'5'"></el-option>
-            <el-option label="其它" :value="'6'"></el-option>
+            <!-- 使用 cusdata 直接顯示每個字符串 -->
+            <el-option
+              v-for="item in cusdata"
+              :key="item"
+              :label="item"
+              :value="item.split(' ')[0]"
+            ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="*銀行來源"
-          v-if="
-            this.form.trading_model === '4' || this.form.trading_model === '0'
-          "
+        <el-form-item label="*客戶名稱">
+          <el-input v-model="form.cus_name" readonly></el-input>
+        </el-form-item>
+      </el-row>
+      <el-form-item label="*入帳模式">
+        <el-select
+          v-model="form.trading_model"
+          placeholder="選擇入帳模式"
+          style="width: 250px"
+          @change="inputdata"
         >
-          <el-select
-            v-model="form.bank"
-            placeholder="選擇銀行來源"
-            style="width: 250px"
-            disabled="true"
-          >
-            <el-option label="永豐" :value="'永豐匯款'"></el-option>
-            <el-option label="台企" :value="'台企'"></el-option>
-            <el-option label="支票" :value="'支票'"></el-option>
-            <el-option label="現金" :value="'現金'"></el-option>
-            <el-option label="其它" :value="'其它'"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item
-          label="*台企虛擬帳號"
-          v-if="this.form.trading_model === '0'"
+          <el-option label="永豐匯款" :value="'4'"></el-option>
+          <el-option label="台企匯款" :value="'0'"></el-option>
+          <el-option label="支票" :value="'3'"></el-option>
+          <el-option label="現金" :value="'5'"></el-option>
+          <el-option label="其它" :value="'6'"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        label="*銀行來源"
+        v-if="
+          this.form.trading_model === '4' || this.form.trading_model === '0'
+        "
+      >
+        <el-select
+          v-model="form.bank"
+          placeholder="選擇銀行來源"
+          style="width: 250px"
+          disabled="true"
         >
-          <el-input v-model="form.account" maxlength="14"></el-input>
-        </el-form-item>
-        <el-form-item label="永豐帳號" v-if="this.form.trading_model === '2'">
-          <el-input v-model="form.account"></el-input>
-        </el-form-item>
-        <el-form-item label="*支票號碼" v-if="this.form.trading_model === '3'">
-          <el-input v-model="form.account"></el-input>
-        </el-form-item>
-        <el-form-item
-          label="統一編號"
-          v-if="
-            this.form.trading_model != 3 &&
-            this.form.trading_model != 5 &&
-            this.form.trading_model != 6
-          "
-        >
-          <el-input v-model="form.taxId" maxlength="9"></el-input>
-        </el-form-item>
-        <!-- <el-form-item :label="form.trading_model === '3' ? '*到期日' : '*入帳日'">
+          <el-option label="永豐" :value="'永豐匯款'"></el-option>
+          <el-option label="台企" :value="'台企'"></el-option>
+          <el-option label="支票" :value="'支票'"></el-option>
+          <el-option label="現金" :value="'現金'"></el-option>
+          <el-option label="其它" :value="'其它'"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        label="*台企虛擬帳號"
+        v-if="this.form.trading_model === '0'"
+      >
+        <el-input v-model="form.account" maxlength="14"></el-input>
+      </el-form-item>
+      <el-form-item label="永豐帳號" v-if="this.form.trading_model === '2'">
+        <el-input v-model="form.account"></el-input>
+      </el-form-item>
+      <el-form-item label="*支票號碼" v-if="this.form.trading_model === '3'">
+        <el-input v-model="form.account"></el-input>
+      </el-form-item>
+      <el-form-item
+        label="統一編號"
+        v-if="
+          this.form.trading_model != 3 &&
+          this.form.trading_model != 5 &&
+          this.form.trading_model != 6
+        "
+      >
+        <el-input v-model="form.taxId" maxlength="9"></el-input>
+      </el-form-item>
+      <!-- <el-form-item :label="form.trading_model === '3' ? '*到期日' : '*入帳日'">
             <el-input v-model="form.account_date" maxlength="7"></el-input>
             <h6>格式為民國年月日，例:1130101</h6>
           </el-form-item> -->
-        <el-form-item label="*交易時間">
-          <el-input v-model="form.account_date" maxlength="7"></el-input>
-          <h6>格式為民國年月日，例:1130101</h6>
-        </el-form-item>
-        <el-form-item
-          :label="form.trading_model === '3' ? '到期日' : '入帳日'"
-          v-if="form.trading_model == 3"
+      <el-form-item label="*交易時間">
+        <el-input v-model="form.account_date" maxlength="7"></el-input>
+        <h6>格式為民國年月日，例:1130101</h6>
+      </el-form-item>
+      <el-form-item
+        :label="form.trading_model === '3' ? '到期日' : '入帳日'"
+        v-if="form.trading_model == 3"
+      >
+        <el-input v-model="form.credit_card_data" maxlength="7"></el-input>
+        <h6>格式為民國年月日，例:1130101</h6>
+      </el-form-item>
+      <el-form-item label="會計科目" v-if="this.form.trading_model == 6">
+        <el-select
+          v-model="form.taxId"
+          placeholder="輸入會計科目"
+          filterable
+          :clearable="true"
+          style="width: 250px"
         >
-          <el-input v-model="form.credit_card_data" maxlength="7"></el-input>
-          <h6>格式為民國年月日，例:1130101</h6>
+          <!-- 使用 cusdata 直接顯示每個字符串 -->
+          <el-option
+            v-for="item in searchallAccount"
+            :key="item.id"
+            :label="item.label"
+            :value="item.label.split(' ')[0]"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="備註">
+        <el-input v-model="form.remark"></el-input>
+      </el-form-item>
+      <el-row style="margin-bottom: 20px">
+        <el-form-item label="系統入帳金額">
+          <el-input v-model="form.amount"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="*交易時間">
-            <el-input v-model="form.account_time" maxlength="13"></el-input>
-            <h6>格式為民國年月日時分秒，例:1130101235959</h6>
-          </el-form-item> -->
-
-        <el-form-item label="備註">
-          <el-input v-model="form.remark"></el-input>
-        </el-form-item>
-        <el-row style="margin-bottom: 20px">
-          <el-form-item label="系統入帳金額">
-            <el-input v-model="form.amount"></el-input>
-          </el-form-item>
-        </el-row>
-      </el-form>
-      <template v-slot:footer>
-        <div class="dialog-footer">
-          <el-button @click="dialog = false">取消</el-button>
-          <el-button type="primary" @click="savePass">送出</el-button>
-        </div>
-      </template>
-    </el-dialog>
-    
-    <div style="margin-bottom: 50px"></div>
-  </div>
+      </el-row>
+    </el-form>
+    <template v-slot:footer>
+      <div class="dialog-footer">
+        <el-button @click="dialog = false">取消</el-button>
+        <el-button type="primary" @click="savePass">送出</el-button>
+      </div>
+    </template>
+  </el-dialog>
   <el-dialog
-      v-model="isloading"
-      width="15%"
-      title="請稍後..."
-      :close-on-click-modal="false"
-      :show-close="false"
-    ></el-dialog>
+    v-model="isloading"
+    width="15%"
+    title="請稍後..."
+    :close-on-click-modal="false"
+    :show-close="false"
+  ></el-dialog>
 </template>
 
 <script>
@@ -298,12 +307,17 @@ export default {
       searchDate: "",
       // 篩選後的資料
       filteredData: [],
+      searchallAccount: [],
+      debit: [],
     };
   },
   async created() {
+    this.isloading = true;
     await this.getcus();
     this.getcusdata();
     this.getselectData();
+    await this.debitAccount();
+    this.isloading = false;
   },
   computed: {
     paginatedData() {
@@ -319,6 +333,21 @@ export default {
     },
   },
   methods: {
+    async debitAccount() {
+      try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.get(
+          "http://122.116.23.30:3347/finance/debitAccount"
+        );
+        this.debit = response.data.data;
+        this.searchallAccount = this.debit.map((item) => ({
+          id: item.id,
+          label: `${item.Subjects} ${item.SubjectsName}`,
+        }));
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
     async isCollateral(row) {
       if (
         window.confirm(
@@ -394,8 +423,10 @@ export default {
 
     inputdata() {
       if (this.form.trading_model == "4") {
+        this.form.taxId = "";
         this.form.bank = "永豐匯款";
       } else if (this.form.trading_model == "0") {
+        this.form.taxId = "";
         this.form.bank = "台企";
       } else if (this.form.trading_model == "3") {
         this.form.taxId = "";
@@ -407,10 +438,6 @@ export default {
         this.form.taxId = "";
         this.form.bank = "其它";
       }
-    },
-
-    dialogopen() {
-      this.dialog = true;
     },
 
     savePass() {
@@ -436,10 +463,14 @@ export default {
         return;
       }
       this.form.account_time = String(this.form.account_date) + "000000";
-      this.form.taxId = 0;
+      // this.form.taxId = 0;
+      this.form.taxId = Number(this.form.taxId) || "";
+      if (!this.form.taxId) {
+        delete this.form.taxId;
+      }
       const req = this.form;
       console.log(JSON.stringify(req));
-      //發送 POST 請求
+      // 發送 POST 請求
       axios
         .post("http://122.116.23.30:3347/finance/createTBB", req)
         .then((response) => {
@@ -493,7 +524,6 @@ export default {
         });
     },
     async getselectData() {
-      this.isloading = true; // 開始加載
       await axios
         .get("http://122.116.23.30:3347/finance/selectTBB")
         .then((response) => {
@@ -511,8 +541,6 @@ export default {
             }
           });
           this.BankData.sort((a, b) => b.account_date - a.account_date);
-          console.log(JSON.stringify(this.BankData));
-          this.isloading = false; // 請求完成後關閉加載狀態
         })
         .catch((error) => {
           // 處理錯誤

@@ -633,9 +633,14 @@
                   />
                   <el-table-column prop="fuel_type" label="油品" width="150" />
                   <el-table-column
+                    prop="station_code"
+                    label="加油站編號"
+                    width="100"
+                  />
+                  <el-table-column
                     prop="station_name"
                     label="加油站名稱"
-                    width="250"
+                    width="200"
                   />
                   <el-table-column
                     prop="fuel_volume"
@@ -1051,7 +1056,9 @@ export default {
 
       try {
         // 並行發送請求
+        console.log(JSON.stringify(postdataList))
         const requests = postdataList.map((postdata) =>
+        
           axios.post("http://122.116.23.30:3346/main/balanceInquiry", postdata)
         );
 

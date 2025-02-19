@@ -2,17 +2,23 @@ const { group } = require('console');
 const { raw } = require('mysql2');
 
 module.exports = ({ sequelize }) => {
-    const { vehicle, cpc_data, bank_data, account_sort, reportsales, reportsales_details, product_class, customer, definvoice, definvoice_details } = sequelize
-    const Sequelize = require('sequelize')
+    const { vehicle, cpc_data, bank_data, account_sort, reportsales, reportsales_details, product_class, customer, definvoice, definvoice_details, systemwork } = sequelize
+    const Sequelize = require('sequelize');
     const Op = Sequelize.Op;
     const fs = require('fs')
     const path = require('path')
     // const fetch = require('node-fetch')
-    const dayjs = require('dayjs')
-    const exceljs = require('exceljs')
-    // const msopdf = require('node-msoffice-pdf');
+    const dayjs = require('dayjs');
     const trading_modelPath = path.resolve('./trading_model.json')
-    const excelPath = path.resolve('./發票證明聯A5_v2.xlsx') //母檔
+    const env = process.env.NODE_ENV || 'development';
+    const config = require('../config/config.json')[env];
+    let sequelizeConfig;
+    if (config.use_env_variable) {
+        sequelizeConfig = new Sequelize(process.env[config.use_env_variable], config);
+    } else {
+        sequelizeConfig = new Sequelize(config.database, config.username, config.password, config);
+    }
+
 
     const getDateTime = (input = null, timeFormat = 'YYYY-MM-DD HH:mm:ss', month = 0, endOf = false) => {
         let date = input ? input : new Date();
@@ -32,7 +38,6 @@ module.exports = ({ sequelize }) => {
         let rocYear = year - 1911;
         return `${rocYear}${month}`;
     }
-
 
     return {
         // 最後更新時間
@@ -127,7 +132,7 @@ module.exports = ({ sequelize }) => {
                 const details = await cpc_data.findAll({
                     // where: { customerId: { [Op.eq]: req.body.customerId } },
                     where: { customerId: { [Op.eq]: req.body.customerId }, account_date: { [Op.between]: [account_date + "/02", end_date + "/01"] }, account_sortId: { [Op.ne]: null } },
-                    attributes: ['trade_time', 'account_sortId', 'license_plate', 'fuel_type', 'station_name', 'fuel_volume', 'reference_price', 'discount', 'reference_amount', 'salesAmount', 'mileage', 'fuel_consumption'],
+                    attributes: ['trade_time', 'account_sortId', 'license_plate', 'fuel_type', 'station_name', 'station_code', 'fuel_volume', 'reference_price', 'discount', 'reference_amount', 'salesAmount', 'mileage', 'fuel_consumption'],
                     order: [['id', 'DESC']], raw: true
                 })
                 // 查詢客戶底下的帳單資料
@@ -180,18 +185,57 @@ module.exports = ({ sequelize }) => {
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
             }
         },
+        // 判斷是否有資料
+        dataJudgment: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 判斷是否有資料(dataJudgment)')
+                const account_sortList = await systemwork.findAll({
+                    where: { workDate: { [Op.eq]: req.body.date }, type: { [Op.eq]: '29' } },
+                    raw: true
+                })
+                if (account_sortList.length == 0) {
+                    console.log({ returnCode: -1, message: "無資料" })
+                    return res.json({ returnCode: -1, message: "無資料" })
+                } else {
+                    console.log({ returnCode: 0, message: "已有資料" })
+                    return res.json({ returnCode: 0, message: "已有資料" })
+                }
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
         // 對帳單組別
         accountGroup: async (req, res) => {
             try {
                 const time = getDateTime()
                 console.log(time + ' 對帳單組別(tradingModel)')
+                const account_date = req.body.date
+                const end_date = dayjs(req.body.date).endOf('month').format('YYYY-MM-DD')
+                const reportsales_detailsList = await reportsales_details.findAll({
+                    where: { customerId: { [Op.eq]: req.body.customerId }, salesDate: { [Op.between]: [account_date + "-01", end_date] } },
+                    attributes: ['customerId', 'account_sortId'],
+                    group: ['account_sortId'],
+                    order: [['account_sortId']],
+                    raw: true
+                })
                 const account_sortList = await account_sort.findAll({
                     where: { customerId: { [Op.eq]: req.body.customerId } },
                     attributes: ['account_sortId', 'customerId', 'asType', 'use_number', 'invoice_name', 'acc_name', 'statement_print', 'deleteTime'],
                     raw: true
                 })
-                console.log({ returnCode: 0, message: "對帳單組別", data: account_sortList })
-                return res.json({ returnCode: 0, message: "對帳單組別", data: account_sortList })
+                reportsales_detailsList.forEach(item => {
+                    const account_sort = account_sortList.find(x => item.account_sortId == x.account_sortId)
+                    item.asType = account_sort.asType
+                    item.use_number = account_sort.use_number
+                    item.invoice_name = account_sort.invoice_name
+                    item.acc_name = account_sort.acc_name
+                    item.statement_print = account_sort.statement_print
+                    item.deleteTime = account_sort.deleteTime
+                })
+                console.log({ returnCode: 0, message: "對帳單組別", data: reportsales_detailsList })
+                return res.json({ returnCode: 0, message: "對帳單組別", data: reportsales_detailsList })
             } catch (err) {
                 console.log({ returnCode: 500, message: "系統錯誤", err: err })
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
@@ -205,22 +249,26 @@ module.exports = ({ sequelize }) => {
                 const account_date = req.body.date
                 const end_date = dayjs(req.body.date).endOf('month').format('YYYY-MM-DD')
                 // const end_date = getDateTime(req.body.date, 'YYYY-MM', 1)
-                const reportsales_detailsList = await reportsales_details.findAll({
-                    where: { customerId: { [Op.eq]: req.body.customerId }, salesDate: { [Op.between]: [account_date + "-01", end_date] }, account_sortId: { [Op.eq]: req.body.account_sortId } },
-                    attributes: ['id', 'customerId', 'account_sortId', 'license_plate', 'productId', [Sequelize.fn('SUM', Sequelize.col('fuel_volume')), 'fuel_volume'], [Sequelize.fn('SUM', Sequelize.col('reference_amount')), 'reference_amount'], [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'], [Sequelize.fn('MIN', Sequelize.col('minMileage')), 'minMileage'], [Sequelize.fn('MAX', Sequelize.col('maxMileage')), 'maxMileage']],
-                    group: ['license_plate', 'productId'],
-                    order: [['license_plate']],
-                    raw: true
-                })
+                const [reportsales_detailsList, metadata] = await sequelizeConfig.query("SELECT A.`id`, A.`customerId`, A.`account_sortId`, A.`license_plate`, A.`productId`, A.`fuel_volume`,A.`reference_amount`,A.`amount`, (SELECT maxMileage FROM jutai.reportsales_details WHERE id = A.minid) AS pastmaxMileage,(SELECT maxMileage FROM jutai.reportsales_details WHERE id = A.maxid) AS lastMileage,(SELECT fuel_volume FROM jutai.reportsales_details WHERE id = A.maxid) AS last_fuel_volume, ((SELECT maxMileage FROM jutai.reportsales_details WHERE id = A.maxid) - (SELECT maxMileage FROM jutai.reportsales_details WHERE id = A.minid)) / A.`fuel_volume` AS fuel_consumption FROM (SELECT `id`,`customerId`,`account_sortId`,`license_plate`,`productId`,SUM(`fuel_volume`) AS `fuel_volume`,SUM(`reference_amount`) AS `reference_amount`,SUM(`amount`) AS `amount`,MAX(id) AS maxid,MIN(id) AS minid FROM jutai.reportsales_details WHERE `customerId` = "+"'"+ req.body.customerId +"'"+" AND `salesDate` BETWEEN "+"'"+ account_date + "-01'" + " AND "+"'"+ end_date +"'"+" AND `account_sortId` = "+ req.body.account_sortId +" GROUP BY `license_plate`, `productId`) A ORDER BY A.`license_plate`;");
+
+                // const reportsales_detailsList = await reportsales_details.findAll({
+                //     where: { customerId: { [Op.eq]: req.body.customerId }, salesDate: { [Op.between]: [account_date + "-01", end_date] }, account_sortId: { [Op.eq]: req.body.account_sortId } },
+                //     attributes: ['id', 'customerId', 'account_sortId', 'license_plate', 'productId', [Sequelize.fn('SUM', Sequelize.col('fuel_volume')), 'fuel_volume'], [Sequelize.fn('SUM', Sequelize.col('reference_amount')), 'reference_amount'], [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'], [Sequelize.fn('MIN', Sequelize.col('minMileage')), 'minMileage'], [Sequelize.fn('MAX', Sequelize.col('maxMileage')), 'maxMileage']],
+                //     group: ['license_plate', 'productId'],
+                //     order: [['license_plate']],
+                //     raw: true
+                // })
+                console.log(reportsales_detailsList)
                 // 查詢產品名稱
                 const product_classList = await product_class.findAll({ raw: true })
+                console.log(product_classList)
                 reportsales_detailsList.forEach(item => {
                     const product_name = product_classList.find(x => item.productId == x.classId).className
                     item.product_name = product_name == null ? null : product_name
-                    // 計算總里程 (最大里程數-最小里程數)
-                    item.mileage = item.maxMileage - item.minMileage
-                    // 計算油耗 (最大里程數-最小里程數)/油量
-                    item.fuel_consumption = Math.round(((item.maxMileage - item.minMileage) / item.fuel_volume) * 100) / 100
+                    // // 計算總里程 (最大里程數-最小里程數)
+                    // item.mileage = item.maxMileage - item.minMileage
+                    // // 計算油耗 (最大里程數-最小里程數)/油量
+                    // item.fuel_consumption = Math.round(((item.maxMileage - item.minMileage) / item.fuel_volume) * 100) / 100
                 })
                 // 油品總計
                 const productList = await reportsales_details.findAll({
@@ -249,15 +297,55 @@ module.exports = ({ sequelize }) => {
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
             }
         },
+        // 下載對帳單總表
+        downloadAccountStatement: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 下載對帳單總表(downloadAccountStatement)')
+                const accountDate = getDateTime(req.body.date, 'YYYY-MM')
+                const account_sortList = await account_sort.findAll({
+                    where: { customerId: { [Op.eq]: req.body.customerId }, account_sortId: { [Op.eq]: req.body.account_sortId } },
+                    raw: true
+                })
+                if (account_sortList.length == 0) {
+                    return res.json({ returnCode: -1, message: "無對帳單總表資料" })
+                }
+                // const definvoice_detailsList = await definvoice_details.findAll({
+                //     where: { invoiceId: { [Op.eq]: account_sortList[0].invoiceId } },
+                //     raw: true
+                // })
+                // account_sortList.forEach(item => {
+                //     item.detail = definvoice_detailsList
+                // })
+                // const invoiceNum = account_sortList[0].word_track + account_sortList[0].number //發票號碼
+                // // const pdfPath = path.resolve('../InvoiceDoc/' + accountDate + '/發票' + invoiceNum + '.pdf')
+                const pdfPath = path.resolve('../../jutai_Excel/' + accountDate + '總表/pdf/' + accountDate +'總表_'+ req.body.customerId +'_'+ account_sortList[0].acc_name +'.pdf')
+
+                // 提供 PDF 文件下載
+                res.download(pdfPath, account_sortList[0].acc_name + '.pdf', (err) => {
+                    if (err) {
+                        console.log({ returnCode: -2, message: "下載失敗", data: err.message })
+                        return res.json({ returnCode: -2, message: "下載失敗", data: account_sortList[0].acc_name })
+                    }
+                    // 清理臨時文件
+                    // fs.unlinkSync(excelPath)
+                    // fs.unlinkSync(pdfPath)
+                })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
         // 對帳單明細
         accountDetails: async (req, res) => {
             try {
                 const time = getDateTime()
-                console.log(time + ' 對帳單總表(accountDetails)')
+                console.log(time + ' 對帳單明細(accountDetails)')
                 const salesDate = req.body.date
-                const salesEnd_date = getDateTime(req.body.date, 'YYYY-MM', 1)
+                // const salesEnd_date = getDateTime(req.body.date, 'YYYY-MM', 1)
+                const end_date = dayjs(req.body.date).endOf('month').format('YYYY-MM-DD')
                 const reportsales_detailsList = await reportsales_details.findAll({
-                    where: { customerId: { [Op.eq]: req.body.customerId }, salesDate: { [Op.between]: [salesDate + "-02", salesEnd_date + "-01"] }, account_sortId: { [Op.eq]: req.body.account_sortId } },
+                    where: { customerId: { [Op.eq]: req.body.customerId }, salesDate: { [Op.between]: [salesDate + "-01", end_date] }, account_sortId: { [Op.eq]: req.body.account_sortId } },
                     attributes: ['id', 'customerId', 'account_sortId', 'license_plate', 'productId', [Sequelize.fn('SUM', Sequelize.col('fuel_volume')), 'fuel_volume'], [Sequelize.fn('SUM', Sequelize.col('reference_amount')), 'reference_amount'], [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'], [Sequelize.fn('SUM', Sequelize.col('minMileage')), 'minMileage'], [Sequelize.fn('SUM', Sequelize.col('maxMileage')), 'maxMileage']],
                     group: ['license_plate', 'productId'],
                     order: ['license_plate'],
@@ -285,87 +373,151 @@ module.exports = ({ sequelize }) => {
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
             }
         },
-        // // 發票明細(證明聯)
-        // invoiceDetails: async (req, res) => {
-        //     try {
-        //         const time = getDateTime()
-        //         console.log(time + ' 發票明細(invoiceDetails)')
-        //         const invoiceDate = getDateTime(req.body.date, 'YYYY-MM')
-        //         const definvoiceList = await definvoice.findAll({
-        //             where: { customerId: { [Op.eq]: req.body.customerId }, invoiceDate: { [Op.like]: invoiceDate + '%' }, account_sortId: { [Op.eq]: req.body.account_sortId }, isDelete: { [Op.eq]: '0' } },
-        //             raw: true
-        //         })
-        //         if (definvoiceList.length == 0) {
-        //             return res.json({ returnCode: 0, message: "無發票資料" })
-        //         }
-        //         const definvoice_detailsList = await definvoice_details.findAll({
-        //             where: { invoiceId: { [Op.eq]: definvoiceList[0].invoiceId } },
-        //             raw: true
-        //         })
-        //         definvoiceList.forEach(item => {
-        //             item.detail = definvoice_detailsList
-        //         })
+        // 下載對帳單明細
+        downloadAccountDetails: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 下載對帳單總表(downloadAccountStatement)')
+                const accountDate = getDateTime(req.body.date, 'YYYY-MM')
+                const account_sortList = await account_sort.findAll({
+                    where: { customerId: { [Op.eq]: req.body.customerId }, account_sortId: { [Op.eq]: req.body.account_sortId } },
+                    raw: true
+                })
+                if (account_sortList.length == 0) {
+                    return res.json({ returnCode: -1, message: "無對帳單總表資料" })
+                }
+                // const definvoice_detailsList = await definvoice_details.findAll({
+                //     where: { invoiceId: { [Op.eq]: account_sortList[0].invoiceId } },
+                //     raw: true
+                // })
+                // account_sortList.forEach(item => {
+                //     item.detail = definvoice_detailsList
+                // })
+                // const invoiceNum = account_sortList[0].word_track + account_sortList[0].number //發票號碼
+                // // const pdfPath = path.resolve('../InvoiceDoc/' + accountDate + '/發票' + invoiceNum + '.pdf')
+                const pdfPath = path.resolve('../../jutai_Excel/' + accountDate + '明細/pdf/' + accountDate +'明細_'+ req.body.customerId +'_'+ account_sortList[0].acc_name +'.pdf')
 
-        //         const workbook = new exceljs.Workbook();
-        //         await workbook.xlsx.readFile(excelPath); // 讀取模板
-        //         const worksheet = workbook.getWorksheet(1); // 假設使用第一個工作表
+                // 提供 PDF 文件下載
+                res.download(pdfPath, account_sortList[0].acc_name + '.pdf', (err) => {
+                    if (err) {
+                        console.log({ returnCode: -2, message: "下載失敗", data: err.message })
+                        return res.json({ returnCode: -2, message: "下載失敗", data: account_sortList[0].acc_name })
+                    }
+                    // 清理臨時文件
+                    // fs.unlinkSync(excelPath)
+                    // fs.unlinkSync(pdfPath)
+                })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 查詢發票
+        searchInvoice: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 查詢發票(searchInvoice)')
+                const invoiceDate = getDateTime(req.body.date, 'YYYY-MM')
+                const definvoiceList = await definvoice.findAll({
+                    where: { customerId: { [Op.eq]: req.body.customerId }, invoiceDate: { [Op.like]: invoiceDate + '%' }, isDelete: { [Op.eq]: '0' } },
+                    attributes: ['customerId', 'account_sortId', 'invoiceDate', 'invoiceTime', 'word_track', 'number'],
+                    raw: true
+                })
+                if (definvoiceList.length == 0) {
+                    return res.json({ returnCode: -1, message: "無發票資料" })
+                }
+                definvoiceList.forEach(item => {
+                    item.invoiceNum = item.word_track + item.number //發票號碼
+                })
+                console.log({ returnCode: 0, message: "查詢發票", data: definvoiceList })
+                return res.json({ returnCode: 0, message: "查詢發票", data: definvoiceList })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 下載發票證明聯
+        downloadInvoice: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 下載發票證明聯(downloadInvoice)')
+                const invoiceDate = getDateTime(req.body.date, 'YYYY-MM')
+                // const definvoiceList = await definvoice.findAll({
+                //     where: { customerId: { [Op.eq]: req.body.customerId }, invoiceDate: { [Op.like]: invoiceDate + '%' }, account_sortId: { [Op.eq]: req.body.account_sortId }, isDelete: { [Op.eq]: '0' } },
+                //     raw: true
+                // })
+                // if (definvoiceList.length == 0) {
+                //     return res.json({ returnCode: -1, message: "無發票資料" })
+                // }
+                // const definvoice_detailsList = await definvoice_details.findAll({
+                //     where: { invoiceId: { [Op.eq]: definvoiceList[0].invoiceId } },
+                //     raw: true
+                // })
+                // definvoiceList.forEach(item => {
+                //     item.detail = definvoice_detailsList
+                // })
+                // const invoiceNum = definvoiceList[0].word_track + definvoiceList[0].number //發票號碼
+                const invoiceNum = req.body.invoiceNum //發票號碼
+                // const pdfPath = path.resolve('../InvoiceDoc/' + invoiceDate + '/發票' + invoiceNum + '.pdf')
+                const pdfPath = path.resolve('../../jutai_Excel/' + invoiceDate + '發票/pdf/發票' + invoiceNum + '.pdf')
 
-        //         // 填充數據到表格
-        //         worksheet.getCell(`B2`).value = definvoiceList[0].invoiceDate; // 發票日期
-        //         worksheet.getCell(`D3`).value = definvoiceList[0].word_track + definvoiceList[0].number; // 發票號碼
-        //         worksheet.getCell(`D4`).value = definvoiceList[0].Bidentifier; // 統編
-        //         worksheet.getCell(`D5`).value = definvoiceList[0].BName; // 買方
-        //         definvoice_detailsList.forEach((item, index) => {
-        //             const rowIndex = index + 8; // 從第 8 行開始填充
-        //             worksheet.getCell(`B${rowIndex}`).value = item.Details; // 品名
-        //             worksheet.getCell(`E${rowIndex}`).value = item.Quantity; // 數量
-        //             worksheet.getCell(`I${rowIndex}`).value = item.Amount; // 金額
-        //         });
-        //         // 保存為新文件
-        //         await workbook.xlsx.writeFile(path.resolve('./dec/' + definvoiceList[0].customerId + '發票證明聯A5_v2.xlsx'));
-        //         console.log(`Excel 文件已生成:` + path.resolve('./dec/' + definvoiceList[0].customerId + '發票證明聯A5_v2.xlsx'));
+                // 提供 PDF 文件下載
+                res.download(pdfPath, invoiceNum + '.pdf', (err) => {
+                    if (err) {
+                        console.log({ returnCode: -2, message: "下載失敗", data: err.message })
+                        return res.json({ returnCode: -2, message: "下載失敗", data: invoiceNum })
+                    }
 
-        //         msopdf(path.resolve('./dec/' + definvoiceList[0].customerId + '發票證明聯A5_v2.xlsx'), path.resolve('./dec/' + definvoiceList[0].customerId + '發票證明聯A5_v2.pdf'))
-        //             .then(() => {
-        //                 console.log(`PDF 已生成：${pdfFilePath}`);
-        //             })
-        //             .catch((error) => {
-        //                 console.error('轉換失敗:', error);
-        //               });
-
-
-
-
-
-
-
-
-        //         // const doc = new PDFDocument();
-
-        //         // // const writeStream = fs.createWriteStream(path.resolve('./dec/' + definvoiceList[0].customerId + '發票證明聯A5_v2.pdf'));
-        //         // // doc.pipe(writeStream);
-
-        //         // // 將 Excel 的每行寫入 PDF
-        //         // worksheet.eachRow({ includeEmpty: true }, (row, rowIndex) => {
-        //         //     console.log(row);
-        //         //     // doc.text(row.values.slice(1).join(' | ')); // 去掉 Excel 的行索引
-        //         // });
-
-        //         // doc.end();
-        //         // writeStream.on('finish', () => {
-        //         //     console.log('PDF 文件已生成：');
-        //         // });
-
-
-
-        //         // consolse.log({ returnCode: 0, message: "發票明細", data: definvoiceList })
-        //         return res.json({ returnCode: 0, message: "發票明細", data: definvoiceList })
-        //     } catch (err) {
-        //         console.log({ returnCode: 500, message: "系統錯誤", err: err })
-        //         return res.json({ returnCode: 500, message: "系統錯誤", err: err })
-        //     }
-        // },
-
+                    // 清理臨時文件
+                    // fs.unlinkSync(excelPath)
+                    // fs.unlinkSync(pdfPath)
+                })
+                // consolse.log({ returnCode: 0, message: "發票明細", data: definvoiceList })
+                // return res.json({ returnCode: 0, message: "發票明細", data: definvoiceList })
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 一次下載多筆發票證明聯
+        downloadMultipleInvoice: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 一次下載多筆發票證明聯(downloadMultipleInvoice)')
+                const invoiceDate = getDateTime(req.body.date, 'YYYY-MM')
+                const definvoiceList = await definvoice.findAll({
+                    where: { customerId: { [Op.eq]: req.body.customerId }, invoiceDate: { [Op.like]: invoiceDate + '%' }, isDelete: { [Op.eq]: '0' } },
+                    raw: true
+                })
+                if (definvoiceList.length == 0) {
+                    return res.json({ returnCode: -1, message: "無發票資料" })
+                }
+                const definvoice_detailsList = await definvoice_details.findAll({
+                    where: { invoiceId: { [Op.eq]: definvoiceList[0].invoiceId } },
+                    raw: true
+                })
+                // definvoiceList.forEach(item => {
+                    for (const item of definvoiceList) {
+                    item.detail = definvoice_detailsList
+                    const invoiceNum = item.word_track + item.number //發票號碼
+                    const pdfPath = path.resolve('../../../jutai_Excel/' + invoiceDate + '發票/pdf/發票' + invoiceNum + '.pdf')
+                    // 提供 PDF 文件下載
+                    res.download(pdfPath, invoiceNum + '.pdf', (err) => {
+                        if (err) {
+                            console.log({ returnCode: -2, message: "下載失敗", data: err.message })
+                            return res.json({ returnCode: -2, message: "下載失敗", data: invoiceNum })
+                        }
+    
+                        // 清理臨時文件
+                        // fs.unlinkSync(excelPath)
+                        // fs.unlinkSync(pdfPath)
+                    })
+                }
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
 
         // 登入
         logIn: async (req, res) => {

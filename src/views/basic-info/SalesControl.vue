@@ -40,19 +40,31 @@
       </el-table>
     </div>
   </el-form-item>
+  
   <el-form-item label="自動發送客戶" class="section-header">
     <div class="table-container">
       <!-- 全選框 -->
-      <el-checkbox v-model="selectAll" @change="toggleSelectAll" v-if="cus_message.length>0">
+      <el-checkbox
+        v-model="selectAll"
+        @change="toggleSelectAll"
+        v-if="cus_message.length > 0"
+      >
         全選
       </el-checkbox>
-      <el-select v-model="status" placeholder="選擇告警狀態" style="width: 200px; margin-left: 20px;margin-bottom: 5px;" v-if="cus_message.length>0" @change="filterTable"  clearable>
+      <el-select
+        v-model="status"
+        placeholder="選擇告警狀態"
+        style="width: 200px; margin-left: 20px; margin-bottom: 5px"
+        v-if="cus_message.length > 0"
+        @change="filterTable"
+        clearable
+      >
         <el-option
-              v-for="cus in uniqueTitles"
-              :key="cus"
-              :label="cus"
-              :value="cus"
-            ></el-option>
+          v-for="cus in uniqueTitles"
+          :key="cus"
+          :label="cus"
+          :value="cus"
+        ></el-option>
       </el-select>
       <el-table :data="filteredCusMessage" style="width: 100%">
         <el-table-column label="選擇" width="55">
@@ -60,10 +72,10 @@
             <el-checkbox v-model="scope.row.selected"></el-checkbox>
           </template>
         </el-table-column>
-        <el-table-column prop="createDate" label="新增日期" width="150" />
-        <el-table-column prop="customerId" label="客戶代號" width="150" />
+        <el-table-column prop="createDate" label="新增日期" width="120" />
+        <el-table-column prop="customerId" label="客戶代號" width="100" />
         <el-table-column prop="cusName" label="客戶名稱" width="200" />
-        <el-table-column prop="contract_sales" label="負責業務" width="100" />
+        <el-table-column prop="contract_sales" label="負責業務" width="80" />
         <el-table-column
           prop="sendMod"
           label="發送方式"
@@ -71,9 +83,43 @@
           :formatter="format"
         />
         <el-table-column prop="connectionId" label="發送資訊" width="150" />
-        <el-table-column prop="title" label="發送主旨" width="200" />
+        <el-table-column prop="title" label="發送主旨" width="130" />
         <el-table-column prop="content" label="發送內容" width="200" />
         <el-table-column prop="notused" label="未用油天數" width="100" />
+        <el-table-column prop="sendType" label="寄送狀態" width="200">
+          <template #default="{ row }">
+            <el-tag :type="getTagType(row.sendType)">
+              {{ getSendTypeText(row.sendType) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+  </el-form-item>
+  <el-form-item label="發送客戶狀態" class="section-header">
+    <div class="table-container">
+      <el-table :data="this.issend" style="width: 100%">
+        <el-table-column prop="createDate" label="新增日期" width="120" />
+        <el-table-column prop="customerId" label="客戶代號" width="100" />
+        <el-table-column prop="cusName" label="客戶名稱" width="200" />
+        <el-table-column prop="contract_sales" label="負責業務" width="80" />
+        <el-table-column
+          prop="sendMod"
+          label="發送方式"
+          width="100"
+          :formatter="format"
+        />
+        <el-table-column prop="connectionId" label="發送資訊" width="150" />
+        <el-table-column prop="title" label="發送主旨" width="130" />
+        <el-table-column prop="content" label="發送內容" width="200" />
+        <el-table-column prop="notused" label="未用油天數" width="100" />
+        <el-table-column prop="sendType" label="寄送狀態" width="200">
+          <template #default="{ row }">
+            <el-tag :type="getTagType(row.sendType)">
+              {{ getSendTypeText(row.sendType) }}
+            </el-tag>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </el-form-item>
@@ -102,10 +148,11 @@ export default {
       selectAll: false, // 控制全選框
       isLoading: false,
       selectedDate: null,
-      filteredCusMessage:[],
+      filteredCusMessage: [],
       cus_message: [],
       cus_PerMes: [],
       AllCustomer: [],
+      issend: [],
       status: "",
       type: {
         1: "手機簡訊",
@@ -121,14 +168,43 @@ export default {
     },
   },
   methods: {
+    getSendTypeText(type) {
+      const statusMap = {
+        0: "未設定",
+        1: "已設定傳送",
+        2: "傳送成功",
+        3: "傳送失敗",
+        4: "簡訊發送號碼格式不對",
+        A: "3天以上未用油",
+        B: "1天以上未用油且安全值告警",
+        C: "鎖卡客戶",
+      };
+      return statusMap[type] || "未知狀態";
+    },
+    getTagType(type) {
+      const tagMap = {
+        0: "info", // 灰色
+        1: "warning", // 橙色
+        2: "success", // 綠色
+        3: "danger", // 紅色
+        4: "danger", // 紅色
+        A: "danger",
+        B: "danger",
+        C: "danger",
+      };
+      return tagMap[type] || "info";
+    },
     updateSelectAll() {
-      this.selectAll = this.filteredCusMessage.length > 0 && this.filteredCusMessage.every((cus) => cus.selected);
+      this.selectAll =
+        this.filteredCusMessage.length > 0 &&
+        this.filteredCusMessage.every((cus) => cus.selected);
     },
     filterTable() {
-
       this.selectAll = false;
       if (this.status) {
-        this.filteredCusMessage = this.cus_message.filter((cus) => cus.title === this.status);
+        this.filteredCusMessage = this.cus_message.filter(
+          (cus) => cus.title === this.status
+        );
       } else {
         this.filteredCusMessage = this.cus_message;
       }
@@ -194,10 +270,11 @@ export default {
     },
     async Defnotify() {
       this.selectAll = false;
-      this.status="";
+      this.status = "";
       this.isLoading = true;
       this.cus_message = [];
       this.cus_PerMes = [];
+      this.issend = [];
       const postdata = {
         createDate: this.selectedDate,
       };
@@ -210,14 +287,15 @@ export default {
               // 字串排序（假設 customerId 是字串，根據字典順序）
               return a.customerId.localeCompare(b.customerId);
             });
-            response.data.data.forEach((item) => {
+            this.AllCustomer.forEach((item) => {
               if (item.sendMod == 0) {
                 // 如果 sendMod 是 0，加入 cus_PerMes
                 this.cus_PerMes.push(item);
-              } else {
-                // 否則加入 cus_message
+              } else if (item.sendType == 0) {
                 this.cus_message.push(item);
                 this.filteredCusMessage = this.cus_message;
+              } else {
+                this.issend.push(item);
               }
             });
           } else {
@@ -225,6 +303,10 @@ export default {
               message: "此日期無資料",
               type: "warning",
             });
+            this.filteredCusMessage = [];
+            this.cus_message = [];
+            this.cus_PerMes = [];
+            this.issend = [];
           }
           this.isLoading = false;
         })
