@@ -1,166 +1,171 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import AccessControl from '@/views/basic-info/AccessControl.vue'
-import monthaccount from '@/views/basic-info/monthaccount.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "../views/HomeView.vue";
+import AccessControl from "@/views/basic-info/AccessControl.vue";
+import monthaccount from "@/views/basic-info/monthaccount.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: HomeView
+      path: "/",
+      name: "home",
+      component: HomeView,
     },
     {
-      path: '/basic-info',
-      name: 'basic-info',
+      path: "/login",
+      name: "login",
+      component: () => import("@/views/basic-info/login.vue"),
+    },
+    {
+      path: "/basic-info",
+      name: "basic-info",
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('@/views/basic-info/BasicView.vue'),
+      component: () => import("@/views/basic-info/BasicView.vue"),
       children: [
         {
-          path: 'customer',
-          name: '客戶資料維護',
-          component: () => import('@/views/basic-info/CustomerView.vue'),
+          path: "customer",
+          name: "客戶資料維護",
+          component: () => import("@/views/basic-info/CustomerView.vue"),
           meta: {
-            title: '客戶資料維護',
-            breadcrumb: '客戶資料維護',
-            isSpecialPage: true
+            title: "客戶資料維護",
+            breadcrumb: "客戶資料維護",
+            isSpecialPage: true,
           },
         },
         {
-          path: 'modifybill',
-          name: '切換客代帳號',
-          component: () => import('@/views/basic-info//Modifybill.vue'),
+          path: "modifybill",
+          name: "切換客代帳號",
+          component: () => import("@/views/basic-info//Modifybill.vue"),
           meta: {
-            title: '切換客代帳號',
-            breadcrumb: '切換客代帳號',
-            isSpecialPage:true
+            title: "切換客代帳號",
+            breadcrumb: "切換客代帳號",
+            isSpecialPage: true,
           },
         },
         {
-          path: 'contact',
-          name: '聯絡人資料維護',
-          component: () => import('@/views/basic-info/ContactView.vue'),
+          path: "contact",
+          name: "聯絡人資料維護",
+          component: () => import("@/views/basic-info/ContactView.vue"),
           meta: {
-            title: '聯絡人資料',
-            breadcrumb: '聯絡人資料',
+            title: "聯絡人資料",
+            breadcrumb: "聯絡人資料",
             isSpecialPage: false,
-            isLinkPage: true
-          }
+            isLinkPage: true,
+          },
         },
         {
-          path: 'bill',
-          name: '帳單資料維護',
-          component: () => import('@/views/basic-info/BillView.vue'),
+          path: "bill",
+          name: "帳單資料維護",
+          component: () => import("@/views/basic-info/BillView.vue"),
           meta: {
-            title: '帳單資料',
-            breadcrumb: '帳單資料',
+            title: "帳單資料",
+            breadcrumb: "帳單資料",
             isSpecialPage: false,
-            isLinkPage: true
-          }
+            isLinkPage: true,
+          },
         },
         {
-          path: 'vehicle',
-          name: '車籍卡片資料維護',
-          component: () => import('@/views/basic-info/VehicleView.vue'),
+          path: "vehicle",
+          name: "車籍卡片資料維護",
+          component: () => import("@/views/basic-info/VehicleView.vue"),
           meta: {
-            title: '車籍卡片資料',
-            breadcrumb: '車籍資卡片料',
-            isVehiclePage: true
-          }
+            title: "車籍卡片資料",
+            breadcrumb: "車籍資卡片料",
+            isVehiclePage: true,
+          },
         },
         {
-          path: 'discountrecords',
-          name: '更改客戶折讓',
-          component: () => import('@/views/basic-info/discountrecords.vue'),
+          path: "discountrecords",
+          name: "更改客戶折讓",
+          component: () => import("@/views/basic-info/discountrecords.vue"),
           meta: {
-            title: '通訊記錄',
-            breadcrumb: '通訊記錄',
-            isSpecialPage: true
-          }
+            title: "通訊記錄",
+            breadcrumb: "通訊記錄",
+            isSpecialPage: true,
+          },
         },
         {
-          path: 'salesperson',
-          name: '員工資料維護',
-          component: () => import('@/views/basic-info/SalespersonView.vue'),
+          path: "salesperson",
+          name: "員工資料維護",
+          component: () => import("@/views/basic-info/SalespersonView.vue"),
           meta: {
-            title: '員工資料',
-            breadcrumb: '員工資料',
-            isSpecialPage: true
-          }
+            title: "員工資料",
+            breadcrumb: "員工資料",
+            isSpecialPage: true,
+          },
         },
         {
-          path: 'supplier',
-          name: '總表&明細列印',
-          component: () => import('@/views/basic-info/SupplierView.vue'),
+          path: "supplier",
+          name: "總表&明細列印",
+          component: () => import("@/views/basic-info/SupplierView.vue"),
           meta: {
-            title: '總表&明細列印',
-            breadcrumb: '總表&明細列印',
-            isAccountsPage: true
-          }
+            title: "總表&明細列印",
+            breadcrumb: "總表&明細列印",
+            isAccountsPage: true,
+          },
         },
         {
-          path: 'discount',
-          name: '客戶折讓資料',
-          component: () => import('@/views/basic-info/Discount.vue'),
+          path: "discount",
+          name: "客戶折讓資料",
+          component: () => import("@/views/basic-info/Discount.vue"),
           meta: {
-            title: '客戶折讓資料',
-            breadcrumb: '客戶折讓資料',
+            title: "客戶折讓資料",
+            breadcrumb: "客戶折讓資料",
             isSpecialPage: false,
-            isLinkPage: true
-          }
+            isLinkPage: true,
+          },
         },
         {
-          path: 'FinanceManagement',
-          name: '會計傳票',
-          component: () => import('@/views/basic-info/FinanceManagement.vue'),
+          path: "FinanceManagement",
+          name: "會計傳票",
+          component: () => import("@/views/basic-info/FinanceManagement.vue"),
           meta: {
-            title: '會計傳票',
-            breadcrumb: '會計傳票',
-            isAcc: true
-          }
+            title: "會計傳票",
+            breadcrumb: "會計傳票",
+            isAcc: true,
+          },
         },
         {
-          path: 'Accedit',
-          name: '編輯會計科目',
-          component: () => import('@/views/basic-info/Accedit.vue'),
+          path: "Accedit",
+          name: "編輯會計科目",
+          component: () => import("@/views/basic-info/Accedit.vue"),
           meta: {
-            title: '編輯會計科目',
-            breadcrumb: '編輯會計科目',
-            isAcc: true
-          }
+            title: "編輯會計科目",
+            breadcrumb: "編輯會計科目",
+            isAcc: true,
+          },
         },
         {
-          path: 'SpecialInvoice',
-          name: '特殊發票處理',
-          component: () => import('@/views/basic-info/SpecialInvoice.vue'),
+          path: "SpecialInvoice",
+          name: "特殊發票處理",
+          component: () => import("@/views/basic-info/SpecialInvoice.vue"),
           meta: {
-            title: '特殊發票處理',
-            breadcrumb: '特殊發票處理',
-            isAccountsPage: true
-          }
+            title: "特殊發票處理",
+            breadcrumb: "特殊發票處理",
+            isAccountsPage: true,
+          },
         },
         {
-          path: 'SalesControl',
-          name: '通知客戶管理',
-          component: () => import('@/views/basic-info/SalesControl.vue'),
+          path: "SalesControl",
+          name: "通知客戶管理",
+          component: () => import("@/views/basic-info/SalesControl.vue"),
           meta: {
-            title: '通知客戶管理',
-            breadcrumb: '通知客戶管理',
-            isSpecialPage: true
-          }
+            title: "通知客戶管理",
+            breadcrumb: "通知客戶管理",
+            isSpecialPage: true,
+          },
         },
         {
-          path: 'ReportManagement',
-          name: '中油鎖卡/解卡處理',
-          component: () => import('@/views/basic-info/ReportManagement.vue'),
+          path: "ReportManagement",
+          name: "中油鎖卡/解卡處理",
+          component: () => import("@/views/basic-info/ReportManagement.vue"),
           meta: {
-            title: '中油鎖卡/解卡處理',
-            breadcrumb: '中油鎖卡/解卡處理',
-            isSpecialPage: true
-          }
+            title: "中油鎖卡/解卡處理",
+            breadcrumb: "中油鎖卡/解卡處理",
+            isSpecialPage: true,
+          },
         },
         // {
         //   path: 'AccessControl',
@@ -173,151 +178,161 @@ const router = createRouter({
         //   }
         // },
         {
-        path: 'AccessControl',
-        name: '綁定',
-        component: AccessControl,
-        meta: {
-          title: '供應權限管理商資料',
-          breadcrumb: '供應權限管理商資料',
-          isSpecialPage: false
-        }
-      },
-      {
-        path: 'monthaccount',
-        name: '月底核帳',
-        component: monthaccount,
-        meta: {
-          title: '月底核帳',
-          breadcrumb: '月底核帳',
-          isAccountsPage: true
-        }
-      },
-        {
-          path: 'SelectView',
-          name: '客戶資料查詢',
-          component: () => import('@/views/basic-info/select_update/SelectView.vue'),
+          path: "AccessControl",
+          name: "綁定",
+          component: AccessControl,
           meta: {
-            title: '客戶資料查詢',
-            breadcrumb: '客戶資料查詢',
+            title: "供應權限管理商資料",
+            breadcrumb: "供應權限管理商資料",
+            isSpecialPage: false,
           },
-          props: route => ({
+        },
+        {
+          path: "monthaccount",
+          name: "月底核帳",
+          component: monthaccount,
+          meta: {
+            title: "月底核帳",
+            breadcrumb: "月底核帳",
+            isAccountsPage: true,
+          },
+        },
+        {
+          path: "SelectView",
+          name: "客戶資料查詢",
+          component: () =>
+            import("@/views/basic-info/select_update/SelectView.vue"),
+          meta: {
+            title: "客戶資料查詢",
+            breadcrumb: "客戶資料查詢",
+          },
+          props: (route) => ({
             customerName: route.query.customerName,
-            rowType:route.query.rowType,
-            rowData:route.query.rowData,
+            rowType: route.query.rowType,
+            rowData: route.query.rowData,
           }),
         },
         {
-          path: 'UpdateView',
-          name: '客戶資料編輯',
-          component: () => import('@/views/basic-info/select_update/UpdateView.vue'),
+          path: "UpdateView",
+          name: "客戶資料編輯",
+          component: () =>
+            import("@/views/basic-info/select_update/UpdateView.vue"),
           meta: {
-            title: '客戶資料編輯',
-            breadcrumb: '客戶資料編輯',
+            title: "客戶資料編輯",
+            breadcrumb: "客戶資料編輯",
           },
-          props: route => ({
+          props: (route) => ({
             customerName: route.query.customerName,
-            rowType:route.query.rowType,
+            rowType: route.query.rowType,
           }),
         },
         {
-          path: 'CustomerAccounts',
-          name: '未核銷帳務',
-          component: () => import('@/views/basic-info/Accounts/CustomerAccounts.vue'),
+          path: "CustomerAccounts",
+          name: "未核銷帳務",
+          component: () =>
+            import("@/views/basic-info/Accounts/CustomerAccounts.vue"),
           meta: {
-            title: '未核銷帳務',
-            breadcrumb: '未核銷帳務',
-            isAccountsPage:true,
+            title: "未核銷帳務",
+            breadcrumb: "未核銷帳務",
+            isAccountsPage: true,
           },
         },
         {
-          path: 'BANKSINOPAC_View',
-          name: '刷卡帳務',
-          component: () => import('@/views/basic-info/Accounts/bank/BANKSINOPAC_View.vue'),
+          path: "BANKSINOPAC_View",
+          name: "刷卡帳務",
+          component: () =>
+            import("@/views/basic-info/Accounts/bank/BANKSINOPAC_View.vue"),
           meta: {
-            title: '刷卡帳務',
-            breadcrumb: '刷卡帳務',
-            isBankPage:true
-          },
-        },{
-          path: 'TBB_View',
-          name: '匯款/支票',
-          component: () => import('@/views/basic-info/Accounts/bank/TBB_View.vue'),
-          meta: {
-            title: '匯款/支票',
-            breadcrumb: '匯款/支票',
-            isBankPage:true
+            title: "刷卡帳務",
+            breadcrumb: "刷卡帳務",
+            isBankPage: true,
           },
         },
         {
-          path: 'CardMake',
-          name: '製卡明細',
-          component: () => import('@/views/basic-info/CardMakeView.vue'),
+          path: "TBB_View",
+          name: "匯款/支票",
+          component: () =>
+            import("@/views/basic-info/Accounts/bank/TBB_View.vue"),
           meta: {
-            title: '製卡明細',
-            breadcrumb: '製卡明細',
-          },
-        },{
-          path: 'Export',
-          name: '匯出車籍中油檔',
-          component: () => import('@/views/basic-info/DataProcessing/Export.vue'),
-          meta: {
-            title: '匯出車籍中油檔',
-            breadcrumb: '匯出車籍中油檔',
-            isData:true
-          },
-        },{
-          path: 'Import',
-          name: '匯入車籍中油檔',
-          component: () => import('@/views/basic-info/DataProcessing/Import.vue'),
-          meta: {
-            title: '匯入車籍中油檔',
-            breadcrumb: '匯入車籍中油檔',
-            isData:true
+            title: "匯款/支票",
+            breadcrumb: "匯款/支票",
+            isBankPage: true,
           },
         },
         {
-          path: 'cpctrade',
-          name: '中油交易',
-          component: () => import('@/views/basic-info/cpctrade.vue'),
+          path: "CardMake",
+          name: "製卡明細",
+          component: () => import("@/views/basic-info/CardMakeView.vue"),
           meta: {
-            title: '中油交易',
-            breadcrumb: '中油交易',
-            isAccountsPage: true
+            title: "製卡明細",
+            breadcrumb: "製卡明細",
           },
         },
         {
-          path: 'definvoice',
-          name: '開立發票查詢',
-          component: () => import('@/views/basic-info/definvoice.vue'),
+          path: "Export",
+          name: "匯出車籍中油檔",
+          component: () =>
+            import("@/views/basic-info/DataProcessing/Export.vue"),
           meta: {
-            title: '開立發票查詢',
-            breadcrumb: '開立發票查詢',
-            isAccountsPage: true
+            title: "匯出車籍中油檔",
+            breadcrumb: "匯出車籍中油檔",
+            isData: true,
           },
         },
         {
-          path: 'cpcpwd',
-          name: '中油密碼更改',
-          component: () => import('@/views/basic-info/cpcpwd.vue'),
+          path: "Import",
+          name: "匯入車籍中油檔",
+          component: () =>
+            import("@/views/basic-info/DataProcessing/Import.vue"),
           meta: {
-            title: '中油密碼更改',
-            breadcrumb: '中油密碼更改',
-            isset: true
+            title: "匯入車籍中油檔",
+            breadcrumb: "匯入車籍中油檔",
+            isData: true,
           },
         },
         {
-          path: 'billsend',
-          name: '確認寄送帳單名單',
-          component: () => import('@/views/basic-info/billsend.vue'),
+          path: "cpctrade",
+          name: "中油交易",
+          component: () => import("@/views/basic-info/cpctrade.vue"),
           meta: {
-            title: '確認寄送帳單名單',
-            breadcrumb: '確認寄送帳單名單',
-            isAccountsPage: true
+            title: "中油交易",
+            breadcrumb: "中油交易",
+            isAccountsPage: true,
           },
         },
-      ]
-    }
-  ]
-})
+        {
+          path: "definvoice",
+          name: "開立發票查詢",
+          component: () => import("@/views/basic-info/definvoice.vue"),
+          meta: {
+            title: "開立發票查詢",
+            breadcrumb: "開立發票查詢",
+            isAccountsPage: true,
+          },
+        },
+        {
+          path: "cpcpwd",
+          name: "中油密碼更改",
+          component: () => import("@/views/basic-info/cpcpwd.vue"),
+          meta: {
+            title: "中油密碼更改",
+            breadcrumb: "中油密碼更改",
+            isset: true,
+          },
+        },
+        {
+          path: "billsend",
+          name: "確認寄送帳單名單",
+          component: () => import("@/views/basic-info/billsend.vue"),
+          meta: {
+            title: "確認寄送帳單名單",
+            breadcrumb: "確認寄送帳單名單",
+            isAccountsPage: true,
+          },
+        },
+      ],
+    },
+  ],
+});
 
-export default router
+export default router;

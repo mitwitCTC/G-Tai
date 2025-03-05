@@ -1,18 +1,21 @@
 <template>
-  <div v-if="!isAccessControlPage" class="container-fluid">
-    <div  class="non-desktop-message" >只支援解析度1024px電腦瀏覽</div>
+   <div v-if="isLogin" class="login-container">
+    <RouterView />
+  </div>
+  <div v-if="!isAccessControlPage && !isLogin" class="container-fluid">
+    <div class="non-desktop-message">只支援解析度1024px電腦瀏覽</div>
     <div class="content">
       <RouterView />
-      <TheFooter class="footer">
-      </TheFooter>
+      <TheFooter class="footer"></TheFooter>
     </div>
   </div>
 
-  <div v-if="isAccessControlPage" >
-      <RouterView />
+  <div v-if="isAccessControlPage">
+    <RouterView />
   </div>
-  
+
 </template>
+
 
 <script>
 import TheFooter from '@/components/TheFooter.vue'
@@ -28,20 +31,35 @@ export default {
   computed: {
     // 檢查當前路由是否為 /AccessControl
     isAccessControlPage() {
-      return this.$route.path === '/basic-info/AccessControl'|| this.$route.path === '/basic-info/ccc' ;
+      return this.$route.path === '/basic-info/AccessControl' ;
+    },
+    isLogin() {
+      return this.$route.path === '/login' ;
     }
   }
 };
 </script>
 
 <style scoped>
+.login-container {
+  display: flex;
+  justify-content: center;  /* 水平置中 */
+  align-items: center;      /* 垂直置中 */
+  height: 100vh;           /* 讓畫面高度等於視窗高度 */
+  width: 100vw;            /* 讓畫面寬度等於視窗寬度 */
+}
+
+.login-content {
+  width: 100%;             /* 讓內容區塊也置中 */
+  max-width: 400px;        /* 設定最大寬度，避免過寬 */
+  text-align: center;      /* 讓內部文字或 inline-block 元素置中 */
+}
 .container-fluid {
   margin-left: 250px;
   padding-top: 20px;
   max-width: 1600px; 
   position: relative; /* 为了 footer 能够固定在页面底部 */
 }
-
 .footer {
   position: absolute; /*绝对定位，让 footer 固定在容器底部*/
   bottom: 0; /* 距离容器底部 0 像素 */

@@ -203,7 +203,7 @@
         <template v-slot="scope">
           <el-select
             v-model="scope.row.invoice_name"
-            placeholder="選擇抬頭(開立二聯發票無需選擇)"
+            placeholder="選擇抬頭"
             style="width: 100%"
             @change="use_number(scope.row.invoice_name, scope.row)"
           >
@@ -211,7 +211,7 @@
               v-for="item in bill"
               :key="item.account_sortId"
               :label="item.invoice_name|| '開立二聯發票'"
-              :value="item.invoice_name"
+              :value="item.invoice_name|| '開立二聯發票'"
             ></el-option>
           </el-select>
         </template>
@@ -529,6 +529,7 @@ export default {
         this.isLoading = true; // 開始加載
         // 發送 GET 請求到指定的 API
         const postdata = this.form;
+        console.log(JSON.stringify(postdata))
         const response = await axios.post(
           "http://122.116.23.30:3347/finance/insertinvoice",
           postdata
@@ -541,10 +542,17 @@ export default {
         this.dialog = false;
         await this.dototal();
       } catch (error) {
-        this.$message({
-          message: "更改失敗",
-          type: "error",
-        });
+        if (error.response && error.response.data.returnCode === 400) {
+          this.$message({
+            message: "找不到對應的收據 (defreceipt)",
+            type: "warning",
+          });
+        } else {
+          this.$message({
+            message: "新增失敗",
+            type: "error",
+          });
+        }
         console.error("Error fetching customer data:", error);
       } finally {
         this.isLoading = false; // 請求完成後關閉加載狀態
@@ -873,12 +881,13 @@ export default {
     },
     use_number(invoice_name, row) {
       const matchedInvoice = this.bill.find(
-        (invoice) => invoice.invoice_name === invoice_name
+        (invoice) => invoice.invoice_name == invoice_name
       );
       if (matchedInvoice) {
         row.account_sortId = matchedInvoice.account_sortId;
         row.use_number = matchedInvoice.use_number;
       } else {
+        row.account_sortId =""
         row.use_number = ""; // 如果沒有匹配項，清空 use_number
       }
     },

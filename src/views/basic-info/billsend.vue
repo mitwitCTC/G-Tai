@@ -19,13 +19,13 @@
     />
     <el-button
       type="primary"
-      v-if="this.month_check != '29'"
+      v-if="this.month_check !== '0' &&  this.check!='30'"
       style="margin-left: 10px"
-      @click="changesystemwork('29')"
+      @click="changesystemwork('30')"
       >確認寄送名單</el-button
     >
   </el-form-item>
-  <div class="page-title" style="color: red" v-if="this.month_check == '29'">
+  <div class="page-title" style="color: red" v-if="this.check == '30'">
     <h5>{{ search_month }}寄送名單已確認</h5>
   </div>
   <el-form-item label="Mail發送" class="section-header">
@@ -83,6 +83,7 @@ export default {
       isLoading: false,
       search_month: "",
       month_check: "",
+      check:"",
       mail: [],
       line: [],
     };
@@ -92,6 +93,7 @@ export default {
     async clink() {
       this.isLoading = true;
       await this.getdata();
+      await this.getsysTIME();
       await this.getsystemwork();
       this.isLoading = false;
     },
@@ -113,11 +115,11 @@ export default {
         console.error("Error fetching customer data:", error);
       }
     },
-    async getsystemwork() {
+    async getsysTIME() {
       try {
         const postdata = {
           workDate: this.search_month,
-          type: "29",
+          type: "24",
         };
         const response = await axios.post(
           "http://122.116.23.30:3347/finance/getsystemwork",
@@ -125,9 +127,30 @@ export default {
         );
         // 確認 API 回應是否有資料
         if (response.data && response.data.data.length > 0) {
-          this.month_check = response.data.data[0].type;
+          this.month_check = String(response.data.data[0].endTime);
+          console.log(this.month_check)
         } else {
-          this.month_check = "";
+          this.month_check = "123";
+        }
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
+    async getsystemwork() {
+      try {
+        const postdata = {
+          workDate: this.search_month,
+          type: "30",
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/finance/getsystemwork",
+          postdata
+        );
+        // 確認 API 回應是否有資料
+        if (response.data && response.data.data.length > 0) {
+          this.check = response.data.data[0].type;
+        } else {
+          this.check = "";
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);

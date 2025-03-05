@@ -1,0 +1,69 @@
+<template>
+  <div>
+    <el-form>
+      <div class="sidebar-heading">
+      <img
+        src="@/assets/logo.png"
+        alt="Logo"
+        class="img-fluid"
+      />
+    </div>
+    <div style="margin-bottom: 50px"></div>
+      <el-form-item label="帳號" prop="account">
+        <el-input v-model="account" type="text" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="密碼" prop="password">
+        <el-input
+          v-model="password"
+          type="password"
+          autocomplete="off"
+          @keydown.enter="submitForm(loginFormRef)"
+        />
+      </el-form-item>
+      <el-form-item>
+        <div class="w-100 text-center">
+          <button
+            type="button"
+            class="btn btn-warning"
+            @click="submitForm(loginFormRef)"
+          >
+            登入
+          </button>
+        </div>
+      </el-form-item>
+    </el-form>
+
+    <!-- 新增車籍資訊 -->
+    <el-dialog
+      v-model="loading"
+      width="15%"
+      title="請稍後..."
+      :close-on-click-modal="false"
+      :show-close="false"
+    ></el-dialog>
+  </div>
+</template>
+
+<script>
+export default {
+  components: {},
+  data() {
+    return {
+      loading: false,
+      account: "",
+      password: "",
+    };
+  },
+  created() {},
+  computed: {},
+  methods: {},
+};
+</script>
+
+<style scoped>
+
+.el-form {
+  max-width: 400px; /* 限制表單最大寬度 */
+  margin: 0 auto;   /* 讓表單置中 */
+}
+</style>

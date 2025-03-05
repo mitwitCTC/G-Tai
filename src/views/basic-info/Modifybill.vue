@@ -329,25 +329,46 @@ export default {
     clearFilterbill() {
       this.form = {};
     },
+    // disabledDateBeforeToday(date) {
+    //   const today = new Date(); // 當前日期
+    //   today.setHours(0, 0, 0, 0); // 將時間設置為當天零點，避免時間誤差
+
+    //   const currentYear = today.getFullYear();
+    //   const currentMonth = today.getMonth(); // 當前月份
+
+    //   const startOfMonth = new Date(currentYear, currentMonth, 1); // 當月的 1 號
+
+    //   if (this.form.state === 2) {
+    //     // 限制選擇從本月的 1 號到今天
+    //     return date < startOfMonth || date > today; // 禁用小於本月 1 號或大於今天的日期
+    //   } else if (this.form.state === 3) {
+    //     // 限制只能選擇這個月的 1 號
+    //     return date.getTime() !== startOfMonth.getTime(); // 只允許 1 號
+    //   }
+
+    //   return date.getTime() > today.getTime(); // 禁用未來的日期
+    // },
     disabledDateBeforeToday(date) {
-      const today = new Date(); // 當前日期
-      today.setHours(0, 0, 0, 0); // 將時間設置為當天零點，避免時間誤差
+  const today = new Date(); // 當前日期
+  today.setHours(0, 0, 0, 0); // 設置為當天零點，避免時間誤差
 
-      const currentYear = today.getFullYear();
-      const currentMonth = today.getMonth(); // 當前月份
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth(); // 當前月份
 
-      const startOfMonth = new Date(currentYear, currentMonth, 1); // 當月的 1 號
+  const startOfMonth = new Date(currentYear, currentMonth, 1); // 本月 1 號
+  const lastMonthStart = new Date(currentYear, currentMonth - 1, 1); // 上個月 1 號
 
-      if (this.form.state === 2) {
-        // 限制選擇從本月的 1 號到今天
-        return date < startOfMonth || date > today; // 禁用小於本月 1 號或大於今天的日期
-      } else if (this.form.state === 3) {
-        // 限制只能選擇這個月的 1 號
-        return date.getTime() !== startOfMonth.getTime(); // 只允許 1 號
-      }
+  if (this.form.state === 2) {
+    // 限制選擇從本月的 1 號到今天
+    return date < startOfMonth || date > today;
+  } else if (this.form.state === 3) {
+    // 允許選擇本月 1 號或上個月 1 號
+    return !(date.getTime() === startOfMonth.getTime() || date.getTime() === lastMonthStart.getTime());
+  }
 
-      return date.getTime() > today.getTime(); // 禁用未來的日期
-    },
+  return date.getTime() > today.getTime(); // 禁用未來的日期
+},
+
     dialog() {
       const selectedRows = this.filterbill.filter((row) => row.selected);
       if (!selectedRows.length) {

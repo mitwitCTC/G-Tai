@@ -238,6 +238,7 @@ export default {
       const jsonData = {
         data: processedData,
       };
+      console.log(JSON.stringify(jsonData))
       await axios
         .post("http://122.116.23.30:3347/main/importCPCfile", jsonData)
         .then((response) => {

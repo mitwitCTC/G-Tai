@@ -7,6 +7,13 @@
     <BreadCrumb />
   </div>
   <!-- 下拉框：trading_model -->
+  <el-dialog
+    v-model="isloading"
+    width="15%"
+    title="請稍後..."
+    :close-on-click-modal="false"
+    :show-close="false"
+  ></el-dialog>
   <el-select
     v-model="selectedTradingModel"
     placeholder="請選擇交易模式"
@@ -272,13 +279,7 @@
       </div>
     </template>
   </el-dialog>
-  <el-dialog
-    v-model="isloading"
-    width="15%"
-    title="請稍後..."
-    :close-on-click-modal="false"
-    :show-close="false"
-  ></el-dialog>
+  
 </template>
 
 <script>
@@ -552,6 +553,13 @@ export default {
     },
 
     async deleteItem(row) {
+      if (row.acc_trade&&row.acc_trade!='0') {
+        this.$message({
+          message: "已轉傳票，交易不可刪除",
+          type: "warning",
+        });
+        return;
+      }
       const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
       if (result) {
         const postData = {

@@ -315,7 +315,6 @@ import axios from "axios";
 import { toRaw } from "vue";
 import ExportSelCard from "@/components/ExportSelCard.vue";
 
-
 export default {
   components: {
     BreadCrumb,
@@ -453,23 +452,22 @@ export default {
   },
   methods: {
     async handleExport() {
-    
-        try {
-          this.isLoading=true
-          await ExportSelCard.methods.exportExcel(this.cus_code,this.cus_name);
-          // 顯示成功訊息
-          this.$message({
-            message: `匯出成功`,
-            type: "success",
-          });
-        } catch {
-          this.$message({
-            message: `匯出失敗`,
-            type: "error",
-          });
-        }finally{
-          this.isLoading=false
-        }
+      try {
+        this.isLoading = true;
+        await ExportSelCard.methods.exportExcel(this.cus_code, this.cus_name);
+        // 顯示成功訊息
+        this.$message({
+          message: `匯出成功`,
+          type: "success",
+        });
+      } catch {
+        this.$message({
+          message: `匯出失敗`,
+          type: "error",
+        });
+      } finally {
+        this.isLoading = false;
+      }
     },
     async getcontact() {
       const postData = {
@@ -582,6 +580,65 @@ export default {
           console.error("API request failed:", error);
         });
     },
+    uniformNumbers_verification(uniformNumbers) {
+      // 檢查字元是否符合規則
+      const regex = /^[0-9]{8}$/;
+
+      // 統一編號 邏輯乘數
+      const logicMultipliers = [1, 2, 1, 2, 1, 2, 4, 1];
+
+      // 計算陣列總和
+      const sum = (numbers) => {
+        const initialValue = 0;
+        const sumWithInitial = numbers.reduce(
+          (accumulator, currentValue) =>
+            Number(accumulator) + Number(currentValue),
+          initialValue
+        );
+        return sumWithInitial;
+      };
+
+      if (!uniformNumbers) {
+        return "統編未填寫";
+      }
+      if (uniformNumbers.length !== 8 || !regex.test(uniformNumbers)) {
+        return "統編格式不正確";
+      }
+
+      let logicProductArr = [];
+      let logicProduct = 0;
+      // 通一編號倒數第二位為7時，乘積之和最後第二位數取0或1均可，其中之一和能被5整除，則符合統編邏輯
+      if (uniformNumbers[6] == "7") {
+        for (let i = 0; i < uniformNumbers.length; i++) {
+          if (i != 6) {
+            logicProductArr.push(
+              parseInt(uniformNumbers[i]) * logicMultipliers[i]
+            );
+          }
+        }
+      } else {
+        for (let i = 0; i < uniformNumbers.length; i++) {
+          logicProductArr.push(
+            parseInt(uniformNumbers[i]) * logicMultipliers[i]
+          );
+        }
+      }
+
+      for (const item of logicProductArr) {
+        logicProduct += sum(item.toString().split(""));
+      }
+
+      if (
+        uniformNumbers[6] === "7" &&
+        (logicProduct % 5 === 0 || (logicProduct + 1) % 5 === 0)
+      ) {
+        return "統編驗證通過";
+      } else if (logicProduct % 5 === 0) {
+        return "統編驗證通過";
+      }
+
+      return "統編驗證失敗";
+    },
 
     savePassbill() {
       if (
@@ -594,15 +651,26 @@ export default {
           type: "warning",
         });
       }
-      if(this.bills.some(bill => bill.acc_name === this.billform.acc_name)){
+      if (this.bills.some((bill) => bill.acc_name === this.billform.acc_name)) {
         this.$message({
           message: "帳單名稱不能重複",
           type: "warning",
         });
-        return
+        return;
+      }
+      // 統一編號驗證
+      const uniformCheck = this.uniformNumbers_verification(
+        this.billform.use_number
+      );
+      if (uniformCheck !== "統編驗證通過") {
+        this.$message({
+          message: uniformCheck, // 顯示驗證錯誤訊息
+          type: "warning",
+        });
+        return;
       }
       const req = this.billform;
-      
+
       //發送 POST 請求
       axios
         .post("http://122.116.23.30:3347/main/createAccount_sort", req)
