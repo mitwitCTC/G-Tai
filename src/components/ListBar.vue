@@ -128,7 +128,12 @@
         >
           開立發票查詢
         </button>
-        <button class="btn btn-light w-100 text-start trade-color" @click="() => goTo('/basic-info/supplier')">總表&明細列印</button>
+        <button
+          class="btn btn-light w-100 text-start trade-color"
+          @click="() => goTo('/basic-info/supplier')"
+        >
+          總表&明細列印
+        </button>
         <button
           class="btn btn-light w-100 text-start trade-color"
           @click="() => goTo('/basic-info/monthaccount')"
@@ -141,7 +146,7 @@
         >
           特殊發票處理
         </button>
-       
+
         <button
           class="btn btn-light w-100 text-start trade-color"
           @click="() => goTo('/basic-info/billsend')"
@@ -154,7 +159,11 @@
       <button class="btn btn-light w-100 text-start" @click="Accounting">
         {{ isAccounting ? "會計系統⭢" : "會計系統⭢" }}
       </button>
-      <div class="collapse" :class="{ show: !isAccounting }" id="collapseExample5">
+      <div
+        class="collapse"
+        :class="{ show: !isAccounting }"
+        id="collapseExample5"
+      >
         <button
           class="btn btn-light w-100 text-start Acc-color"
           @click="() => goTo('/basic-info/FinanceManagement')"
@@ -193,13 +202,14 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { ref ,onMounted} from "vue";
+import { useRouter, useRoute, } from "vue-router";
+import Cookies from "js-cookie";
 
 const router = useRouter();
 const route = useRoute();
 
-const userName = ref("登入者：測試測試"); // 替換為實際的登入者名稱
+const userName = ref("登入者："); // 替換為實際的登入者名稱
 
 const isBasicInfoCollapsed = ref(true);
 const isBasicInfoCollapsedTrade = ref(true);
@@ -234,9 +244,19 @@ const Accounting = () => {
 };
 
 const logout = () => {
-  // 登出邏輯，例如清除token，重定向到登入頁面等
-  router.push("/login"); // 假設登出後重定向到登入頁面
+  // 清除 Cookie 或其他登出邏輯
+  Cookies.remove("login");
+  router.push("/login");
 };
+onMounted(() => {
+  const login = Cookies.get("login");
+  if (login) {
+    const parsedLogin = JSON.parse(login); // 解析 JSON
+    if (parsedLogin.employee_name) {
+      userName.value = `登入者：${parsedLogin.employee_name}`; // 設定登入者名稱
+    }
+  }
+});
 </script>
 
 <style scoped>

@@ -27,7 +27,7 @@
         </el-select>
 
         <el-select
-          v-if="filterbill.length > 0"
+          v-if="filterbill.length > 0 && !searchV"
           v-model="this.acc_name"
           placeholder="選擇帳單組別"
           style="margin-right: 20px"
@@ -41,18 +41,25 @@
             :value="bill.account_sortId"
           ></el-option>
         </el-select>
+        <el-input
+            v-model="searchV"
+            placeholder="輸入車牌"
+            style="width: 225px ;margin-right: 10px;"
+            v-if="!this.acc_name && filterbill.length > 0"
+            @input="selectAll=false"
+          ></el-input>
         <el-button v-if="filterbill.length > 0" type="danger" @click="dialog"
           >確認修改</el-button
         >
       </el-form-item>
       <!-- 全選框 -->
-      <el-checkbox v-model="selectAll" @change="toggleSelectAll">
+      <el-checkbox v-model="selectAll" @change="toggleSelectAll" v-if="filterbill.length > 0 && !searchV">
         全選
       </el-checkbox>
     </div>
 
     <el-table
-      :data="paginatedData"
+      :data="filteredData"
       style="width: 100%"
       v-if="filterbill.length > 0"
     >
@@ -84,19 +91,19 @@
       ></el-table-column>
       <el-table-column prop="invoice_name" label="抬頭"></el-table-column>
     </el-table>
-    <div class="pagination-container">
+    <!-- <div class="pagination-container">
       <div class="pagination-info">
-        Showing {{ startItem }} to {{ endItem }} of {{ this.filterbill.length }}
+        Showing {{ startItem }} to {{ endItem }} of {{ this.filteredData.length }}
       </div>
       <el-pagination
         @current-change="handlePageChange"
         :current-page="currentPage"
         :page-size="pageSize"
-        :total="this.filterbill.length"
+        :total="this.filteredData.length"
         layout="prev, pager, next, jumper"
         class="pagination"
       />
-    </div>
+    </div> -->
     <el-dialog
       title="修改帳單"
       v-model="dialogpage"
@@ -218,6 +225,7 @@ export default {
       accountdata: [],
       filterbill: [],
       form: {},
+      searchV:""
     };
   },
   created() {
@@ -247,17 +255,30 @@ export default {
         return false;
       });
     },
-    paginatedData() {
-      const start = (this.currentPage - 1) * this.pageSize;
-      const end = start + this.pageSize;
-      return this.filterbill.slice(start, end);
+    // 過濾搜尋後的資料
+    filteredData() {
+      const searchTerm = this.searchV.trim().toLowerCase();
+
+      return this.filterbill.filter((item) => {
+        const license_plate = item.license_plate ? item.license_plate.toLowerCase() : "";
+
+        return (
+          license_plate.includes(searchTerm)
+        );
+      });
     },
-    startItem() {
-      return (this.currentPage - 1) * this.pageSize + 1;
-    },
-    endItem() {
-      return Math.min(this.currentPage * this.pageSize, this.filterbill.length);
-    },
+    // paginatedData() {
+    //   const start = (this.currentPage - 1) * this.pageSize;
+    //   const end = start + this.pageSize;
+    //   return this.filteredData.slice(start, end);
+    // },
+    // startItem() {
+    //   return (this.currentPage - 1) * this.pageSize + 1;
+    // },
+    // endItem() {
+    //   return Math.min(this.currentPage * this.pageSize, this.filteredData.length);
+    // },
+    
   },
   methods: {
     updateSelectAll() {

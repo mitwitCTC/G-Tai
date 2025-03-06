@@ -8,7 +8,7 @@
   </div>
   <div>
     <el-row>
-      <el-form-item label="結轉起日">
+      <el-form-item label="開立日期">
         <el-date-picker
           v-model="search_month"
           type="date"
@@ -19,8 +19,6 @@
           @change="clink()"
         >
         </el-date-picker>
-      </el-form-item>
-      <el-form-item label="結轉迄日">
         <el-date-picker
           v-model="search_end_month"
           type="enddate"
@@ -31,6 +29,15 @@
           @change="clink()"
         ></el-date-picker>
       </el-form-item>
+      <el-form-item
+      v-if="paginatedData.length"
+        >
+          <el-input
+            v-model="search"
+            placeholder="發票號碼/客戶代號/客戶名稱/統編/抬頭"
+            style="width: 300px ; margin-right: 20px;"
+          ></el-input>
+        </el-form-item>
       <el-button type="info" @click="invoiceOPEN()">發票開立</el-button>
     </el-row>
 
@@ -63,21 +70,21 @@
             >{{ formatCurrency(scope.row.Amount) }}
           </template></el-table-column
         >
-        <el-table-column prop="Bidentifier" label="統編" width="150" />
-        <el-table-column prop="BName" label="抬頭" width="200" />
+        <el-table-column prop="Bidentifier" label="開立統編" width="150" />
+        <el-table-column prop="BName" label="開立抬頭" width="200" />
         <el-table-column prop="InvoiceIdCount" label="開立明細數" width="100" />
         <el-table-column prop="QuantitySum" label="數量總計" width="150" />
       </el-table>
       <div class="pagination-container">
         <div class="pagination-info">
           Showing {{ startItem }} to {{ endItem }} of
-          {{ this.invoice.length }}
+          {{ filteredData.length }}
         </div>
         <el-pagination
           @current-change="handlePageChange"
           :current-page="currentPage"
           :page-size="pageSize"
-          :total="this.invoice.length"
+          :total="filteredData.length"
           layout="prev, pager, next, jumper"
           class="pagination"
         />
@@ -266,6 +273,7 @@ const initialFormState = {
   cus_code: "",
   cus_name: "",
   search_month: "",
+  search:"",
   invoice: [
     {
       account_sortId: "",
@@ -286,6 +294,7 @@ export default {
       dialog: false,
       search_month: "",
       search_end_month: "",
+      search:"",
       invoice: [],
       currentPage: 1,
       pageSize: 10,
@@ -310,6 +319,27 @@ export default {
     this.isLoading = false;
   },
   computed: {
+    // 過濾搜尋後的資料
+    filteredData() {
+      const searchTerm = this.search.trim().toLowerCase();
+
+      return this.invoice.filter((item) => {
+            
+        const word_track = item.word_track ? item.word_track.toLowerCase() : "";
+        const customerId = item.customerId ? item.customerId.toLowerCase() : "";
+        const cus_name = item.cus_name ? item.cus_name.toLowerCase() : "";
+        const Bidentifier = item.Bidentifier ? item.Bidentifier.toLowerCase() : "";
+        const BName = item.BName ? item.BName.toLowerCase() : "";
+
+        return (
+          word_track.includes(searchTerm) ||
+          customerId.includes(searchTerm) ||
+          cus_name.includes(searchTerm) ||
+          Bidentifier.includes(searchTerm)||
+          BName.includes(searchTerm)
+        );
+      });
+    },
     startItem() {
       const start = (this.currentPage - 1) * this.pageSize + 1;
       return Math.min(start, this.invoice.length);
@@ -319,12 +349,12 @@ export default {
       return Math.min(end, this.invoice.length);
     },
     paginatedData() {
-      if (!Array.isArray(this.invoice)) {
+      if (!Array.isArray(this.filteredData)) {
         return []; // 若 `filteredData` 不是陣列，返回空陣列
       }
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.invoice.slice(start, end);
+      return this.filteredData.slice(start, end);
     },
     TotalAmount() {
       if (!this.form.invoice || !Array.isArray(this.form.invoice)) {

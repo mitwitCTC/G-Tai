@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import AccessControl from "@/views/basic-info/AccessControl.vue";
 import monthaccount from "@/views/basic-info/monthaccount.vue";
+import Cookies from "js-cookie";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,11 +11,13 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView,
+      meta: { requireAuth: true }
     },
     {
       path: "/login",
       name: "login",
       component: () => import("@/views/basic-info/login.vue"),
+      meta: { clearCookies: true }
     },
     {
       path: "/basic-info",
@@ -334,5 +337,42 @@ const router = createRouter({
     },
   ],
 });
+router.beforeEach((to, from, next) => {
+  // 如果目標路由有 `clearCookies` 設定，清除 login
+  if (to.meta.clearCookies) {
+    Cookies.remove("login");
+  }
 
+  // 取得 Cookies 中的 login 資訊
+  const info = Cookies.get("login");
+  let userPermissions = null; // 用來存放使用者的權限資料
+  let token = null;
+
+  if (info) {
+    try {
+      const parsedInfo = JSON.parse(info);
+      console.log(JSON.stringify(info))
+      token = parsedInfo.token; // 取得 token
+      userPermissions = parsedInfo.permissions || []; // 取得權限 (假設是陣列)
+    } catch (error) {
+      console.error("解析 Cookies 錯誤", error);
+    }
+  }
+
+  // 需要登入才能訪問的頁面
+  if (to.meta.requireAuth) {
+    // if (!token) {
+    //   return next({ name: "login" }); // 若沒有 token，導向登入頁
+    // }
+  }
+
+  // **檢查特定頁面的權限**
+  if (to.meta.requiredPermission) {
+    if (!userPermissions || !userPermissions.includes(to.meta.requiredPermission)) {
+      return next({ name: "unauthorized" }); // 如果沒有對應權限，導向未授權頁面
+    }
+  }
+
+  next(); // 允許導航
+});
 export default router;

@@ -105,6 +105,7 @@ export default {
         job_title:'',
         department_code:'',
         department:'',
+        createTime:""
       },
       selses: [],
       currentPage: 1,

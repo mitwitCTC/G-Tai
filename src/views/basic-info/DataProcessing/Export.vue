@@ -16,11 +16,12 @@
     <el-option label="TT6112061" :value="'TT6112061'"></el-option>
     <el-option label="42993157(諾瓦帳號)" :value="'42993157'"></el-option>
   </el-select>
-  <el-button @click="exportToExcel">匯出</el-button>
+  
   <br />
   <el-button type="primary" @click="dialogtrue()" style="margin-top: 20px"
     >新增</el-button
   >
+  
   <!-- <input type="file" @change="handleFileChange" /> -->
   <el-table :data="paginatedDiscount" style="width: 100%" v-loading="loading">
     <el-table-column prop="cpc_account" label="中油帳號" width="100" />
@@ -41,24 +42,39 @@
   >
     <el-form :model="form" label-width="120px">
       <!-- 统一標籤寬度 -->
-      <h3 v-if="this.selectcards.length>0">車號：{{form.titleplent}}所有卡片</h3>
+      <h3 v-if="this.selectcards.length > 0">
+        車號：{{ form.titleplent }}所有卡片
+      </h3>
       <el-table
         :data="this.selectcards"
         style="width: 100%"
         v-loading="loading"
-        v-if="this.selectcards.length>0"
+        v-if="this.selectcards.length > 0"
       >
-      <el-table-column prop="card_number" label="卡號" width="200" />
-      <el-table-column prop="card_type" label="卡片類別" width="150" :formatter="format" />
-      <el-table-column prop="upload_time" label="上傳中油時間" width="150" />
-      <el-table-column prop="upload_reason" label="上傳中油原因" width="150" />
-      <el-table-column prop="card_arrival_date" label="到卡日期" width="150" />
-      <el-table-column prop="card_stop_date" label="停卡日期" width="200" />
-      <el-table-column prop="notes" label="備註" />
-      <el-table-column prop="vehicle_change_reason" label="車輛異動-因素" />
+        <el-table-column prop="card_number" label="卡號" width="200" />
+        <el-table-column
+          prop="card_type"
+          label="卡片類別"
+          width="150"
+          :formatter="format"
+        />
+        <el-table-column prop="upload_time" label="上傳中油時間" width="150" />
+        <el-table-column
+          prop="upload_reason"
+          label="上傳中油原因"
+          width="150"
+        />
+        <el-table-column
+          prop="card_arrival_date"
+          label="到卡日期"
+          width="150"
+        />
+        <el-table-column prop="card_stop_date" label="停卡日期" width="200" />
+        <el-table-column prop="notes" label="備註" />
+        <el-table-column prop="vehicle_change_reason" label="車輛異動-因素" />
       </el-table>
-      <h3 style="margin-top: 50px;">新增資料</h3>
-      <div style="margin-top: 50px;"></div>
+      <h3 style="margin-top: 50px">新增資料</h3>
+      <div style="margin-top: 50px"></div>
       <el-row style="margin-bottom: 20px">
         <el-form-item label="*客戶編號">
           <!-- <el-input v-model="form.cus_code" @input="getdata" maxlength="8"></el-input> -->
@@ -199,7 +215,7 @@
               form.state == 4 ||
               form.state == 1 ||
               form.state == 5 ||
-              form.state == 7 
+              form.state == 7
             "
             @change="filterRecorded2"
           >
@@ -286,6 +302,7 @@
       class="pagination"
     />
   </div>
+  <el-button @click="exportToExcel" >匯出</el-button>
   <el-dialog
     v-model="isLoading"
     width="15%"
@@ -301,7 +318,7 @@ import BreadCrumb from "@/components/BreadCrumb.vue";
 import TablePaginated from "@/components/TablePaginated.vue";
 import axios from "axios";
 import ExcelJS from "exceljs";
-import { toRaw } from 'vue'; // 引入 `toRaw` 函數
+import { toRaw } from "vue"; // 引入 `toRaw` 函數
 
 export default {
   components: {
@@ -341,16 +358,16 @@ export default {
         state: "",
         card_stop_date: "",
         deleteTime: "",
-        titleplent:""
+        titleplent: "",
       },
       currentPage: 1,
       pageSize: 10,
       type: {
-        '1': '尿素',
-        '2': '柴油',
-        '3': '汽油',
-        '4': '諾瓦尿素',
-      } ,
+        1: "尿素",
+        2: "柴油",
+        3: "汽油",
+        4: "諾瓦尿素",
+      },
     };
   },
   created() {
@@ -376,7 +393,7 @@ export default {
   methods: {
     format(card_type) {
       const type = toRaw(card_type);
-      return this.type[type.card_type.toString()] || '未知';
+      return this.type[type.card_type.toString()] || "未知";
     },
     getstate() {
       if (!this.form.license_plate) {
@@ -451,15 +468,11 @@ export default {
     filterRecorded2() {
       if (this.form.upload_reason == "改客戶(原卡號沿用)") {
         this.form.state = 6;
-      } else if (
-        this.form.upload_reason == "遺失"
-      ) {
+      } else if (this.form.upload_reason == "遺失") {
         this.form.state = 2;
-      }  else if (
-        this.form.upload_reason == "故障"
-      ) {
+      } else if (this.form.upload_reason == "故障") {
         this.form.state = 8;
-      }else {
+      } else {
         this.form.state = 3;
       }
     },
@@ -519,7 +532,7 @@ export default {
           postdata
         );
         this.cards = response.data.data;
-        this.form.titleplent=this.form.license_plate
+        this.form.titleplent = this.form.license_plate;
         this.selectcards = response2.data.data;
       } catch {
         this.$message({
@@ -575,8 +588,8 @@ export default {
       ) {
         try {
           //1.先找全部車牌 有就判斷 沒就新增
-          this.selectcards=[]
-          this.form.titleplent=""
+          this.selectcards = [];
+          this.form.titleplent = "";
           this.vehicleId = "";
           let vehicleFound = false;
           this.isLoading = true; // 請求開始，顯示 loading 標示
@@ -694,129 +707,132 @@ export default {
     },
     // 匯出 Excel
     async exportToExcel() {
-      if (!this.cpc_account) {
-        this.$message({
-          message: "請先選擇中油帳號",
-          type: "error",
-        });
-        return;
-      }
-      try {
-        // 確保資料先完成取得
-        await this.getResult();
-        const rowsPerFile = 20;
-
-        // 將資料切割成每 20 筆為一組
-        const chunkArray = (arr, size) => {
-          const result = [];
-          for (let i = 0; i < arr.length; i += size) {
-            result.push(arr.slice(i, i + size));
-          }
-          return result;
-        };
-        const dataChunks = chunkArray(this.result, rowsPerFile); // 將 result 資料按 20 筆一組進行拆分
-
-        for (let fileIndex = 0; fileIndex < dataChunks.length; fileIndex++) {
-          const chunk = dataChunks[fileIndex];
-          // 讀取 Excel 文件
-          const workbook = new ExcelJS.Workbook();
-          const fr = new FileReader();
-          const response = await fetch(
-            new URL("@/assets/new.xlsx", import.meta.url).href
-          ); // 從 URL 載入模板檔案
-          const data = await response.blob(); // 轉為 Blob
-          fr.readAsArrayBuffer(data);
-
-          // 當 FileReader 完成後，讀取 Excel 並進行修改
-          fr.onload = async (ev) => {
-            await workbook.xlsx.load(ev.target.result);
-            const worksheet = workbook.worksheets[0]; // 取得第一個工作表
-
-            let rowstitle = [];
-            if (this.cpc_account == "TT6112060") {
-              rowstitle = [["TT6112060_鉅泰創新股份有限公司"]];
-            } else if (this.cpc_account == "TT6112061") {
-              rowstitle = [["TT6112061_鉅泰創新股份有限公司"]];
-            } else {
-              rowstitle = [[""]];
-            }
-            // 處理資料，生成每一行的數據
-            const rowsData = chunk.map((data, index) => {
-              // 判斷是否是新增，若是則將 card_number 設為空字串
-              const cardNumber =
-                data.upload_reason === "新增" ? "" : data.card_number;
-
-              return [
-                index + 1, // 流水號
-                data.license_plate, // 假設 vehicleId 是車牌
-                data.card_type === "2" ? "V" : "", // 超級柴油
-                data.card_type === "3" ? "V" : "", // 無鉛汽油
-                data.card_type === "0005" ? "V" : "", // 酒精汽油
-                data.card_type === "0009" ? "V" : "", // 不限油品
-                data.card_type === "1" ? "V" : "", // 尿素溶液
-                data.upload_reason === "新增" ? "V" : "", // 新增
-                data.upload_reason === "停用" ? "V" : "", // 停用
-                data.upload_reason === "遺失" ? "V" : "", // 遺失
-                data.upload_reason === "故障" ? "V" : "", // 故障
-                data.upload_reason === "原卡復油" ? "V" : "", // 原卡復油
-                data.customerId, // 保管單位
-                data.custodian.substring(8, 12), // 公司名稱 (取第9~12個字)
-                cardNumber, // 備註
-              ];
-            });
-            worksheet.addTable({
-              name: "table名稱", // 表格的名稱
-              ref: "C1",
-              headerRow: false, // 不需要表頭
-              columns: [{ name: "標題" }],
-              rows: rowstitle, // 將生成的行數據放入表格
-            });
-            // 添加表格，將所有行數據一次性寫入
-            worksheet.addTable({
-              name: "table名稱", // 表格的名稱
-              ref: "A4", // 表格從 A4 開始
-              headerRow: false, // 不需要表頭
-              columns: [
-                { name: "流水號" },
-                { name: "車牌" },
-                { name: "超級柴油" },
-                { name: "無鉛汽油" },
-                { name: "酒精汽油" },
-                { name: "不限油品" },
-                { name: "尿素溶液" },
-                { name: "新增" },
-                { name: "停用" },
-                { name: "遺失" },
-                { name: "故障" },
-                { name: "原卡復油" },
-                { name: "保管單位" },
-                { name: "公司名稱" },
-                { name: "備註" },
-              ],
-              rows: rowsData, // 將生成的行數據放入表格
-            });
-
-            // 保存到新的文件
-            const newFileName = "中油製卡明細.xlsx";
-            const buffer = await workbook.xlsx.writeBuffer();
-
-            // 生成下載鏈接並觸發下載
-            const blob = new Blob([buffer], {
-              type: "application/octet-stream",
-            });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = newFileName;
-            link.click();
-          };
+      const result = confirm("此動作無法返回，請確認是否匯出");
+      if (result) {
+        if (!this.cpc_account) {
           this.$message({
-            message: "匯出成功",
-            type: "success",
+            message: "請先選擇中油帳號",
+            type: "error",
           });
-          this.getRecorded();
+          return;
         }
-      } catch (error) {
-        console.error("Error during export to Excel:", error);
+        try {
+          // 確保資料先完成取得
+          await this.getResult();
+          const rowsPerFile = 20;
+
+          // 將資料切割成每 20 筆為一組
+          const chunkArray = (arr, size) => {
+            const result = [];
+            for (let i = 0; i < arr.length; i += size) {
+              result.push(arr.slice(i, i + size));
+            }
+            return result;
+          };
+          const dataChunks = chunkArray(this.result, rowsPerFile); // 將 result 資料按 20 筆一組進行拆分
+
+          for (let fileIndex = 0; fileIndex < dataChunks.length; fileIndex++) {
+            const chunk = dataChunks[fileIndex];
+            // 讀取 Excel 文件
+            const workbook = new ExcelJS.Workbook();
+            const fr = new FileReader();
+            const response = await fetch(
+              new URL("@/assets/new.xlsx", import.meta.url).href
+            ); // 從 URL 載入模板檔案
+            const data = await response.blob(); // 轉為 Blob
+            fr.readAsArrayBuffer(data);
+
+            // 當 FileReader 完成後，讀取 Excel 並進行修改
+            fr.onload = async (ev) => {
+              await workbook.xlsx.load(ev.target.result);
+              const worksheet = workbook.worksheets[0]; // 取得第一個工作表
+
+              let rowstitle = [];
+              if (this.cpc_account == "TT6112060") {
+                rowstitle = [["TT6112060_鉅泰創新股份有限公司"]];
+              } else if (this.cpc_account == "TT6112061") {
+                rowstitle = [["TT6112061_鉅泰創新股份有限公司"]];
+              } else {
+                rowstitle = [[""]];
+              }
+              // 處理資料，生成每一行的數據
+              const rowsData = chunk.map((data, index) => {
+                // 判斷是否是新增，若是則將 card_number 設為空字串
+                const cardNumber =
+                  data.upload_reason === "新增" ? "" : data.card_number;
+
+                return [
+                  index + 1, // 流水號
+                  data.license_plate, // 假設 vehicleId 是車牌
+                  data.card_type === "2" ? "V" : "", // 超級柴油
+                  data.card_type === "3" ? "V" : "", // 無鉛汽油
+                  data.card_type === "0005" ? "V" : "", // 酒精汽油
+                  data.card_type === "0009" ? "V" : "", // 不限油品
+                  data.card_type === "1" ? "V" : "", // 尿素溶液
+                  data.upload_reason === "新增" ? "V" : "", // 新增
+                  data.upload_reason === "停用" ? "V" : "", // 停用
+                  data.upload_reason === "遺失" ? "V" : "", // 遺失
+                  data.upload_reason === "故障" ? "V" : "", // 故障
+                  data.upload_reason === "原卡復油" ? "V" : "", // 原卡復油
+                  data.customerId, // 保管單位
+                  data.custodian.substring(8, 12), // 公司名稱 (取第9~12個字)
+                  cardNumber, // 備註
+                ];
+              });
+              worksheet.addTable({
+                name: "table名稱", // 表格的名稱
+                ref: "C1",
+                headerRow: false, // 不需要表頭
+                columns: [{ name: "標題" }],
+                rows: rowstitle, // 將生成的行數據放入表格
+              });
+              // 添加表格，將所有行數據一次性寫入
+              worksheet.addTable({
+                name: "table名稱", // 表格的名稱
+                ref: "A4", // 表格從 A4 開始
+                headerRow: false, // 不需要表頭
+                columns: [
+                  { name: "流水號" },
+                  { name: "車牌" },
+                  { name: "超級柴油" },
+                  { name: "無鉛汽油" },
+                  { name: "酒精汽油" },
+                  { name: "不限油品" },
+                  { name: "尿素溶液" },
+                  { name: "新增" },
+                  { name: "停用" },
+                  { name: "遺失" },
+                  { name: "故障" },
+                  { name: "原卡復油" },
+                  { name: "保管單位" },
+                  { name: "公司名稱" },
+                  { name: "備註" },
+                ],
+                rows: rowsData, // 將生成的行數據放入表格
+              });
+
+              // 保存到新的文件
+              const newFileName = "中油製卡明細.xlsx";
+              const buffer = await workbook.xlsx.writeBuffer();
+
+              // 生成下載鏈接並觸發下載
+              const blob = new Blob([buffer], {
+                type: "application/octet-stream",
+              });
+              const link = document.createElement("a");
+              link.href = URL.createObjectURL(blob);
+              link.download = newFileName;
+              link.click();
+            };
+            this.$message({
+              message: "匯出成功",
+              type: "success",
+            });
+            this.getRecorded();
+          }
+        } catch (error) {
+          console.error("Error during export to Excel:", error);
+        }
       }
     },
     savePass(type) {
