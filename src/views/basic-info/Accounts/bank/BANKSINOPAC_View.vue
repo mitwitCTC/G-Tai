@@ -59,6 +59,7 @@
           >{{ formatCurrency(scope.row.amount) }}
         </template></el-table-column
       >
+      
       <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
@@ -352,7 +353,8 @@ export default {
       const key = column.property;
 
       if (["credit_amount", "bank_amount", "amount"].includes(key)) {
-        sums[index] = data.reduce((sum, item) => sum + Number(item[key] || 0), 0);
+        const total  = data.reduce((sum, item) => sum + Number(item[key] || 0), 0);
+        sums[index] = total.toLocaleString(); // 加千分位格式
       } else {
         sums[index] = "";
       }

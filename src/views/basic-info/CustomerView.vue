@@ -938,7 +938,7 @@ export default {
             // 將物件轉成字串，然後使用 btoa 編碼
 
             // 拼接完整的 URL
-            const url = `http://122.116.23.30:3346/login?cca=${cca}&dwp=${dwp}`;
+            const url = `https://jutai.mitwit-cre.com.tw/login?cca=${cca}&dwp=${dwp}`;
 
             // 開啟新分頁
             window.open(url, "_blank");

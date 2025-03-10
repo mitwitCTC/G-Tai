@@ -73,6 +73,12 @@
         </el-select>
       </el-form-item>
       <!-- <el-button type="info" @click="printdialog = true">匯出</el-button> -->
+      <el-button
+          type="info"
+          @click="handleExport()"
+          v-if="filteredData.length > 0"
+          >匯出</el-button
+        >
     </el-form-item>
 
     <div class="table-container" v-if="paginatedData && paginatedData.length">
@@ -145,6 +151,7 @@
 import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
 import axios from "axios";
+import Exportcpctrade from "@/components/Exportcpctrade.vue";
 export default {
   components: {
     BreadCrumb,
@@ -191,6 +198,28 @@ export default {
     },
   },
   methods: {
+    async handleExport() {
+      try {
+        this.isLoading = true;
+        await Exportcpctrade.methods.exportExcel(
+          this.search_month,
+          this.search_end_month,
+          this.filteredData
+        );
+        // 顯示成功訊息
+        this.$message({
+          message: `匯出成功`,
+          type: "success",
+        });
+      } catch {
+        this.$message({
+          message: `匯出失敗`,
+          type: "error",
+        });
+      } finally {
+        this.isLoading = false;
+      }
+    },
     // 篩選資料
     filterData() {
       this.filteredData = this.cpcdata.filter((item) => {

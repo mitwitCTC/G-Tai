@@ -39,6 +39,12 @@
           ></el-input>
         </el-form-item>
       <el-button type="info" @click="invoiceOPEN()">發票開立</el-button>
+      <el-button
+          type="info"
+          @click="handleExport()"
+          v-if="filteredData.length > 0"
+          >匯出</el-button
+        >
     </el-row>
 
     <div class="table-container" v-if="paginatedData && paginatedData.length">
@@ -269,6 +275,7 @@
 import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
 import axios from "axios";
+import Exportinvoice from "@/components/Exportinvoice.vue";
 const initialFormState = {
   cus_code: "",
   cus_name: "",
@@ -383,6 +390,28 @@ export default {
     },
   },
   methods: {
+    async handleExport() {
+      try {
+        this.isLoading = true;
+        await Exportinvoice.methods.exportExcel(
+          this.search_month,
+          this.search_end_month,
+          this.filteredData
+        );
+        // 顯示成功訊息
+        this.$message({
+          message: `匯出成功`,
+          type: "success",
+        });
+      } catch {
+        this.$message({
+          message: `匯出失敗`,
+          type: "error",
+        });
+      } finally {
+        this.isLoading = false;
+      }
+    },
     async save() {
       this.form = {
         ...this.form,

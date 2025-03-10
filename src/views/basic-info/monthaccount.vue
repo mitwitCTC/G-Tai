@@ -50,6 +50,7 @@
       :row-class-name="tableRowClass"
     >
       <el-table-column prop="customerId" label="客代" width="100" />
+      <el-table-column prop="cus_name" label="客戶名稱" width="300" />
       <el-table-column prop="acc_name" label="帳單組" width="300">
         <template v-slot="scope">
           <span v-if="scope.row.isSummary"><b>小計</b></span>

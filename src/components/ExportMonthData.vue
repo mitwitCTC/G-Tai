@@ -35,29 +35,30 @@ export default {
           const rowIndex = index + 2; // 從 A2 開始
           if (contact.isSummary == false) {
             worksheet.getCell(`A${rowIndex}`).value = contact.customerId || ""; // 插入 customerId
-            worksheet.getCell(`B${rowIndex}`).value = contact.acc_name || "";
-            worksheet.getCell(`C${rowIndex}`).value =
+            worksheet.getCell(`B${rowIndex}`).value = contact.cus_name || ""; 
+            worksheet.getCell(`C${rowIndex}`).value = contact.acc_name || "";
+            worksheet.getCell(`D${rowIndex}`).value =
               contact.record_count || "";
-            worksheet.getCell(`D${rowIndex}`).value = contact.className || "";
-            worksheet.getCell(`E${rowIndex}`).value =
-              Number(contact.fuel_volume) || "";
+            worksheet.getCell(`E${rowIndex}`).value = contact.className || "";
             worksheet.getCell(`F${rowIndex}`).value =
+              Number(contact.fuel_volume) || "";
+            worksheet.getCell(`G${rowIndex}`).value =
               Number(contact.amount) || "";
-            worksheet.getCell(`G${rowIndex}`).value = contact.use_number || "";
-            worksheet.getCell(`H${rowIndex}`).value =
+            worksheet.getCell(`H${rowIndex}`).value = contact.use_number || "";
+            worksheet.getCell(`I${rowIndex}`).value =
               contact.invoice_name || "";
           } else if (contact.isSummary == true) {
             // worksheet.getCell(`A${rowIndex}`).value = contact.customerId || ""; // 插入 customerId
-            worksheet.getCell(`B${rowIndex}`).value = "小計";
-            worksheet.getCell(`B${rowIndex}`).font = { bold: true }; // 設定粗體
-            worksheet.getCell(`C${rowIndex}`).value =
+            worksheet.getCell(`C${rowIndex}`).value = "小計";
+            worksheet.getCell(`C${rowIndex}`).font = { bold: true }; // 設定粗體
+            worksheet.getCell(`D${rowIndex}`).value =
               contact.record_count || "";
             worksheet.getCell(`E${rowIndex}`).value =
               Number(contact.fuel_volume) || "";
-            worksheet.getCell(`F${rowIndex}`).value =
+            worksheet.getCell(`G${rowIndex}`).value =
               Number(contact.amount) || "";
             // 設定 A-H 欄框線
-            ["A", "B", "C", "D", "E", "F", "G", "H"].forEach((col) => {
+            ["A", "B", "C", "D", "E", "F", "G", "H","I"].forEach((col) => {
               worksheet.getCell(`${col}${rowIndex}`).border = {
                 top: { style: "thin" },
               };
