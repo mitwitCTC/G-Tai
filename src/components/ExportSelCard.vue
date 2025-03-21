@@ -198,32 +198,33 @@ export default {
           product_name: updatedProductName, // 更新 product_name
         };
       });
-      this.Allexport = this.Allexport.filter((item) =>
-        this.cus_code === item.customerId)
-      ;
+      this.Allexport = this.Allexport.filter(
+        (item) => this.cus_code === item.customerId
+      );
     },
-    async exportExcel(cus_code, cus_name) {
+    async exportExcel(cus_code, cus_name, carddata) {
       this.cus_code = cus_code;
       this.cus_name = cus_name;
-      console.log("1查詢客戶資料");
-      await this.getselectCUSData();
-      console.log("1結束");
-      console.log("2查詢卡號資料");
-      await this.getselectCARData();
-      console.log("2結束");
-      console.log("3查詢車籍資料");
-      await this.getselectVEHData();
-      console.log("3結束");
-      console.log("4查詢帳單資料");
-      await this.getselectBillData();
-      console.log("4結束");
-      console.log("5查尋產品名稱");
-      await this.getproduct_name();
-      console.log("5結束");
-      console.log("6組成資料");
-      await this.doData();
-      console.log("6結束");
-      console.log("7 匯出");
+      console.log(JSON.stringify(carddata));
+      // console.log("1查詢客戶資料");
+      // await this.getselectCUSData();
+      // console.log("1結束");
+      // console.log("2查詢卡號資料");
+      // await this.getselectCARData();
+      // console.log("2結束");
+      // console.log("3查詢車籍資料");
+      // await this.getselectVEHData();
+      // console.log("3結束");
+      // console.log("4查詢帳單資料");
+      // await this.getselectBillData();
+      // console.log("4結束");
+      // console.log("5查尋產品名稱");
+      // await this.getproduct_name();
+      // console.log("5結束");
+      // console.log("6組成資料");
+      // await this.doData();
+      // console.log("6結束");
+      // console.log("7 匯出");
       try {
         // 確保資料先完成取得
         const workbook = new ExcelJS.Workbook();
@@ -243,25 +244,33 @@ export default {
         await workbook.xlsx.load(arrayBuffer);
         const worksheet = workbook.worksheets[0]; // 取得第一個工作表
         // 開始填充資料
-        this.Allexport.forEach((data, index) => {
+        carddata.forEach((data, index) => {
           const rowIndex = index + 2; // 從 A2 開始
           worksheet.getCell(`A${rowIndex}`).value = data.customerId || "";
           worksheet.getCell(`B${rowIndex}`).value = data.cus_name || "";
           worksheet.getCell(`C${rowIndex}`).value = data.acc_name || "";
           worksheet.getCell(`D${rowIndex}`).value = data.use_number || "";
           worksheet.getCell(`E${rowIndex}`).value = data.license_plate || "";
-          worksheet.getCell(`F${rowIndex}`).value = data.product_name || "";
+          worksheet.getCell(`F${rowIndex}`).value =
+            data.card_type === "1"
+              ? "尿素"
+              : data.card_type === "2"
+              ? "柴油"
+              : data.card_type === "3"
+              ? "汽油"
+              : data.card_type === "4"
+              ? "諾瓦尿素"
+              : data.card_type || "";
           worksheet.getCell(`G${rowIndex}`).value = data.card_number || "";
-          worksheet.getCell(`H${rowIndex}`).value =
+          worksheet.getCell(`H${rowIndex}`).value = data.upload_reason || "";
+          worksheet.getCell(`I${rowIndex}`).value =
             data.card_arrival_date || "";
-          worksheet.getCell(`I${rowIndex}`).value = data.card_stop_date || "";
-          worksheet.getCell(`J${rowIndex}`).value = data.UreaCard || "";
-          worksheet.getCell(`K${rowIndex}`).value = data.notes || "";
+          worksheet.getCell(`J${rowIndex}`).value = data.card_stop_date || "";
+          worksheet.getCell(`K${rowIndex}`).value = data.del || "";
+          worksheet.getCell(`L${rowIndex}`).value = data.notes || "";
         });
         worksheet.getColumn(2).width = 50;
         worksheet.getColumn(3).width = 60;
-        worksheet.getColumn(10).width = 28;
-        worksheet.getColumn(11).width = 60;
         // 生成下載鏈接並觸發下載
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: "application/octet-stream" });

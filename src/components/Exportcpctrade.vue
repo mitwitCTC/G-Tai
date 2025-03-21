@@ -10,6 +10,7 @@ export default {
     async exportExcel(startdate, enddate, cpcdata) {
       try {
         // 確保資料先完成取得
+        console.log(JSON.stringify(cpcdata))
         const workbook = new ExcelJS.Workbook();
         const fr = new FileReader();
         const response = await fetch(
@@ -47,6 +48,12 @@ export default {
           worksheet.getCell(`J${rowIndex}`).value =
             contact.fuel_volume || "";
           worksheet.getCell(`K${rowIndex}`).value = contact.reference_price || "";
+          worksheet.getCell(`L${rowIndex}`).value = Number(contact.reference_amount) || "";
+          worksheet.getCell(`L${rowIndex}`).numFmt = "#,##0";  // 設定千分位格式
+          worksheet.getCell(`M${rowIndex}`).value = contact.discount || "";
+          worksheet.getCell(`N${rowIndex}`).value = Number(contact.salesAmount) || "";
+          worksheet.getCell(`N${rowIndex}`).numFmt = "#,##0";  // 設定千分位格式
+          worksheet.getCell(`O${rowIndex}`).value = contact.employee_name || "";
         });
         // worksheet.getColumn(2).width = 50;
         // worksheet.getColumn(3).width = 60;

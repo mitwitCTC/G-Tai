@@ -119,6 +119,7 @@
             >{{ formatCurrency(scope.row.salesAmount) }}
           </template></el-table-column
         >
+        <el-table-column prop="employee_name" label="負責業務" width="100" />
       </el-table>
       <div class="pagination-container">
         <div class="pagination-info">

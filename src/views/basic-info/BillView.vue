@@ -153,22 +153,7 @@
           <!-- <el-form-item label="開立統編">
             <el-input v-model="billform.use_number" ></el-input>
           </el-form-item> -->
-          <el-form-item label="開立統編">
-            <el-select
-              v-model="billform.use_number"
-              filterable
-              allow-create
-              clearable
-              placeholder="請選擇或輸入統編"
-            >
-              <el-option
-                v-for="bill in uniqueBills"
-                :key="bill.account_sortId"
-                :label="bill.use_number"
-                :value="bill.use_number"
-              ></el-option>
-            </el-select>
-          </el-form-item>
+          
           <!-- <el-form-item label="發票開立人名稱">
             <el-input v-model="billform.invoice_name" ></el-input>
           </el-form-item> -->
@@ -185,6 +170,22 @@
                 :key="bill.account_sortId"
                 :label="bill.invoice_name"
                 :value="bill.invoice_name"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="開立統編">
+            <el-select
+              v-model="billform.use_number"
+              filterable
+              allow-create
+              clearable
+              placeholder="請選擇或輸入統編"
+            >
+              <el-option
+                v-for="bill in uniqueBills"
+                :key="bill.account_sortId"
+                :label="bill.use_number"
+                :value="bill.use_number"
               ></el-option>
             </el-select>
           </el-form-item>
@@ -325,6 +326,7 @@ export default {
     return {
       isLoading: false,
       loading: false,
+      excard:[],
       contact: [],
       cus_code: "",
       cus_name: "",
@@ -452,9 +454,25 @@ export default {
   },
   methods: {
     async handleExport() {
+      const postData = {
+        customerId: this.cus_code,
+      };
       try {
         this.isLoading = true;
-        await ExportSelCard.methods.exportExcel(this.cus_code, this.cus_name);
+        await axios
+        .post("http://122.116.23.30:3347/main/exportcard", postData)
+        .then((response) => {
+          this.excard = response.data.data;
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+          this.$message({
+          message: `匯出失敗`,
+          type: "error",
+        });
+        });
+        await ExportSelCard.methods.exportExcel(this.cus_code, this.cus_name,this.excard);
         // 顯示成功訊息
         this.$message({
           message: `匯出成功`,

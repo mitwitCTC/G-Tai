@@ -29,22 +29,20 @@
           @change="clink()"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item
-      v-if="paginatedData.length"
-        >
-          <el-input
-            v-model="search"
-            placeholder="發票號碼/客戶代號/客戶名稱/統編/抬頭"
-            style="width: 300px ; margin-right: 20px;"
-          ></el-input>
-        </el-form-item>
+      <el-form-item v-if="paginatedData.length">
+        <el-input
+          v-model="search"
+          placeholder="發票號碼/客戶代號/客戶名稱/統編/抬頭"
+          style="width: 300px; margin-right: 20px"
+        ></el-input>
+      </el-form-item>
       <el-button type="info" @click="invoiceOPEN()">發票開立</el-button>
       <el-button
-          type="info"
-          @click="handleExport()"
-          v-if="filteredData.length > 0"
-          >匯出</el-button
-        >
+        type="info"
+        @click="handleExport()"
+        v-if="filteredData.length > 0"
+        >匯出</el-button
+      >
     </el-row>
 
     <div class="table-container" v-if="paginatedData && paginatedData.length">
@@ -76,10 +74,20 @@
             >{{ formatCurrency(scope.row.Amount) }}
           </template></el-table-column
         >
-        <el-table-column prop="Bidentifier" label="開立統編" width="150" />
+        <el-table-column prop="Bidentifier" label="開立統編" width="100" />
         <el-table-column prop="BName" label="開立抬頭" width="200" />
         <el-table-column prop="InvoiceIdCount" label="開立明細數" width="100" />
-        <el-table-column prop="QuantitySum" label="數量總計" width="150" />
+        <el-table-column prop="QuantitySum" label="數量總計" width="100" />
+        <el-table-column label="操作">
+          <template v-slot="scope">
+            <el-button
+              type="info"
+              v-if="scope.row.mode == '1'"
+              @click="Void(scope.row)"
+              >作廢</el-button
+            >
+          </template>
+        </el-table-column>
       </el-table>
       <div class="pagination-container">
         <div class="pagination-info">
@@ -280,7 +288,7 @@ const initialFormState = {
   cus_code: "",
   cus_name: "",
   search_month: "",
-  search:"",
+  search: "",
   invoice: [
     {
       account_sortId: "",
@@ -301,7 +309,7 @@ export default {
       dialog: false,
       search_month: "",
       search_end_month: "",
-      search:"",
+      search: "",
       invoice: [],
       currentPage: 1,
       pageSize: 10,
@@ -331,18 +339,19 @@ export default {
       const searchTerm = this.search.trim().toLowerCase();
 
       return this.invoice.filter((item) => {
-            
         const word_track = item.word_track ? item.word_track.toLowerCase() : "";
         const customerId = item.customerId ? item.customerId.toLowerCase() : "";
         const cus_name = item.cus_name ? item.cus_name.toLowerCase() : "";
-        const Bidentifier = item.Bidentifier ? item.Bidentifier.toLowerCase() : "";
+        const Bidentifier = item.Bidentifier
+          ? item.Bidentifier.toLowerCase()
+          : "";
         const BName = item.BName ? item.BName.toLowerCase() : "";
 
         return (
           word_track.includes(searchTerm) ||
           customerId.includes(searchTerm) ||
           cus_name.includes(searchTerm) ||
-          Bidentifier.includes(searchTerm)||
+          Bidentifier.includes(searchTerm) ||
           BName.includes(searchTerm)
         );
       });
@@ -390,6 +399,35 @@ export default {
     },
   },
   methods: {
+    async Void(row) {
+      const result = confirm("此動作無法返回，請確認是否作廢");
+      if (result) {
+        const result2 = confirm("當期發票才能執行作廢，請確認是否繼續");
+        if (result2) {
+          try {
+            this.isLoading = true; // 開始加載
+            // 發送 GET 請求到指定的 API
+            const postdata = row;
+            const response = await axios.post(
+              "http://122.116.23.30:3347/finance/voidinvoice",
+              postdata
+            );
+            await this.clink();
+            this.$message({
+              message: "作廢成功",
+              type: "success",
+            });
+            this.dialog = false;
+          } catch (error) {
+            this.$message({
+              message: "作廢失敗",
+              type: "error",
+            });
+            console.error("Error ", error);
+          }
+        }
+      }
+    },
     async handleExport() {
       try {
         this.isLoading = true;
@@ -449,7 +487,7 @@ export default {
         }
       }
       this.formatInvoiceAmounts();
-    
+
       try {
         this.isLoading = true; // 開始加載
         // 發送 GET 請求到指定的 API
@@ -459,12 +497,12 @@ export default {
           "http://122.116.23.30:3347/finance/issueinvoice",
           postdata
         );
+        await this.clink();
         this.$message({
           message: "新增成功",
           type: "success",
         });
         this.dialog = false;
-        await this.clink();
       } catch (error) {
         if (error.response && error.response.data.returnCode === 400) {
           this.$message({
@@ -536,8 +574,8 @@ export default {
         row.account_sortId = matchedInvoice.account_sortId;
         row.use_number = matchedInvoice.use_number;
       } else {
-        row.use_number = ""; 
-        row.account_sortId = "";// 如果沒有匹配項，清空 use_number
+        row.use_number = "";
+        row.account_sortId = ""; // 如果沒有匹配項，清空 use_number
       }
     },
     async getcus() {
