@@ -53,6 +53,15 @@
         >
       </el-form-item>
       <!-- 全選框 -->
+      <el-form-item label="已選車號" style="width: 900px">
+        <el-input
+          v-model="form.cus"
+          type="textarea"
+          rows="10"
+          readonly
+          class="no-resize"
+        ></el-input>
+      </el-form-item>
       <el-checkbox
         v-model="selectAll"
         @change="toggleSelectAll"
@@ -69,9 +78,13 @@
     >
       <el-table-column label="選擇" width="55">
         <template v-slot="scope">
+          <!-- <el-checkbox
+            v-model="scope.row.selected"
+            @change="updateSelectAll(scope.row)"
+          ></el-checkbox> -->
           <el-checkbox
             v-model="scope.row.selected"
-            @change="updateSelectAll"
+            @change="() => handleCheckboxChange(scope.row)"
           ></el-checkbox>
         </template>
       </el-table-column>
@@ -231,9 +244,10 @@ export default {
       formbills: [],
       accountdata: [],
       filterbill: [],
+      reportsales: "",
       form: {},
+      selectedRows: [], // 🆕 用來存所有已選項目
       searchV: "",
-      reportsales:""
     };
   },
   created() {
@@ -289,28 +303,84 @@ export default {
     // },
   },
   methods: {
-    async getreportsales() {
-      await axios
-        .get("http://122.116.23.30:3347/main/reportsales")
-        .then((response) => {
-          this.reportsales = response.data.returnCode;
-        })
-        .catch((error) => {
-          // 處理錯誤
-          this.$message({
-            message: "系統有誤",
-            type: "error",
-          });
-          console.error("API request failed:", error);
-        });
-    },
-    updateSelectAll() {
-      this.selectAll = this.filterbill.every((row) => row.selected);
-    },
+    // updateSelectAll(row) {
+    //   // this.selectAll = this.filterbill.every((row) => row.selected);
+    //   const index = this.selectedRows.findIndex((r) => r.id === row.id); // 假設有唯一 id
+    //   if (row.selected && index === -1) {
+    //     this.selectedRows.push(row);
+    //   } else if (!row.selected && index !== -1) {
+    //     this.selectedRows.splice(index, 1);
+    //   }
+
+    //   // 更新 form.cus 的文字
+    //   this.form.cus = this.selectedRows
+    //     .map(
+    //       (row, index) =>
+    //         `${index + 1}.車號:${row.license_plate}、帳單名稱:${
+    //           row.acc_name
+    //         }、統編:${row.use_number}、抬頭:${row.invoice_name}`
+    //     )
+    //     .join("\n------------\n");
+    // },
     toggleSelectAll() {
       this.filterbill.forEach((row) => {
         row.selected = this.selectAll;
       });
+
+      // 等 DOM 更新後再更新 selectedRows 和 form.cus
+      this.$nextTick(() => {
+        this.updateAllSelections();
+      });
+    },
+    handleCheckboxChange(row) {
+      // 確保 DOM 勾選狀態已更新
+      this.$nextTick(() => {
+        this.updateSelectAll(row);
+      });
+    },
+    updateAllSelections() {
+  // 用 vehicleId 做唯一識別
+  const selectedMap = new Map(this.selectedRows.map(row => [row.vehicleId, row]));
+
+  // 更新目前畫面上所有選中的
+  this.filterbill.forEach(row => {
+    if (row.selected) {
+      selectedMap.set(row.vehicleId, row); // 加入或覆蓋
+    } else {
+      selectedMap.delete(row.vehicleId); // 取消選擇的移除
+    }
+  });
+
+  // 更新 selectedRows
+  this.selectedRows = Array.from(selectedMap.values());
+
+  // 更新顯示內容
+  this.form.cus = this.selectedRows
+    .map(
+      (row, index) =>
+        `${index + 1}.車號:${row.license_plate}、帳單名稱:${row.acc_name}、統編:${row.use_number}、抬頭:${row.invoice_name}`
+    )
+    .join("\n------------\n");
+},
+    updateSelectAll(row) {
+      const index = this.selectedRows.findIndex(
+        (r) => r.vehicleId === row.vehicleId
+      ); // 假設有唯一 id
+      if (row.selected && index === -1) {
+        this.selectedRows.push(row);
+      } else if (!row.selected && index !== -1) {
+        this.selectedRows.splice(index, 1);
+      }
+
+      // 更新顯示內容
+      this.form.cus = this.selectedRows
+        .map(
+          (row, index) =>
+            `${index + 1}.車號:${row.license_plate}、帳單名稱:${
+              row.acc_name
+            }、統編:${row.use_number}、抬頭:${row.invoice_name}`
+        )
+        .join("\n------------\n");
     },
     handleClear() {
       this.dialogpage = false;
@@ -324,10 +394,10 @@ export default {
         });
         return;
       }
-      const selectedRows = this.filterbill.filter((row) => row.selected);
+      // const selectedRows = this.filterbill.filter((row) => row.selected);
       let result = [];
       if (this.form.state == 2) {
-        result = selectedRows.map((row) => ({
+        result = this.selectedRows.map((row) => ({
           license_plate: row.license_plate,
           oldCustomerId: this.customerId, // 客戶代號
           newCustomerId: this.form.customerId, // 假設你有一個叫 cuscustomerId 的字段
@@ -337,7 +407,7 @@ export default {
           date: this.form.date,
         }));
       } else if (this.form.state == 3) {
-        result = selectedRows.map((row) => ({
+        result = this.selectedRows.map((row) => ({
           license_plate: row.license_plate,
           customerId: this.customerId, // 客戶代號
           account_sortId: this.form.acc_name, // 帳單代號
@@ -357,7 +427,10 @@ export default {
               type: "success",
             });
           }
-          this.isLoading = false; // 無論成功還是失敗，隱藏 loading 標示
+          setTimeout(() => {
+                window.location.reload();
+              }, 2000); // 3000 毫秒 = 3 秒
+          // this.isLoading = false; // 無論成功還是失敗，隱藏 loading 標示
         })
         .catch((error) => {
           // 處理錯誤
@@ -367,8 +440,8 @@ export default {
           });
           console.error("API request failed:", error);
         });
-      this.form = {};
-      this.dialogpage = false;
+      // this.form = {};
+      // this.dialogpage = false;
     },
     clearFilterbill() {
       this.form = {};
@@ -424,27 +497,27 @@ export default {
         });
         return;
       }
-      const selectedRows = this.filterbill.filter((row) => row.selected);
-      if (!selectedRows.length) {
+      // const selectedRows = this.filterbill.filter((row) => row.selected);
+      if (!this.selectedRows.length) {
         this.$message({
           message: "請先勾選選擇修改帳號",
           type: "error",
         });
         return;
       }
-      this.form.cus = "";
+      console.log(JSON.stringify(this.selectedRows))
       this.dialogpage = true;
       // 將勾選的資料組合成字串，每個勾選項目換行
-      const combinedData = selectedRows
-        .map(
-          (row, index) =>
-            `${index + 1}.車號:${row.license_plate}、帳單名稱: ${
-              row.acc_name
-            }、統編: ${row.use_number}、抬頭: ${row.invoice_name}`
-        )
-        .join("\n------------\n");
-      // 更新 form.cus
-      this.form.cus = combinedData;
+      // const combinedData = selectedRows
+      //   .map(
+      //     (row, index) =>
+      //       `${index + 1}.車號:${row.license_plate}、帳單名稱: ${
+      //         row.acc_name
+      //       }、統編: ${row.use_number}、抬頭: ${row.invoice_name}`
+      //   )
+      //   .join("\n------------\n");
+      // // 更新 form.cus
+      // this.form.cus = combinedData;
     },
     filter() {
       this.selectAll = false;
@@ -465,6 +538,21 @@ export default {
         .get("http://122.116.23.30:3347/main/selectAccount_sort")
         .then((response) => {
           this.accountdata = response.data.data;
+        })
+        .catch((error) => {
+          // 處理錯誤
+          this.$message({
+            message: "系統有誤",
+            type: "error",
+          });
+          console.error("API request failed:", error);
+        });
+    },
+    async getreportsales() {
+      await axios
+        .get("http://122.116.23.30:3347/main/reportsales")
+        .then((response) => {
+          this.reportsales = response.data.returnCode;
         })
         .catch((error) => {
           // 處理錯誤
@@ -600,6 +688,7 @@ export default {
           row.selected = false;
         });
       }
+      console.log(JSON.stringify(this.filterbill));
     },
     async processBills(customerId, isForm) {
       const billKey = isForm ? "formbills" : "bills"; // 動態設置使用 formbills 或 bills

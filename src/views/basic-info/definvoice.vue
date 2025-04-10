@@ -29,7 +29,7 @@
           @change="clink()"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item v-if="paginatedData.length">
+      <el-form-item>
         <el-input
           v-model="search"
           placeholder="發票號碼/客戶代號/客戶名稱/統編/抬頭"
@@ -55,11 +55,7 @@
             <!-- 可選，處理其他值的情況 -->
           </template>
         </el-table-column>
-        <el-table-column prop="word_track" label="發票號碼" width="150"
-          ><template v-slot="scope"
-            >{{ scope.row.word_track + " " + scope.row.number }}
-          </template></el-table-column
-        >
+        <el-table-column prop="invoicenum" label="發票號碼" width="150"/>
         <el-table-column prop="customerId" label="客戶代號" width="100" />
         <el-table-column prop="cus_name" label="客戶名稱" width="200" />
         <el-table-column prop="acc_name" label="帳單名稱" width="200" />
@@ -339,7 +335,7 @@ export default {
       const searchTerm = this.search.trim().toLowerCase();
 
       return this.invoice.filter((item) => {
-        const word_track = item.word_track ? item.word_track.toLowerCase() : "";
+        const invoicenum = item.word_track ? item.invoicenum.toLowerCase() : "";
         const customerId = item.customerId ? item.customerId.toLowerCase() : "";
         const cus_name = item.cus_name ? item.cus_name.toLowerCase() : "";
         const Bidentifier = item.Bidentifier
@@ -348,7 +344,7 @@ export default {
         const BName = item.BName ? item.BName.toLowerCase() : "";
 
         return (
-          word_track.includes(searchTerm) ||
+          invoicenum.includes(searchTerm) ||
           customerId.includes(searchTerm) ||
           cus_name.includes(searchTerm) ||
           Bidentifier.includes(searchTerm) ||
@@ -492,7 +488,6 @@ export default {
         this.isLoading = true; // 開始加載
         // 發送 GET 請求到指定的 API
         const postdata = this.form;
-        console.log(JSON.stringify(postdata));
         const response = await axios.post(
           "http://122.116.23.30:3347/finance/issueinvoice",
           postdata
@@ -699,6 +694,10 @@ export default {
               this.isLoading = false;
             } else {
               this.invoice = response.data.data;
+              this.invoice = this.invoice.map((item) => ({
+                ...item,
+                invoicenum: item.word_track + item.number,
+              }));
               this.isLoading = false;
             }
           })
