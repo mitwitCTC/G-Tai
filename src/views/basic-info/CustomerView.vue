@@ -1088,8 +1088,9 @@ export default {
         const requests = postdataList.map((postdata) =>
         
           axios.post("http://122.116.23.30:3346/main/balanceInquiry", postdata)
+          
         );
-
+        
         const responses = await Promise.all(requests); // 等待所有請求完成
 
         // 合併所有數據

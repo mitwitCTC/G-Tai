@@ -14,35 +14,51 @@
     :close-on-click-modal="false"
     :show-close="false"
   ></el-dialog>
-  <el-select
-    v-model="selectedTradingModel"
-    placeholder="請選擇交易模式"
-    clearable
-    @change="filterData"
-  >
-    <el-option label="台企手動" :value="'0'"></el-option>
-    <el-option label="台企自動" :value="'1'"></el-option>
-    <el-option label="永豐手動刷卡帳" :value="'2'"></el-option>
-    <el-option label="支票" :value="'3'"></el-option>
-    <el-option label="永豐手動匯款帳" :value="'4'"></el-option>
-    <el-option label="現金" :value="'5'"></el-option>
-    <el-option label="其他" :value="'6'"></el-option>
-    <el-option label="製卡費" :value="'7'"></el-option>
-  </el-select>
 
+  <el-form-item label="交易模式">
+    <el-select
+      v-model="selectedTradingModel"
+      placeholder="請選擇交易模式"
+      clearable
+      @change="filterData"
+    >
+      <el-option label="台企手動" :value="'0'"></el-option>
+      <el-option label="台企自動" :value="'1'"></el-option>
+      <el-option label="永豐手動刷卡帳" :value="'2'"></el-option>
+      <el-option label="支票" :value="'3'"></el-option>
+      <el-option label="永豐手動匯款帳" :value="'4'"></el-option>
+      <el-option label="現金" :value="'5'"></el-option>
+      <el-option label="其他" :value="'6'"></el-option>
+      <el-option label="製卡費" :value="'7'"></el-option>
+    </el-select>
+    <el-button type="primary" @click="dialog = true">新增資料</el-button>
+    <el-button
+      type="info"
+      @click="handleExport(this.filteredData)"
+      v-if="paginatedData.length > 0"
+      >匯出</el-button
+    >
+  </el-form-item>
   <!-- 日期輸入框：account_date -->
-  <el-input
-    v-model="searchDate"
-    placeholder="請輸入交易時間 (格式: 1140101)"
-    @input="filterData"
-  ></el-input>
-  <el-button type="primary" @click="dialog = true">新增資料</el-button>
-  <el-button
-    type="info"
-    @click="handleExport(this.filteredData)"
-    v-if="paginatedData.length > 0"
-    >匯出</el-button
-  >
+  <el-form-item label="交易起日">
+    <el-input
+      v-model="searchDate"
+      placeholder="請輸入交易時間(起) (格式: 1140101)"
+      maxlength="7"
+      @input="filterData"
+    ></el-input>
+  </el-form-item>
+  <el-form-item label="交易迄日" >
+    <el-input
+      v-model="searchEndDate"
+      placeholder="請輸入交易時間(迄) (格式: 1140101)"
+      maxlength="7"
+      @input="filterData"
+    ></el-input>
+    
+  </el-form-item>
+  
+
   <div class="table-container" v-if="paginatedData.length > 0">
     <el-table :data="paginatedData" style="width: 100%">
       <el-table-column prop="id" label="序號" width="80"></el-table-column>
@@ -279,7 +295,6 @@
       </div>
     </template>
   </el-dialog>
-  
 </template>
 
 <script>
@@ -306,6 +321,7 @@ export default {
       // 搜尋條件
       selectedTradingModel: null,
       searchDate: "",
+      searchEndDate: "",
       // 篩選後的資料
       filteredData: [],
       searchallAccount: [],
@@ -409,18 +425,24 @@ export default {
     },
     // 篩選資料
     filterData() {
-      this.filteredData = this.BankData.filter((item) => {
-        const matchModel =
-          !this.selectedTradingModel ||
-          item.trading_model === this.selectedTradingModel;
+  this.filteredData = this.BankData.filter((item) => {
+    const matchModel =
+      !this.selectedTradingModel || item.trading_model === this.selectedTradingModel;
 
-        // 這裡不再檢查 selectedTradingModel，只根據 searchDate 過濾
-        const matchDate =
-          !this.searchDate || item.account_date.includes(this.searchDate);
+    let matchDate = true;
+    if (
+      this.searchDate?.length === 7 &&
+      this.searchEndDate?.length === 7
+    ) {
+      const current = parseInt(item.account_date.toString().slice(0, 7)); // 例如 11310
+      const start = parseInt(this.searchDate);
+      const end = parseInt(this.searchEndDate);
+      matchDate = current >= start && current <= end;
+    }
 
-        return matchModel && matchDate;
-      });
-    },
+    return matchModel && matchDate; // ← 如果為 true，item 會被保留
+  });
+},
 
     inputdata() {
       if (this.form.trading_model == "4") {
@@ -553,7 +575,7 @@ export default {
     },
 
     async deleteItem(row) {
-      if (row.acc_trade&&row.acc_trade!='0') {
+      if (row.acc_trade && row.acc_trade != "0") {
         this.$message({
           message: "已轉傳票，交易不可刪除",
           type: "warning",

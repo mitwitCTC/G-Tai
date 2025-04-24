@@ -6,35 +6,68 @@
   <div>
     <BreadCrumb />
   </div>
-  <el-button type="primary" @click="dialogopen()">新增資料</el-button>
-  <el-select
-    v-model="search.customerName"
-    placeholder="輸入客戶名稱/客代"
-    filterable
-    :clearable="true"
-    style="width: 225px; margin-left: 20px"
-  >
-    <!-- 使用 cusdata 直接顯示每個字符串 -->
-    <el-option
-      v-for="item in cusdata"
-      :key="item"
-      :label="item"
-      :value="item.substring(0, 8)"
-    ></el-option>
-  </el-select>
-  <el-date-picker
-    v-model="search.account_date"
-    type="date"
-    format="YYYY-MM-DD"
-    value-format="YYYY-MM-DD"
-    placeholder="選擇日期"
-    style="width: 225px; margin-left: 20px"
-    @change="aa()"
-  >
-  </el-date-picker>
+  <el-form :inline="true">
+    
+  <el-form-item>
+    <el-button type="primary" @click="dialogopen()">新增資料</el-button>
+  </el-form-item>
+
+  <el-form-item style="width: 225px; margin-left: 20px">
+    <el-select
+      v-model="search.customerName"
+      placeholder="輸入客戶名稱/客代"
+      filterable
+      clearable
+      style="width: 100%"
+    >
+      <el-option
+        v-for="item in cusdata"
+        :key="item"
+        :label="item"
+        :value="item.substring(0, 8)"
+      />
+    </el-select>
+  </el-form-item>
+
+  <el-form-item label="起日" style="width: 225px; margin-left: 20px">
+    <el-date-picker
+      v-model="search.account_date"
+      type="date"
+      format="YYYY-MM-DD"
+      value-format="YYYY-MM-DD"
+      placeholder="選擇日期"
+      @change="aa()"
+    />
+  </el-form-item>
+
+  <el-form-item label="迄日" style="width: 225px; margin-left: 20px">
+    <el-date-picker
+      v-model="search.account_Enddate"
+      type="date"
+      format="YYYY-MM-DD"
+      value-format="YYYY-MM-DD"
+      placeholder="選擇日期"
+      @change="aa()"
+    />
+  </el-form-item>
+  <el-form-item>
+          <el-button
+            type="info"
+            @click="handleExport(filteredBankData)"
+            v-if="paginatedData"
+            >匯出</el-button
+          >
+    </el-form-item>
+</el-form>
+
   <div class="table-container">
-    <el-table :data="paginatedData" style="width: 100%" v-loading="loading" show-summary
-  :summary-method="getSummaries">
+    <el-table
+      :data="paginatedData"
+      style="width: 100%"
+      v-loading="loading"
+      show-summary
+      :summary-method="getSummaries"
+    >
       <el-table-column prop="invoice" label="收款單號"></el-table-column>
       <el-table-column prop="customerId" label="客戶代號"></el-table-column>
       <el-table-column
@@ -59,7 +92,7 @@
           >{{ formatCurrency(scope.row.amount) }}
         </template></el-table-column
       >
-      
+
       <el-table-column label="操作">
         <template v-slot="scope">
           <div class="action-icons">
@@ -251,11 +284,13 @@
 <script>
 import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
+import ExportBank from "@/components/ExportBank.vue";
 import axios from "axios";
 export default {
   components: {
     BreadCrumb,
     ListBar,
+    ExportBank
   },
   data() {
     return {
@@ -274,7 +309,10 @@ export default {
         amount: 0,
       },
       BankData: [],
-      search: {},
+      search: {
+        account_date: "",
+        account_Enddate: "",
+      },
       cusdata: [],
       card: [],
       currentPage: 1,
@@ -317,9 +355,19 @@ export default {
         const matchesCustomerName = this.search.customerName
           ? item.customerId === this.search.customerName
           : true;
-        const matchesAccountDate = this.formatDateROC(this.search.account_date)
-          ? item.account_date === this.formatDateROC(this.search.account_date)
-          : true;
+
+        let matchesAccountDate = true;
+
+        const start = this.formatDateROC(this.search.account_date);
+        const end = this.formatDateROC(this.search.account_Enddate);
+
+        if (start && end) {
+          const itemDate = parseInt(item.account_date);
+          const startDate = parseInt(start);
+          const endDate = parseInt(end);
+          matchesAccountDate = itemDate >= startDate && itemDate <= endDate;
+        }
+
         return matchesCustomerName && matchesAccountDate;
       });
     },
@@ -339,68 +387,85 @@ export default {
     },
   },
   methods: {
+    async handleExport(paginatedData) {
+        try {
+          this.isLoading = true;
+          await ExportBank.methods.exportExcel(paginatedData);
+          // 顯示成功訊息
+          this.$message({
+            message: `匯出成功`,
+            type: "success",
+          });
+        } catch {
+          this.$message({
+            message: `匯出失敗`,
+            type: "error",
+          });
+        } finally {
+          this.isLoading = false;
+        }
+    },
     getSummaries(param) {
-      if (!this.search.account_date) return []; // 沒有值時，不顯示小計
+      if (!(this.search.account_date && this.search.account_Enddate)) return []; // 沒有值時，不顯示小計
 
-    const { columns, data } = param;
-    const sums = [];
+      const { columns, data } = param;
+      const sums = [];
 
-    columns.forEach((column, index) => {
-      if (index === 0) {
-        sums[index] = "小計";
-        return;
-      }
-      const key = column.property;
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = "小計";
+          return;
+        }
+        const key = column.property;
 
-      if (["credit_amount", "bank_amount", "amount"].includes(key)) {
-        const total  = data.reduce((sum, item) => sum + Number(item[key] || 0), 0);
-        sums[index] = total.toLocaleString(); // 加千分位格式
-      } else {
-        sums[index] = "";
-      }
-    });
+        if (["credit_amount", "bank_amount", "amount"].includes(key)) {
+          const total = data.reduce(
+            (sum, item) => sum + Number(item[key] || 0),
+            0
+          );
+          sums[index] = total.toLocaleString(); // 加千分位格式
+        } else {
+          sums[index] = "";
+        }
+      });
 
-    return sums;
-  },
+      return sums;
+    },
     aa() {
       // 先移除舊的小計 (防止重複加入)
       this.filteredBankData = this.filteredBankData.filter(
         (item) => item.id !== "subtotal"
       );
-      if(this.search.account_date){
- // 計算總和
- const totalCreditAmount = this.filteredBankData.reduce(
-        (sum, item) => sum + Number(item.credit_amount),
-        0
-      );
-      const totalBankAmount = this.filteredBankData.reduce(
-        (sum, item) => sum + Number(item.bank_amount),
-        0
-      );
-      const totalAmount = this.filteredBankData.reduce(
-        (sum, item) => sum + Number(item.amount),
-        0
-      );
+      if (this.search.account_date && this.search.account_Enddate) {
+        // 計算總和
+        const totalCreditAmount = this.filteredBankData.reduce(
+          (sum, item) => sum + Number(item.credit_amount),
+          0
+        );
+        const totalBankAmount = this.filteredBankData.reduce(
+          (sum, item) => sum + Number(item.bank_amount),
+          0
+        );
+        const totalAmount = this.filteredBankData.reduce(
+          (sum, item) => sum + Number(item.amount),
+          0
+        );
 
-      // 新增小計到 filteredBankData
-      const summaryRow = {
-        id: "subtotal", // 標記為小計行
-        customerId: "小計",
-        account_date: this.search.account_date, // 使用當前查詢的日期
-        issuing_bank: "總計",
-        credit_amount: totalCreditAmount,
-        bank_amount: totalBankAmount,
-        amount: totalAmount,
-        invoice: "",
-        cus_name: "",
-      };
-
-      // 加入新的小計
-      this.filteredBankData.push(summaryRow);
-
-      console.log(JSON.stringify(this.filteredBankData));
+        // 新增小計到 filteredBankData
+        const summaryRow = {
+          id: "subtotal", // 標記為小計行
+          customerId: "小計",
+          account_date: `${this.search.account_date}~${this.search.account_Enddate}`, // 使用當前查詢的日期
+          issuing_bank: "總計",
+          credit_amount: totalCreditAmount,
+          bank_amount: totalBankAmount,
+          amount: totalAmount,
+          invoice: "",
+          cus_name: "",
+        };
+        // 加入新的小計
+        this.filteredBankData.push(summaryRow);
       }
-     
     },
     getNextBusinessDay() {
       let date = new Date(); // 獲取當前日期
@@ -717,6 +782,7 @@ export default {
           this.cusdata = this.cusdatas.map(
             (item) => `${item.cus_code} ${item.cus_name}`
           );
+          
         })
         .catch((error) => {
           // 處理錯誤
@@ -758,12 +824,10 @@ export default {
             });
         }
         if (this.form.cus_name) {
-          console.log(`postdata` + JSON.stringify(postData));
           await axios
             .post("http://122.116.23.30:3347/main/searchAccount_sort", postData)
             .then((response) => {
               this.bills = response.data.data;
-              console.log(JSON.stringify(this.bills));
               if (!this.bills.length) {
                 this.$message({
                   message: "查無帳單資訊",
@@ -788,7 +852,6 @@ export default {
             )
             .then((response) => {
               this.card = response.data.data;
-              console.log("卡" + JSON.stringify(this.card));
               this.isLoading = false;
             })
             .catch((error) => {

@@ -346,7 +346,7 @@ export default {
           date: this.form.date,
         }));
       }
-      console.log(JSON.stringify(result));
+      // console.log(JSON.stringify(result));
       this.isLoading = true; // 請求開始，顯示 loading 標示
       await axios
         .post("http://122.116.23.30:3347/main/transformation", result)
@@ -356,6 +356,9 @@ export default {
               message: "更新成功",
               type: "success",
             });
+            setTimeout(() => {
+                window.location.reload();
+              }, 2000); // 3000 毫秒 = 3 秒
           }
           this.isLoading = false; // 無論成功還是失敗，隱藏 loading 標示
         })
