@@ -636,6 +636,7 @@ export default {
     //         console.error('API request failed:', error);
     //       });
     //   },
+    //
     formatCurrency(value) {
       if (!value) return "0";
       return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
