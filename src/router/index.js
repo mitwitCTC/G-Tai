@@ -294,6 +294,17 @@ const router = createRouter({
           },
         },
         {
+          path: "ImportVehicle",
+          name: "大批新增車籍",
+          component: () =>
+            import("@/views/basic-info/DataProcessing/ImportVehicle.vue"),
+          meta: {
+            title: "大批新增車籍",
+            breadcrumb: "大批新增車籍",
+            isData: true,
+          },
+        },
+        {
           path: "cpctrade",
           name: "中油交易",
           component: () => import("@/views/basic-info/cpctrade.vue"),

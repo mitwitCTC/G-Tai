@@ -138,9 +138,9 @@ export default {
               ? "特殊開立"
               : "未知" || "";
           worksheet.getCell(`P${rowIndex}`).value =
-            industryMap[data.region] || "";
+            regionMap[data.region] || "";
           worksheet.getCell(`Q${rowIndex}`).value =
-            regionMap[data.industry] || "";
+            industryMap[data.industry] || "";       
           worksheet.getCell(`R${rowIndex}`).value = data.est_fuel_volume || "";
           worksheet.getCell(`S${rowIndex}`).value =
             data.card_other_fee == 0
@@ -154,6 +154,7 @@ export default {
           worksheet.getCell(`W${rowIndex}`).value = data.phone || "";
           worksheet.getCell(`X${rowIndex}`).value = data.fax || "";
           worksheet.getCell(`Y${rowIndex}`).value = data.reg_address || "";
+          worksheet.getCell(`Z${rowIndex}`).value = data.mail_address || "";
           worksheet.getCell(`AA${rowIndex}`).value = data.invoice_notes || "";
           worksheet.getCell(`AB${rowIndex}`).value = data.con_notes || "";
           worksheet.getCell(`AC${rowIndex}`).value = data.contract_notes || "";
@@ -162,13 +163,15 @@ export default {
           worksheet.getCell(`AE${rowIndex}`).value =
             this.getEmployeeName(data.salesmanId) || "";
           worksheet.getCell(`AF${rowIndex}`).value = data.sales_notes || "";
-          worksheet.getCell(`AG${rowIndex}`).value = data.config_method || "";
+          worksheet.getCell(`AG${rowIndex}`).value = data.config_notes || "";
           worksheet.getCell(`AH${rowIndex}`).value = data.month_gas || "";
           worksheet.getCell(`AI${rowIndex}`).value = data.month_balance || "";
           worksheet.getCell(`AJ${rowIndex}`).value = data.createTime || "";
           worksheet.getCell(`AK${rowIndex}`).value = data.updateTime || "";
         });
-        // worksheet.getColumn(2).width = 50;
+        worksheet.getColumn(25).width = 60;
+        worksheet.getColumn(26).width = 60;
+        worksheet.getColumn(33).width = 90;
         // worksheet.getColumn(3).width = 60;
         // worksheet.getColumn(10).width = 28;
         // worksheet.getColumn(11).width = 60;

@@ -6,7 +6,7 @@
   <div>
     <BreadCrumb />
   </div>
-
+  <el-button type="info" @click="lockList = true">鎖卡名單</el-button>
   <el-form-item label="匯出名單" class="section-header">
     <el-button type="danger" @click="exData">匯出</el-button>
     <div class="table-container">
@@ -73,6 +73,57 @@
     </div>
   </el-form-item>
   <el-dialog
+    v-model="lockList"
+    width="90%"
+    :close-on-click-modal="false"
+    @close="locklist.cus_code = ''"
+  >
+    <el-form-item label="查詢客戶">
+      <!-- <el-input v-model="form.cus_code" @input="getdata" maxlength="8"></el-input> -->
+      <el-select
+        v-model="locklist.cus_code"
+        placeholder="輸入客戶名稱/客代"
+        filterable
+        :clearable="true"
+        style="width: 300px; margin-right: 20px"
+      >
+        <!-- 使用 cusdata 直接顯示每個字符串 -->
+        <el-option
+          v-for="item in cusdata"
+          :key="item"
+          :label="item"
+          :value="item.split(' ')[0]"
+        ></el-option>
+      </el-select>
+    </el-form-item>
+    <el-form-item label="鎖卡名單" class="section-header">
+      <div class="table-container">
+        <el-table :data="filteredTableData" style="flex: 1; margin-right: 20px">
+          <el-table-column prop="customerId" label="客戶代號"></el-table-column>
+          <el-table-column prop="cus_name" label="客戶名稱"></el-table-column>
+          <el-table-column
+            prop="card_type"
+            label="卡片類別"
+            :formatter="cardformat"
+          ></el-table-column>
+          <el-table-column prop="card_number" label="卡號"></el-table-column>
+          <el-table-column
+            prop="upload_time"
+            label="上傳中油時間"
+          ></el-table-column>
+          <el-table-column
+            prop="upload_reason"
+            label="上傳原因"
+          ></el-table-column>
+          <el-table-column
+            prop="card_arrival_date"
+            label="到卡時間"
+          ></el-table-column>
+        </el-table>
+      </div>
+    </el-form-item>
+  </el-dialog>
+  <el-dialog
     v-model="isLoading"
     width="15%"
     title="請稍後..."
@@ -95,15 +146,18 @@ export default {
   },
   data() {
     return {
+      lockList: false,
       isLoading: false,
       cus_code: "",
       observe: [],
       Locked: [],
       Ex_observe: [],
       Ex_Locked: [],
-      Allcard: [],
-      Vehicle: [],
       Allexport: [],
+      locklist: {
+        cus_code: "",
+        list: [],
+      },
       Extype: {
         3: "待鎖卡",
         5: "待解卡",
@@ -112,13 +166,47 @@ export default {
         2: "觀察",
         4: "已鎖卡",
       },
+      cardtype: {
+        1: "尿素",
+        2: "柴油",
+        3: "汽油",
+        4: "諾瓦尿素",
+      },
+      cusdata: [],
     };
   },
   created() {
     this.getcus();
+    this.getlockcard();
   },
-  computed: {},
+  computed: {
+    filteredTableData() {
+      // 如果沒選擇客代，顯示全部
+      if (!this.locklist.cus_code) {
+        return this.locklist.list;
+      }
+
+      // 過濾出符合的資料
+      return this.locklist.list.filter(
+        (item) => item.customerId === this.locklist.cus_code
+      );
+    },
+  },
   methods: {
+    async getlockcard() {
+      this.isLoading = true;
+      await axios
+        .post("http://122.116.23.30:3347/main/getlockcard")
+        .then((response) => {
+          this.locklist.list = response.data.data;
+          this.isLoading = false;
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+          this.isLoading = false;
+        });
+    },
     async submitData() {
       if (
         !this.Locked.some((row) => row.selected) &&
@@ -144,11 +232,11 @@ export default {
       this.isLoading = false;
     },
     async updateCardStatus(cus_code, card_status) {
+      const processedData = {
+        cus_code: cus_code,
+        card_status: card_status,
+      };
       try {
-        const processedData = {
-          cus_code: cus_code,
-          card_status: card_status,
-        };
         const response = await axios.post(
           "http://122.116.23.30:3347/main/updateCuscardStatus",
           processedData
@@ -181,6 +269,27 @@ export default {
         });
       }
     },
+    async doData(cus_code) {
+      try {
+        const processedData = {
+          cus_code: cus_code,
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/main/getcpclock",
+          processedData
+        );
+        // 假設 this.Allexport 已是陣列
+        if (Array.isArray(response.data.data)) {
+          this.Allexport.push(...response.data.data); // 展開加入
+        }
+      } catch (error) {
+        console.error("送出失敗:", processedData, "錯誤:", error);
+        this.$message({
+          message: `送出失敗: ${item.cus_code}`,
+          type: "error",
+        });
+      }
+    },
     async exData() {
       if (this.Ex_observe.length == 0 && this.Ex_Locked.length == 0) {
         this.$message({
@@ -192,51 +301,23 @@ export default {
       this.Allexport = [];
       this.isLoading = true;
       console.log("1查詢卡號資料");
-      await this.getselectCARData();
+      for (const item of this.Ex_observe) {
+        await this.doData(item.cus_code);
+      }
+      for (const item of this.Ex_Locked) {
+        await this.doData(item.cus_code);
+      }
       console.log("1結束");
-      console.log("2查詢車籍資料");
-      await this.getselectVEHData();
-      console.log("2結束");
-      console.log("3組成資料");
-      this.Allcard = this.Allcard.filter((Allcard) => {
-        // 嘗試找到對應的車籍資料
-        const Vehicle = this.Vehicle.find(
-          (v) => v.vehicleId === Allcard.vehicleId
-        );
-        // 如果沒有找到對應的 vehicleId，則返回 false，把該筆資料過濾掉
-        return Vehicle !== undefined;
-      });
-      this.OriginalData = this.Allcard.map((Allcard) => {
-        // 找到對應的車籍
-        const Vehicle = this.Vehicle.find(
-          (v) => v.vehicleId === Allcard.vehicleId
-        );
-        const customerId = Vehicle ? Vehicle.customerId : "";
-        const license_plate = Vehicle ? Vehicle.license_plate : "";
 
-        // 4. 將資料組合起來
-        return {
-          ...Allcard,
-          customerId,
-          license_plate,
-        };
-      });
-      for (const item of this.Ex_observe) {
-        await this.doData(item.cus_code, item.card_status);
-      }
-      for (const item of this.Ex_Locked) {
-        await this.doData(item.cus_code, item.card_status);
-      }
-      console.log(JSON.stringify(this.Allexport));
-      console.log("3結束");
+      await this.exportExcel();
       for (const item of this.Ex_observe) {
         await this.exportCardStatus(item.cus_code, item.card_status);
       }
       for (const item of this.Ex_Locked) {
         await this.exportCardStatus(item.cus_code, item.card_status);
       }
-      this.exportExcel();
       this.getcus();
+      this.getlockcard();
       this.isLoading = false;
     },
     async updateCardStatus(cus_code, card_status) {
@@ -258,6 +339,10 @@ export default {
         });
       }
     },
+    cardformat(card_type) {
+      const type = toRaw(card_type);
+      return this.cardtype[type.card_type] || "未知";
+    },
     Exformat(card_status) {
       const type = toRaw(card_status);
       return this.Extype[type.card_status] || "未知";
@@ -275,6 +360,10 @@ export default {
       await axios
         .get("http://122.116.23.30:3347/main/selectCustomer")
         .then((response) => {
+          this.cusdata = response.data.data;
+          this.cusdata = this.cusdata.map(
+            (item) => `${item.cus_code} ${item.cus_name}`
+          );
           this.observe = response.data.data.filter(
             (data) => data.card_status === "2"
           );
@@ -295,49 +384,7 @@ export default {
           this.isLoading = false;
         });
     },
-    async getselectCARData() {
-      try {
-        // 發送 GET 請求到指定的 API
-        const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectAllCard"
-        );
-        // 將資料放入 customers 陣列中
-        this.Allcard = response.data.data.filter(
-          //油
-          (card) =>
-            card.buildType == "3" &&
-            (card.card_type === "1" ||
-              card.card_type === "2" ||
-              card.card_type === "3")
-        );
-      } catch (error) {
-        console.error("Error fetching customer data:", error);
-      }
-    },
-    async getselectVEHData() {
-      try {
-        // 發送 GET 請求到指定的 API
-        const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectVehicle "
-        );
-        this.Vehicle = response.data.data;
-      } catch (error) {
-        console.error("Error fetching customer data:", error);
-      }
-    },
-    async doData(cus_code, card_status) {
-      const filteredData = this.OriginalData.filter(
-        (item) => item.customerId === cus_code
-      ).map((item) => {
-        // 新增 card_status 欄位
-        return {
-          ...item, // 保留原資料
-          card_status: card_status, // 為每個項目新增 card_status 欄位，值可根據需求更改
-        };
-      });
 
-      this.Allexport = [...this.Allexport, ...filteredData];
-    },
     async exportExcel() {
       console.log("4 匯出");
       try {

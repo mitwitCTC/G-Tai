@@ -261,7 +261,7 @@ module.exports = ({ sequelize }) => {
                 console.log(reportsales_detailsList)
                 // 查詢產品名稱
                 const product_classList = await product_class.findAll({ raw: true })
-                console.log(product_classList)
+                // console.log(product_classList)
                 reportsales_detailsList.forEach(item => {
                     const product_name = product_classList.find(x => item.productId == x.classId).className
                     item.product_name = product_name == null ? null : product_name
@@ -282,6 +282,7 @@ module.exports = ({ sequelize }) => {
                     const product_name = product_classList.find(x => item.productId == x.classId).className
                     item.product_name = product_name == null ? null : product_name
                 })
+                console.log(productList)
 
                 // 製卡費
                 const cardIssuanceFee = await bank_data.findAll({
@@ -419,7 +420,7 @@ module.exports = ({ sequelize }) => {
                 console.log(time + ' 查詢發票(searchInvoice)')
                 const invoiceDate = getDateTime(req.body.date, 'YYYY-MM')
                 const definvoiceList = await definvoice.findAll({
-                    where: { customerId: { [Op.eq]: req.body.customerId }, invoiceDate: { [Op.like]: invoiceDate + '%' },mode: { [Op.eq]: '1' } , isDelete: { [Op.eq]: '0' } },
+                    where: { customerId: { [Op.eq]: req.body.customerId }, invoiceDate: { [Op.like]: invoiceDate + '%' }, mode: { [Op.eq]: '1' } ,isDelete: { [Op.eq]: '0' } },
                     attributes: ['customerId', 'account_sortId', 'invoiceDate', 'invoiceTime', 'word_track', 'number'],
                     raw: true
                 })

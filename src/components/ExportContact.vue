@@ -47,26 +47,26 @@ export default {
     //     console.error("Error fetching customer data:", error);
     //   }
     // },
-    // async getselectCONData() {
-    //   try {
-    //     // 發送 GET 請求到指定的 API
-    //     const response = await axios.get(
-    //       "http://122.116.23.30:3347/main/selectContact"
-    //     );
-    //     const contactData = response.data.data;
-    //     // 將資料放入 customers 陣列中
-    //     this.contact = contactData.filter(
-    //       (contact) => contact.billNotify === "1"
-    //     );
-    //     this.contact.sort((a, b) => {
-    //       // 字串排序（假設 customerId 是字串，根據字典順序）
-    //       return a.customerId.localeCompare(b.customerId);
-    //     });
-    //     console.log(this.contact.length)
-    //   } catch (error) {
-    //     console.error("Error fetching customer data:", error);
-    //   }
-    // },
+    async getselectCONData() {
+      try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.get(
+          "http://122.116.23.30:3347/main/selectContact"
+        );
+        const contactData = response.data.data;
+        // 將資料放入 customers 陣列中
+        this.contact = contactData.filter(
+          (contact) => contact.job_title === "承辦"
+        );
+        this.contact.sort((a, b) => {
+          // 字串排序（假設 customerId 是字串，根據字典順序）
+          return a.customerId.localeCompare(b.customerId);
+        });
+        console.log(this.contact.length)
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      }
+    },
     async getselectSalData() {
       try {
         // 發送 GET 請求到指定的 API
@@ -84,11 +84,14 @@ export default {
         const salesman = this.Salesman.find(
           (s) => s.employee_id === contact.salesmanId
         );
-
+        const contactman = this.contact.find(
+          (c) => c.customerId == contact.cus_code
+        );
         // 3. 將資料組合起來，並新增 salesman 屬性
         return {
           ...contact,
           salesman: salesman ? salesman.employee_name : null, // 如果找不到則為 null
+          contactman: contactman ? contactman.name : null, // 如果找不到則為 null
         };
       });
     },
@@ -124,9 +127,9 @@ export default {
       console.log("1查詢客戶資料");
       await this.getselectCUSData();
       console.log("1結束");
-      // console.log("2查詢聯絡人資料");
-      // await this.getselectCONData();
-      // console.log("2結束");
+      console.log("2查詢聯絡人資料");
+      await this.getselectCONData();
+      console.log("2結束");
       console.log("3查詢業務資料");
       await this.getselectSalData();
       console.log("3結束");
@@ -134,7 +137,7 @@ export default {
       await this.doData();
       console.log("4結束");
       console.log("5 匯出");
-      try {
+       try {
         // 確保資料先完成取得
         const workbook = new ExcelJS.Workbook();
         const fr = new FileReader();
@@ -160,11 +163,12 @@ export default {
           const rowIndex = index + 2; // 從 A2 開始
           worksheet.getCell(`A${rowIndex}`).value = contact.cus_code || ""; // 插入 customerId
           worksheet.getCell(`B${rowIndex}`).value = contact.cus_name || "";
-          worksheet.getCell(`C${rowIndex}`).value = contact.mail_address || "";
-          worksheet.getCell(`D${rowIndex}`).value = contact.salesman || "";
+          worksheet.getCell(`C${rowIndex}`).value = contact.contactman || "";
+          worksheet.getCell(`D${rowIndex}`).value = contact.mail_address || "";
+          worksheet.getCell(`E${rowIndex}`).value = contact.salesman || "";
         });
         worksheet.getColumn(2).width = 50;
-        worksheet.getColumn(3).width = 60;
+        worksheet.getColumn(4).width = 60;
 
         // 生成下載鏈接並觸發下載
         const buffer = await workbook.xlsx.writeBuffer();

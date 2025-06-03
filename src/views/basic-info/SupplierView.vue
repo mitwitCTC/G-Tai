@@ -1160,8 +1160,8 @@ export default {
                 } else if (colIndex == 5) {
                   cell.numFmt = "#,##0.00";
                 } else if (colIndex == 6) {
-                  cell.numFmt = "#,##0.0";
-                } else {
+                  cell.numFmt = "#,##0.00";
+                }else {
                   cell.numFmt = "#,##0";
                 }
               });

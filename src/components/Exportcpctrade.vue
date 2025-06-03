@@ -46,11 +46,11 @@ export default {
             } ${contact.station_name || ""}`.trim();
           worksheet.getCell(`I${rowIndex}`).value = contact.card_number || "";
           worksheet.getCell(`J${rowIndex}`).value =
-            contact.fuel_volume || "";
-          worksheet.getCell(`K${rowIndex}`).value = contact.reference_price || "";
+          Number(contact.fuel_volume) || "";
+          worksheet.getCell(`K${rowIndex}`).value =  Number(contact.reference_price) || "";
           worksheet.getCell(`L${rowIndex}`).value = Number(contact.reference_amount) || "";
           worksheet.getCell(`L${rowIndex}`).numFmt = "#,##0";  // 設定千分位格式
-          worksheet.getCell(`M${rowIndex}`).value = contact.discount || "";
+          worksheet.getCell(`M${rowIndex}`).value = Number(contact.discount) || "";
           worksheet.getCell(`N${rowIndex}`).value = Number(contact.salesAmount) || "";
           worksheet.getCell(`N${rowIndex}`).numFmt = "#,##0";  // 設定千分位格式
           worksheet.getCell(`O${rowIndex}`).value = contact.employee_name || "";

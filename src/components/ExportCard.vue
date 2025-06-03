@@ -47,20 +47,25 @@ export default {
     async getselectCARData() {
       try {
         // 發送 GET 請求到指定的 API
-        const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectAllCard"
+        const postdata ={
+          type:"havedel"
+        }
+        const response = await axios.post(
+          "http://122.116.23.30:3347/main/selectAllCard",postdata
         );
         const Allcard = response.data.data;
         // 將資料放入 customers 陣列中
         this.gas = Allcard.filter(
           //油
           (card) =>
-            card.buildType == "3" &&
+            // card.buildType == "3" &&
             (card.card_type === "2" || card.card_type === "3")
         );
         this.UreaCard = Allcard.filter(
           //尿素
-          (card) => card.buildType == "3" && card.card_type === "1"
+          (card) =>
+          //  card.buildType == "3" &&
+           card.card_type === "1"
         );
       } catch (error) {
         console.error("Error fetching customer data:", error);
@@ -250,11 +255,12 @@ export default {
           worksheet.getCell(`E${rowIndex}`).value = data.license_plate || "";
           worksheet.getCell(`F${rowIndex}`).value = data.product_name || "";
           worksheet.getCell(`G${rowIndex}`).value = data.card_number || "";
-          worksheet.getCell(`H${rowIndex}`).value =
+          worksheet.getCell(`H${rowIndex}`).value = data.upload_reason || "";
+          worksheet.getCell(`I${rowIndex}`).value =
             data.card_arrival_date || "";
-          worksheet.getCell(`I${rowIndex}`).value = data.card_stop_date || "";
-          worksheet.getCell(`J${rowIndex}`).value = data.UreaCard || "";
-          worksheet.getCell(`K${rowIndex}`).value = data.notes || "";
+          worksheet.getCell(`J${rowIndex}`).value = data.card_stop_date || "";
+          worksheet.getCell(`K${rowIndex}`).value = data.del || "";
+          worksheet.getCell(`L${rowIndex}`).value = data.notes || "";
         });
         worksheet.getColumn(2).width = 50;
         worksheet.getColumn(3).width = 60;

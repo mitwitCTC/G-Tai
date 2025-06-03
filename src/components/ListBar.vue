@@ -74,6 +74,13 @@
         >
           匯入車藉中油檔
         </button>
+        <button
+          class="btn btn-light w-100 text-start Data-color"
+          @click="() => goTo('/basic-info/ImportVehicle')"
+        >
+          大批新增車籍
+        </button>
+        
       </div>
       <button
         class="btn btn-light w-100 text-start"

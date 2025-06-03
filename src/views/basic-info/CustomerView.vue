@@ -50,7 +50,7 @@
             >清除</el-button
           >
         </el-form-item>
-        <el-form-item>
+        <!-- <el-form-item>
           <el-button
             type="info"
             @click="handleExport(1)"
@@ -73,7 +73,7 @@
             v-if="!search.customerName"
             >匯出全部客戶</el-button
           >
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
 
       <el-table :data="paginatedData" style="width: 100%" v-loading="loading">
@@ -689,7 +689,69 @@
                   >
                   <el-table-column prop="mileage" label="里程數" width="100" />
                 </el-table>
+                
               </div>
+            </div>
+          </el-form-item>
+              <!--卡號list-->
+              <el-form-item label="車輛所屬客戶歷史資料" class="section-header2">
+            <div class="table-container">
+              <el-table
+                :data="Vdialog.Vehicle_cus"
+                style="width: 100%"
+                v-loading="loading"
+              >
+                <el-table-column prop="cus_code" label="客戶代號" width="100" />
+                <el-table-column prop="cus_name" label="客戶名稱" width="350" />
+                <el-table-column prop="use_number" label="車輛隸屬統編" width="150" />
+                <el-table-column prop="card_number" label="卡號" width="500" />
+                <el-table-column prop="deleteTime" label="刪除/轉換時間" width="400" />
+              </el-table>
+            </div>
+          </el-form-item>
+          <!--卡號list-->
+          <el-form-item label="卡片歷史資訊" class="section-header2">
+            <div class="table-container">
+              <el-table
+                :data="Vdialog.Vehicle_card"
+                style="width: 100%"
+                v-loading="loading"
+              >
+                <el-table-column prop="customerId" label="客戶代號" width="100" />
+                <el-table-column prop="card_number" label="卡號" width="200" />
+                <el-table-column
+                  prop="card_type"
+                  label="卡片類別"
+                  width="100"
+                  :formatter="format"
+                />
+                <el-table-column
+                  prop="upload_time"
+                  label="上傳中油時間"
+                  width="150"
+                />
+                <el-table-column
+                  prop="upload_reason"
+                  label="上傳中油原因"
+                  width="150"
+                />
+                <el-table-column
+                  prop="card_arrival_date"
+                  label="到卡日期"
+                  width="200"
+                />
+                <el-table-column
+                  prop="card_stop_date"
+                  label="停卡日期"
+                  width="200"
+                />
+                <el-table-column prop="notes" label="備註" width="200" />
+                <el-table-column
+                  prop="vehicle_change_reason"
+                  label="車輛異動-因素"
+                  width="200"
+                />
+              </el-table>
             </div>
           </el-form-item>
         </el-form>
@@ -798,6 +860,8 @@ export default {
         bills: [],
         Card: [],
         Cpc: [],
+        Vehicle_cus: [],
+        Vehicle_card: [],
       },
       currentPage: 1,
       pageSize: 10,
@@ -1010,6 +1074,7 @@ export default {
           this.Vdialog.cus_name = this.Vdialog[0].cus_name;
           await this.getAccount_sort(this.Vehicle2[0].account_sortId);
           await this.searchCard(this.Vehicle2[0].vehicleId);
+          await this.search_OLD_Card(this.search.customerV);
           await this.balanceInquiry(
             this.Vdialog.cus_code,
             this.search.customerV
@@ -1031,6 +1096,38 @@ export default {
         //   vehicleCustomerIds.includes(customer.cus_code)
         // );
       }
+    },
+    async search_OLD_Card(license_plate) {
+      const postData = {
+        license_plate: license_plate,
+      };
+
+      await axios
+        .post("http://127.0.0.1:3347/main/searchVehicle_cus", postData)
+        .then((response) => {
+          this.Vdialog.Vehicle_cus = response.data.data.Vehicle_cus;
+          this.Vdialog.Vehicle_card = response.data.data.Vehicle_card;
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+        });
+    },
+    async searchCard(vehicleId) {
+      const postData = {
+        vehicleId: vehicleId,
+        status: 3,
+      };
+
+      await axios
+        .post("http://122.116.23.30:3347/main/searchCard", postData)
+        .then((response) => {
+          this.Vdialog.Card = response.data.data;
+        })
+        .catch((error) => {
+          // 處理錯誤
+          console.error("API request failed:", error);
+        });
     },
     async getAccount_sort(account_sortId) {
       const postData = {
@@ -1356,6 +1453,14 @@ export default {
   margin-top: 50px;
   font-weight: bold;
   background-color: #f0ecec; /* 浅灰色背景 */
+  border-radius: 10px; /* 圆角 */
+  padding: 10px; /* 内边距 */
+  margin-bottom: 10px; /* 项目之间的间距 */
+}
+.section-header2 {
+  margin-top: 50px;
+  font-weight: bold;
+  background-color: #ff8878; /* 浅灰色背景 */
   border-radius: 10px; /* 圆角 */
   padding: 10px; /* 内边距 */
   margin-bottom: 10px; /* 项目之间的间距 */

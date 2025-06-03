@@ -687,6 +687,7 @@ export default {
         });
         return;
       }
+      this.billform.use_number = this.billform.use_number.trim();
       const req = this.billform;
 
       //發送 POST 請求
