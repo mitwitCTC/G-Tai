@@ -19,6 +19,7 @@
       filterable
       clearable
       style="width: 100%"
+      @change="this.search.account_date='',this.search.account_Enddate='',aa()"
     >
       <el-option
         v-for="item in cusdata"
@@ -65,8 +66,7 @@
       :data="paginatedData"
       style="width: 100%"
       v-loading="loading"
-      show-summary
-      :summary-method="getSummaries"
+
     >
       <el-table-column prop="invoice" label="收款單號"></el-table-column>
       <el-table-column prop="customerId" label="客戶代號"></el-table-column>
@@ -95,7 +95,7 @@
 
       <el-table-column label="操作">
         <template v-slot="scope">
-          <div class="action-icons">
+          <div class="action-icons" v-if="scope.row.id !== 'subtotal'">
             <i class="fas fa-eye" @click="viewDetails(scope.row)"></i>
             <!-- <i class="fas fa-edit " @click="editItem(scope.row)"></i> -->
             <i class="fa-solid fa-trash-can" @click="deleteItem(scope.row)"></i>
@@ -286,6 +286,7 @@ import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
 import ExportBank from "@/components/ExportBank.vue";
 import axios from "axios";
+import jsCookie from "js-cookie";
 export default {
   components: {
     BreadCrumb,
@@ -315,6 +316,7 @@ export default {
       },
       cusdata: [],
       card: [],
+      ALLfilter:[],
       currentPage: 1,
       pageSize: 10,
       lastInvoiceNumber: 1,
@@ -374,7 +376,7 @@ export default {
     paginatedData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.filteredBankData.slice(start, end);
+      return this.ALLfilter.slice(start, end);
     },
     startItem() {
       return (this.currentPage - 1) * this.pageSize + 1;
@@ -405,37 +407,39 @@ export default {
           this.isLoading = false;
         }
     },
-    getSummaries(param) {
-      if (!(this.search.account_date && this.search.account_Enddate)) return []; // 沒有值時，不顯示小計
+    // getSummaries(param) {
+    //   if (!(this.search.account_date && this.search.account_Enddate)) return []; // 沒有值時，不顯示小計
 
-      const { columns, data } = param;
-      const sums = [];
+    //   const { columns, data } = param;
+    //   const sums = [];
 
-      columns.forEach((column, index) => {
-        if (index === 0) {
-          sums[index] = "小計";
-          return;
-        }
-        const key = column.property;
+    //   columns.forEach((column, index) => {
+    //     if (index === 0) {
+    //       sums[index] = "小計";
+    //       return;
+    //     }
+    //     const key = column.property;
 
-        if (["credit_amount", "bank_amount", "amount"].includes(key)) {
-          const total = data.reduce(
-            (sum, item) => sum + Number(item[key] || 0),
-            0
-          );
-          sums[index] = total.toLocaleString(); // 加千分位格式
-        } else {
-          sums[index] = "";
-        }
-      });
+    //     if (["credit_amount", "bank_amount", "amount"].includes(key)) {
+    //       const total = data.reduce(
+    //         (sum, item) => sum + Number(item[key] || 0),
+    //         0
+    //       );
+    //       sums[index] = total.toLocaleString(); // 加千分位格式
+    //     } else {
+    //       sums[index] = "";
+    //     }
+    //   });
 
-      return sums;
-    },
+    //   return sums;
+    // },
     aa() {
+      
       // 先移除舊的小計 (防止重複加入)
       this.filteredBankData = this.filteredBankData.filter(
-        (item) => item.id !== "subtotal"
+        (item) => item.id != "subtotal"
       );
+      this.ALLfilter=this.filteredBankData
       if (this.search.account_date && this.search.account_Enddate) {
         // 計算總和
         const totalCreditAmount = this.filteredBankData.reduce(
@@ -450,21 +454,20 @@ export default {
           (sum, item) => sum + Number(item.amount),
           0
         );
-
-        // 新增小計到 filteredBankData
+       
+          // 新增小計到 filteredBankData
         const summaryRow = {
           id: "subtotal", // 標記為小計行
           customerId: "小計",
-          account_date: `${this.search.account_date}~${this.search.account_Enddate}`, // 使用當前查詢的日期
+          cus_name: `${this.search.account_date}~${this.search.account_Enddate}`, // 使用當前查詢的日期
           issuing_bank: "總計",
           credit_amount: totalCreditAmount,
           bank_amount: totalBankAmount,
           amount: totalAmount,
-          invoice: "",
-          cus_name: "",
         };
         // 加入新的小計
-        this.filteredBankData.push(summaryRow);
+        this.ALLfilter.push(summaryRow);
+
       }
     },
     getNextBusinessDay() {
@@ -677,6 +680,7 @@ export default {
               bankItem.cus_name = "未知客戶";
             }
           });
+          this.ALLfilter=this.BankData
           this.loading = false; // 請求完成後關閉加載狀態
         })
         .catch((error) => {

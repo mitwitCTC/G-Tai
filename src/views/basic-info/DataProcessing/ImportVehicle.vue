@@ -40,6 +40,59 @@
   </el-form-item>
 
   <div style="margin-bottom: 50px"></div>
+  <el-dialog
+    title="新增結果"
+    v-model="dialogVehicle"
+    width="90%"
+    :close-on-click-modal="false"
+  >
+    <el-form label-width="155px" style="width: 100%; min-width: 1600px">
+      <el-form-item label="新增成功" class="section-header">
+        <div class="table-container">
+          <div v-if="!Allexport || Allexport.length === 0" class="no-data">
+            無成功紀錄
+          </div>
+          <el-table :data="Allexport" style="width: 100%">
+            <el-table-column prop="customerId" label="客戶代號" width="200" />
+            <el-table-column
+              prop="license_plate"
+              label="車牌號碼"
+              width="300"
+            />
+            <el-table-column prop="use_number" label="統編" width="250" />
+            <el-table-column prop="product_name" label="油品代號" width="200" />
+            <el-table-column prop="cpc_account" label="中油帳號" width="250" />
+          </el-table>
+        </div>
+      </el-form-item>
+
+      <el-form-item label="新增失敗" class="section-header">
+        <div class="table-container">
+          <div v-if="!Unexport || Unexport.length === 0" class="no-data">
+            無失敗紀錄
+          </div>
+            <el-table :data="Unexport" style="width: 100%">
+              <el-table-column prop="customerId" label="客戶代號" width="200" />
+            <el-table-column
+              prop="license_plate"
+              label="車牌號碼"
+              width="300"
+            />
+            <el-table-column prop="use_number" label="統編" width="250" />
+            <el-table-column prop="product_name" label="油品代號" width="200" />
+            <el-table-column prop="cpc_account" label="中油帳號" width="250" />
+            </el-table>
+          </div>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
+  <el-dialog
+    v-model="isLoading"
+    width="15%"
+    title="請稍後..."
+    :close-on-click-modal="false"
+    :show-close="false"
+  />
 </template>
 
 <script>
@@ -56,19 +109,73 @@ export default {
   },
   data() {
     return {
-      loading: false,
-      cusdata: [],
-      vehicle: [],
+      isLoading: false,
+      dialogVehicle: false,
       excelData: [], // 儲存解析後的 Excel 資料
-      headers: ['客戶代號','統編','車號','油品','中油帳號',],
+      Allexport: [],
+      Unexport: [],
+      headers: ["客戶代號", "統編", "車號", "油品", "中油帳號"],
     };
   },
   computed: {},
-  created() {
-    this.getdata();
-    this.getPlate();
-  },
+  created() {},
   methods: {
+    async exportExcel() {
+      try {
+        // 確保資料先完成取得
+        const workbook = new ExcelJS.Workbook();
+        const fr = new FileReader();
+        const response = await fetch(
+          new URL("@/assets/大批製卡檔新增.xlsx", import.meta.url).href
+        );
+        const data = await response.blob(); // 轉為 Blob
+        // 等待 FileReader onload 完成
+        const arrayBuffer = await new Promise((resolve, reject) => {
+          const fr = new FileReader();
+          fr.onload = (ev) => resolve(ev.target.result); // 當完成時，resolve 結果
+          fr.onerror = (err) => reject(err); // 發生錯誤時，reject 錯誤
+          fr.readAsArrayBuffer(data);
+        });
+        // 使用 arrayBuffer 讀取 Excel
+        await workbook.xlsx.load(arrayBuffer);
+        const worksheet = workbook.worksheets[0]; // 取得第一個工作表
+        // 開始填充資料
+        this.Allexport.forEach((data, index) => {
+          const rowIndex = index + 2; // 從 A2 開始
+          worksheet.getCell(`A${rowIndex}`).value = "N";
+          worksheet.getCell(`B${rowIndex}`).value = data.cpc_account || "";
+          worksheet.getCell(`C${rowIndex}`).value = data.cpc_account || "";
+          worksheet.getCell(`D${rowIndex}`).value = data.customerId || "";
+          worksheet.getCell(`E${rowIndex}`).value = data.product_name || "";
+          worksheet.getCell(`F${rowIndex}`).value = "C";
+          worksheet.getCell(`G${rowIndex}`).value = "B";
+          worksheet.getCell(`H${rowIndex}`).value = 7;
+          worksheet.getCell(`K${rowIndex}`).value = data.license_plate || "";
+          worksheet.getCell(`O${rowIndex}`).value = "A";
+          worksheet.getCell(`P${rowIndex}`).value = 0;
+          worksheet.getCell(`Q${rowIndex}`).value = 0;
+          worksheet.getCell(`R${rowIndex}`).value = "Y";
+          worksheet.getCell(`S${rowIndex}`).value = "N";
+          worksheet.getCell(`T${rowIndex}`).value = "N";
+          worksheet.getCell(`U${rowIndex}`).value = "N";
+          if (data.product_name == "0006") {
+            worksheet.getCell(`V${rowIndex}`).value = "Y";
+          } else {
+            worksheet.getCell(`V${rowIndex}`).value = "N";
+          }
+          worksheet.getCell(`W${rowIndex}`).value = "N";
+        });
+        // 生成下載鏈接並觸發下載
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/octet-stream" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `大批製卡檔新增.xlsx`; // 設定下載檔案名
+        link.click();
+      } catch (error) {
+        console.error("Error during export to Excel:", error);
+      }
+    },
     async getexcel() {
       try {
         // 確保資料先完成取得
@@ -102,31 +209,7 @@ export default {
         console.error("Error during export to Excel:", error);
       }
     },
-    async getPlate() {
-      const response = await axios.get(
-        "http://122.116.23.30:3347/main/selectVehicle "
-      );
-      try {
-        this.vehicle = response.data.data;
-      } catch (error) {
-        console.error("取得車牌ID失敗:", error);
-      }
-    },
-    async getdata() {
-      await axios
-        .get("http://122.116.23.30:3347/main/selectCPCdata")
-        .then((response) => {
-          this.cusdata = response.data.data;
-        })
-        .catch((error) => {
-          // 處理錯誤
-          this.$message({
-            message: "系統有誤",
-            type: "error",
-          });
-          console.error("API request failed:", error);
-        });
-    },
+
     handleFileUpload(event) {
       const file = event.target.files[0]; // 取得選中的檔案
       if (file) {
@@ -176,13 +259,14 @@ export default {
       }
     },
     async submitData() {
+      this.isLoading = true;
       const selectedData = this.excelData.filter((row) => row.selected);
       // 建立一個 Set 來儲存已出現的車號
       const plateSet = new Set();
       let hasDuplicatePlate = false;
 
       for (const row of selectedData) {
-        const plate = row.車牌; // 替換為實際的車號欄位名稱
+        const plate = row.車號; // 替換為實際的車號欄位名稱
         if (plateSet.has(plate)) {
           hasDuplicatePlate = true;
           break;
@@ -198,53 +282,30 @@ export default {
         });
         return; // 停止後續流程
       }
-      console.log(JSON.stringify(this.excelData));
-      //   const selectedData = this.excelData.filter((row) => row.selected);
-      //   const processedData = selectedData.map((row) => ({
-      //     license_plate: row["車號"],
-      //     card_number: row["卡號"],
-      //     custodian: row["管理單位"],
-      //     product_name: row["油品別"] ? row["油品別"].substring(0, 4) : "",
-      //     upload_time: row["製卡日期"]
-      //       ? `${String(row["製卡日期"]).slice(0, 4)}-${String(
-      //           row["製卡日期"]
-      //         ).slice(4, 6)}-${String(row["製卡日期"]).slice(6, 8)}`
-      //       : "",
-      //     card_type:
-      //       row["油品別"] && row["油品別"].substring(0, 4) === "0017"
-      //         ? "1"
-      //         : row["油品別"] && row["油品別"].substring(0, 4) === "0006"
-      //         ? "2"
-      //         : row["油品別"] && row["油品別"].substring(0, 4) === "0001"
-      //         ? "3"
-      //         : "",
-      //     card_arrival_date: "",
-      //   }));
-      //   const jsonData = {
-      //     data: processedData,
-      //   };
-      //   console.log(JSON.stringify(jsonData))
-      //   await axios
-      //     .post("http://122.116.23.30:3347/main/importCPCfile", jsonData)
-      //     .then((response) => {
-      //       if (response.data.returnCode === 0) {
-      //         // 成功提示
-      //         this.$message({
-      //           message: "新增成功",
-      //           type: "success",
-      //         });
-      //       } else {
-      //         // 處理非 0 成功代碼
-      //         this.$message({
-      //           message: "新增失敗",
-      //           type: "error",
-      //         });
-      //       }
-      //     })
-      //     .catch((error) => {
-      //       // 處理錯誤
-      //       console.error("API request failed:", error);
-      //     });
+      const processedData = selectedData.map((row) => ({
+        customerId: row["客戶代號"],
+        license_plate: row["車號"],
+        use_number: row["統編"],
+        product_name: row["油品"],
+        cpc_account: row["中油帳號"],
+      }));
+      // this.Allexport=processedData
+      // await this.exportExcel();
+      try {
+        // 發送 GET 請求到指定的 API
+        const response = await axios.post(
+          "http://122.116.23.30:3347/main/insertVehicle",
+          processedData
+        );
+        this.Allexport = response.data.data.plate;
+        this.Unexport = response.data.data.Unplate;
+        await this.exportExcel();
+        this.dialogVehicle=true
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
     clearExcelData() {
       this.headers = [];
@@ -285,4 +346,10 @@ export default {
   padding-right: 900px; /* 可选: 添加右边距以与分页控件分开 */
   white-space: nowrap;
 }
+.no-data {
+  text-align: center;
+  color: #f10b0b;
+  font-size: 20px;
+}
+
 </style>

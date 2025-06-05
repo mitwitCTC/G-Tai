@@ -1103,7 +1103,7 @@ export default {
       };
 
       await axios
-        .post("http://127.0.0.1:3347/main/searchVehicle_cus", postData)
+        .post("http://122.116.23.30:3347/main/searchVehicle_cus", postData)
         .then((response) => {
           this.Vdialog.Vehicle_cus = response.data.data.Vehicle_cus;
           this.Vdialog.Vehicle_card = response.data.data.Vehicle_card;
@@ -1460,10 +1460,11 @@ export default {
 .section-header2 {
   margin-top: 50px;
   font-weight: bold;
-  background-color: #ff8878; /* 浅灰色背景 */
+  background-color: #ffd900; /* 浅灰色背景 */
   border-radius: 10px; /* 圆角 */
   padding: 10px; /* 内边距 */
   margin-bottom: 10px; /* 项目之间的间距 */
+  color: rgb(0, 0, 0); /* 讓文字顏色統一變成黑色 */
 }
 .demo-form-inline {
   margin-bottom: 20px;
