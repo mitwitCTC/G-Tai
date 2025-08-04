@@ -126,9 +126,9 @@ export default {
               : data.transaction_mode == "2"
               ? "月結"
               : "未知" || "";
-          worksheet.getCell(`K${rowIndex}`).value = data.remittance_date || "";
-          worksheet.getCell(`L${rowIndex}`).value =
-            data.low_balance_notice || "";
+          worksheet.getCell(`K${rowIndex}`).value = data.transaction_mode == "2" ? data.remittance_date :  "";
+          
+          worksheet.getCell(`L${rowIndex}`).value = data.transaction_mode == "1" ? data.low_balance_notice :  "";
           worksheet.getCell(`M${rowIndex}`).value = data.fuel_grace_limit || "";
           worksheet.getCell(`N${rowIndex}`).value = data.deposit || "";
           worksheet.getCell(`O${rowIndex}`).value =

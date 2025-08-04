@@ -120,6 +120,7 @@
           </template></el-table-column
         >
         <el-table-column prop="employee_name" label="負責業務" width="100" />
+        <el-table-column prop="data_source" label="中油檔案" width="200" />
       </el-table>
       <div class="pagination-container">
         <div class="pagination-info">

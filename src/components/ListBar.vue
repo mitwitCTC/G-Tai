@@ -80,6 +80,12 @@
         >
           大批新增車籍
         </button>
+        <!-- <button
+          class="btn btn-light w-100 text-start Data-color"
+          @click="() => goTo('/basic-info/test')"
+        >
+          測
+        </button> -->
         
       </div>
       <button

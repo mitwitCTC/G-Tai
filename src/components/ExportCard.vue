@@ -259,7 +259,7 @@ export default {
           worksheet.getCell(`I${rowIndex}`).value =
             data.card_arrival_date || "";
           worksheet.getCell(`J${rowIndex}`).value = data.card_stop_date || "";
-          worksheet.getCell(`K${rowIndex}`).value = data.del || "";
+          worksheet.getCell(`K${rowIndex}`).value = data.deleteTime || "";
           worksheet.getCell(`L${rowIndex}`).value = data.notes || "";
         });
         worksheet.getColumn(2).width = 50;

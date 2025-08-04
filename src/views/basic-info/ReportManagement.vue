@@ -6,7 +6,9 @@
   <div>
     <BreadCrumb />
   </div>
+
   <el-button type="info" @click="lockList = true">鎖卡名單</el-button>
+
   <el-form-item label="匯出名單" class="section-header">
     <el-button type="danger" @click="exData">匯出</el-button>
     <div class="table-container">
@@ -36,7 +38,7 @@
   </el-form-item>
 
   <el-form-item label="修改客戶" class="section-header">
-    <el-button type="success" @click="submitData">修改</el-button>
+    <el-button type="success" @click="submitData(1)">修改</el-button>
     <div class="table-container">
       <el-table
         :data="observe"
@@ -72,6 +74,35 @@
       </el-table>
     </div>
   </el-form-item>
+
+  <el-form-item label="轉觀察客戶(名單僅有正常狀態)">
+    <el-select
+      v-model="search.customerId"
+      placeholder="輸入客戶名稱/客代"
+      filterable
+      :clearable="true"
+      style="width: 300px; margin-right: 20px"
+      @change="pushdata"
+    >
+      <!-- 使用 cusdata 直接顯示每個字符串 -->
+      <el-option
+        v-for="item in normal"
+        :key="item"
+        :label="item"
+        :value="item.split(' ')[0]"
+      ></el-option>
+    </el-select>
+  </el-form-item>
+  <el-form-item label="轉修改客戶" class="section-header">
+    <el-button type="success" @click="submitData(2)">修改</el-button>
+    <div class="table-container">
+      <el-table :data="pushNormal" style="flex: 1; margin-right: 20px">
+        <el-table-column prop="cus_code" label="客戶代號"></el-table-column>
+        <el-table-column prop="cus_name" label="客戶名稱"></el-table-column>
+      </el-table>
+    </div>
+  </el-form-item>
+
   <el-dialog
     v-model="lockList"
     width="90%"
@@ -92,7 +123,7 @@
           v-for="item in cusdata"
           :key="item"
           :label="item"
-          :value="item.split(' ')[0]"
+          :value="item"
         ></el-option>
       </el-select>
     </el-form-item>
@@ -137,6 +168,7 @@
 import ListBar from "@/components/ListBar.vue";
 import BreadCrumb from "@/components/BreadCrumb.vue";
 import ExcelJS from "exceljs";
+import dayjs from "dayjs";
 import { toRaw } from "vue"; // 引入 `toRaw` 函數
 import axios from "axios";
 export default {
@@ -149,11 +181,16 @@ export default {
       lockList: false,
       isLoading: false,
       cus_code: "",
+      normal: [],
+      pushNormal: [],
       observe: [],
       Locked: [],
       Ex_observe: [],
       Ex_Locked: [],
       Allexport: [],
+      search: {
+        customerId: "",
+      },
       locklist: {
         cus_code: "",
         list: [],
@@ -163,6 +200,7 @@ export default {
         5: "待解卡",
       },
       type: {
+        1: "正常",
         2: "觀察",
         4: "已鎖卡",
       },
@@ -173,6 +211,7 @@ export default {
         4: "諾瓦尿素",
       },
       cusdata: [],
+      Allnovax: [],
     };
   },
   created() {
@@ -193,6 +232,15 @@ export default {
     },
   },
   methods: {
+    pushdata() {
+      const row = {
+        cus_code: this.search.customerId.split("：")[0],
+        cus_name: this.search.customerId.split("：")[1],
+        card_status: "1",
+      };
+      this.pushNormal.push(row);
+      this.search.customerId = "";
+    },
     async getlockcard() {
       this.isLoading = true;
       await axios
@@ -207,27 +255,44 @@ export default {
           this.isLoading = false;
         });
     },
-    async submitData() {
-      if (
-        !this.Locked.some((row) => row.selected) &&
-        !this.observe.some((row) => row.selected)
-      ) {
-        this.$message({
-          message: "請勾選後再送出",
-          type: "error",
-        });
-        return; // 停止後續執行
+    async submitData(type) {
+      if (type == 1) {
+        if (
+          !this.Locked.some((row) => row.selected) &&
+          !this.observe.some((row) => row.selected)
+        ) {
+          this.$message({
+            message: "請勾選後再送出",
+            type: "error",
+          });
+          return; // 停止後續執行
+        }
+
+        const selectedItemsLocked = this.Locked.filter((row) => row.selected);
+        this.isLoading = true;
+        for (const item of selectedItemsLocked) {
+          await this.updateCardStatus(item.cus_code, item.card_status);
+        }
+        const selectedItemsobserve = this.observe.filter((row) => row.selected);
+        for (const item of selectedItemsobserve) {
+          await this.updateCardStatus(item.cus_code, item.card_status);
+        }
+      } else if (type == 2) {
+        if (this.pushNormal.length == 0) {
+          this.$message({
+            message: "加入名單後再送出",
+            type: "error",
+          });
+          return; // 停止後續執行
+        }
+
+        const selectedpushNormal = this.pushNormal;
+        this.isLoading = true;
+        for (const item of selectedpushNormal) {
+          await this.updateCardStatus(item.cus_code, item.card_status);
+        }
       }
 
-      const selectedItemsLocked = this.Locked.filter((row) => row.selected);
-      this.isLoading = true;
-      for (const item of selectedItemsLocked) {
-        await this.updateCardStatus(item.cus_code, item.card_status);
-      }
-      const selectedItemsobserve = this.observe.filter((row) => row.selected);
-      for (const item of selectedItemsobserve) {
-        await this.updateCardStatus(item.cus_code, item.card_status);
-      }
       this.getcus();
       this.isLoading = false;
     },
@@ -290,6 +355,27 @@ export default {
         });
       }
     },
+    async donovaxData(cus_code) {
+      try {
+        const processedData = {
+          cus_code: cus_code,
+        };
+        const response = await axios.post(
+          "http://122.116.23.30:3347/main/getnovaxlock",
+          processedData
+        );
+        // 假設 this.Allexport 已是陣列
+        if (Array.isArray(response.data.data)) {
+          this.Allnovax.push(...response.data.data); // 展開加入
+        }
+      } catch (error) {
+        console.error("送出失敗:", processedData, "錯誤:", error);
+        this.$message({
+          message: `送出失敗: ${item.cus_code}`,
+          type: "error",
+        });
+      }
+    },
     async exData() {
       if (this.Ex_observe.length == 0 && this.Ex_Locked.length == 0) {
         this.$message({
@@ -299,17 +385,20 @@ export default {
         return; // 停止後續執行
       }
       this.Allexport = [];
+      this.Allnovax = [];
       this.isLoading = true;
       console.log("1查詢卡號資料");
       for (const item of this.Ex_observe) {
+        await this.donovaxData(item.cus_code);
         await this.doData(item.cus_code);
       }
       for (const item of this.Ex_Locked) {
+        await this.donovaxData(item.cus_code);
         await this.doData(item.cus_code);
       }
       console.log("1結束");
-
       await this.exportExcel();
+      await this.exportNovaxExcel();
       for (const item of this.Ex_observe) {
         await this.exportCardStatus(item.cus_code, item.card_status);
       }
@@ -353,6 +442,8 @@ export default {
     },
     async getcus() {
       this.isLoading = true;
+      this.pushNormal = [];
+      this.normal = [];
       this.observe = [];
       this.Locked = [];
       this.Ex_observe = [];
@@ -363,6 +454,12 @@ export default {
           this.cusdata = response.data.data;
           this.cusdata = this.cusdata.map(
             (item) => `${item.cus_code} ${item.cus_name}`
+          );
+          this.normal = response.data.data.filter(
+            (data) => data.card_status === "1"
+          );
+          this.normal = this.normal.map(
+            (item) => `${item.cus_code}：${item.cus_name}`
           );
           this.observe = response.data.data.filter(
             (data) => data.card_status === "2"
@@ -384,7 +481,54 @@ export default {
           this.isLoading = false;
         });
     },
-
+    async exportNovaxExcel() {
+      try {
+        // 確保資料先完成取得
+        const workbook = new ExcelJS.Workbook();
+        const fr = new FileReader();
+        const response = await fetch(
+          new URL("@/assets/諾瓦製卡明細.xlsx", import.meta.url).href
+        );
+        const data = await response.blob(); // 轉為 Blob
+        // 等待 FileReader onload 完成
+        const arrayBuffer = await new Promise((resolve, reject) => {
+          const fr = new FileReader();
+          fr.onload = (ev) => resolve(ev.target.result); // 當完成時，resolve 結果
+          fr.onerror = (err) => reject(err); // 發生錯誤時，reject 錯誤
+          fr.readAsArrayBuffer(data);
+        });
+        // 使用 arrayBuffer 讀取 Excel
+        await workbook.xlsx.load(arrayBuffer);
+        const worksheet = workbook.worksheets[0]; // 取得第一個工作表
+        //開始填充資料
+        this.Allnovax.forEach((data, index) => {
+          const rowIndex = index + 2; // 從 A2 開始
+          worksheet.getCell(`A${rowIndex}`).value = index + 1;
+          worksheet.getCell(`B${rowIndex}`).value = data.customerId || "";
+          worksheet.getCell(`C${rowIndex}`).value = data.license_plate || "";
+          worksheet.getCell(`D${rowIndex}`).value = data.card_number || "";
+          worksheet.getCell(`E${rowIndex}`).value = this.getDateTime_YYYYMMDD();
+          worksheet.getCell(`F${rowIndex}`).value =
+            data.card_status == "5"
+              ? "恢復"
+              : data.card_status == "3"
+              ? "取消"
+              : "";
+        });
+        // worksheet.getColumn(5).width = 15;
+        // worksheet.getColumn(13).width = 25;
+        // worksheet.getColumn(4).width = 60;
+        // 生成下載鏈接並觸發下載
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/octet-stream" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `諾瓦製卡明細.xlsx`; // 設定下載檔案名
+        link.click();
+      } catch (error) {
+        console.error("Error during export to Excel:", error);
+      }
+    },
     async exportExcel() {
       console.log("4 匯出");
       try {
@@ -392,7 +536,7 @@ export default {
         const workbook = new ExcelJS.Workbook();
         const fr = new FileReader();
         const response = await fetch(
-          new URL("@/assets/卡片停用檔.xlsx", import.meta.url).href
+          new URL("@/assets/大批製卡檔新增.xlsx", import.meta.url).href
         );
         const data = await response.blob(); // 轉為 Blob
         // 等待 FileReader onload 完成
@@ -408,54 +552,71 @@ export default {
         //開始填充資料
         this.Allexport.forEach((data, index) => {
           const rowIndex = index + 2; // 從 A2 開始
-          worksheet.getCell(`A${rowIndex}`).value = data.cpc_account || "";
+          const plate = data.license_plate;
+          // 先檢查有沒有 "-"
+          if (!plate.includes("-")) {
+            const firstChar = plate.charAt(0).toUpperCase(); // 轉成大寫，避免大小寫差異
+            let valueToWrite;
+
+            if (firstChar == "E") {
+              valueToWrite = "E";
+            } else if (firstChar == "T") {
+              valueToWrite = "T";
+            } else {
+              valueToWrite = "未知";
+            }
+            worksheet.getCell(`G${rowIndex}`).value = valueToWrite;
+          } else {
+            worksheet.getCell(`G${rowIndex}`).value = "B";
+          }
+          worksheet.getCell(`A${rowIndex}`).value = "U";
           worksheet.getCell(`B${rowIndex}`).value = data.cpc_account || "";
-          worksheet.getCell(`C${rowIndex}`).value = data.customerId || "";
-          worksheet.getCell(`E${rowIndex}`).value = data.license_plate || "";
-          worksheet.getCell(`L${rowIndex}`).value = "U";
-          worksheet.getCell(`M${rowIndex}`).value = data.card_number
-            ? data.card_number.replace(/#/g, "'")
-            : "";
-          worksheet.getCell(`N${rowIndex}`).value = "Y";
-          worksheet.getCell(`O${rowIndex}`).value = "Y";
-          worksheet.getCell(`P${rowIndex}`).value = "N";
-          worksheet.getCell(`S${rowIndex}`).value = "B";
-          worksheet.getCell(`U${rowIndex}`).value = "A";
-          worksheet.getCell(`V${rowIndex}`).value = "N";
-          worksheet.getCell(`X${rowIndex}`).value = "7";
-          worksheet.getCell(`D${rowIndex}`).value =
+          worksheet.getCell(`C${rowIndex}`).value = data.cpc_account || "";
+          worksheet.getCell(`D${rowIndex}`).value = data.customerId || "";
+          worksheet.getCell(`E${rowIndex}`).value =
             data.card_type == 1
-              ? "'0017"
+              ? "0017"
               : data.card_type == 2
-              ? "'0006"
+              ? "0006"
               : data.card_type == 3
-              ? "'0001"
+              ? "0001"
               : ""; // 預設為空字串，如果沒有匹配
-          worksheet.getCell(`W${rowIndex}`).value =
-            data.card_type == 1
-              ? "OTR"
-              : data.card_type == 2
-              ? "OIL"
-              : data.card_type == 3
-              ? "OIL"
-              : ""; // 預設為空字串，如果沒有匹配;
-          worksheet.getCell(`T${rowIndex}`).value =
-            data.card_status == 5 ? "" : data.card_status == 3 ? "C" : ""; // 預設為空字串，如果沒有匹配
+          worksheet.getCell(`F${rowIndex}`).value = "C";
+          worksheet.getCell(`H${rowIndex}`).value = 7;
+          worksheet.getCell(`I${rowIndex}`).value = data.card_number;
+          worksheet.getCell(`J${rowIndex}`).value =
+            data.card_status == "5" ? "" : data.card_status == "3" ? "C" : "";
+          worksheet.getCell(`K${rowIndex}`).value = data.license_plate;
+          worksheet.getCell(`O${rowIndex}`).value = "A";
+          worksheet.getCell(`P${rowIndex}`).value = 0;
+          worksheet.getCell(`Q${rowIndex}`).value = 0;
+          worksheet.getCell(`R${rowIndex}`).value = "Y";
+          worksheet.getCell(`S${rowIndex}`).value = "N";
+          worksheet.getCell(`T${rowIndex}`).value = "N";
+          worksheet.getCell(`U${rowIndex}`).value = "N";
+          worksheet.getCell(`V${rowIndex}`).value =
+            data.card_type == 2 ? "Y" : data.card_type == 3 ? "N" : ""; // 預設為空字串，如果沒有匹配
+          worksheet.getCell(`W${rowIndex}`).value = "N";
         });
-        worksheet.getColumn(5).width = 15;
-        worksheet.getColumn(13).width = 25;
+        // worksheet.getColumn(5).width = 15;
+        // worksheet.getColumn(13).width = 25;
         // worksheet.getColumn(4).width = 60;
         // 生成下載鏈接並觸發下載
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: "application/octet-stream" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `卡片停用檔.xlsx`; // 設定下載檔案名
+        link.download = `中油解鎖卡檔.xlsx`; // 設定下載檔案名
         link.click();
         console.log("4匯出結束");
       } catch (error) {
         console.error("Error during export to Excel:", error);
       }
+    },
+    getDateTime_YYYYMMDD(input = null, timeFormat = "YYYY-MM-DD", day = 0) {
+      let date = input ? input : new Date();
+      let dateTime = dayjs(date).add(day, "days").format(timeFormat);
+      return dateTime;
     },
   },
 };

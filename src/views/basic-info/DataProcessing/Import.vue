@@ -75,6 +75,51 @@
   </el-form-item>
 
   <div style="margin-bottom: 50px"></div>
+  <el-dialog
+    title="新增結果"
+    v-model="dialogVehicle"
+    width="90%"
+    :close-on-click-modal="false"
+  >
+    <el-form label-width="155px" style="width: 100%; min-width: 1600px">
+      <el-form-item label="新增成功" class="section-header">
+        <div class="table-container">
+          <div v-if="!Allexport || Allexport.length === 0" class="no-data">
+            無成功紀錄
+          </div>
+          <el-table :data="Allexport" style="width: 100%">
+            <el-table-column prop="custodian" label="客戶" width="350" />
+            <el-table-column
+              prop="license_plate"
+              label="車牌號碼"
+              width="300"
+            />
+            <el-table-column prop="card_number" label="卡號" width="200" />
+            <el-table-column prop="card_type" :formatter="product_method" label="油品種類" width="200" />
+          </el-table>
+        </div>
+      </el-form-item>
+
+      <el-form-item label="新增失敗" class="section-header">
+        <div class="table-container">
+          <div v-if="!Unexport || Unexport.length === 0" class="no-data">
+            無失敗紀錄
+          </div>
+            <el-table :data="Unexport" style="width: 100%">
+              <el-table-column prop="custodian" label="客戶" width="350" />
+            <el-table-column
+              prop="license_plate"
+              label="車牌號碼"
+              width="300"
+            />
+            <el-table-column prop="card_number" label="卡號" width="200" />
+            <el-table-column prop="card_type" :formatter="product_method" label="油品種類" width="200" />
+            <el-table-column prop="UnplateSet_note" label="失敗原因" width="200" />
+            </el-table>
+          </div>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
 </template>
 
 <script>
@@ -91,8 +136,11 @@ export default {
   data() {
     return {
       loading: false,
+      dialogVehicle:false,
       cusdata: [],
       vehicle: [],
+      Allexport:[],
+      Unexport:[],
       excelData: [], // 儲存解析後的 Excel 資料
       headers: [],
       methodMap: {
@@ -238,12 +286,14 @@ export default {
       const jsonData = {
         data: processedData,
       };
-      console.log(JSON.stringify(jsonData))
       await axios
         .post("http://122.116.23.30:3347/main/importCPCfile", jsonData)
         .then((response) => {
           if (response.data.returnCode === 0) {
             // 成功提示
+            this.Allexport = response.data.data.plate;
+            this.Unexport = response.data.data.Unplate;
+            this.dialogVehicle=true
             this.$message({
               message: "新增成功",
               type: "success",

@@ -19,14 +19,32 @@
     />
     <el-button
       type="primary"
-      v-if="this.month_check !== '0' &&  this.check!='30'"
+      v-if="one_month_check && one_month_check.endTime == '0'"
       style="margin-left: 10px"
-      @click="changesystemwork('30')"
+      @click="updateTime()"
       >確認寄送名單</el-button
     >
+    <el-button
+      type="success"
+      v-if=" search_month && check != '30'"
+      style="margin-left: 10px"
+      @click="changesystemwork('30')"
+      >確認特殊寄送名單</el-button
+    >
   </el-form-item>
+  <div
+    class="page-title"
+    style="color: red"
+    v-if="
+      one_month_check &&
+      one_month_check.endTime &&
+      one_month_check.endTime != '0'
+    "
+  >
+    <h5>{{ search_month }}一般寄送名單已確認</h5>
+  </div>
   <div class="page-title" style="color: red" v-if="this.check == '30'">
-    <h5>{{ search_month }}寄送名單已確認</h5>
+    <h5>{{ search_month }}特殊寄送名單已確認</h5>
   </div>
   <el-form-item label="Mail發送" class="section-header">
     <el-table :data="this.mail" style="width: 100%">
@@ -82,7 +100,8 @@ export default {
     return {
       isLoading: false,
       search_month: "",
-      month_check: "",
+      one_id: "",
+      one_month_check: {},
       check:"",
       mail: [],
       line: [],
@@ -96,6 +115,37 @@ export default {
       await this.getsysTIME();
       await this.getsystemwork();
       this.isLoading = false;
+    },
+    async updateTime() {
+      const result = confirm("此動作無法返回，請確認是否無誤");
+      if (result) {
+        this.isLoading = true; // 請求完成後關閉加載狀態
+        try {
+          const postdata = {
+            id: this.one_id,
+            endTime: "",
+          };
+          const response = await axios.post(
+            "http://122.116.23.30:3347/finance/systemworktime",
+            postdata
+          );
+          // 確認 API 回應是否有資料
+          if (response.data && response.data.returnCode===0) {
+            await this.updatebill("0");//一般開立
+            this.$message({
+              message: "更改成功",
+              type: "success",
+            });
+          }
+
+          // 將資料放入 customers 陣列中
+        } catch (error) {
+          console.error("Error fetching customer data:", error);
+        } finally {
+          this.clink();
+          this.isLoading = false; // 請求完成後關閉加載狀態
+        }
+      }
     },
     async getdata() {
       try {
@@ -119,7 +169,7 @@ export default {
       try {
         const postdata = {
           workDate: this.search_month,
-          type: "24",
+          type: "29",
         };
         const response = await axios.post(
           "http://122.116.23.30:3347/finance/getsystemwork",
@@ -127,14 +177,13 @@ export default {
         );
         // 確認 API 回應是否有資料
         if (response.data && response.data.data.length > 0) {
-          this.month_check = String(response.data.data[0].endTime);
-          console.log(this.month_check)
-        } else {
-          this.month_check = "123";
+          this.one_month_check = response.data.data[0];
+          this.one_id = this.one_month_check.id;
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);
       }
+     
     },
     async getsystemwork() {
       try {
@@ -156,7 +205,7 @@ export default {
         console.error("Error fetching customer data:", error);
       }
     },
-    async updatebill() {
+    async updatebill(type) {
       // // 组合 mail[] 和 line[] 的数据
       // const requests = [...this.mail, ...this.line];
       // for (const customer of requests) {
@@ -176,27 +225,47 @@ export default {
       //     console.error(`Error updating ${type}:`, error);
       //   }
       // }
+      //--
+      // try {
+      //   // 组合 mail[] 和 line[] 的数据
+      //   const requests = [...(this.mail || []), ...(this.line || [])].map(
+      //     (customer) => {
+      //       if (customer.sendType == 0) {
+      //         const postdata = {
+      //           id: customer.id,
+      //           farewell: customer.farewell, // mail 或 line
+      //           sendMod: customer.sendMod,
+      //           customerId: customer.customerId,
+      //           sendType: customer.sendType,
+      //         };
+      //         console.log(JSON.stringify(postdata));
+
+      //         // 返回 axios 请求的 Promise
+      //         return axios.post(
+      //           "http://127.0.0.1:3347/finance/updatesend",
+      //           postdata
+      //         );
+      //       }
+      //     }
+      //   );
+
+      //   // **并行执行所有 API 请求**
+      //   const responses = await Promise.all(requests);
+
+      //   console.log("所有 API 請求完成:", responses);
+      // } catch (error) {
+      //   console.error("Error updating bill:", error);
+      // }
       try {
-        // 组合 mail[] 和 line[] 的数据
-        const requests = [...(this.mail || []), ...(this.line || [])].map((customer) => {
-          const postdata = {
-            id: customer.id,
-            farewell: customer.farewell, // mail 或 line
-            sendMod: customer.sendMod,
-            customerId: customer.customerId,
-          };
-
-          // 返回 axios 请求的 Promise
-          return axios.post(
-            "http://122.116.23.30:3347/finance/updatesend",
-            postdata
-          );
-        });
-
-        // **并行执行所有 API 请求**
-        const responses = await Promise.all(requests);
-
-        console.log("所有 API 請求完成:", responses);
+        // 組合 mail[] 和 line[] 並篩選 sendType == 0 的資料
+        const filtered = [...(this.mail || []), ...(this.line || [])].filter(
+          (item) => item.sendType === type
+        );
+          await axios.post(
+                "http://122.116.23.30:3347/finance/updatesend",
+                filtered
+              );
+        console.log("所有 API 請求完成:", JSON.stringify(filtered));
       } catch (error) {
         console.error("Error updating bill:", error);
       }
@@ -222,7 +291,7 @@ export default {
             return;
           }
           this.isLoading = true; // 開始加載
-          await this.updatebill();
+          await this.updatebill("999");
           // 發送 GET 請求到指定的 API
           const postdata = {
             workDate: this.search_month,
@@ -237,9 +306,7 @@ export default {
               message: "更改成功",
               type: "success",
             });
-            this.getsystemwork();
           }
-
           // 將資料放入 customers 陣列中
         } catch (error) {
           console.error("Error fetching customer data:", error);

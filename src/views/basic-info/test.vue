@@ -47,42 +47,51 @@
     :close-on-click-modal="false"
   >
     <el-form label-width="155px" style="width: 100%; min-width: 1600px">
-      <el-form-item label="新增成功" class="section-header">
+      <el-form-item label="單筆" class="section-header">
         <div class="table-container">
-          <div v-if="!Allexport || Allexport.length === 0" class="no-data">
-            無成功紀錄
-          </div>
-          <el-table :data="Allexport" style="width: 100%">
+          <el-table :data="one" style="width: 100%">
             <el-table-column prop="customerId" label="客戶代號" width="200" />
             <el-table-column
               prop="license_plate"
               label="車牌號碼"
               width="300"
             />
-            <el-table-column prop="use_number" label="統編" width="250" />
-            <el-table-column prop="product_name" label="油品代號" width="200" />
-            <el-table-column prop="cpc_account" label="中油帳號" width="250" />
+            <el-table-column prop="card_number" label="卡號" width="250" />
+            <el-table-column prop="license_plate" label="車牌" width="200" />
+            <el-table-column prop="buildType" label="卡片狀態" width="250" />
           </el-table>
         </div>
       </el-form-item>
 
-      <el-form-item label="新增失敗" class="section-header">
+      <el-form-item label="多筆" class="section-header">
         <div class="table-container">
-          <div v-if="!Unexport || Unexport.length === 0" class="no-data">
-            無失敗紀錄
-          </div>
-            <el-table :data="Unexport" style="width: 100%">
-              <el-table-column prop="customerId" label="客戶代號" width="200" />
+         
+          <el-table :data="other" style="width: 100%">
+            <el-table-column prop="customerId" label="客戶代號" width="200" />
             <el-table-column
               prop="license_plate"
               label="車牌號碼"
               width="300"
             />
-            <el-table-column prop="use_number" label="統編" width="250" />
-            <el-table-column prop="product_name" label="油品代號" width="200" />
-            <el-table-column prop="cpc_account" label="中油帳號" width="250" />
-            <el-table-column prop="UnplateSet_note" label="失敗原因" width="300" />
-            </el-table>
+            <el-table-column prop="card_number" label="卡號" width="250" />
+            <el-table-column prop="license_plate" label="車牌" width="200" />
+            <el-table-column prop="buildType" label="卡片狀態" width="250" />
+          </el-table>
+          </div>
+      </el-form-item>
+      <el-form-item label="找不到" class="section-header">
+        <div class="table-container">
+         
+          <el-table :data="zero" style="width: 100%">
+            <el-table-column prop="customerId" label="客戶代號" width="200" />
+            <el-table-column
+              prop="license_plate"
+              label="車牌號碼"
+              width="300"
+            />
+            <el-table-column prop="card_number" label="卡號" width="250" />
+            <el-table-column prop="license_plate" label="車牌" width="200" />
+          </el-table>
           </div>
       </el-form-item>
     </el-form>
@@ -112,10 +121,11 @@ export default {
     return {
       isLoading: false,
       dialogVehicle: false,
-      excelData: [], // 儲存解析後的 Excel 資料
-      Allexport: [],
-      Unexport: [],
-      headers: ["客戶代號", "統編", "車號", "油品", "中油帳號"],
+      one: [],
+      zero: [],
+      other: [],
+      excelData:[],
+      headers: ["客戶代號", "客戶名稱", "車牌號碼", "卡號","卡片狀態", "到卡日期", "中油停卡日期"],
     };
   },
   computed: {},
@@ -238,69 +248,45 @@ export default {
               rowData[header] = row[index] || "";
             });
             // 記錄車號
-            const licensePlate = rowData["車號"]; // 假設你的車號欄位名為 "車號"
-            if (licensePlate) {
-              if (!licensePlateCount[licensePlate]) {
-                licensePlateCount[licensePlate] = 1;
-              } else {
-                licensePlateCount[licensePlate]++;
-                duplicates.add(licensePlate); // 加入重複的車號到集合中
-              }
-            }
+            // const licensePlate = rowData["車號"]; // 假設你的車號欄位名為 "車號"
+            // if (licensePlate) {
+            //   if (!licensePlateCount[licensePlate]) {
+            //     licensePlateCount[licensePlate] = 1;
+            //   } else {
+            //     licensePlateCount[licensePlate]++;
+            //     duplicates.add(licensePlate); // 加入重複的車號到集合中
+            //   }
+            // }
             rowData.selected = true;
             return rowData;
           });
-          // 標記重複的車號
-          this.excelData.forEach((row) => {
-            const licensePlate = row["車號"];
-            row.isDuplicate = licensePlateCount[licensePlate] > 1;
-          });
+          // // 標記重複的車號
+          // this.excelData.forEach((row) => {
+          //   const licensePlate = row["車號"];
+          //   row.isDuplicate = licensePlateCount[licensePlate] > 1;
+          // });
         };
         reader.readAsArrayBuffer(file); // 讀取檔案為 ArrayBuffer 格式
       }
     },
     async submitData() {
       this.isLoading = true;
-      const selectedData = this.excelData.filter((row) => row.selected);
-      // 建立一個 Set 來儲存已出現的車號
-      const plateSet = new Set();
-      let hasDuplicatePlate = false;
-
-      for (const row of selectedData) {
-        const plate = row.車號; // 替換為實際的車號欄位名稱
-        if (plateSet.has(plate)) {
-          hasDuplicatePlate = true;
-          break;
-        } else {
-          plateSet.add(plate);
-        }
-      }
-
-      if (hasDuplicatePlate) {
-        this.$message({
-          message: "選取的資料中有重複車號，請檢查！",
-          type: "warning",
-        });
-        return; // 停止後續流程
-      }
-      const processedData = selectedData.map((row) => ({
+      const processedData = this.excelData.map((row) => ({
         customerId: row["客戶代號"],
-        license_plate: row["車號"],
-        use_number: row["統編"],
-        product_name: row["油品"],
-        cpc_account: row["中油帳號"],
+        license_plate: row["車牌號碼"],
+        card_number: row["卡號"]
       }));
-      // this.Allexport=processedData
-      // await this.exportExcel();
+      
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/insertVehicle",
+          "http://127.0.0.1:3347/main/test",
           processedData
         );
-        this.Allexport = response.data.data.plate;
-        this.Unexport = response.data.data.Unplate;
-        await this.exportExcel();
+        this.one = response.data.data.one;
+        this.zero = response.data.data.zero;
+        this.other = response.data.data.other;
+    
         this.dialogVehicle=true
       } catch (error) {
         console.error("Error fetching customer data:", error);

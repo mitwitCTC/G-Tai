@@ -54,6 +54,7 @@ export default {
           worksheet.getCell(`N${rowIndex}`).value = Number(contact.salesAmount) || "";
           worksheet.getCell(`N${rowIndex}`).numFmt = "#,##0";  // 設定千分位格式
           worksheet.getCell(`O${rowIndex}`).value = contact.employee_name || "";
+          worksheet.getCell(`P${rowIndex}`).value = contact.data_source || "";
         });
         // worksheet.getColumn(2).width = 50;
         // worksheet.getColumn(3).width = 60;

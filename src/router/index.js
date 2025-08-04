@@ -19,6 +19,7 @@ const router = createRouter({
       component: () => import("@/views/basic-info/login.vue"),
       meta: { clearCookies: true }
     },
+   
     {
       path: "/basic-info",
       name: "basic-info",
@@ -27,6 +28,17 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import("@/views/basic-info/BasicView.vue"),
       children: [
+        {
+          path: "test",
+          name: "測",
+          component: () =>
+            import("@/views/basic-info/test.vue"),
+          meta: {
+            title: "測",
+            breadcrumb: "測",
+            isData: true,
+          },
+        },
         {
           path: "customer",
           name: "客戶資料維護",
@@ -304,6 +316,7 @@ const router = createRouter({
             isData: true,
           },
         },
+        
         {
           path: "cpctrade",
           name: "中油交易",

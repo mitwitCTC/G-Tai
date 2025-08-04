@@ -132,7 +132,7 @@ module.exports = ({ sequelize }) => {
                 const details = await cpc_data.findAll({
                     // where: { customerId: { [Op.eq]: req.body.customerId } },
                     where: { customerId: { [Op.eq]: req.body.customerId }, account_date: { [Op.between]: [account_date + "/02", end_date + "/01"] }, account_sortId: { [Op.ne]: null } },
-                    attributes: ['trade_time', 'account_sortId', 'license_plate', 'fuel_type', 'station_name', 'station_code', 'fuel_volume', 'reference_price', 'discount', 'reference_amount', 'salesAmount', 'mileage', 'fuel_consumption'],
+                    attributes: ['trade_time', 'account_sortId', 'license_plate', 'fuel_type', 'station_name', 'station_code', 'fuel_volume', 'reference_price', 'discount', 'reference_amount', 'salesAmount', 'mileage', 'fuel_consumption','carbon_emission','emission_factor'],
                     order: [['id', 'DESC']], raw: true
                 })
                 // 查詢客戶底下的帳單資料
@@ -560,6 +560,58 @@ module.exports = ({ sequelize }) => {
                 } else {
                     return res.json({ returnCode: -1, message: "修改密碼失敗，原密碼錯誤" })
                 }
+            } catch (err) {
+                console.log({ returnCode: 500, message: "系統錯誤", err: err })
+                return res.json({ returnCode: 500, message: "系統錯誤", err: err })
+            }
+        },
+        // 修改前台密碼
+        mileage: async (req, res) => {
+            try {
+                const time = getDateTime()
+                console.log(time + ' 修改前台密碼(mileage)')
+                const customerList = await customersequelize.query(
+                    `
+                    SELECT 
+                    a.vehicleId,
+                    a.customerId,
+                    a.license_plate,
+                    b.card_number,
+                    b.card_type,
+                    b.upload_reason,
+                    b.card_arrival_date,
+                    b.card_stop_date,
+                    b.notes,
+                    b.deleteTime as del,
+                    c.*,
+                    d.cus_name
+                    FROM 
+                        jutai.vehicle a 
+                    LEFT JOIN  
+                        jutai.card_relation b 
+                    ON 
+                        a.vehicleId = b.vehicleId 
+                    LEFT JOIN  
+                        jutai.account_sort c 
+                    ON 
+                        a.account_sortId = c.account_sortId 
+                    LEFT JOIN  
+                        jutai.customer d 
+                    ON 
+                        a.customerId = d.cus_code
+                    WHERE 
+                        a.customerId = :customerId 
+                        AND b.card_number IS NOT NULL 
+                        AND b.card_number != ''
+                        AND b.deleteTime ='0'
+                    ORDER BY   
+                        a.license_plate;
+                    `,
+                    {
+                      replacements: { customerId }, // 替换为动态变量
+                      type: vehicle.sequelize.QueryTypes.SELECT, // 使用 SELECT 查询类型
+                    }
+                  );
             } catch (err) {
                 console.log({ returnCode: 500, message: "系統錯誤", err: err })
                 return res.json({ returnCode: 500, message: "系統錯誤", err: err })
