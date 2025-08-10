@@ -126,7 +126,7 @@ export default {
             endTime: "",
           };
           const response = await axios.post(
-            "http://122.116.23.30:3347/finance/systemworktime",
+            "/apiServer/finance/systemworktime",
             postdata
           );
           // 確認 API 回應是否有資料
@@ -153,7 +153,7 @@ export default {
           farewell: this.search_month,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/billsend",
+          "/apiServer/finance/billsend",
           postdata
         );
         // 確認 API 回應是否有資料
@@ -172,7 +172,7 @@ export default {
           type: "29",
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/getsystemwork",
+          "/apiServer/finance/getsystemwork",
           postdata
         );
         // 確認 API 回應是否有資料
@@ -192,7 +192,7 @@ export default {
           type: "30",
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/getsystemwork",
+          "/apiServer/finance/getsystemwork",
           postdata
         );
         // 確認 API 回應是否有資料
@@ -218,7 +218,7 @@ export default {
 
       //   try {
       //     const response = await axios.post(
-      //       "http://122.116.23.30:3347/finance/updatesend",
+      //       "/apiServer/finance/updatesend",
       //       postdata
       //     );
       //   } catch (error) {
@@ -262,7 +262,7 @@ export default {
           (item) => item.sendType === type
         );
           await axios.post(
-                "http://122.116.23.30:3347/finance/updatesend",
+                "/apiServer/finance/updatesend",
                 filtered
               );
         console.log("所有 API 請求完成:", JSON.stringify(filtered));
@@ -298,7 +298,7 @@ export default {
             type: type,
           };
           const response = await axios.post(
-            "http://122.116.23.30:3347/finance/changesystemwork",
+            "/apiServer/finance/changesystemwork",
             postdata
           );
           if (response.data && response.data.data) {

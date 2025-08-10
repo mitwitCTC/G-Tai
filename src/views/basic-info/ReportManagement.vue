@@ -244,7 +244,7 @@ export default {
     async getlockcard() {
       this.isLoading = true;
       await axios
-        .post("http://122.116.23.30:3347/main/getlockcard")
+        .post("/apiServer/main/getlockcard")
         .then((response) => {
           this.locklist.list = response.data.data;
           this.isLoading = false;
@@ -303,7 +303,7 @@ export default {
       };
       try {
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/updateCuscardStatus",
+          "/apiServer/main/updateCuscardStatus",
           processedData
         );
         console.log("成功送出:", processedData, "回應:", response.data);
@@ -322,7 +322,7 @@ export default {
           card_status: card_status,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/exportCuscardStatus",
+          "/apiServer/main/exportCuscardStatus",
           processedData
         );
         console.log("成功送出:", processedData, "回應:", response.data);
@@ -340,7 +340,7 @@ export default {
           cus_code: cus_code,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/getcpclock",
+          "/apiServer/main/getcpclock",
           processedData
         );
         // 假設 this.Allexport 已是陣列
@@ -361,7 +361,7 @@ export default {
           cus_code: cus_code,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/getnovaxlock",
+          "/apiServer/main/getnovaxlock",
           processedData
         );
         // 假設 this.Allexport 已是陣列
@@ -416,7 +416,7 @@ export default {
           card_status: card_status,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/updateCuscardStatus",
+          "/apiServer/main/updateCuscardStatus",
           processedData
         );
         console.log("成功送出:", processedData, "回應:", response.data);
@@ -449,7 +449,7 @@ export default {
       this.Ex_observe = [];
       this.Ex_Locked = [];
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusdata = response.data.data;
           this.cusdata = this.cusdata.map(

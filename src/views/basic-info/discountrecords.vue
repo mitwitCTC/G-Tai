@@ -162,7 +162,7 @@ export default {
       };
       this.isLoading = true; // 請求開始，顯示 loading 標示
       await axios
-        .post("http://122.116.23.30:3347/main/modificationDiscount", postData)
+        .post("/apiServer/main/modificationDiscount", postData)
         .then((response) => {
           if (response.data.returnCode == 0) {
             this.$message({
@@ -193,7 +193,7 @@ export default {
 
     async getproduct_name() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectProduct")
+        .get("/apiServer/main/selectProduct")
         .then((response) => {
           this.productMap = response.data.data;
         })
@@ -215,7 +215,7 @@ export default {
     },
     async getcusdata() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusdata = response.data.data;
           this.cusdata = this.cusdata.map(
@@ -238,7 +238,7 @@ export default {
           customerId: this.customerId,
         };
         await axios
-          .post("http://122.116.23.30:3347/main/searchDiscount", postData)
+          .post("/apiServer/main/searchDiscount", postData)
           .then((response) => {
             this.DiscountData = response.data.data;
             this.loading = false; // 請求完成後關閉加載狀態

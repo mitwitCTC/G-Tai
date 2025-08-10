@@ -434,7 +434,7 @@ export default {
     },
     async getcusdata() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusdata = response.data.data;
           this.cusdata = this.cusdata.map(
@@ -486,7 +486,7 @@ export default {
       };
       try {
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/generateCPCfile",
+          "/apiServer/main/generateCPCfile",
           time
         );
         this.result = response.data.data;
@@ -498,7 +498,7 @@ export default {
     async getRecorded() {
       this.loading = true; // 開始加載
       const response = await axios.get(
-        "http://122.116.23.30:3347/main/getRecordedVehicle"
+        "/apiServer/main/getRecordedVehicle"
       );
       try {
         this.Recorded = response.data.data; // 更新 Recorded
@@ -524,11 +524,11 @@ export default {
       };
       try {
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/searchCard",
+          "/apiServer/main/searchCard",
           postvehicleId
         );
         const response2 = await axios.post(
-          "http://122.116.23.30:3347/main/searchCard",
+          "/apiServer/main/searchCard",
           postdata
         );
         this.cards = response.data.data;
@@ -547,7 +547,7 @@ export default {
         license_plate: this.form.license_plate,
       };
       const response = await axios.post(
-        "http://122.116.23.30:3347/main/searchPlate",
+        "/apiServer/main/searchPlate",
         postvehicleId
       );
       if (type == 1) {
@@ -595,7 +595,7 @@ export default {
           this.isLoading = true; // 請求開始，顯示 loading 標示
           this.form.state = "判斷中...";
           const response = await axios.get(
-            "http://122.116.23.30:3347/main/selectVehicle"
+            "/apiServer/main/selectVehicle"
           );
           this.allVehicle = response.data.data;
           for (const vehicle of this.allVehicle) {
@@ -619,7 +619,7 @@ export default {
           await this.getcard();
           //2.資料庫有資料 判斷現在輸入的客戶 下是否有此車 有就繼續判斷4.刪除或2.改卡號 沒有就是3.轉客戶
           const cus_response = await axios.post(
-            "http://122.116.23.30:3347/main/searchVehicle",
+            "/apiServer/main/searchVehicle",
             postData
           );
           this.Vehicle = cus_response.data.data;
@@ -660,7 +660,7 @@ export default {
       if (this.form.cus_code.length == 8) {
         this.form.cus_name = "查詢中..";
         axios
-          .post("http://122.116.23.30:3347/main/searchCustomer", postData)
+          .post("/apiServer/main/searchCustomer", postData)
           .then((response) => {
             this.form.cus_name = response.data.data[0].cus_name;
           })
@@ -676,7 +676,7 @@ export default {
       }
       if (this.form.cus_name) {
         axios
-          .post("http://122.116.23.30:3347/main/searchAccount_sort", postData)
+          .post("/apiServer/main/searchAccount_sort", postData)
           .then((response) => {
             this.bills = response.data.data;
             if (!this.bills.length) {
@@ -882,7 +882,7 @@ export default {
       const postData = this.form;
       console.log(JSON.stringify(postData));
       axios
-        .post("http://122.116.23.30:3347/main/recordedVehicle", postData)
+        .post("/apiServer/main/recordedVehicle", postData)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示

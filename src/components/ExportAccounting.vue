@@ -23,7 +23,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/finance/debitAccount"
+          "/apiServer/finance/debitAccount"
         );
         this.debitsubject = response.data.data;
       } catch (error) {
@@ -34,7 +34,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/finance/creditAccount"
+          "/apiServer/finance/creditAccount"
         );
         this.creditsubject = response.data.data;
       } catch (error) {

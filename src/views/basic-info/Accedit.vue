@@ -219,7 +219,7 @@ export default {
           id:row.id
         }
         await axios
-          .post("http://122.116.23.30:3347/finance/delAccount", req)
+          .post("/apiServer/finance/delAccount", req)
           .then((response) => {
             if (response.status === 200 && response.data.returnCode === 0) {
               // 成功提示
@@ -277,7 +277,7 @@ export default {
         useType: this.form.useType,
       };
       await axios
-        .post("http://122.116.23.30:3347/finance/inAccount", req)
+        .post("/apiServer/finance/inAccount", req)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -304,7 +304,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/finance/debitAccount"
+          "/apiServer/finance/debitAccount"
         );
         this.debit = response.data.data;
         this.searchallAccount = this.debit.map((item) => ({
@@ -322,7 +322,7 @@ export default {
         SubjectsName: row.SubjectsName,
       };
       await axios
-        .post("http://122.116.23.30:3347/finance/editAccount", req)
+        .post("/apiServer/finance/editAccount", req)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示

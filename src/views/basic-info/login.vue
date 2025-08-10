@@ -65,7 +65,7 @@ export default {
           pwd: this.password,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/logIn",
+          "/apiServer/main/logIn",
           postdata
         );
         if (response.data.returnCode === 0) {

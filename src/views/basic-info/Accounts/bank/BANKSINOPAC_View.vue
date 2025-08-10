@@ -593,7 +593,7 @@ export default {
 
       //發送 POST 請求
       axios
-        .post("http://122.116.23.30:3347/finance/createSINOPAC", req)
+        .post("/apiServer/finance/createSINOPAC", req)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -641,7 +641,7 @@ export default {
     async getselectData() {
       this.loading = true; // 開始加載
       await axios
-        .get("http://122.116.23.30:3347/finance/selectSINOPAC")
+        .get("/apiServer/finance/selectSINOPAC")
         .then((response) => {
           this.BankData = response.data.data;
           // this.BankData.sort((a, b) => b.invoice.localeCompare(a.invoice));
@@ -710,7 +710,7 @@ export default {
           delete_time: "",
         };
         await axios
-          .post("http://122.116.23.30:3347/finance/deleteSINOPAC", postData)
+          .post("/apiServer/finance/deleteSINOPAC", postData)
           .then((response) => {
             if (response.data.returnCode == 0) {
               this.$message({
@@ -760,7 +760,7 @@ export default {
     //       cus_code:customerId,
     //     };
     //     console.log(JSON.stringify(postData))
-    //     axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
+    //     axios.post('/apiServer/main/searchCustomer',postData)
     //       .then(response => {
     //           this.form.cus_name = response.data.data[0].cus_name;
     //           this.form.card_other_fee=response.data.data[0].card_other_fee;
@@ -780,7 +780,7 @@ export default {
     },
     async getcusdata() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusdatas = response.data.data;
           this.cusdata = this.cusdatas.map(
@@ -812,7 +812,7 @@ export default {
           this.isLoading = true;
           this.form.cus_name = "查詢中..";
           await axios
-            .post("http://122.116.23.30:3347/main/searchCustomer", postData)
+            .post("/apiServer/main/searchCustomer", postData)
             .then((response) => {
               this.form.cus_name = response.data.data[0].cus_name;
               this.form.card_other_fee = response.data.data[0].card_other_fee;
@@ -829,7 +829,7 @@ export default {
         }
         if (this.form.cus_name) {
           await axios
-            .post("http://122.116.23.30:3347/main/searchAccount_sort", postData)
+            .post("/apiServer/main/searchAccount_sort", postData)
             .then((response) => {
               this.bills = response.data.data;
               if (!this.bills.length) {
@@ -851,7 +851,7 @@ export default {
             });
           await axios
             .post(
-              "http://122.116.23.30:3347/finance/selectCreditCard",
+              "/apiServer/finance/selectCreditCard",
               postData
             )
             .then((response) => {

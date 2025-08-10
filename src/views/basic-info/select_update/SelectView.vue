@@ -1039,7 +1039,7 @@ export default {
         cus_code: this.cus_code,
       };
       axios
-        .post("http://122.116.23.30:3347/main/searchCustomer", postData)
+        .post("/apiServer/main/searchCustomer", postData)
         .then((response) => {
           this.cus_form = response.data.data[0];
           if (this.cus_form.transaction_mode == "2") {
@@ -1104,7 +1104,7 @@ export default {
         account_sortId: this.account_sortId,
       };
       axios
-        .post("http://122.116.23.30:3347/main/viewAccount_sort", postData)
+        .post("/apiServer/main/viewAccount_sort", postData)
         .then((response) => {
           this.bills_form = response.data.data[0];
         })
@@ -1123,12 +1123,12 @@ export default {
         cus_code: this.cus_code,
       };
       axios
-        .post("http://122.116.23.30:3347/finance/searchSINOPAC", postData)
+        .post("/apiServer/finance/searchSINOPAC", postData)
         .then((response) => {
           this.SinopacBank = response.data.data[0];
           //客戶名稱
           axios
-            .post("http://122.116.23.30:3347/main/searchCustomer", postData2)
+            .post("/apiServer/main/searchCustomer", postData2)
             .then((response) => {
               this.SinopacBank.cus_name = response.data.data[0].cus_name;
             })
@@ -1183,7 +1183,7 @@ export default {
     },
     async getsalesman() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectSalesman")
+        .get("/apiServer/main/selectSalesman")
         .then((response) => {
           this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
         })
@@ -1198,7 +1198,7 @@ export default {
         customerId: this.cus_code,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchContact", postData)
+        .post("/apiServer/main/searchContact", postData)
         .then((response) => {
           this.contact = response.data.data;
         })
@@ -1213,7 +1213,7 @@ export default {
         customerId: this.cus_code,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchDiscount", postData)
+        .post("/apiServer/main/searchDiscount", postData)
         .then((response) => {
           this.DiscountData = response.data.data;
           this.DiscountData = this.DiscountData.filter(
@@ -1229,7 +1229,7 @@ export default {
     async getproduct_name() {
       this.loading = true; // 開始加載
       await axios
-        .get("http://122.116.23.30:3347/main/selectProduct")
+        .get("/apiServer/main/selectProduct")
         .then((response) => {
           this.productMap = response.data.data;
         })
@@ -1265,7 +1265,7 @@ export default {
         customerId: this.cus_code,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchVehicle", postData)
+        .post("/apiServer/main/searchVehicle", postData)
         .then((response) => {
           this.vehicles = response.data.data;
         })
@@ -1280,7 +1280,7 @@ export default {
         customerId: this.cus_code,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchAccount_sort", postData)
+        .post("/apiServer/main/searchAccount_sort", postData)
         .then((response) => {
           this.bills = response.data.data;
         })

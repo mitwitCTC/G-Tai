@@ -240,7 +240,7 @@ export default {
     async getcus() {
       this.isLoading = true;
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusData = response.data.data;
           this.cusData = this.cusData.map(
@@ -254,7 +254,7 @@ export default {
     },
     async getbill() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectAccount_sort")
+        .get("/apiServer/main/selectAccount_sort")
         .then((response) => {
           this.bills = response.data.data;
           this.isLoading = false;
@@ -272,7 +272,7 @@ export default {
         };
         this.isLoading = true;
         await axios
-          .post("http://122.116.23.30:3347/finance/searchcpcdata", postData)
+          .post("/apiServer/finance/searchcpcdata", postData)
           .then((response) => {
             if (!Array.isArray(response.data.data)) {
               this.cpcdata = [];

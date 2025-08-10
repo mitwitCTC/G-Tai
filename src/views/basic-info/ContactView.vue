@@ -256,7 +256,7 @@ export default {
         customerId: this.cus_code,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchContact", postData)
+        .post("/apiServer/main/searchContact", postData)
         .then((response) => {
           this.contact = response.data.data;
           this.loading = false; // 請求完成後關閉加載狀態
@@ -301,7 +301,7 @@ export default {
       }
       // 發送 POST 請求
       axios
-        .post("http://122.116.23.30:3347/main/createContact", req)
+        .post("/apiServer/main/createContact", req)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示

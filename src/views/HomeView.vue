@@ -47,7 +47,7 @@ export default {
         this.loading = true; // 開始加載
         // 發送 GET 請求到指定的 API
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/getdaysys"
+          "/apiServer/main/getdaysys"
         );
         // 將資料放入 customers 陣列中
         this.data = response.data.data;

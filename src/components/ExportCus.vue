@@ -13,7 +13,7 @@ export default {
   methods: {
     async getselectCUSData() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.customers = response.data.data;
         })
@@ -24,7 +24,7 @@ export default {
     },
     async getsalesman() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectSalesman")
+        .get("/apiServer/main/selectSalesman")
         .then((response) => {
           this.salesmenData = response.data.data; // 獲取到數據後將其存儲到 salesmenData
         })

@@ -59,7 +59,7 @@
               label="車牌號碼"
               width="300"
             />
-            <el-table-column prop="use_number" label="統編" width="250" />
+            <el-table-column prop="card_number" label="卡號" width="250" />
             <el-table-column prop="product_name" label="油品代號" width="200" />
             <el-table-column prop="cpc_account" label="中油帳號" width="250" />
           </el-table>
@@ -78,7 +78,7 @@
               label="車牌號碼"
               width="300"
             />
-            <el-table-column prop="use_number" label="統編" width="250" />
+            <el-table-column prop="card_number" label="卡號" width="250" />
             <el-table-column prop="product_name" label="油品代號" width="200" />
             <el-table-column prop="cpc_account" label="中油帳號" width="250" />
             <el-table-column
@@ -121,7 +121,7 @@ export default {
       Unexport: [],
       T_zero: [],
       T_one: [],
-      headers: ["客戶代號", "客戶名稱", "統編", "車號", "油品", "中油帳號"],
+      headers: ["客戶代號", "客戶名稱", "車號", "油品","卡號", "中油帳號"],
     };
   },
   computed: {},
@@ -371,15 +371,41 @@ export default {
         // 開始填充資料
         this.Allexport.forEach((data, index) => {
           const rowIndex = index + 2; // 從 A2 開始
-          worksheet.getCell(`A${rowIndex}`).value = "N";
+          const plate = data.license_plate;
+          // 先檢查有沒有 "-"
+          if (!plate.includes("-")) {
+            const firstChar = plate.charAt(0).toUpperCase(); // 轉成大寫，避免大小寫差異
+            let valueToWrite;
+
+            if (firstChar == "E") {
+              valueToWrite = "E";
+            } else if (firstChar == "T") {
+              valueToWrite = "T";
+            } else {
+              valueToWrite = "未知";
+            }
+            worksheet.getCell(`G${rowIndex}`).value = valueToWrite;
+          } else {
+            worksheet.getCell(`G${rowIndex}`).value = "B";
+          }
+          worksheet.getCell(`A${rowIndex}`).value = "U";
           worksheet.getCell(`B${rowIndex}`).value = data.cpc_account || "";
           worksheet.getCell(`C${rowIndex}`).value = data.cpc_account || "";
           worksheet.getCell(`D${rowIndex}`).value = data.customerId || "";
-          worksheet.getCell(`E${rowIndex}`).value = data.product_name || "";
+          worksheet.getCell(`E${rowIndex}`).value =
+            data.card_type == 1
+              ? "0017"
+              : data.card_type == 2
+              ? "0006"
+              : data.card_type == 3
+              ? "0001"
+              : ""; // 預設為空字串，如果沒有匹配
           worksheet.getCell(`F${rowIndex}`).value = "C";
-          worksheet.getCell(`G${rowIndex}`).value = "B";
           worksheet.getCell(`H${rowIndex}`).value = 7;
-          worksheet.getCell(`K${rowIndex}`).value = data.license_plate || "";
+          worksheet.getCell(`I${rowIndex}`).value = data.card_number;
+          worksheet.getCell(`J${rowIndex}`).value =
+            data.card_status == "5" ? "" : data.card_status == "3" ? "C" : "";
+          worksheet.getCell(`K${rowIndex}`).value = data.license_plate;
           worksheet.getCell(`O${rowIndex}`).value = "A";
           worksheet.getCell(`P${rowIndex}`).value = 0;
           worksheet.getCell(`Q${rowIndex}`).value = 0;
@@ -387,11 +413,8 @@ export default {
           worksheet.getCell(`S${rowIndex}`).value = "N";
           worksheet.getCell(`T${rowIndex}`).value = "N";
           worksheet.getCell(`U${rowIndex}`).value = "N";
-          if (data.product_name == "0006") {
-            worksheet.getCell(`V${rowIndex}`).value = "Y";
-          } else {
-            worksheet.getCell(`V${rowIndex}`).value = "N";
-          }
+          worksheet.getCell(`V${rowIndex}`).value =
+            data.card_type == 2 ? "Y" : data.card_type == 3 ? "N" : ""; // 預設為空字串，如果沒有匹配
           worksheet.getCell(`W${rowIndex}`).value = "N";
         });
         // 生成下載鏈接並觸發下載
@@ -399,7 +422,7 @@ export default {
         const blob = new Blob([buffer], { type: "application/octet-stream" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `大批製卡檔新增.xlsx`; // 設定下載檔案名
+        link.download = `大批停卡檔.xlsx`; // 設定下載檔案名
         link.click();
       } catch (error) {
         console.error("Error during export to Excel:", error);
@@ -411,7 +434,7 @@ export default {
         const workbook = new ExcelJS.Workbook();
         const fr = new FileReader();
         const response = await fetch(
-          new URL("@/assets/大批匯入車籍-範例.xlsx", import.meta.url).href
+          new URL("@/assets/大批停用車籍-範例.xlsx", import.meta.url).href
         );
         const data = await response.blob(); // 轉為 Blob
 
@@ -432,7 +455,7 @@ export default {
         const blob = new Blob([buffer], { type: "application/octet-stream" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `大批匯入車籍-範例.xlsx`; // 設定下載檔案名
+        link.download = `大批停用車籍-範例.xlsx`; // 設定下載檔案名
         link.click();
       } catch (error) {
         console.error("Error during export to Excel:", error);
@@ -515,22 +538,23 @@ export default {
         customerId: row["客戶代號"],
         cus_name: row["客戶名稱"],
         license_plate: row["車號"],
-        use_number: row["統編"],
         product_name: row["油品"],
+        card_number: row["卡號"],
         cpc_account: row["中油帳號"],
       }));
-      // this.Allexport = processedData;
+      this.Allexport = processedData;
+      console.log(JSON.stringify(this.Allexport))
       // await this.exportExcel();
       try {
-        //發送 GET 請求到指定的 API
-        const response = await axios.post(
-          "/apiServer/main/insertVehicle",
-          processedData
-        );
-        this.Allexport = response.data.data.plate;
-        this.Unexport = response.data.data.Unplate;
-        await this.export_OLD_Excel();
-        await this.exportExcel();
+        // 發送 GET 請求到指定的 API
+        // const response = await axios.post(
+        //   "/apiServer/main/insertVehicle",
+        //   processedData
+        // );
+        // this.Allexport = response.data.data.plate;
+        // this.Unexport = response.data.data.Unplate;
+        // await this.export_OLD_Excel();
+        // await this.exportExcel();
         this.dialogVehicle = true;
       } catch (error) {
         console.error("Error fetching customer data:", error);

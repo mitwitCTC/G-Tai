@@ -414,7 +414,7 @@ export default {
         };
         console.log(JSON.stringify(req))
         await axios
-          .post("http://122.116.23.30:3347/finance/deleteinvoice", req)
+          .post("/apiServer/finance/deleteinvoice", req)
           .then((response) => {
             if (response.status === 200 && response.data.returnCode === 0) {
               // 成功提示
@@ -452,7 +452,7 @@ export default {
     async selectAccount_sort() {
       try {
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectAccount_sort"
+          "/apiServer/main/selectAccount_sort"
         );
         // 確認 API 回應是否有資料
         if (response.data && response.data.data.length > 0) {
@@ -473,7 +473,7 @@ export default {
           invoiceDate: this.search_month,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/selectinvoice",
+          "/apiServer/finance/selectinvoice",
           postdata
         );
         // 確認 API 回應是否有資料
@@ -531,7 +531,7 @@ export default {
         const postdata = this.form;
         console.log(JSON.stringify(postdata))
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/insertinvoice",
+          "/apiServer/finance/insertinvoice",
           postdata
         );
         this.$message({
@@ -591,7 +591,7 @@ export default {
           customerId: customerId,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/searchAccount_sort",
+          "/apiServer/main/searchAccount_sort",
           postdata
         );
         this.bill = response.data.data;
@@ -618,7 +618,7 @@ export default {
             type: type,
           };
           const response = await axios.post(
-            "http://122.116.23.30:3347/finance/changesystemwork",
+            "/apiServer/finance/changesystemwork",
             postdata
           );
           if (response.data && response.data.data) {
@@ -663,7 +663,7 @@ export default {
       //       salesDate: this.search_month,
       //     };
       //     const response = await axios.post(
-      //       "http://122.116.23.30:3347/finance/searchuseamount",
+      //       "/apiServer/finance/searchuseamount",
       //       postdata
       //     );
 
@@ -688,7 +688,7 @@ export default {
           salesDate: this.search_month,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/searchuseamount",
+          "/apiServer/finance/searchuseamount",
           postdata
         );
 
@@ -718,7 +718,7 @@ export default {
           type: "22", //開立確認
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/getsystemwork",
+          "/apiServer/finance/getsystemwork",
           postdata
         );
         // 確認 API 回應是否有資料
@@ -734,7 +734,7 @@ export default {
             type: "24", //開立確認
           };
           const response = await axios.post(
-            "http://122.116.23.30:3347/finance/getsystemwork",
+            "/apiServer/finance/getsystemwork",
             postdata
           );
           // 確認 API 回應是否有資料
@@ -760,7 +760,7 @@ export default {
       //       salesDate: this.search_month,
       //     };
       //     const response = await axios.post(
-      //       "http://122.116.23.30:3347/finance/searchtotalamount",
+      //       "/apiServer/finance/searchtotalamount",
       //       postdata
       //     );
 
@@ -786,7 +786,7 @@ export default {
           salesDate: this.search_month,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/searchtotalamount",
+          "/apiServer/finance/searchtotalamount",
           postdata
         );
 
@@ -822,7 +822,7 @@ export default {
               special_invoice: type,
             };
             const response = await axios.post(
-              "http://122.116.23.30:3347/finance/changeinvoicetype",
+              "/apiServer/finance/changeinvoicetype",
               postdata
             );
             this.$message({
@@ -904,7 +904,7 @@ export default {
         this.isLoading = true; // 開始加載
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectCustomer"
+          "/apiServer/main/selectCustomer"
         );
         // this.cus_Data = response.data.data.filter(
         //   (cus_Data) => cus_Data.special_invoice === "1"

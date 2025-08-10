@@ -996,7 +996,7 @@ export default {
         cus_code: row.cus_code,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchCustomer", postData)
+        .post("/apiServer/main/searchCustomer", postData)
         .then((response) => {
           this.onConnacts = response.data.data[0];
           this.getConnact();
@@ -1015,7 +1015,7 @@ export default {
         front_pwd: this.onConnacts.front_pwd,
       };
       await axios
-        .post("http://122.116.23.30:3346/main/login", postData)
+        .post("https://jutai.mitwit-cre.com.tw/main/login", postData)
         .then((response) => {
           if (response.data.data[0].contract_status == "Y") {
             this.$message({
@@ -1103,7 +1103,7 @@ export default {
       };
 
       await axios
-        .post("http://122.116.23.30:3347/main/searchVehicle_cus", postData)
+        .post("/apiServer/main/searchVehicle_cus", postData)
         .then((response) => {
           this.Vdialog.Vehicle_cus = response.data.data.Vehicle_cus;
           this.Vdialog.Vehicle_card = response.data.data.Vehicle_card;
@@ -1120,7 +1120,7 @@ export default {
       };
 
       await axios
-        .post("http://122.116.23.30:3347/main/searchCard", postData)
+        .post("/apiServer/main/searchCard", postData)
         .then((response) => {
           this.Vdialog.Card = response.data.data;
         })
@@ -1135,7 +1135,7 @@ export default {
       };
 
       await axios
-        .post("http://122.116.23.30:3347/main/viewAccount_sort", postData)
+        .post("/apiServer/main/viewAccount_sort", postData)
         .then((response) => {
           this.Vdialog.bills = response.data.data;
         })
@@ -1151,7 +1151,7 @@ export default {
       };
 
       await axios
-        .post("http://122.116.23.30:3347/main/searchCard", postData)
+        .post("/apiServer/main/searchCard", postData)
         .then((response) => {
           this.Vdialog.Card = response.data.data;
         })
@@ -1214,7 +1214,7 @@ export default {
         this.loading = true; // 開始加載
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectCustomer"
+          "/apiServer/main/selectCustomer"
         );
         const customerData = response.data.data;
         // 將資料放入 customers 陣列中
@@ -1232,7 +1232,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectVehicle"
+          "/apiServer/main/selectVehicle"
         );
         this.Vehicle = response.data.data;
       } catch (error) {
@@ -1273,7 +1273,7 @@ export default {
       }
       this.isLoading = true;
       axios
-        .post("http://122.116.23.30:3347/main/createCustomer", req)
+        .post("/apiServer/main/createCustomer", req)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -1315,7 +1315,7 @@ export default {
       //這裡
       console.log(btoa(row.cus_code));
       const edoc = row.cus_code;
-      const url = `http://122.116.23.30:3347/basic-info/SelectView?rowType=1&cus_code=${edoc}`;
+      const url = `/apiServer/basic-info/SelectView?rowType=1&cus_code=${edoc}`;
       window.open(url, "_blank");
     },
     dialogDetails() {
@@ -1327,7 +1327,7 @@ export default {
       //   },
       // });
       const edoc = this.Vdialog.cus_code;
-      const url = `http://122.116.23.30:3347/basic-info/SelectView?rowType=1&cus_code=${edoc}`;
+      const url = `/apiServer/basic-info/SelectView?rowType=1&cus_code=${edoc}`;
       window.open(url, "_blank");
     },
     editItem(row) {
@@ -1348,7 +1348,7 @@ export default {
           deleteTime: "",
         };
         await axios
-          .post("http://122.116.23.30:3347/main/deleteCustomer", req)
+          .post("/apiServer/main/deleteCustomer", req)
           .then((response) => {
             if (response.status === 200 && response.data.returnCode === 0) {
               // 成功提示
@@ -1385,7 +1385,7 @@ export default {
       // });
       const edoc = row.cus_code;
       const eman = row.cus_name;
-      const url = `http://122.116.23.30:3347/basic-info/contact?cus_code=${edoc}&cus_name=${eman}`;
+      const url = `/apiServer/basic-info/contact?cus_code=${edoc}&cus_name=${eman}`;
       window.open(url, "_blank");
     },
     onBill(row) {
@@ -1398,7 +1398,7 @@ export default {
       // });
       const edoc = row.cus_code;
       const eman = row.cus_name;
-      const url = `http://122.116.23.30:3347/basic-info/bill?cus_code=${edoc}&cus_name=${eman}`;
+      const url = `/apiServer/basic-info/bill?cus_code=${edoc}&cus_name=${eman}`;
       window.open(url, "_blank");
     },
 
@@ -1412,7 +1412,7 @@ export default {
       // });
       const edoc = row.cus_code;
       const eman = row.cus_name;
-      const url = `http://122.116.23.30:3347/basic-info/discount?cus_code=${edoc}&cus_name=${eman}`;
+      const url = `/apiServer/basic-info/discount?cus_code=${edoc}&cus_name=${eman}`;
       window.open(url, "_blank");
     },
     format(card_type) {
@@ -1437,7 +1437,7 @@ export default {
   mounted() {
     // 在頁面加載時發送 API 請求
     axios
-      .get("http://122.116.23.30:3347/main/selectSalesman")
+      .get("/apiServer/main/selectSalesman")
       .then((response) => {
         this.salesmenData = response.data.data; // 將 API 回傳的數據存入 salesmenData
       })

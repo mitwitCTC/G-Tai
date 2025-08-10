@@ -83,7 +83,7 @@ export default {
       };
       this.isLoading = true;
       await axios
-        .post("http://122.116.23.30:3347/main/updateSupplierAcc", postData)
+        .post("/apiServer/main/updateSupplierAcc", postData)
         .then((response) => {
           this.$message({
             message: `變更成功`,

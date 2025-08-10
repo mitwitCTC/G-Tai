@@ -17,7 +17,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectCustomer"
+          "/apiServer/main/selectCustomer"
         );
         const customerData = response.data.data;
         // 將資料放入 customers 陣列中
@@ -34,7 +34,7 @@ export default {
     //   try {
     //     // 發送 GET 請求到指定的 API
     //     const response = await axios.get(
-    //       "http://122.116.23.30:3347/main/selectCustomer"
+    //       "/apiServer/main/selectCustomer"
     //     );
     //     const customerData = response.data.data;
     //     // 將資料放入 customers 陣列中
@@ -51,7 +51,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectContact"
+          "/apiServer/main/selectContact"
         );
         const contactData = response.data.data;
         // 將資料放入 customers 陣列中
@@ -71,7 +71,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectSalesman"
+          "/apiServer/main/selectSalesman"
         );
         this.Salesman = response.data.data;
       } catch (error) {

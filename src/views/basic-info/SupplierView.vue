@@ -172,7 +172,7 @@ export default {
       try {
         this.isLoading = true; // 開始加載
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectCustomer"
+          "/apiServer/main/selectCustomer"
         );
         //自行註解
         this.AllContact = response.data.data; //全部的聯絡人
@@ -356,7 +356,7 @@ export default {
             customerId: selectcus.customerId,
           };
           const response = await axios.post(
-            "http://122.116.23.30:3347/main/searchAccount_sort",
+            "/apiServer/main/searchAccount_sort",
             postdata
           );
           for (let x = 0; x < response.data.data.length; x++) {
@@ -380,7 +380,7 @@ export default {
           };
           console.log(JSON.stringify(postdata));
           const response = await axios.post(
-            "http://122.116.23.30:3347/main/searchCustomer",
+            "/apiServer/main/searchCustomer",
             postdata
           );
           this.cus_info.push({

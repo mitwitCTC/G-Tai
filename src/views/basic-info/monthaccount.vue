@@ -137,7 +137,7 @@ export default {
           salesDate: this.search_month,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/groupproductid",
+          "/apiServer/finance/groupproductid",
           postdata
         );
       } catch (error) {
@@ -152,7 +152,7 @@ export default {
           type: type,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/changesystemwork",
+          "/apiServer/finance/changesystemwork",
           postdata
         );
         if (response.data && response.data.data) {
@@ -177,7 +177,7 @@ export default {
           type: "21",
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/getsystemwork",
+          "/apiServer/finance/getsystemwork",
           postdata
         );
         // 確認 API 回應是否有資料
@@ -283,7 +283,7 @@ export default {
           salesDate: this.search_month,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/searchaccounting",
+          "/apiServer/finance/searchaccounting",
           postdata
         );
         // 確認 API 回應是否有資料

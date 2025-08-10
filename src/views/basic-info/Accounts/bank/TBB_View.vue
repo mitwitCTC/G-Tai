@@ -354,7 +354,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/finance/debitAccount"
+          "/apiServer/finance/debitAccount"
         );
         this.debit = response.data.data;
         this.searchallAccount = this.debit.map((item) => ({
@@ -375,7 +375,7 @@ export default {
           id: row.id,
         };
         axios
-          .post("http://122.116.23.30:3347/finance/changeCollateral", postData)
+          .post("/apiServer/finance/changeCollateral", postData)
           .then((response) => {
             if (response.status === 200 && response.data.returnCode === 0) {
               // 成功提示
@@ -495,7 +495,7 @@ export default {
       console.log(JSON.stringify(req));
       // 發送 POST 請求
       axios
-        .post("http://122.116.23.30:3347/finance/createTBB", req)
+        .post("/apiServer/finance/createTBB", req)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -537,7 +537,7 @@ export default {
     },
     async getcus() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusData = response.data.data;
         })
@@ -548,7 +548,7 @@ export default {
     },
     async getselectData() {
       await axios
-        .get("http://122.116.23.30:3347/finance/selectTBB")
+        .get("/apiServer/finance/selectTBB")
         .then((response) => {
           this.BankData = response.data.data;
           this.BankData.forEach((bankItem) => {
@@ -589,7 +589,7 @@ export default {
           delete_time: "",
         };
         await axios
-          .post("http://122.116.23.30:3347/finance/deleteTBB", postData)
+          .post("/apiServer/finance/deleteTBB", postData)
           .then((response) => {
             if (response.data.returnCode == 0) {
               this.$message({
@@ -623,7 +623,7 @@ export default {
     //       cus_code:customerId,
     //     };
     //     console.log(JSON.stringify(postData))
-    //     axios.post('http://122.116.23.30:3347/main/searchCustomer',postData)
+    //     axios.post('/apiServer/main/searchCustomer',postData)
     //       .then(response => {
     //           this.form.cus_name = response.data.data[0].cus_name;
     //       })
@@ -643,7 +643,7 @@ export default {
     },
     async getcusdata() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusdata = response.data.data;
           this.cusdata = this.cusdata.map(
@@ -668,7 +668,7 @@ export default {
       if (this.form.customerId.length == 8) {
         this.form.cus_name = "查詢中..";
         axios
-          .post("http://122.116.23.30:3347/main/searchCustomer", postData)
+          .post("/apiServer/main/searchCustomer", postData)
           .then((response) => {
             this.form.cus_name = response.data.data[0].cus_name;
           })
@@ -683,7 +683,7 @@ export default {
           });
       }
       //  if(this.form.cus_name){
-      //   axios.post('http://122.116.23.30:3347/main/searchAccount_sort',postData)
+      //   axios.post('/apiServer/main/searchAccount_sort',postData)
       //     .then(response => {
       //         this.bills = response.data.data;
       //         if(!this.bills.length){

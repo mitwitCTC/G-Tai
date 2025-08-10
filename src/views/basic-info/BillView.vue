@@ -460,7 +460,7 @@ export default {
       try {
         this.isLoading = true;
         await axios
-        .post("http://122.116.23.30:3347/main/exportcard", postData)
+        .post("/apiServer/main/exportcard", postData)
         .then((response) => {
           this.excard = response.data.data;
         })
@@ -492,7 +492,7 @@ export default {
         customerId: this.cus_code,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchContact", postData)
+        .post("/apiServer/main/searchContact", postData)
         .then((response) => {
           this.contact = response.data.data;
         })
@@ -507,7 +507,7 @@ export default {
         customerId: this.cus_code,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchAccount_sort", postData)
+        .post("/apiServer/main/searchAccount_sort", postData)
         .then((response) => {
           this.bills = response.data.data;
           this.bills = response.data.data.sort((a, b) => {
@@ -522,7 +522,7 @@ export default {
     },
     async getproduct_name() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectProduct")
+        .get("/apiServer/main/selectProduct")
         .then((response) => {
           this.productMap = response.data.data;
         })
@@ -539,7 +539,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/searchVehicle",
+          "/apiServer/main/searchVehicle",
           postData
         );
 
@@ -576,7 +576,7 @@ export default {
         status: 1,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/searchCard", postData)
+        .post("/apiServer/main/searchCard", postData)
         .then((response) => {
           const result = response.data.data;
           // 如果查詢結果有多筆資料
@@ -692,7 +692,7 @@ export default {
 
       //發送 POST 請求
       axios
-        .post("http://122.116.23.30:3347/main/createAccount_sort", req)
+        .post("/apiServer/main/createAccount_sort", req)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -758,7 +758,7 @@ export default {
       const req = this.form;
       //發送 POST 請求
       axios
-        .post("http://122.116.23.30:3347/main/createVehicle", req)
+        .post("/apiServer/main/createVehicle", req)
         .then((response) => {
           if (response.status === 200 && response.data.returnCode === 0) {
             this.isLoading = false;
@@ -853,7 +853,7 @@ export default {
           deleteTime: "",
         };
         await axios
-          .post("http://122.116.23.30:3347/main/deleteAccount_sort", req)
+          .post("/apiServer/main/deleteAccount_sort", req)
           .then((response) => {
             if (response.status === 200 && response.data.returnCode === 0) {
               // 成功提示
@@ -912,7 +912,7 @@ export default {
           deleteTime: "",
         };
         await axios
-          .post("http://122.116.23.30:3347/main/deleteVehicle", req)
+          .post("/apiServer/main/deleteVehicle", req)
           .then((response) => {
             if (response.status === 200 && response.data.returnCode === 0) {
               // 成功提示
@@ -953,7 +953,7 @@ export default {
     },
     async getVehicle() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectVehicle")
+        .get("/apiServer/main/selectVehicle")
         .then((response) => {
           this.licens = response.data.data.map((item) => item.license_plate);
         })

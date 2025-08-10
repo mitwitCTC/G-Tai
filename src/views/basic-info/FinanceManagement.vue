@@ -708,7 +708,7 @@ export default {
           };
           // 發送 GET 請求到指定的 API
           const response = await axios.post(
-            "http://122.116.23.30:3347/finance/deleteSubpoenaedetails",
+            "/apiServer/finance/deleteSubpoenaedetails",
             postData
           );
           this.$message({
@@ -788,7 +788,7 @@ export default {
           id: row.id,
         };
         await axios
-          .post("http://122.116.23.30:3347/finance/deleteSubpoena", req)
+          .post("/apiServer/finance/deleteSubpoena", req)
           .then((response) => {
             if (response.status === 200 && response.data.returnCode === 0) {
               // 成功提示
@@ -819,7 +819,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/finance/debitAccount"
+          "/apiServer/finance/debitAccount"
         );
         this.debit = response.data.data;
       } catch (error) {
@@ -830,7 +830,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/finance/creditAccount"
+          "/apiServer/finance/creditAccount"
         );
         this.credit = response.data.data;
       } catch (error) {
@@ -942,7 +942,7 @@ export default {
       };
       if (this.dialogTitle == "0") {
         await axios
-          .post("http://122.116.23.30:3347/finance/subpoena", postData)
+          .post("/apiServer/finance/subpoena", postData)
           .then((response) => {
             this.$message.success("會計傳票新增成功！");
             if (type == 1) {
@@ -964,7 +964,7 @@ export default {
         //成功訊息並關閉
       } else if (this.dialogTitle == "1") {
         await axios
-          .post("http://122.116.23.30:3347/finance/updatesubpoena", postData)
+          .post("/apiServer/finance/updatesubpoena", postData)
           .then((response) => {
             this.$message.success("會計傳票修改成功！");
             this.isdel = false;
@@ -1011,7 +1011,7 @@ export default {
         id: id,
       };
       await axios
-        .post("http://122.116.23.30:3347/finance/selectSubpoena", postData)
+        .post("/apiServer/finance/selectSubpoena", postData)
         .then((response) => {
           if (type == "select") {
             this.select = response.data.data.map((record) => {
@@ -1160,7 +1160,7 @@ export default {
       if (this.entries.customerId.length == 8) {
         this.entries.cus_name = "查詢中..";
         axios
-          .post("http://122.116.23.30:3347/main/searchCustomer", postData)
+          .post("/apiServer/main/searchCustomer", postData)
           .then((response) => {
             this.entries.cus_name = response.data.data[0].cus_name;
           })
@@ -1177,7 +1177,7 @@ export default {
     },
     async getcus() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusData = response.data.data;
           this.cusData = this.cusData.map(
@@ -1197,7 +1197,7 @@ export default {
         };
         this.isLoading = true;
         await axios
-          .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)
+          .post("/apiServer/finance/searchSubpoena", postData)
           .then((response) => {
             // this.cus_message_IN = response.data.data;
 
@@ -1233,7 +1233,7 @@ export default {
         };
         this.isLoading = true;
         await axios
-          .post("http://122.116.23.30:3347/finance/searchSubpoena", postData)
+          .post("/apiServer/finance/searchSubpoena", postData)
           .then((response) => {
             // this.cus_message_IN = response.data.data;
 

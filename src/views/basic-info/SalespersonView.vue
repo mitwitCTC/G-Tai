@@ -136,7 +136,7 @@ export default {
   methods: {
     savePass() {
       const req = this.form;
-      axios.post('http://122.116.23.30:3347/main/createSalesman', req)
+      axios.post('/apiServer/main/createSalesman', req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
@@ -168,7 +168,7 @@ export default {
       this.loading = true;  // 開始加載
     try {
         // 發送 GET 請求到指定的 API
-        const response = await axios.get('http://122.116.23.30:3347/main/selectSalesman');
+        const response = await axios.get('/apiServer/main/selectSalesman');
         const salesmanData = response.data.data; // 取得資料中的第一個元素
         // 將資料放入 customers 陣列中
         this.selses=salesmanData;

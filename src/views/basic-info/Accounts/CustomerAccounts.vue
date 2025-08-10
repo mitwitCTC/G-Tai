@@ -165,7 +165,7 @@ created() {
       const postData={
         customerId :this.customerId
       }
-      await axios.post('http://122.116.23.30:3347/finance/searchReconciledTBB',postData)
+      await axios.post('/apiServer/finance/searchReconciledTBB',postData)
       .then(response => {
           this.isDiscount=response.data.data
         })
@@ -179,7 +179,7 @@ created() {
         });
     },
     async getcusdata(){
-      await axios.get('http://122.116.23.30:3347/main/selectCustomer')
+      await axios.get('/apiServer/main/selectCustomer')
       .then(response => {
           this.cusdata=response.data.data
           this.cusdata = this.cusdata.map(item => `${item.cus_code} ${item.cus_name}`);
@@ -204,7 +204,7 @@ created() {
         account_date :"",
       };
       try {
-        const response = await axios.post('http://122.116.23.30:3347/finance/unverified', postData);
+        const response = await axios.post('/apiServer/finance/unverified', postData);
         this.errcpc = response.data.data.cpc_data;
         this.errbank = response.data.data.bank_data;
      } catch (error) {
@@ -217,7 +217,7 @@ created() {
       const postData = {
         account_date :this.selectedDate,
       };
-      await axios.post('http://122.116.23.30:3347/finance/unverified',postData)
+      await axios.post('/apiServer/finance/unverified',postData)
         .then(response => {
           this.cpcData = response.data.data.cpc_dataCount;
           this.bankData = response.data.data.bank_dataCount;
@@ -239,7 +239,7 @@ created() {
     },
     async onContact(type){
       if(type===1){
-        await axios.get('http://122.116.23.30:3347/finance/reconciliationCPC')
+        await axios.get('/apiServer/finance/reconciliationCPC')
         .then(response => {
           if(response.data.returnCode==0){
             this.$message({
@@ -254,7 +254,7 @@ created() {
           console.error('API request failed:', error);
         });
       }else if(type===2){
-        await axios.get('http://122.116.23.30:3347/finance/reconciliationTBB')
+        await axios.get('/apiServer/finance/reconciliationTBB')
         .then(response => {
           if(response.data.returnCode==0){
             this.$message({
@@ -289,7 +289,7 @@ created() {
             return
       }
       this.editingRow = null; // 取消編輯狀態
-      await axios.post('http://122.116.23.30:3347/finance/updateTBBAccount',postData)
+      await axios.post('/apiServer/finance/updateTBBAccount',postData)
         .then(response => {
           if(response.data.returnCode==0){
             this.$message({
@@ -322,7 +322,7 @@ created() {
             return
       }
       this.isEditable=null
-      await axios.post('http://122.116.23.30:3347/finance/updateReconciledTBB',postData)
+      await axios.post('/apiServer/finance/updateReconciledTBB',postData)
         .then(response => {
           if(response.data.returnCode==0){
             this.$message({

@@ -183,7 +183,7 @@ export default {
     },
     async getPlate() {
       const response = await axios.get(
-        "http://122.116.23.30:3347/main/selectVehicle "
+        "/apiServer/main/selectVehicle "
       );
       try {
         this.vehicle = response.data.data;
@@ -196,7 +196,7 @@ export default {
     },
     async getdata() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCPCdata")
+        .get("/apiServer/main/selectCPCdata")
         .then((response) => {
           this.cusdata = response.data.data;
         })
@@ -287,7 +287,7 @@ export default {
         data: processedData,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/importCPCfile", jsonData)
+        .post("/apiServer/main/importCPCfile", jsonData)
         .then((response) => {
           if (response.data.returnCode === 0) {
             // 成功提示

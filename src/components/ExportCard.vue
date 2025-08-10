@@ -18,7 +18,7 @@ export default {
   methods: {
     async getproduct_name() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectProduct")
+        .get("/apiServer/main/selectProduct")
         .then((response) => {
           this.productMap = response.data.data;
         })
@@ -31,7 +31,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectCustomer"
+          "/apiServer/main/selectCustomer"
         );
         const customerData = response.data.data;
         // 將資料放入 customers 陣列中
@@ -51,7 +51,7 @@ export default {
           type:"havedel"
         }
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/selectAllCard",postdata
+          "/apiServer/main/selectAllCard",postdata
         );
         const Allcard = response.data.data;
         // 將資料放入 customers 陣列中
@@ -75,7 +75,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectVehicle "
+          "/apiServer/main/selectVehicle "
         );
         this.Vehicle = response.data.data;
       } catch (error) {
@@ -86,7 +86,7 @@ export default {
       try {
         // 發送 GET 請求到指定的 API
         const response = await axios.get(
-          "http://122.116.23.30:3347/main/selectAccount_sort"
+          "/apiServer/main/selectAccount_sort"
         );
         this.Bill = response.data.data;
       } catch (error) {

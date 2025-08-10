@@ -229,7 +229,7 @@ export default {
         id: selectedData.map((row) => row.id),
       };
       await axios
-        .post("http://122.116.23.30:3347/main/setDefnotify", processedData)
+        .post("/apiServer/main/setDefnotify", processedData)
         .then((response) => {
           if (response.data.returnCode === 0) {
             this.isLoading = false;
@@ -279,7 +279,7 @@ export default {
         createDate: this.selectedDate,
       };
       await axios
-        .post("http://122.116.23.30:3347/main/selectDefnotify", postdata)
+        .post("/apiServer/main/selectDefnotify", postdata)
         .then((response) => {
           if (response.data.data.length > 0) {
             this.AllCustomer = response.data.data;

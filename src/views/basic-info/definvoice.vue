@@ -405,7 +405,7 @@ export default {
             // 發送 GET 請求到指定的 API
             const postdata = row;
             const response = await axios.post(
-              "http://122.116.23.30:3347/finance/voidinvoice",
+              "/apiServer/finance/voidinvoice",
               postdata
             );
             await this.clink();
@@ -489,7 +489,7 @@ export default {
         // 發送 GET 請求到指定的 API
         const postdata = this.form;
         const response = await axios.post(
-          "http://122.116.23.30:3347/finance/issueinvoice",
+          "/apiServer/finance/issueinvoice",
           postdata
         );
         await this.clink();
@@ -575,7 +575,7 @@ export default {
     },
     async getcus() {
       await axios
-        .get("http://122.116.23.30:3347/main/selectCustomer")
+        .get("/apiServer/main/selectCustomer")
         .then((response) => {
           this.cusData = response.data.data;
           this.cusData = this.cusData.map(
@@ -610,7 +610,7 @@ export default {
         this.form.cus_name = "查詢中..";
         try {
           const response = await axios.post(
-            "http://122.116.23.30:3347/main/searchCustomer",
+            "/apiServer/main/searchCustomer",
             postData
           );
           this.form.cus_name = response.data.data[0].cus_name;
@@ -633,7 +633,7 @@ export default {
           customerId: customerId,
         };
         const response = await axios.post(
-          "http://122.116.23.30:3347/main/searchAccount_sort",
+          "/apiServer/main/searchAccount_sort",
           postdata
         );
         this.bill = response.data.data;
@@ -683,7 +683,7 @@ export default {
         };
         this.isLoading = true;
         await axios
-          .post("http://122.116.23.30:3347/finance/searchdefinvoice", postData)
+          .post("/apiServer/finance/searchdefinvoice", postData)
           .then((response) => {
             if (!Array.isArray(response.data.data)) {
               this.invoice = [];

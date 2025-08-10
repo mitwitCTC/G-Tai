@@ -136,7 +136,7 @@ methods: {
       "messageMail":this.email2
     }
     console.log(JSON.stringify(req))
-    await axios.post('http://122.116.23.30:3347/link/linkLine',req)
+    await axios.post('/apiServer/link/linkLine',req)
         .then(response => {
           if (response.status === 200 && response.data.returnCode === 0) {
             // 成功提示
