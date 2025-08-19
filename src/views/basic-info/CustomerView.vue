@@ -1184,7 +1184,7 @@ export default {
         console.log(JSON.stringify(postdataList))
         const requests = postdataList.map((postdata) =>
         
-          axios.post("http://122.116.23.30:3346/main/balanceInquiry", postdata)
+          axios.post("/main/balanceInquiry", postdata)
           
         );
         

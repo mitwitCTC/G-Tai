@@ -257,7 +257,7 @@ export default {
 
             try {
               const response = await axios.post(
-                "http://122.116.23.30:3346/main/accountStatement",
+                "/main/accountStatement",
                 postdata
               );
 
@@ -294,7 +294,7 @@ export default {
 
             try {
               const response = await axios.post(
-                "http://122.116.23.30:3346/main/accountDetails",
+                "/main/accountDetails",
                 postdata
               );
               // 如果查不到資料，移除該項目
@@ -485,7 +485,7 @@ export default {
       // 發送 API 請求獲取帳單資料
       try {
         const response = await axios.post(
-          "http://122.116.23.30:3346/main/accountStatement",
+          "/main/accountStatement",
           postData
         );
         this.DetaProduct = response.data.data.product;
@@ -580,7 +580,7 @@ export default {
         // 發送 API 請求獲取帳單資料
         try {
           const response = await axios.post(
-            "http://122.116.23.30:3346/main/accountStatement",
+            "/main/accountStatement",
             postData
           );
           this.Statement = response.data.data;
@@ -592,7 +592,7 @@ export default {
         // 發送 API 請求獲取帳單資料
         try {
           const response = await axios.post(
-            "http://122.116.23.30:3346/main/accountDetails",
+            "/main/accountDetails",
             postData
           );
           this.Details = response.data.data;
@@ -615,7 +615,7 @@ export default {
             customerId: customerId,
           };
           await axios
-            .post("http://122.116.23.30:3346/main/monthlyBalance ", postData)
+            .post("/main/monthlyBalance ", postData)
             .then((response) => {
               this.Balance = response.data.data[0];
             })
@@ -628,7 +628,7 @@ export default {
             cus_code: customerId,
           };
           await axios
-            .post("http://122.116.23.30:3346/main/collateralInfo", postData)
+            .post("/main/collateralInfo", postData)
             .then((response) => {
               this.collateral = response.data.data[0];
             })

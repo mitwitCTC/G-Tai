@@ -41,7 +41,7 @@
 
   <div style="margin-bottom: 50px"></div>
   <el-dialog
-    title="新增結果"
+    title="停用結果"
     v-model="dialogVehicle"
     width="90%"
     :close-on-click-modal="false"
@@ -182,8 +182,8 @@ export default {
                   "", // 酒精汽油
                   data.product_name === "0009" ? "V" : "", // 不限油品
                   data.product_name === "0017" ? "V" : "", // 尿素溶液
-                  "V", // 新增
-                  "", // 停用
+                  "", // 新增
+                  "V", // 停用
                   "", // 遺失
                   "", // 故障
                   "", // 原卡復油
@@ -288,8 +288,8 @@ export default {
                   "", // 酒精汽油
                   data.product_name === "0009" ? "V" : "", // 不限油品
                   data.product_name === "0017" ? "V" : "", // 尿素溶液
-                  "V", // 新增
-                  "", // 停用
+                  "", // 新增
+                  "V", // 停用
                   "", // 遺失
                   "", // 故障
                   "", // 原卡復油
@@ -392,19 +392,11 @@ export default {
           worksheet.getCell(`B${rowIndex}`).value = data.cpc_account || "";
           worksheet.getCell(`C${rowIndex}`).value = data.cpc_account || "";
           worksheet.getCell(`D${rowIndex}`).value = data.customerId || "";
-          worksheet.getCell(`E${rowIndex}`).value =
-            data.card_type == 1
-              ? "0017"
-              : data.card_type == 2
-              ? "0006"
-              : data.card_type == 3
-              ? "0001"
-              : ""; // 預設為空字串，如果沒有匹配
+          worksheet.getCell(`E${rowIndex}`).value = data.product_name;
           worksheet.getCell(`F${rowIndex}`).value = "C";
           worksheet.getCell(`H${rowIndex}`).value = 7;
-          worksheet.getCell(`I${rowIndex}`).value = data.card_number;
-          worksheet.getCell(`J${rowIndex}`).value =
-            data.card_status == "5" ? "" : data.card_status == "3" ? "C" : "";
+          worksheet.getCell(`I${rowIndex}`).value = data.card_number || "";;
+          worksheet.getCell(`J${rowIndex}`).value ="C" ;
           worksheet.getCell(`K${rowIndex}`).value = data.license_plate;
           worksheet.getCell(`O${rowIndex}`).value = "A";
           worksheet.getCell(`P${rowIndex}`).value = 0;
@@ -414,7 +406,7 @@ export default {
           worksheet.getCell(`T${rowIndex}`).value = "N";
           worksheet.getCell(`U${rowIndex}`).value = "N";
           worksheet.getCell(`V${rowIndex}`).value =
-            data.card_type == 2 ? "Y" : data.card_type == 3 ? "N" : ""; // 預設為空字串，如果沒有匹配
+            data.product_name == "0006" ? "Y" : "N"; // 預設為空字串，如果沒有匹配
           worksheet.getCell(`W${rowIndex}`).value = "N";
         });
         // 生成下載鏈接並觸發下載
@@ -514,26 +506,26 @@ export default {
       this.isLoading = true;
       const selectedData = this.excelData.filter((row) => row.selected);
       // 建立一個 Set 來儲存已出現的車號
-      const plateSet = new Set();
-      let hasDuplicatePlate = false;
+      // const plateSet = new Set();
+      // let hasDuplicatePlate = false;
 
-      for (const row of selectedData) {
-        const plate = row.車號; // 替換為實際的車號欄位名稱
-        if (plateSet.has(plate)) {
-          hasDuplicatePlate = true;
-          break;
-        } else {
-          plateSet.add(plate);
-        }
-      }
+      // for (const row of selectedData) {
+      //   const plate = row.車號; // 替換為實際的車號欄位名稱
+      //   if (plateSet.has(plate)) {
+      //     hasDuplicatePlate = true;
+      //     break;
+      //   } else {
+      //     plateSet.add(plate);
+      //   }
+      // }
 
-      if (hasDuplicatePlate) {
-        this.$message({
-          message: "選取的資料中有重複車號，請檢查！",
-          type: "warning",
-        });
-        return; // 停止後續流程
-      }
+      // if (hasDuplicatePlate) {
+      //   this.$message({
+      //     message: "選取的資料中有重複車號，請檢查！",
+      //     type: "warning",
+      //   });
+      //   return; // 停止後續流程
+      // }
       const processedData = selectedData.map((row) => ({
         customerId: row["客戶代號"],
         cus_name: row["客戶名稱"],
@@ -542,19 +534,19 @@ export default {
         card_number: row["卡號"],
         cpc_account: row["中油帳號"],
       }));
-      this.Allexport = processedData;
-      console.log(JSON.stringify(this.Allexport))
+      // this.Allexport = processedData;
+      // console.log(JSON.stringify(this.Allexport))
       // await this.exportExcel();
       try {
-        // 發送 GET 請求到指定的 API
-        // const response = await axios.post(
-        //   "/apiServer/main/insertVehicle",
-        //   processedData
-        // );
-        // this.Allexport = response.data.data.plate;
-        // this.Unexport = response.data.data.Unplate;
-        // await this.export_OLD_Excel();
-        // await this.exportExcel();
+       // 發送 GET 請求到指定的 API
+        const response = await axios.post(
+          "/apiServer/main/insertVehicle_del",
+          processedData
+        );
+        this.Allexport = response.data.data.plate;
+        this.Unexport = response.data.data.Unplate;
+        await this.export_OLD_Excel();
+        await this.exportExcel();
         this.dialogVehicle = true;
       } catch (error) {
         console.error("Error fetching customer data:", error);

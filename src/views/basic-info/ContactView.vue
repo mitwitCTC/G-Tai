@@ -65,7 +65,7 @@
           <div class="action-icons">
             <!-- <i class="fas fa-eye " @click="viewDetails(scope.row)"></i> -->
             <i class="fas fa-edit" @click="editItem(scope.row)"></i>
-            <!-- <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i> -->
+            <i class="fa-solid fa-trash-can"  @click="deleteItem(scope.row)"></i>
           </div>
         </template>
       </el-table-column>
@@ -233,6 +233,40 @@ export default {
     },
   },
   methods: {
+    async deleteItem(row) {
+      const result = confirm("您確定要刪除此項目嗎？此操作無法恢復。");
+      if (result) {
+        const req = {
+          contactId: row.contactId,
+        };
+        await axios
+          .post("/apiServer/main/deleteContact", req)
+          .then((response) => {
+            if (response.status === 200 && response.data.returnCode === 0) {
+              // 成功提示
+              this.$message({
+                message: "刪除成功",
+                type: "success",
+              });
+              this.getselectData();
+            } else {
+              // 處理非 0 成功代碼
+              this.$message({
+                message: "刪除失敗",
+                type: "error",
+              });
+            }
+          })
+          .catch((error) => {
+            // 發生錯誤時，顯示錯誤提示
+            this.$message({
+              message: "刪除失敗，伺服器錯誤",
+              type: "error",
+            });
+            console.error("Error:", error);
+          });
+      }
+    },
     validatePhone(value) {
       // 僅保留數字，限制最大長度 10
       this.form.mobile = value.replace(/\D/g, "").slice(0, 10);

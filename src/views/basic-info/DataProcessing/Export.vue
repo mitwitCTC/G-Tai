@@ -490,7 +490,6 @@ export default {
           time
         );
         this.result = response.data.data;
-        console.log(JSON.stringify(this.result));
       } catch (error) {
         console.error("API 請求失敗：" + error);
       }
@@ -705,6 +704,81 @@ export default {
         this.excelFile = file; // 保存文件對象
       }
     },
+    async exportExcel() {
+      try {
+        // 確保資料先完成取得
+        const workbook = new ExcelJS.Workbook();
+        const fr = new FileReader();
+        const response = await fetch(
+          new URL("@/assets/大批製卡檔新增.xlsx", import.meta.url).href
+        );
+        const data = await response.blob(); // 轉為 Blob
+        // 等待 FileReader onload 完成
+        const arrayBuffer = await new Promise((resolve, reject) => {
+          const fr = new FileReader();
+          fr.onload = (ev) => resolve(ev.target.result); // 當完成時，resolve 結果
+          fr.onerror = (err) => reject(err); // 發生錯誤時，reject 錯誤
+          fr.readAsArrayBuffer(data);
+        });
+        // 使用 arrayBuffer 讀取 Excel
+        await workbook.xlsx.load(arrayBuffer);
+        const worksheet = workbook.worksheets[0]; // 取得第一個工作表
+        // 開始填充資料
+        this.result.forEach((data, index) => {
+          const rowIndex = index + 2; // 從 A2 開始
+          const plate = data.license_plate;
+          // 先檢查有沒有 "-"
+          if (!plate.includes("-")) {
+            const firstChar = plate.charAt(0).toUpperCase(); // 轉成大寫，避免大小寫差異
+            let valueToWrite;
+
+            if (firstChar == "E") {
+              valueToWrite = "E";
+            } else if (firstChar == "T") {
+              valueToWrite = "T";
+            } else {
+              valueToWrite = "未知";
+            }
+            worksheet.getCell(`G${rowIndex}`).value = valueToWrite;
+          } else {
+            worksheet.getCell(`G${rowIndex}`).value = "B";
+          }
+          worksheet.getCell(`A${rowIndex}`).value =
+          data.upload_reason === "新增" ? "N" :
+          data.upload_reason === "停用" ? "U" : "";
+          worksheet.getCell(`B${rowIndex}`).value = data.cpc_account || "";
+          worksheet.getCell(`C${rowIndex}`).value = data.cpc_account || "";
+          worksheet.getCell(`D${rowIndex}`).value = data.customerId || "";
+          worksheet.getCell(`E${rowIndex}`).value = data.product_name || "";
+          worksheet.getCell(`F${rowIndex}`).value = "C";
+          worksheet.getCell(`H${rowIndex}`).value = 7;
+          worksheet.getCell(`I${rowIndex}`).value = data.card_number || "";
+          worksheet.getCell(`K${rowIndex}`).value = data.license_plate || "";
+          worksheet.getCell(`O${rowIndex}`).value = "A";
+          worksheet.getCell(`P${rowIndex}`).value = 0;
+          worksheet.getCell(`Q${rowIndex}`).value = 0;
+          worksheet.getCell(`R${rowIndex}`).value = "Y";
+          worksheet.getCell(`S${rowIndex}`).value = "N";
+          worksheet.getCell(`T${rowIndex}`).value = "N";
+          worksheet.getCell(`U${rowIndex}`).value = "N";
+          if (data.product_name == "0006") {
+            worksheet.getCell(`V${rowIndex}`).value = "Y";
+          } else {
+            worksheet.getCell(`V${rowIndex}`).value = "N";
+          }
+          worksheet.getCell(`W${rowIndex}`).value = "N";
+        });
+        // 生成下載鏈接並觸發下載
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/octet-stream" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `大批製卡檔.xlsx`; // 設定下載檔案名
+        link.click();
+      } catch (error) {
+        console.error("Error during export to Excel:", error);
+      }
+    },
     // 匯出 Excel
     async exportToExcel() {
       const result = confirm("此動作無法返回，請確認是否匯出");
@@ -718,9 +792,10 @@ export default {
         }
         try {
           // 確保資料先完成取得
+          this.result=[];
           await this.getResult();
+          await this.exportExcel();
           const rowsPerFile = 20;
-
           // 將資料切割成每 20 筆為一組
           const chunkArray = (arr, size) => {
             const result = [];
