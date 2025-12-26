@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2 v-if="this.rowType === '1'">客戶基本資料編輯</h2>
     <h2 v-else-if="this.rowType === '2'">聯絡人資料編輯</h2>

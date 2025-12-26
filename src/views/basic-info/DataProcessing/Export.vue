@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2>{{ pageTitle }}</h2>
   </div>
@@ -16,12 +16,12 @@
     <el-option label="TT6112061" :value="'TT6112061'"></el-option>
     <el-option label="42993157(諾瓦帳號)" :value="'42993157'"></el-option>
   </el-select>
-  
+
   <br />
   <el-button type="primary" @click="dialogtrue()" style="margin-top: 20px"
     >新增</el-button
   >
-  
+
   <!-- <input type="file" @change="handleFileChange" /> -->
   <el-table :data="paginatedDiscount" style="width: 100%" v-loading="loading">
     <el-table-column prop="cpc_account" label="中油帳號" width="100" />
@@ -96,7 +96,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="*客戶名稱">
-          <el-input v-model="form.cus_name" readonly></el-input>
+          <el-input v-model="form.cus_name" readonly style="width: 300px; margin-right: 20px"></el-input>
+        </el-form-item>
+        <el-form-item label="是否辦過諾瓦卡">
+          <el-checkbox v-model="form.isnova" disabled />
         </el-form-item>
       </el-row>
       <el-row style="margin-bottom: 20px">
@@ -110,7 +113,7 @@
             <!-- <el-option label="0002 92無鉛汽油" :value="'0002'"></el-option>
             <el-option label="0005 98無鉛汽油" :value="'0005'"></el-option> -->
             <el-option label="0006 超級柴油" :value="'0006'"></el-option>
-            <el-option label="0017 尿素溶液" :value="'0017'"></el-option>
+            <!-- <el-option label="0017 尿素溶液" :value="'0017'"></el-option> -->
           </el-select>
         </el-form-item>
         <el-form-item label="*車號">
@@ -302,7 +305,7 @@
       class="pagination"
     />
   </div>
-  <el-button @click="exportToExcel" >匯出</el-button>
+  <el-button @click="exportToExcel">匯出</el-button>
   <el-dialog
     v-model="isLoading"
     width="15%"
@@ -359,6 +362,7 @@ export default {
         card_stop_date: "",
         deleteTime: "",
         titleplent: "",
+        isnova:false
       },
       currentPage: 1,
       pageSize: 10,
@@ -496,9 +500,7 @@ export default {
     },
     async getRecorded() {
       this.loading = true; // 開始加載
-      const response = await axios.get(
-        "/apiServer/main/getRecordedVehicle"
-      );
+      const response = await axios.get("/apiServer/main/getRecordedVehicle");
       try {
         this.Recorded = response.data.data; // 更新 Recorded
         this.filteredRecorded = this.Recorded; // 設置 filteredRecorded 為 Recorded 的內容
@@ -593,9 +595,7 @@ export default {
           let vehicleFound = false;
           this.isLoading = true; // 請求開始，顯示 loading 標示
           this.form.state = "判斷中...";
-          const response = await axios.get(
-            "/apiServer/main/selectVehicle"
-          );
+          const response = await axios.get("/apiServer/main/selectVehicle");
           this.allVehicle = response.data.data;
           for (const vehicle of this.allVehicle) {
             if (vehicle.license_plate === this.form.license_plate) {
@@ -645,7 +645,8 @@ export default {
       }
     },
 
-    getdata() {
+    async getdata() {
+      this.form.isnova=false
       this.form.card_number = "";
       this.form.account_sortId = "";
       this.form.license_plate = "";
@@ -696,6 +697,19 @@ export default {
             console.error("API request failed:", error);
           });
       }
+      try {
+        this.isLoading = true;
+        const response = await axios.post("/apiServer/main/selectnova", {
+          customerId: this.form.cus_code,
+        });
+        if (response.data.data > 0) {
+          this.form.isnova=true
+        }
+      } catch {
+        console.error("Error fetching customer data:", error);
+      } finally {
+        this.isLoading = false; // 請求完成後關閉加載狀態
+      }
     },
     handleFileChange(event) {
       // 獲取選擇的文件
@@ -744,15 +758,38 @@ export default {
             worksheet.getCell(`G${rowIndex}`).value = "B";
           }
           worksheet.getCell(`A${rowIndex}`).value =
-          data.upload_reason === "新增" ? "N" :
-          data.upload_reason === "停用" ? "U" : "";
+            data.upload_reason === "新增"
+              ? "N"
+              : data.upload_reason === "遺失"
+              ? "U"
+              : data.upload_reason === "故障"
+              ? "U"
+              : data.upload_reason === "原卡復油"
+              ? "U"
+              : data.upload_reason === "停用"
+              ? "U"
+              : "";
           worksheet.getCell(`B${rowIndex}`).value = data.cpc_account || "";
           worksheet.getCell(`C${rowIndex}`).value = data.cpc_account || "";
           worksheet.getCell(`D${rowIndex}`).value = data.customerId || "";
-          worksheet.getCell(`E${rowIndex}`).value = data.product_name || "";
+          // worksheet.getCell(`E${rowIndex}`).value = data.product_name || "";
+          worksheet.getCell(`E${rowIndex}`).value =
+            data.card_type == "2"
+              ? "0006"
+              : data.card_type == "3"
+              ? "0001"
+              : "";
           worksheet.getCell(`F${rowIndex}`).value = "C";
           worksheet.getCell(`H${rowIndex}`).value = 7;
           worksheet.getCell(`I${rowIndex}`).value = data.card_number || "";
+          worksheet.getCell(`J${rowIndex}`).value =
+            data.upload_reason === "遺失"
+              ? "L"
+              : data.upload_reason === "故障"
+              ? "Q"
+              : data.upload_reason === "停用"
+              ? "C"
+              : "";
           worksheet.getCell(`K${rowIndex}`).value = data.license_plate || "";
           worksheet.getCell(`O${rowIndex}`).value = "A";
           worksheet.getCell(`P${rowIndex}`).value = 0;
@@ -761,7 +798,7 @@ export default {
           worksheet.getCell(`S${rowIndex}`).value = "N";
           worksheet.getCell(`T${rowIndex}`).value = "N";
           worksheet.getCell(`U${rowIndex}`).value = "N";
-          if (data.product_name == "0006") {
+          if (data.card_type == "2") {
             worksheet.getCell(`V${rowIndex}`).value = "Y";
           } else {
             worksheet.getCell(`V${rowIndex}`).value = "N";
@@ -792,7 +829,7 @@ export default {
         }
         try {
           // 確保資料先完成取得
-          this.result=[];
+          this.result = [];
           await this.getResult();
           await this.exportExcel();
           const rowsPerFile = 20;
@@ -1000,8 +1037,9 @@ export default {
       this.currentPage = page;
     },
     dialogtrue() {
-      this.dialog = true;
+      this.selectcards = [];
       this.bills = [];
+      this.dialog = true;
     },
   },
 };

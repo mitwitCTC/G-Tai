@@ -139,7 +139,7 @@ export default {
     },
     discountInfo() {
       return {
-        product_name: '油品名稱',
+        product_name: '產品名稱',
         supplier_name: '廠商名稱',
         discount: '折讓',
         responsible_person: '負責業務',

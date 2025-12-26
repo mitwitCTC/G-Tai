@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ListBar />
+     <!-- <ListBar /> -->
     <div class="page-title"><h2>{{ pageTitle }}</h2></div>
     <div>
       <BreadCrumb :isSpecialPage="true" />

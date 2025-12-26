@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ListBar />
+     <!-- <ListBar /> -->
     <div class="page-title">
       <h2>{{ pageTitle }}</h2>
     </div>
@@ -403,10 +403,10 @@ export default {
       worksheet.getCell(`I${rowNum}`).value = summaryData.subtotal || 0; // 插入原價小計
       worksheet.getCell(`J${rowNum}`).value = summaryData.mileage || 0; // 插入實際小計
     },
-    // 根據油品名稱分組
+    // 根據產品名稱分組
     groupByProduct(data) {
       const products = [...new Set(data.map((item) => item.fuel_type.trim()))];
-      // 根據去除空格的油品名稱進行分組
+      // 根據去除空格的產品名稱進行分組
       return products.map((product) => ({
         fuel_type: product,
         data: data.filter((item) => item.fuel_type.trim() === product),
@@ -432,7 +432,7 @@ export default {
           // 計算小計
           const subtotal = group.data.reduce(
             (acc, item) => ({
-              fuel_type: item.fuel_type, // 顯示油品名稱
+              fuel_type: item.fuel_type, // 顯示產品名稱
               fuel_volume: acc.fuel_volume + Number(item.fuel_volume),
               reference_amount:
                 acc.reference_amount + Number(item.reference_amount),
@@ -454,7 +454,7 @@ export default {
             license_plate: "小計",
             trade_time: "",
             station_name: "",
-            fuel_type: subtotal.fuel_type, // 油品名稱
+            fuel_type: subtotal.fuel_type, // 產品名稱
             reference_price: "", // 不顯示單價
             fuel_volume: subtotal.fuel_volume, // 顯示油量的總計
             discount: "", // 折讓不顯示

@@ -3,6 +3,7 @@ import HomeView from "../views/HomeView.vue";
 import AccessControl from "@/views/basic-info/AccessControl.vue";
 import monthaccount from "@/views/basic-info/monthaccount.vue";
 import Cookies from "js-cookie";
+import axios from "axios";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,15 +12,15 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView,
-      meta: { requireAuth: true }
+      meta: { requireAuth: true },
     },
     {
       path: "/login",
       name: "login",
       component: () => import("@/views/basic-info/login.vue"),
-      meta: { clearCookies: true }
+      meta: { clearCookies: true },
     },
-   
+
     {
       path: "/basic-info",
       name: "basic-info",
@@ -31,8 +32,7 @@ const router = createRouter({
         {
           path: "test",
           name: "測",
-          component: () =>
-            import("@/views/basic-info/test.vue"),
+          component: () => import("@/views/basic-info/test.vue"),
           meta: {
             title: "測",
             breadcrumb: "測",
@@ -47,6 +47,7 @@ const router = createRouter({
             title: "客戶資料維護",
             breadcrumb: "客戶資料維護",
             isSpecialPage: true,
+            requiredPermission: [99],
           },
         },
         {
@@ -57,6 +58,17 @@ const router = createRouter({
             title: "切換客代帳號",
             breadcrumb: "切換客代帳號",
             isSpecialPage: true,
+          },
+        },
+        {
+          path: "export_data",
+          name: "報表匯出",
+          component: () => import("@/views/basic-info//export_data.vue"),
+          meta: {
+            title: "報表匯出",
+            breadcrumb: "報表匯出",
+            isSpecialPage: true,
+            // requiredPermission: ["Chimin Tasi"], // 權限或特定員工
           },
         },
         {
@@ -200,6 +212,7 @@ const router = createRouter({
             title: "供應權限管理商資料",
             breadcrumb: "供應權限管理商資料",
             isSpecialPage: false,
+            requireAuth: false,
           },
         },
         {
@@ -327,7 +340,7 @@ const router = createRouter({
             isData: true,
           },
         },
-        
+
         {
           path: "cpctrade",
           name: "中油交易",
@@ -372,42 +385,68 @@ const router = createRouter({
     },
   ],
 });
-router.beforeEach((to, from, next) => {
-  // 如果目標路由有 `clearCookies` 設定，清除 login
+
+router.beforeEach(async (to, from, next) => {
+  // 如果目標路由有 clearCookies 設定，清除 login
+  if (to.meta.requireAuth === false) {
+    return next();
+  }
   if (to.meta.clearCookies) {
     Cookies.remove("login");
   }
-
   // 取得 Cookies 中的 login 資訊
   const info = Cookies.get("login");
-  let userPermissions = null; // 用來存放使用者的權限資料
+  let userPermissions = []; // 用來存放使用者的權限資料
   let token = null;
-
+  let salesmanId;
   if (info) {
     try {
       const parsedInfo = JSON.parse(info);
-      console.log(JSON.stringify(info))
       token = parsedInfo.token; // 取得 token
-      userPermissions = parsedInfo.permissions || []; // 取得權限 (假設是陣列)
+      salesmanId = parsedInfo.salesmanId;
+      userPermissions.push(parsedInfo.salesmanId);
     } catch (error) {
       console.error("解析 Cookies 錯誤", error);
     }
-  }
-
-  // 需要登入才能訪問的頁面
+  } //需要登入才能訪問的頁面
   if (to.meta.requireAuth) {
-    // if (!token) {
-    //   return next({ name: "login" }); // 若沒有 token，導向登入頁
+    if (!token) {
+      return next({ name: "login" }); // 若沒有 token，導向登入頁
+    }
+  } // 判斷是否需要登入
+
+  const needAuth =
+    to.matched.some((record) => record.meta.requireAuth) ||
+    to.path.startsWith("/basic-info");
+  if (needAuth && !token) {
+    return next({ name: "login" });
+  } // **檢查特定頁面的權限**
+  if (to.meta.requiredPermission) {
+    const required = Array.isArray(to.meta.requiredPermission)
+      ? to.meta.requiredPermission
+      : [to.meta.requiredPermission];
+    const hasPermission = required.some((p) => userPermissions.includes(p));
+    if (!hasPermission) {
+      return next({ name: "login" });
+    }
+    // try {
+    //   // 透過 API 取得使用者權限
+    //   const postdata = {
+    //     salesmanId: salesmanId,
+    //   };
+    //   console.log(postdata);
+    //   const response = await axios.post(
+    //     "http://127.0.0.1:3347/main/getroute",
+    //     postdata
+    //   );
+    //   const userPermissions = response.data.accTrade; // 假設 API 回傳 [14, 15, ...]
+    //   console.log(userPermissions);
+    // } catch (error) {
+    //   console.error("取得權限失敗", error);
+    //   return next({ name: "login" }); // API 錯誤導向登入
     // }
   }
-
-  // **檢查特定頁面的權限**
-  if (to.meta.requiredPermission) {
-    if (!userPermissions || !userPermissions.includes(to.meta.requiredPermission)) {
-      return next({ name: "unauthorized" }); // 如果沒有對應權限，導向未授權頁面
-    }
-  }
-
-  next(); // 允許導航
+  next();
+  // 允許導航
 });
 export default router;

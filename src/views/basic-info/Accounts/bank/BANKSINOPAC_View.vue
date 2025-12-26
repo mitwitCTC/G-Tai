@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2>{{ pageTitle }}</h2>
   </div>
@@ -106,7 +106,7 @@
     <div class="pagination-container">
       <div class="pagination-info">
         Showing {{ startItem }} to {{ endItem }} of
-        {{ filteredBankData.length }}
+        {{ filteredBankData.length-1 }}
       </div>
       <el-pagination
         @current-change="handlePageChange"
@@ -495,7 +495,9 @@ export default {
           type: "error",
         });
       }
-      this.form.credit_amount = this.form.credit_amount.replace(/\D/g, "");
+      this.form.credit_amount = this.form.credit_amount
+  .replace(/[^\d-]/g, "")      // 先移掉不是數字和負號的東西
+  .replace(/(?!^)-/g, "");     // 再把不是開頭的 `-` 移掉
       this.form.handling_fee = Math.round(
         this.form.credit_amount * this.form.credit_percent
       );
@@ -776,6 +778,7 @@ export default {
     //   },
     formatCurrency(value) {
       if (!value) return "0";
+      //if (value === null || value === undefined) return "0";
       return Number(value).toLocaleString(); // 使用 toLocaleString 進行千分位格式化
     },
     async getcusdata() {

@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2>{{ pageTitle }}</h2>
   </div>
@@ -101,6 +101,7 @@
         </template></el-table-column
       >
       <el-table-column prop="remark" label="備註" width="150"></el-table-column>
+      <el-table-column prop="remark_cus" label="備註(客戶端)" width="150"></el-table-column>
       <el-table-column
         prop="checkoutTime"
         label="儲值入帳"
@@ -282,9 +283,12 @@
       <el-form-item label="備註">
         <el-input v-model="form.remark"></el-input>
       </el-form-item>
+      <el-form-item label="備註(客戶端)">
+        <el-input v-model="form.remark_cus"></el-input>
+      </el-form-item>
       <el-row style="margin-bottom: 20px">
         <el-form-item label="系統入帳金額">
-          <el-input v-model="form.amount"></el-input>
+          <el-input v-model="form.amount" @input="formatamount"></el-input>
         </el-form-item>
       </el-row>
     </el-form>
@@ -350,6 +354,11 @@ export default {
     },
   },
   methods: {
+    formatamount() {
+
+      this.form.amount = this.form.amount.replace(/[^\d-]/g, "").replace(/(?!^)-/g, "");// 先移掉不是數字和負號的東西 // 再把不是開頭的 `-` 移掉
+   
+    },
     async debitAccount() {
       try {
         // 發送 GET 請求到指定的 API
@@ -513,6 +522,7 @@ export default {
             this.form.account_date = "";
             (this.form.account_time = ""), (this.form.amount = "");
             this.form.remark = "";
+            this.form.remark_cus = "";
             this.form.credit_card_data = "";
             // 關閉對話框
             this.dialog = false;

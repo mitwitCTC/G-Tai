@@ -1,7 +1,8 @@
 <template>
-  <ListBar />
-  <h1>{{ text }}</h1>
+   <!-- <ListBar /> -->
+   <h1>{{ text }}</h1>
   <el-form-item label="當日排程" class="section-header">
+    
     <div class="table-container">
       <div v-if="!data || data.length === 0">
         今日尚無執行排程紀錄

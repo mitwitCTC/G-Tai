@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2 v-if="this.rowType === '1'">客戶基本資料查詢</h2>
     <h2 v-else-if="this.rowType === '3'">帳單資料查詢</h2>
@@ -409,7 +409,7 @@
               :formatter="formatType"
               width="300"
             />
-            <el-table-column prop="product_name" label="油品名稱" width="350"
+            <el-table-column prop="product_name" label="產品名稱" width="350"
               ><template v-slot="scope"
                 >{{ formatProduct(scope.row.product_name) }}
               </template></el-table-column
@@ -505,7 +505,7 @@
             style="width: 100%"
             v-loading="loading"
           >
-            <el-table-column prop="product_name" label="油品名稱" width="700"
+            <el-table-column prop="product_name" label="產品名稱" width="700"
               ><template v-slot="scope"
                 >{{ formatProduct(scope.row.product_name) }}
               </template></el-table-column
@@ -669,7 +669,7 @@
 
       <!-- 折讓資料 -->
       <!-- <el-form-item label="折讓資料" class="section-header" v-if="this.rowType==='4'" >
-        <el-form-item label="油品名稱">
+        <el-form-item label="產品名稱">
           <el-input v-model="form.product_name" readonly></el-input>
         </el-form-item>
         <el-form-item label="廠商名稱">
@@ -691,7 +691,7 @@
         <el-form-item label="車輛型態">
           <el-input v-model="form.vehicle_type" readonly></el-input>
         </el-form-item>
-        <el-form-item label="油品名稱">
+        <el-form-item label="產品名稱">
           <el-input v-model="form.product_name" readonly></el-input>
         </el-form-item>
         <el-form-item label="卡號">

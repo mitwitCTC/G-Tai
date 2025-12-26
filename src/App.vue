@@ -1,14 +1,20 @@
 <template>
+  
    <div v-if="isLogin" class="login-container">
     <RouterView />
   </div>
-  <div v-if="!isAccessControlPage && !isLogin" class="container-fluid">
+
+  <div v-if="!isAccessControlPage && !isLogin" class="container-fluid"  :class="{ 'sidebar-collapsed': !sidebarOpen }">
+    <ListBar  @toggle-sidebar="sidebarOpen = $event" v-if="sidebarOpen"/>
+    <button @click="sidebarOpen=true" v-if="sidebarOpen==false" class="intor">展開選單▶</button>
+    <!-- <div>sidebarOpen: {{ sidebarOpen }}</div> -->
     <div class="non-desktop-message">只支援解析度1024px電腦瀏覽</div>
     <div class="content">
       <RouterView />
-      <TheFooter class="footer"></TheFooter>
+      
     </div>
   </div>
+  <TheFooter class="footer"></TheFooter>
 
   <div v-if="isAccessControlPage">
     <RouterView />
@@ -19,13 +25,15 @@
 
 <script>
 import TheFooter from '@/components/TheFooter.vue'
+import ListBar from "@/components/ListBar.vue";
 export default {
   components: {
-    TheFooter
+    TheFooter,ListBar
   },
   data() {
     return {
       text: "首頁 ",
+      sidebarOpen: true,
     };
   },
   computed: {
@@ -41,6 +49,14 @@ export default {
 </script>
 
 <style scoped>
+  .intor{
+    margin-bottom:10px;
+  }
+   
+  .container-fluid.sidebar-collapsed {
+  margin-left: 50px;
+
+}
 .login-container {
   display: flex;
   justify-content: center;  /* 水平置中 */
@@ -55,7 +71,7 @@ export default {
   text-align: center;      /* 讓內部文字或 inline-block 元素置中 */
 }
 .container-fluid {
-  margin-left: 250px;
+  margin-left: 200px;
   padding-top: 20px;
   max-width: 1600px; 
   position: relative; /* 为了 footer 能够固定在页面底部 */
@@ -68,6 +84,7 @@ export default {
   background-color: #f8f9fa; /* 可以设置背景颜色 */
   padding: 10px; /* 内边距 */
   margin-top: 50px;
+  margin-left: 250px;
 }
 
 /* 默认隐藏非桌面设备消息 */

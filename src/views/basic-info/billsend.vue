@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2>{{ pageTitle }}</h2>
   </div>
@@ -19,14 +19,14 @@
     />
     <el-button
       type="primary"
-      v-if="one_month_check && one_month_check.endTime == '0'"
+      v-if="Object.keys(one_month_check).length > 0 && one_month_check.endTime == '0'"
       style="margin-left: 10px"
       @click="updateTime()"
       >確認寄送名單</el-button
     >
     <el-button
       type="success"
-      v-if=" search_month && check != '30'"
+      v-if=" Object.keys(one_month_check).length > 0 && search_month && check != '30'"
       style="margin-left: 10px"
       @click="changesystemwork('30')"
       >確認特殊寄送名單</el-button
@@ -258,14 +258,36 @@ export default {
       // }
       try {
         // 組合 mail[] 和 line[] 並篩選 sendType == 0 的資料
-        const filtered = [...(this.mail || []), ...(this.line || [])].filter(
-          (item) => item.sendType === type
-        );
-          await axios.post(
-                "/apiServer/finance/updatesend",
-                filtered
-              );
-        console.log("所有 API 請求完成:", JSON.stringify(filtered));
+        const filtered = [...(this.mail || []), ...(this.line || [])].filter((item) => item.sendType == type)
+    .map(({ id, sendMod, farewell, cus_name, customerId }) => ({
+      id,
+      sendMod,
+      farewell,
+      cus_name,
+      customerId
+    }));
+        //   await axios.post(
+        //         "/apiServer/finance/updatesend",
+        //         filtered
+        //       );
+        // console.log("所有 API 請求完成:", JSON.stringify(filtered));
+          // 分批切塊函式
+  const chunkArray = (array, size) => {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  };
+
+  const chunks = chunkArray(filtered, 300); // 每次 100 筆
+
+  for (const [index, chunk] of chunks.entries()) {
+    await axios.post("/apiServer/finance/updatesend", chunk);
+    console.log(`第 ${index + 1} 批 API 請求完成:`);
+  }
+
+  console.log("所有 API 請求完成");
       } catch (error) {
         console.error("Error updating bill:", error);
       }
@@ -324,6 +346,7 @@ export default {
         3: "傳送失敗",
         4: "檔案太多需手動發送",
         6: "找無檔案發送",
+        999: "特殊發送未設定",
       };
       return statusMap[type] || "未知狀態";
     },
@@ -335,6 +358,7 @@ export default {
         3: "danger", // 紅色
         4: "danger", // 紅色
         6: "danger", // 紅色
+        999: "info", // 灰色
       };
       return tagMap[type] || "info";
     },

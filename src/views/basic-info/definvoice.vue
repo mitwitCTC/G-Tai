@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2>{{ pageTitle }}</h2>
   </div>
@@ -140,6 +140,7 @@
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
           placeholder="開立日期"
+          :disabled-date="disabledDate"
         />
       </el-form-item>
     </el-row>
@@ -277,6 +278,7 @@
 
 <script>
 import ListBar from "@/components/ListBar.vue";
+import dayjs from "dayjs";
 import BreadCrumb from "@/components/BreadCrumb.vue";
 import axios from "axios";
 import Exportinvoice from "@/components/Exportinvoice.vue";
@@ -294,6 +296,8 @@ const initialFormState = {
     },
   ],
 };
+
+
 export default {
   components: {
     BreadCrumb,
@@ -324,6 +328,7 @@ export default {
       TotalAmount: 0,
     };
   },
+  
   created() {
     this.isLoading = true;
     this.getcus();
@@ -395,6 +400,15 @@ export default {
     },
   },
   methods: {
+     // 這裡放 disabledDate
+     disabledDate(time) {
+      const today = new Date();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(today.getDate() - 7);
+
+      // 回傳 true 的日期會被禁用
+      return time > today || time < sevenDaysAgo;
+    },
     async Void(row) {
       const result = confirm("此動作無法返回，請確認是否作廢");
       if (result) {
@@ -493,11 +507,19 @@ export default {
           postdata
         );
         await this.clink();
-        this.$message({
+        if(response.data.returnCode===0){
+          this.$message({
           message: "新增成功",
           type: "success",
         });
         this.dialog = false;
+        }else if(response.data.returnCode===400){
+          this.$message({
+          message: "發票號碼錯誤",
+          type: "warning",
+        });
+        }
+        
       } catch (error) {
         if (error.response && error.response.data.returnCode === 400) {
           this.$message({

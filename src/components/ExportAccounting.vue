@@ -173,16 +173,20 @@ export default {
         });
         worksheet.getRow(totalAmountRow).height = 25; // 高度設為 25
         let lastRow = totalAmountRow + 3;
-        worksheet.getCell(`A${lastRow}`).value = "總經理：";
-        worksheet.getCell(`C${lastRow}`).value = "執行長：";
-        worksheet.getCell(`E${lastRow}`).value = "覆核：";
-        worksheet.getCell(`G${lastRow}`).value = "製表：";
-        const cells = [`C${lastRow}`, `G${lastRow}`];
-        cells.forEach((cellAddress) => {
-          const cell = worksheet.getCell(cellAddress);
-          cell.alignment = { horizontal: "center", vertical: "middle" }; // 水平居中，垂直居中
-        });
-        worksheet.getCell(`C${lastRow}`).alignment = { horizontal: "right", vertical: "middle" };
+          worksheet.getCell(`A${lastRow}`).value = "總經理：";
+          worksheet.getCell(`C${lastRow}`).value = "特助：";
+          worksheet.getCell(`D${lastRow}`).value = "執行長：";
+          worksheet.getCell(`F${lastRow}`).value = "覆核：";
+          worksheet.getCell(`G${lastRow}`).value = "製表：";
+          const cells = [`C${lastRow}`,`D${lastRow}`,`G${lastRow}`];
+          cells.forEach((cellAddress) => {
+            const cell = worksheet.getCell(cellAddress);
+            cell.alignment = { horizontal: "center", vertical: "middle" }; // 水平居中，垂直居中
+          });
+          // worksheet.getCell(`E${lastRow}`).alignment = {
+          //   horizontal: "right",
+          //   vertical: "middle",
+          // };
         worksheet.getColumn(1).width = 12;
         worksheet.getColumn(3).width = 32;
         worksheet.getColumn(4).width = 37;

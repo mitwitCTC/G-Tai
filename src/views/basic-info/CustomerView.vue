@@ -1,6 +1,7 @@
 <template>
   <div>
-    <ListBar />
+   <!-- <ListBar /> --> 
+
     <div class="page-title">
       <h2>{{ pageTitle }}</h2>
     </div>
@@ -1520,4 +1521,5 @@ h6 {
   font-size: 14px;
   margin-left: 650px;
 }
+
 </style>

@@ -64,8 +64,12 @@ export default {
           account: this.account,
           pwd: this.password,
         };
+        // const response = await axios.post(
+        //   "/apiServer/main/logIn",
+        //   postdata
+        // );
         const response = await axios.post(
-          "/apiServer/main/logIn",
+          "http://219.85.83.15:3347/main/logIn",
           postdata
         );
         if (response.data.returnCode === 0) {

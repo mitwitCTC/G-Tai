@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2>{{ pageTitle }}</h2>
   </div>
@@ -232,6 +232,109 @@ export default {
     },
   },
   methods: {
+    async exportExcel2() {
+      try {
+        // 確保資料先完成取得
+        const rowsPerFile = 20;
+        // 將資料切割成每 20 筆為一組
+        const chunkArray = (arr, size) => {
+          const result = [];
+          for (let i = 0; i < arr.length; i += size) {
+            result.push(arr.slice(i, i + size));
+          }
+          return result;
+        };
+        const dataChunks = chunkArray(this.Allexport, rowsPerFile); // 將 result 資料按 20 筆一組進行拆分
+
+        for (let fileIndex = 0; fileIndex < dataChunks.length; fileIndex++) {
+          const chunk = dataChunks[fileIndex];
+          // 讀取 Excel 文件
+          const workbook = new ExcelJS.Workbook();
+          const fr = new FileReader();
+          const response = await fetch(
+            new URL("@/assets/new.xlsx", import.meta.url).href
+          ); // 從 URL 載入模板檔案
+          const data = await response.blob(); // 轉為 Blob
+          fr.readAsArrayBuffer(data);
+
+          // 當 FileReader 完成後，讀取 Excel 並進行修改
+          fr.onload = async (ev) => {
+            await workbook.xlsx.load(ev.target.result);
+            const worksheet = workbook.worksheets[0]; // 取得第一個工作表
+
+            const rowstitle = [["TT6112060_鉅泰創新股份有限公司"]];
+            // 處理資料，生成每一行的數據
+            const rowsData = chunk.map((data, index) => {
+              // 判斷是否是新增，若是則將 card_number 設為空字串
+
+              return [
+                index + 1, // 流水號
+                data.license_plate, // 假設 vehicleId 是車牌
+                data.card_type === "2" ? "V" : "", // 超級柴油
+                data.card_type === "3" ? "V" : "", // 無鉛汽油
+                data.card_type === "0005" ? "V" : "", // 酒精汽油
+                data.card_type === "0009" ? "V" : "", // 不限油品
+                data.card_type === "1" ? "V" : "", // 尿素溶液
+                 "", // 新增
+                data.isLock == "1" ? "V" : "", // 停用
+                "",//遺失
+                "", // 故障
+                data.isLock == "0" ? "V" : "", // 原卡復油
+                data.customerId, // 保管單位
+                data.custodian.substring(0, 4), // 公司名稱 (取第9~12個字)
+                data.card_number, // 備註
+              ];
+            });
+            worksheet.addTable({
+              name: "table名稱", // 表格的名稱
+              ref: "C1",
+              headerRow: false, // 不需要表頭
+              columns: [{ name: "標題" }],
+              rows: rowstitle, // 將生成的行數據放入表格
+            });
+            // 添加表格，將所有行數據一次性寫入
+            worksheet.addTable({
+              name: "table名稱", // 表格的名稱
+              ref: "A4", // 表格從 A4 開始
+              headerRow: false, // 不需要表頭
+              columns: [
+                { name: "流水號" },
+                { name: "車牌" },
+                { name: "超級柴油" },
+                { name: "無鉛汽油" },
+                { name: "酒精汽油" },
+                { name: "不限油品" },
+                { name: "尿素溶液" },
+                { name: "新增" },
+                { name: "停用" },
+                { name: "遺失" },
+                { name: "故障" },
+                { name: "原卡復油" },
+                { name: "保管單位" },
+                { name: "公司名稱" },
+                { name: "備註" },
+              ],
+              rows: rowsData, // 將生成的行數據放入表格
+            });
+
+            // 保存到新的文件
+            const newFileName = "中油製卡明細.xlsx";
+            const buffer = await workbook.xlsx.writeBuffer();
+
+            // 生成下載鏈接並觸發下載
+            const blob = new Blob([buffer], {
+              type: "application/octet-stream",
+            });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = newFileName;
+            link.click();
+          };
+        }
+      } catch (error) {
+        console.error("Error during export to Excel:", error);
+      }
+    },
     pushdata() {
       const row = {
         cus_code: this.search.customerId.split("：")[0],
@@ -334,7 +437,7 @@ export default {
         });
       }
     },
-    async doData(cus_code) {
+    async doData(cus_code, isLock) {
       try {
         const processedData = {
           cus_code: cus_code,
@@ -343,9 +446,14 @@ export default {
           "/apiServer/main/getcpclock",
           processedData
         );
-        // 假設 this.Allexport 已是陣列
         if (Array.isArray(response.data.data)) {
-          this.Allexport.push(...response.data.data); // 展開加入
+          // 每筆資料都加上 isLock = '0'
+          const dataWithLock = response.data.data.map((item) => ({
+            ...item,
+            isLock: isLock,
+          }));
+
+          this.Allexport.push(...dataWithLock);
         }
       } catch (error) {
         console.error("送出失敗:", processedData, "錯誤:", error);
@@ -390,15 +498,17 @@ export default {
       console.log("1查詢卡號資料");
       for (const item of this.Ex_observe) {
         await this.donovaxData(item.cus_code);
-        await this.doData(item.cus_code);
+        await this.doData(item.cus_code, "1");
       }
       for (const item of this.Ex_Locked) {
         await this.donovaxData(item.cus_code);
-        await this.doData(item.cus_code);
+        await this.doData(item.cus_code, "0");
       }
+      console.log(JSON.stringify(this.Allexport));
       console.log("1結束");
       await this.exportExcel();
       await this.exportNovaxExcel();
+      await this.exportExcel2();
       for (const item of this.Ex_observe) {
         await this.exportCardStatus(item.cus_code, item.card_status);
       }

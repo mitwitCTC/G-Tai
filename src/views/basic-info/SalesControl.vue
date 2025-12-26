@@ -1,5 +1,5 @@
 <template>
-  <ListBar />
+   <!-- <ListBar /> -->
   <div class="page-title">
     <h2>{{ pageTitle }}</h2>
   </div>
@@ -18,6 +18,12 @@
       @change="Defnotify"
     >
     </el-date-picker>
+    <el-form-item label="職稱">
+      <el-select v-model="notifyType" placeholder="選擇職稱" @change="Defnotify" style="width: 300px; margin-right: 20px">
+          <el-option label="儲值告警" :value='1'></el-option>
+          <el-option label="車藉通知" :value='2'></el-option>
+        </el-select>
+      </el-form-item>
     <el-button type="primary" @click="submitData">送出</el-button>
   </el-form-item>
   <el-form-item label="手動發送客戶" class="section-header">
@@ -154,6 +160,7 @@ export default {
       AllCustomer: [],
       issend: [],
       status: "",
+      notifyType:1,
       type: {
         1: "手機簡訊",
         2: "Line",
@@ -272,11 +279,16 @@ export default {
       this.selectAll = false;
       this.status = "";
       this.isLoading = true;
+      // 清除所有勾選框
+      this.cus_message.forEach((row) => {
+              row.selected = false; // 直接將 selected 設為 false
+            });
       this.cus_message = [];
       this.cus_PerMes = [];
       this.issend = [];
       const postdata = {
         createDate: this.selectedDate,
+        notifyType:this.notifyType
       };
       await axios
         .post("/apiServer/main/selectDefnotify", postdata)

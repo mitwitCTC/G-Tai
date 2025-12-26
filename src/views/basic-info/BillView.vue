@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ListBar />
+     <!-- <ListBar /> -->
     <div class="page-title">
       <h2>{{ pageTitle }}</h2>
     </div>
@@ -153,7 +153,7 @@
           <!-- <el-form-item label="開立統編">
             <el-input v-model="billform.use_number" ></el-input>
           </el-form-item> -->
-          
+
           <!-- <el-form-item label="發票開立人名稱">
             <el-input v-model="billform.invoice_name" ></el-input>
           </el-form-item> -->
@@ -326,7 +326,7 @@ export default {
     return {
       isLoading: false,
       loading: false,
-      excard:[],
+      excard: [],
       contact: [],
       cus_code: "",
       cus_name: "",
@@ -460,19 +460,23 @@ export default {
       try {
         this.isLoading = true;
         await axios
-        .post("/apiServer/main/exportcard", postData)
-        .then((response) => {
-          this.excard = response.data.data;
-        })
-        .catch((error) => {
-          // 處理錯誤
-          console.error("API request failed:", error);
-          this.$message({
-          message: `匯出失敗`,
-          type: "error",
-        });
-        });
-        await ExportSelCard.methods.exportExcel(this.cus_code, this.cus_name,this.excard);
+          .post("/apiServer/main/exportcard", postData)
+          .then((response) => {
+            this.excard = response.data.data;
+          })
+          .catch((error) => {
+            // 處理錯誤
+            console.error("API request failed:", error);
+            this.$message({
+              message: `匯出失敗`,
+              type: "error",
+            });
+          });
+        await ExportSelCard.methods.exportExcel(
+          this.cus_code,
+          this.cus_name,
+          this.excard
+        );
         // 顯示成功訊息
         this.$message({
           message: `匯出成功`,
@@ -661,7 +665,6 @@ export default {
     savePassbill() {
       if (
         !this.billform.invoice_name ||
-        !this.billform.use_number ||
         !this.billform.acc_name
       ) {
         this.$message({
@@ -677,16 +680,21 @@ export default {
         return;
       }
       // 統一編號驗證
-      const uniformCheck = this.uniformNumbers_verification(
-        this.billform.use_number
-      );
-      if (uniformCheck !== "統編驗證通過") {
-        this.$message({
-          message: uniformCheck, // 顯示驗證錯誤訊息
-          type: "warning",
-        });
-        return;
+      if (this.billform.use_number == "00000000") {
+        this.billform.use_number = "";
+      } else {
+        const uniformCheck = this.uniformNumbers_verification(
+          this.billform.use_number
+        );
+        if (uniformCheck !== "統編驗證通過") {
+          this.$message({
+            message: uniformCheck, // 顯示驗證錯誤訊息
+            type: "warning",
+          });
+          return;
+        }
       }
+
       this.billform.use_number = this.billform.use_number.trim();
       const req = this.billform;
 
