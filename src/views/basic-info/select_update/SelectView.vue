@@ -1,5 +1,5 @@
 <template>
-   <!-- <ListBar /> -->
+  <!-- <ListBar /> -->
   <div class="page-title">
     <h2 v-if="this.rowType === '1'">客戶基本資料查詢</h2>
     <h2 v-else-if="this.rowType === '3'">帳單資料查詢</h2>
@@ -22,7 +22,7 @@
     <el-button type="info" v-if="this.rowType === '1'" @click="getConnact()"
       >前端連結</el-button
     >
-    
+
     <el-form
       :model="cus_form"
       label-width="155px"
@@ -209,6 +209,15 @@
               readonly
             ></el-input>
           </el-form-item>
+          <el-form-item label="合約進度" style="width: 1200px">
+            <el-checkbox-group v-model="cus_form.contractOptions" disabled >
+              <el-checkbox :value="1">合約已收齊</el-checkbox>
+              <el-checkbox :value="2">合約未收齊(缺少　填寫在合約備註)</el-checkbox>
+              <el-checkbox :value="3">合約已電子化</el-checkbox>
+              <el-checkbox :value="4">合約未電子化(缺少　填寫在合約備註)</el-checkbox>
+              <el-checkbox :value="5">合約封存至倉庫</el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
           <el-form-item label="合約備註" style="width: 1000px">
             <el-input
               v-model="cus_form.contract_notes"
@@ -217,6 +226,7 @@
             ></el-input>
           </el-form-item>
         </el-row>
+        
         <!-- 簽約業務&備註 -->
         <el-row style="margin-bottom: 20px">
           <el-form-item label="簽約業務" v-if="this.salesmenData">
@@ -233,6 +243,14 @@
           </el-form-item>
           <el-form-item label="業務備註">
             <el-input v-model="cus_form.sales_notes" readonly></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row style="margin-bottom: 20px">
+          <el-form-item label="首次匯款日">
+            <el-input v-model="cus_form.first_transfer" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="來源">
+            <el-input v-model="cus_form.source" readonly></el-input>
           </el-form-item>
         </el-row>
 
@@ -326,25 +344,25 @@
         </el-row>
       </el-form-item>
       <el-form
-      :model="cus_form"
-      label-width="155px"
-      style="width: 100%; min-width: 1600px"
-    >
-      <el-form-item
-        label="客戶當月資訊"
-        class="section-header"
-        v-if="this.rowType === '1'"
+        :model="cus_form"
+        label-width="155px"
+        style="width: 100%; min-width: 1600px"
       >
-        <el-row style="margin-bottom: 20px">
-          <el-form-item label="當月用油公升">
-            <el-input v-model="cus_form.month_gas" readonly></el-input>
-          </el-form-item>
-          <el-form-item label="當月餘額金額">
-            <el-input v-model="cus_form.month_balance" readonly></el-input>
-          </el-form-item>
-        </el-row>
-      </el-form-item>
-    </el-form>
+        <el-form-item
+          label="客戶當月資訊"
+          class="section-header"
+          v-if="this.rowType === '1'"
+        >
+          <el-row style="margin-bottom: 20px">
+            <el-form-item label="當月用油公升">
+              <el-input v-model="cus_form.month_gas" readonly></el-input>
+            </el-form-item>
+            <el-form-item label="當月餘額金額">
+              <el-input v-model="cus_form.month_balance" readonly></el-input>
+            </el-form-item>
+          </el-row>
+        </el-form-item>
+      </el-form>
       <!--查詢所有list-->
       <!--帳單list-->
       <el-form-item
@@ -380,7 +398,7 @@
           </el-table>
         </div>
       </el-form-item>
-      
+
       <!--車籍list-->
       <el-form-item
         label="車籍資訊"
@@ -860,6 +878,7 @@ export default {
       DiscountData: [],
       contact: [],
       productMap: [],
+      
       productType: {
         1: "大巴",
         2: "中巴",
@@ -911,6 +930,7 @@ export default {
       },
       cus_form: {
         //客戶基本資料
+        contractOptions:[],
         cus_code: "",
         cus_name: "",
         salesmanId: "",
@@ -1039,9 +1059,12 @@ export default {
         cus_code: this.cus_code,
       };
       axios
+        // .post("http://127.0.0.1:3347/main/searchCustomer", postData)
         .post("/apiServer/main/searchCustomer", postData)
         .then((response) => {
           this.cus_form = response.data.data[0];
+          this.cus_form.contractOptions=this.cus_form.contractOptions.split(",").map(Number)
+          this.cus_form.source=`${this.cus_form.source1==1?"搜尋：":this.cus_form.source1==2?"推薦：":this.cus_form.source1==3?"其他：":""}${this.cus_form.source2 || ""}`
           if (this.cus_form.transaction_mode == "2") {
             //   const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
             //   const matches = this.cus_form.config_notes.match(pattern);

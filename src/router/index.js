@@ -47,7 +47,7 @@ const router = createRouter({
             title: "客戶資料維護",
             breadcrumb: "客戶資料維護",
             isSpecialPage: true,
-            requiredPermission: [99],
+            // requiredPermission: [99],
           },
         },
         {

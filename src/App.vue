@@ -13,8 +13,9 @@
       <RouterView />
       
     </div>
+    <TheFooter class="footer"></TheFooter>
   </div>
-  <TheFooter class="footer"></TheFooter>
+  
 
   <div v-if="isAccessControlPage">
     <RouterView />
@@ -84,7 +85,7 @@ export default {
   background-color: #f8f9fa; /* 可以设置背景颜色 */
   padding: 10px; /* 内边距 */
   margin-top: 50px;
-  margin-left: 250px;
+  margin-left: 50px;
 }
 
 /* 默认隐藏非桌面设备消息 */

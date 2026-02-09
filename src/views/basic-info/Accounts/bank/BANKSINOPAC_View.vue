@@ -128,11 +128,11 @@
       <el-form :model="form" label-width="155px">
         <!-- 统一標籤寬度 -->
         <h6>*為必填欄位</h6>
-        <el-row style="margin-bottom: 20px">
+        <!-- <el-row style="margin-bottom: 20px">
           <el-form-item label="收款單號">
             <el-input v-model="form.invoice" readonly></el-input>
           </el-form-item>
-        </el-row>
+        </el-row> -->
         <!-- <el-form-item label="*客戶代號">
              <el-input v-model="form.customerId" ></el-input>
           </el-form-item>
@@ -558,10 +558,10 @@ export default {
       this.form.account_date = this.formatDate(today);
       this.form.credit_card_data = this.getNextBusinessDay();
       this.currentDate = this.getCurrentDate(); // 生成当前日期格式
-      const nextNo = ("00" + (parseInt(this.bigNo) + 1)).slice(-3);
-      // 顯示新的流水號
-      this.form.invoice = `G${this.bigdate}${nextNo}`;
-      this.generateInvoice();
+      // const nextNo = ("00" + (parseInt(this.bigNo) + 1)).slice(-3);
+      // // 顯示新的流水號
+      // this.form.invoice = `G${this.bigdate}${nextNo}`;
+      // this.generateInvoice();
       this.dialog = true;
     },
     updateInvoiceNumber() {

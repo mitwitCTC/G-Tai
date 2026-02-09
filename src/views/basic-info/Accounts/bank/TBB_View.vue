@@ -100,19 +100,19 @@
           }}
         </template></el-table-column
       >
-      <el-table-column prop="remark" label="備註" width="150"></el-table-column>
-      <el-table-column prop="remark_cus" label="備註(客戶端)" width="150"></el-table-column>
+      <el-table-column prop="remark" label="備註" width="100"></el-table-column>
+      <el-table-column prop="remark_cus" label="備註(客戶端)" width="100"></el-table-column>
       <el-table-column
         prop="checkoutTime"
         label="儲值入帳"
-        width="150"
+        width="120"
       ></el-table-column>
       <el-table-column
         prop="acc_trade"
         label="傳票編號"
-        width="150"
+        width="130"
       ></el-table-column>
-      <el-table-column prop="amount" label="入帳金額" align="right" width="100"
+      <el-table-column prop="amount" label="入帳金額" align="right" width="90"
         ><template v-slot="scope"
           >{{ formatCurrency(scope.row.amount) }}
         </template></el-table-column

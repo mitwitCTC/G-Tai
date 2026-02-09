@@ -243,12 +243,12 @@ const logout = () => {
         const postdata={
           salesmanId:ALLName.value
         }
-        // const response = await axios.post(
-        //   "http://127.0.0.1:3347/main/getvueform",postdata
-        // );
         const response = await axios.post(
-          "/apiServer/main/getvueform",postdata
+          "http://219.85.83.15:3347/main/getvueform",postdata
         );
+        // const response = await axios.post(
+        //   "/apiServer/main/getvueform",postdata
+        // );
         toggleBasicInfoCollapseList.value.push(...response.data.toggleBasicInfoCollapseList)
         toggleDataList.value.push(...response.data.toggleDataList)
         bankList.value.push(...response.data.bankList)

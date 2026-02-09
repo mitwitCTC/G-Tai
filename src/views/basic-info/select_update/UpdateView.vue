@@ -1,5 +1,5 @@
 <template>
-   <!-- <ListBar /> -->
+  <!-- <ListBar /> -->
   <div class="page-title">
     <h2 v-if="this.rowType === '1'">客戶基本資料編輯</h2>
     <h2 v-else-if="this.rowType === '2'">聯絡人資料編輯</h2>
@@ -172,7 +172,11 @@
             </el-select>
           </el-form-item>
           <el-form-item label="產業類別">
-            <el-select v-model="cus_form.industry" placeholder="選擇產業類別" filterable>
+            <el-select
+              v-model="cus_form.industry"
+              placeholder="選擇產業類別"
+              filterable
+            >
               <el-option label="1.食品飲料" :value="1"></el-option>
               <el-option label="2.傢飾傢俱家電" :value="2"></el-option>
               <el-option label="3.石油化學" :value="3"></el-option>
@@ -252,6 +256,19 @@
           <el-form-item label="預付及合約注意事項" style="width: 1000px">
             <el-input v-model="cus_form.con_notes" type="textarea"></el-input>
           </el-form-item>
+          <el-form-item label="合約進度" style="width: 1200px">
+            <el-checkbox-group v-model="cus_form.contractOptions">
+              <el-checkbox :value="1">合約已收齊</el-checkbox>
+              <el-checkbox :value="2"
+                >合約未收齊(缺少　填寫在合約備註)</el-checkbox
+              >
+              <el-checkbox :value="3">合約已電子化</el-checkbox>
+              <el-checkbox :value="4"
+                >合約未電子化(缺少　填寫在合約備註)</el-checkbox
+              >
+              <el-checkbox :value="5">合約封存至倉庫</el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
           <el-form-item label="合約備註" style="width: 1000px">
             <el-input
               v-model="cus_form.contract_notes"
@@ -261,7 +278,11 @@
         </el-row>
         <el-row style="margin-bottom: 20px">
           <el-form-item label="簽約業務">
-            <el-select v-model="cus_form.contract_sales" placeholder="選擇業務" filterable>
+            <el-select
+              v-model="cus_form.contract_sales"
+              placeholder="選擇業務"
+              filterable
+            >
               <el-option
                 v-for="salesman in salesmenData"
                 :key="salesman.employee_id"
@@ -271,7 +292,11 @@
             </el-select>
           </el-form-item>
           <el-form-item label="負責業務">
-            <el-select v-model="cus_form.salesmanId" placeholder="選擇業務" filterable>
+            <el-select
+              v-model="cus_form.salesmanId"
+              placeholder="選擇業務"
+              filterable
+            >
               <el-option
                 v-for="salesman in salesmenData"
                 :key="salesman.employee_id"
@@ -282,6 +307,38 @@
           </el-form-item>
           <el-form-item label="業務備註">
             <el-input v-model="cus_form.sales_notes"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="首次匯款日">
+            <el-input v-model="cus_form.first_transfer" placeholder="日期格式：0990101"></el-input>
+          </el-form-item>
+          <el-form-item label="來源類別">
+            <el-select
+              v-model="cus_form.source1"
+            >
+              <el-option label="搜尋" :value="'1'"></el-option>
+              <el-option label="推薦" :value="'2'"></el-option>
+              <el-option label="其他" :value="'3'"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="來源細節">
+            <el-select
+          v-model="cus_form.source2"
+          placeholder="例：google,推薦人姓名..."
+          filterable
+          allow-create
+          :clearable="true"
+          style="width: 300px; margin-right: 20px"
+        >
+          <!-- 使用 cusdata 直接顯示每個字符串 -->
+          <el-option
+            v-for="item in source"
+            :key="item"
+            :label="item.source2"
+            :value="item.source2"
+          ></el-option>
+        </el-select>
           </el-form-item>
         </el-row>
         <el-form-item
@@ -719,6 +776,7 @@ export default {
   },
   data() {
     return {
+      source:[],
       cus_code: "",
       cus_name: "",
       license_plate: "",
@@ -729,6 +787,7 @@ export default {
       },
       cus_form: {
         config_method: [0],
+        contractOptions: [],
       },
       SinopacBank: {},
       bills_form: {},
@@ -757,12 +816,21 @@ export default {
     //     console.error('API request failed:', error);
     //   });
   },
-  created() {
+  async created() {
     this.cus_code = this.$route.query.cus_code;
     this.cus_name = this.$route.query.cus_name;
     this.account_sortId = this.$route.query.account_sortId;
     if (this.rowType === "1") {
-      axios
+      await axios
+        .get("/apiServer/main/getsource")
+        // .get("http://127.0.0.1:3347/main/getsource")
+        .then((response) => {
+          this.source = response.data.data;
+        })
+        .catch((error) => {
+          console.error("API request failed:", error);
+        });
+      await axios
         .get("/apiServer/main/selectSalesman")
         .then((response) => {
           this.salesmenData = response.data.data;
@@ -770,13 +838,18 @@ export default {
         .catch((error) => {
           console.error("API request failed:", error);
         });
+       
       const postData = {
         cus_code: this.cus_code,
       };
-      axios
-        .post("/apiServer/main/searchCustomer", postData)
+      await axios
+        .post("http://127.0.0.1:3347/main/searchCustomer", postData)
+        //  .post("/apiServer/main/searchCustomer", postData)
         .then((response) => {
           this.cus_form = response.data.data[0];
+          this.cus_form.contractOptions = this.cus_form.contractOptions
+            .split(",")
+            .map(Number);
           //   const pattern = /銀行定存:\s*([^,]+),\s*現金:\s*([^,]+),\s*支票:\s*([^,]+),\s*商業本票:\s*([^,]+),\s*銀行保證:\s*([^,]+),\s*無擔保:\s*([^,]+),\s*其它:\s*([^,]+)/;
           //   const matches = this.cus_form.config_notes.match(pattern);
           //   if (matches && matches.length === 8) {
@@ -830,7 +903,7 @@ export default {
       const postData = {
         account_sortId: this.account_sortId,
       };
-      axios
+      await axios
         .post("/apiServer/main/viewAccount_sort", postData)
         .then((response) => {
           this.bills_form = response.data.data[0];
@@ -841,7 +914,7 @@ export default {
         });
     } else if (this.rowType === "4") {
       this.getproduct_name();
-      axios
+      await axios
         .get("/apiServer/main/selectSalesman")
         .then((response) => {
           this.salesmenData = response.data.data;
@@ -855,7 +928,7 @@ export default {
       const postData = {
         customerId: this.cus_code,
       };
-      axios
+      await axios
         .post("/apiServer/main/searchAccount_sort", postData)
         .then((response) => {
           this.bills_form = response.data.data;
@@ -931,8 +1004,11 @@ export default {
           return;
         }
         this.cus_form.config_method = [0];
+        const str = this.cus_form.contractOptions.join(",");
+        this.cus_form.contractOptions_str=str
+        this.cus_form.first_transfer=this.cus_form.first_transfer.trim()
         const req = this.cus_form;
-        axios
+        await axios
           .post("/apiServer/main/updateCustomer", req)
           .then((response) => {
             if (response.status === 200 && response.data.returnCode == 0) {
